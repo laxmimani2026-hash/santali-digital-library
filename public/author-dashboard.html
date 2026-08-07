@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Author Dashboard | Santali Digital Library</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+  
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <i class="fa-solid fa-book-open-reader me-2"></i>Santali Digital Library
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto align-items-center">
+          <li class="nav-item"><a class="nav-link " href="index.html" data-i18n="nav_home">Home</a></li>
+          <li class="nav-item"><a class="nav-link " href="browse.html" data-i18n="nav_browse">Browse Books</a></li>
+          <li class="nav-item"><a class="nav-link " href="pricing.html" data-i18n="nav_pricing">Pricing</a></li>
+          <li class="nav-item"><a class="nav-link " href="about.html" data-i18n="nav_about">About Us</a></li>
+          <li class="nav-item"><a class="nav-link " href="blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link " href="contact.html" data-i18n="nav_contact">Contact</a></li>
+          <li class="nav-item ms-lg-2">
+            <select class="form-select form-select-sm" id="langSelect">
+              <option value="en">English</option>
+              <option value="sat">Santali (Ol Chiki)</option>
+              <option value="or">Odia</option>
+              <option value="hi">Hindi</option>
+            </select>
+          </li>
+          <li class="nav-item ms-2">
+            <button class="theme-toggle-btn" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+          </li>
+          <li class="nav-item ms-lg-3">
+            <a class="btn btn-gold btn-sm rounded-pill px-3" href="login.html">Login / Register</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+  <main class="container my-5">
+    <div class="row g-4">
+      <div class="col-md-3">
+        <div class="dashboard-sidebar">
+          <div class="text-center mb-4">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" class="rounded-circle mb-2" width="80" height="80" alt="Author Profile">
+            <h6 class="fw-bold mb-0">Somnath Hansda</h6>
+            <span class="badge bg-warning text-dark">Verified Author</span>
+          </div>
+          <div class="nav flex-column nav-pills">
+            <a class="nav-link active mb-1" href="#overview"><i class="fa-solid fa-chart-line me-2"></i> Overview</a>
+            <a class="nav-link mb-1" href="upload.html"><i class="fa-solid fa-cloud-arrow-up me-2"></i> Upload New Book</a>
+            <a class="nav-link mb-1" href="#mybooks"><i class="fa-solid fa-book me-2"></i> My Books</a>
+            <a class="nav-link mb-1" href="#earnings"><i class="fa-solid fa-wallet me-2"></i> Earnings & Payouts</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-9">
+        <h3 class="fw-bold mb-4">Author Dashboard</h3>
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <div class="dashboard-stat-card">
+              <span class="text-muted small">Total Earnings</span>
+              <h3 class="fw-bold text-success mb-0">₹18,450</h3>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="dashboard-stat-card">
+              <span class="text-muted small">Books Sold</span>
+              <h3 class="fw-bold text-primary mb-0">124</h3>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="dashboard-stat-card">
+              <span class="text-muted small">Active eBooks</span>
+              <h3 class="fw-bold text-warning mb-0">5</h3>
+            </div>
+          </div>
+        </div>
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-white fw-bold">Recent Uploaded eBooks</div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Sales</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Marsal Tabon</strong></td>
+                    <td>Novel</td>
+                    <td>₹120</td>
+                    <td><span class="badge bg-success">Approved</span></td>
+                    <td>42</td>
+                    <td><button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <footer class="bg-dark text-white pt-5 pb-3 mt-auto">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <h5 class="text-warning mb-3"><i class="fa-solid fa-book-open-reader me-2"></i>Santali Digital Library</h5>
+          <p class="small text-muted">Preserving cultural heritage and empowering modern authors through digital ebook publishing worldwide.</p>
+        </div>
+        <div class="col-md-2">
+          <h6>Quick Links</h6>
+          <ul class="list-unstyled small">
+            <li><a href="browse.html" class="text-white-50 text-decoration-none">Browse Books</a></li>
+            <li><a href="pricing.html" class="text-white-50 text-decoration-none">Publishing Pricing</a></li>
+            <li><a href="about.html" class="text-white-50 text-decoration-none">About Us</a></li>
+            <li><a href="upload.html" class="text-white-50 text-decoration-none">Upload Book</a></li>
+          </ul>
+        </div>
+        <div class="col-md-2">
+          <h6>Dashboards</h6>
+          <ul class="list-unstyled small">
+            <li><a href="author-dashboard.html" class="text-white-50 text-decoration-none">Author Portal</a></li>
+            <li><a href="admin-dashboard.html" class="text-white-50 text-decoration-none">Admin Panel</a></li>
+            <li><a href="reader.html" class="text-white-50 text-decoration-none">Online Reader</a></li>
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <h6>Subscribe to Newsletter</h6>
+          <div class="input-group mb-3">
+            <input type="email" class="form-control form-control-sm" placeholder="Enter your email">
+            <button class="btn btn-gold btn-sm" type="button">Subscribe</button>
+          </div>
+        </div>
+      </div>
+      <hr class="border-secondary my-4">
+      <p class="text-center small text-muted mb-0">&copy; 2026 Santali Digital Library. All rights reserved.</p>
+    </div>
+  </footer>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="../assets/js/app.js"></script>
+</body>
+</html>
