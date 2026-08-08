@@ -14,7 +14,6 @@
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/style.css">
 
-  <!-- Fix tab visibility -->
   <style>
     .auth-tab-wrapper {
       background-color: #f1f5f9;
@@ -28,7 +27,7 @@
       transition: all 0.3s ease;
     }
     .auth-tab-wrapper .nav-link.active {
-      background-color: #0d6efd !important; /* Accent Blue */
+      background-color: #0d6efd !important;
       color: #ffffff !important;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
@@ -65,7 +64,10 @@
       <div class="card border-0 shadow-lg rounded-3">
         <div class="card-body p-4 p-sm-5">
           
-          <!-- Styled Visible Nav Tabs for Login / Register -->
+          <!-- Alert Box for Notifications -->
+          <div id="authAlert" class="alert d-none text-center" role="alert"></div>
+
+          <!-- Nav Tabs for Login / Register -->
           <div class="auth-tab-wrapper mb-4">
             <ul class="nav nav-pills nav-justified" id="authTab" role="tablist">
               <li class="nav-item" role="presentation">
@@ -82,19 +84,19 @@
             <!-- LOGIN FORM -->
             <div class="tab-pane fade show active" id="login-panel" role="tabpanel" aria-labelledby="login-tab">
               <h3 class="text-center mb-4 text-teal fw-bold">Welcome Back</h3>
-              <form id="loginForm">
+              <form id="loginForm" novalidate>
                 <div class="mb-3">
                   <label for="loginEmail" class="form-label fw-semibold">Email address</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-                    <input type="email" class="form-control" id="loginEmail" placeholder="name@example.com" required>
+                    <input type="email" class="form-control" id="loginEmail" placeholder="name@example.com">
                   </div>
                 </div>
                 <div class="mb-3">
                   <label for="loginPassword" class="form-label fw-semibold">Password</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-                    <input type="password" class="form-control" id="loginPassword" placeholder="Enter password" required>
+                    <input type="password" class="form-control" id="loginPassword" placeholder="Enter password">
                   </div>
                 </div>
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -111,14 +113,14 @@
             <!-- SIGN UP FORM -->
             <div class="tab-pane fade" id="register-panel" role="tabpanel" aria-labelledby="register-tab">
               <h3 class="text-center mb-4 text-teal fw-bold">Create Account</h3>
-              <form id="registerForm">
+              <form id="registerForm" novalidate>
                 
                 <!-- Full Name -->
                 <div class="mb-3">
                   <label for="regFullName" class="form-label fw-semibold">Full Name</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
-                    <input type="text" class="form-control" id="regFullName" placeholder="John Doe" required>
+                    <input type="text" class="form-control" id="regFullName" placeholder="John Doe">
                   </div>
                 </div>
 
@@ -127,7 +129,7 @@
                   <label for="regEmail" class="form-label fw-semibold">Email address</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-                    <input type="email" class="form-control" id="regEmail" placeholder="name@example.com" required>
+                    <input type="email" class="form-control" id="regEmail" placeholder="name@example.com">
                   </div>
                 </div>
 
@@ -136,7 +138,7 @@
                   <label for="regPhone" class="form-label fw-semibold">Mobile Number</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
-                    <input type="tel" class="form-control" id="regPhone" placeholder="+91 9876543210" required>
+                    <input type="tel" class="form-control" id="regPhone" placeholder="+91 9876543210">
                   </div>
                 </div>
 
@@ -145,7 +147,7 @@
                   <label for="regAddress" class="form-label fw-semibold">Address</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="fa-solid fa-location-dot"></i></span>
-                    <textarea class="form-control" id="regAddress" rows="2" placeholder="Street, City, State, Pincode" required></textarea>
+                    <textarea class="form-control" id="regAddress" rows="2" placeholder="Street, City, State, Pincode"></textarea>
                   </div>
                 </div>
 
@@ -154,7 +156,7 @@
                   <label for="regRole" class="form-label fw-semibold">I want to join as</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="fa-solid fa-user-tag"></i></span>
-                    <select class="form-select" id="regRole" required>
+                    <select class="form-select" id="regRole">
                       <option value="reader" selected>Reader</option>
                       <option value="author">Author / Publisher</option>
                     </select>
@@ -166,7 +168,7 @@
                   <label for="regPassword" class="form-label fw-semibold">Password</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-                    <input type="password" class="form-control" id="regPassword" placeholder="Create password" required>
+                    <input type="password" class="form-control" id="regPassword" placeholder="Create password">
                   </div>
                 </div>
 
@@ -175,7 +177,7 @@
                   <label for="regConfirmPassword" class="form-label fw-semibold">Confirm Password</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="fa-solid fa-shield-halved"></i></span>
-                    <input type="password" class="form-control" id="regConfirmPassword" placeholder="Confirm password" required>
+                    <input type="password" class="form-control" id="regConfirmPassword" placeholder="Confirm password">
                   </div>
                 </div>
 
@@ -199,8 +201,8 @@
 
   <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  
-  <!-- Tab auto-switch on #register -->
+
+  <!-- Auto Tab Hash Listener -->
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       if (window.location.hash === "#register") {
@@ -210,7 +212,7 @@
     });
   </script>
 
-  <!-- Firebase Auth Script -->
+  <!-- Supabase Auth Integration -->
   <script type="module" src="assets/js/auth.js"></script>
 </body>
 </html>
