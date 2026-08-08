@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // =========================================================
   // CHECK USER SESSION & UPDATE NAVBAR 
-  // (Added "Profile" Button)
+  // (Professional Dropdown Menu)
   // =========================================================
   if (supabase && userNavArea) {
     try {
@@ -43,16 +43,24 @@ document.addEventListener("DOMContentLoaded", async function () {
           ? '<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65em;">Author</span>' 
           : '';
 
-        // Replace Login/Signup buttons with Greeting, PROFILE tab, and Logout button
+        // Generate dynamic dropdown items based on role
+        const authorMenuItems = profile && profile.role === 'author' 
+          ? `<li><a class="dropdown-item fw-semibold text-secondary py-2" href="upload.html"><i class="fa-solid fa-upload me-2 text-teal"></i> Author Dashboard</a></li>` 
+          : '';
+
+        // Inject the Bootstrap Dropdown into the navbar
         userNavArea.innerHTML = `
-          <div class="d-flex align-items-center gap-2">
-            <span class="text-white fw-semibold me-2 d-none d-lg-inline">
-              <i class="fa-solid fa-circle-user text-warning me-1"></i> Hello, ${userName} ${roleBadge}
-            </span>
-            <a href="profile.html" class="btn btn-light btn-sm px-3 fw-bold text-teal">
-              <i class="fa-solid fa-user-pen me-1"></i> Profile
+          <div class="nav-item dropdown custom-hover-dropdown">
+            <a class="nav-link dropdown-toggle text-white fw-semibold d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fa-solid fa-circle-user text-warning fs-5 me-2"></i> Hello, ${userName} ${roleBadge}
             </a>
-            <button id="logoutBtn" class="btn btn-outline-light btn-sm px-3">Logout</button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-1" aria-labelledby="userDropdown" style="min-width: 200px; border-radius: 8px;">
+              <li><a class="dropdown-item fw-semibold text-secondary py-2" href="profile.html"><i class="fa-solid fa-user-pen me-2 text-teal"></i> My Profile</a></li>
+              <li><a class="dropdown-item fw-semibold text-secondary py-2" href="orders.html"><i class="fa-solid fa-box-open me-2 text-teal"></i> My Orders</a></li>
+              ${authorMenuItems}
+              <li><hr class="dropdown-divider my-1"></li>
+              <li><button id="logoutBtn" class="dropdown-item fw-bold text-danger py-2"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</button></li>
+            </ul>
           </div>
         `;
 
@@ -150,7 +158,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   // =========================================================
-  // 2. LOGIN FORM SUBMISSION (With Role-Based Redirect)
+  // 2. LOGIN FORM SUBMISSION
   // =========================================================
   if (loginForm) {
     loginForm.addEventListener("submit", async function (e) {
@@ -183,10 +191,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           .select('role')
           .eq('id', data.user.id)
           .single();
-
-        if (profileError) {
-            console.error("Error fetching profile for redirect:", profileError);
-        }
 
         let targetPage = "index.html"; 
 
