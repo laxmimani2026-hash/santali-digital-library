@@ -136,9 +136,6 @@
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    // =========================================================
-    // ⚠️ REPLACE THESE WITH YOUR ACTUAL SUPABASE KEYS
-    // =========================================================
     const SUPABASE_URL = 'https://qdzadypqtctjonnwgxoo.supabase.co'; 
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -154,43 +151,51 @@
       }
 
       try {
-        // 1. Get logged-in user
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) {
-          window.location.href = "login.html"; // Redirect if not logged in
+          window.location.href = "login.html";
           return;
         }
 
         document.getElementById("userEmailDisplay").innerText = user.email;
 
-        // 2. Fetch profile details from database
-        const { data: profile, error: profileError } = await supabase
+        // Fetch or auto-create profile if missing
+        let { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
-        if (profileError) throw profileError;
-
-        // 3. Populate form fields
-        document.getElementById("fullName").value = profile.full_name || '';
-        document.getElementById("phone").value = profile.phone || '';
-        document.getElementById("address").value = profile.address || '';
-        document.getElementById("userDisplayName").innerText = profile.full_name || 'My Profile';
-        
-        const roleText = profile.role ? profile.role.toUpperCase() : 'READER';
-        document.getElementById("roleDisplay").value = roleText;
-
-        const roleBadge = document.getElementById("userRoleBadge");
-        if (profile.role === 'author') {
-          roleBadge.className = "badge bg-warning text-dark px-3 py-2";
-          roleBadge.innerText = "Publisher / Author Account";
-        } else {
-          roleBadge.className = "badge bg-secondary px-3 py-2";
-          roleBadge.innerText = "Reader Account";
+        if (!profile) {
+          // If profile row doesn't exist yet, create it now
+          const { data: newProfile, error: insertError } = await supabase
+            .from('profiles')
+            .insert([{ id: user.id, full_name: user.email.split('@')[0], role: 'reader' }])
+            .select()
+            .single();
+          
+          if (!insertError) profile = newProfile;
         }
 
-        // 4. Handle form submission to update profile
+        if (profile) {
+          document.getElementById("fullName").value = profile.full_name || '';
+          document.getElementById("phone").value = profile.phone || '';
+          document.getElementById("address").value = profile.address || '';
+          document.getElementById("userDisplayName").innerText = profile.full_name || 'My Profile';
+          
+          const roleText = profile.role ? profile.role.toUpperCase() : 'READER';
+          document.getElementById("roleDisplay").value = roleText;
+
+          const roleBadge = document.getElementById("userRoleBadge");
+          if (profile.role === 'author') {
+            roleBadge.className = "badge bg-warning text-dark px-3 py-2";
+            roleBadge.innerText = "Publisher / Author Account";
+          } else {
+            roleBadge.className = "badge bg-secondary px-3 py-2";
+            roleBadge.innerText = "Reader Account";
+          }
+        }
+
         profileForm.addEventListener("submit", async (e) => {
           e.preventDefault();
 
