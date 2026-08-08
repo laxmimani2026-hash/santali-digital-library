@@ -283,3 +283,11 @@ body {
 .footer-link:hover {
   color: var(--accent-gold) !important;
 }
+
+/* Make Dropdowns Open on Hover for Desktop */
+@media all and (min-width: 992px) {
+  .custom-hover-dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0;
+  }
+}
