@@ -1,165 +1,219 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Santali Digital Library | Read, Publish & Earn Online</title>
-  <meta name="description" content="Santali Digital Library allows writers to publish, sell, and read ebooks in Santali (Ol Chiki), Odia, Hindi, and English.">
+  <title>Santali Digital Library | Read & Publish eBooks</title>
+  
+  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom CSS (Relative paths for both root and public hosting) -->
+  <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-  
-  <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-teal sticky-top">
     <div class="container">
-      <a class="navbar-brand" href="index.html">
-        <i class="fa-solid fa-book-open-reader me-2"></i>Santali Digital Library
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <i class="fa-solid fa-book-open-reader text-warning fs-3"></i>
+        <span>Santali Digital <span class="highlight">Library</span></span>
       </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto align-items-center">
-          <li class="nav-item"><a class="nav-link active" href="index.html" data-i18n="nav_home">Home</a></li>
-          <li class="nav-item"><a class="nav-link " href="browse.html" data-i18n="nav_browse">Browse Books</a></li>
-          <li class="nav-item"><a class="nav-link " href="pricing.html" data-i18n="nav_pricing">Pricing</a></li>
-          <li class="nav-item"><a class="nav-link " href="about.html" data-i18n="nav_about">About Us</a></li>
-          <li class="nav-item"><a class="nav-link " href="blog.html">Blog</a></li>
-          <li class="nav-item"><a class="nav-link " href="contact.html" data-i18n="nav_contact">Contact</a></li>
-          <li class="nav-item ms-lg-2">
-            <select class="form-select form-select-sm" id="langSelect">
-              <option value="en">English</option>
-              <option value="sat">Santali (Ol Chiki)</option>
-              <option value="or">Odia</option>
-              <option value="hi">Hindi</option>
-            </select>
-          </li>
-          <li class="nav-item ms-2">
-            <button class="theme-toggle-btn" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
-          </li>
-          <li class="nav-item ms-lg-3">
-            <a class="btn btn-gold btn-sm rounded-pill px-3" href="login.html">Login / Register</a>
+          <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="browse.html">Books</a></li>
+          <li class="nav-item"><a class="nav-link" href="categories.html">Categories</a></li>
+          <li class="nav-item"><a class="nav-link" href="authors.html">Authors</a></li>
+          <li class="nav-item"><a class="nav-link" href="upload.html">Upload</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item ms-lg-3 my-2 my-lg-0">
+            <a class="btn btn-gold" href="login.html">Login</a>
           </li>
         </ul>
       </div>
     </div>
   </nav>
-  
-  <main>
-    <section class="hero-section text-center text-lg-start">
-      <div class="container">
-        <div class="row align-items-center">
-          <div class="col-lg-6">
-            <h1 class="hero-title mb-3" data-i18n="hero_title">Empowering <span>Santali Literature</span> Globally</h1>
-            <p class="lead mb-4 text-light" data-i18n="hero_sub">Read, publish, and sell your eBooks effortlessly. Connecting writers and readers across the globe.</p>
-            <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
-              <a href="browse.html" class="btn btn-gold btn-lg">Explore Books</a>
-              <a href="upload.html" class="btn btn-outline-gold btn-lg">Publish a Book</a>
-            </div>
-          </div>
-          <div class="col-lg-6 mt-5 mt-lg-0 text-center">
-            <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=700&q=80" alt="Books Collection" class="img-fluid rounded-3 shadow-lg">
-          </div>
-        </div>
-      </div>
-    </section>
 
-    <section class="container my-5">
-      <div class="row justify-content-center">
-        <div class="col-md-8">
-          <div class="input-group input-group-lg shadow-sm">
-            <input type="text" class="form-control" placeholder="Search by title, author, category, or language...">
-            <button class="btn btn-gold px-4" type="button"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="container my-5">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Featured Books</h2>
-        <a href="browse.html" class="text-decoration-none text-warning fw-semibold">View All <i class="fa-solid fa-arrow-right"></i></a>
-      </div>
-      <div class="row g-4">
-        <div class="col-6 col-md-4 col-lg-3">
-          <div class="card book-card h-100">
-            <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=400&q=80" class="book-cover" alt="Kherwal Arang">
-            <div class="card-body d-flex flex-column">
-              <span class="badge bg-secondary mb-2 align-self-start">Literature</span>
-              <h5 class="card-title text-truncate fw-bold mb-1">Kherwal Arang</h5>
-              <p class="text-muted small mb-2">Pt. Raghunath Murmu</p>
-              <div class="d-flex align-items-center mb-2">
-                <span class="text-warning me-1"><i class="fa-solid fa-star"></i> 4.9</span>
-                <span class="text-muted small">(142)</span>
-              </div>
-              <div class="mt-auto d-flex align-items-center justify-content-between">
-                <span class="price-tag">₹149</span>
-                <a href="book-details.html?id=1" class="btn btn-outline-gold btn-sm">Details</a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-          <div class="card book-card h-100">
-            <img src="https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=400&q=80" class="book-cover" alt="Ol Chiki Baha">
-            <div class="card-body d-flex flex-column">
-              <span class="badge bg-secondary mb-2 align-self-start">Poetry</span>
-              <h5 class="card-title text-truncate fw-bold mb-1">Baha Bagewan</h5>
-              <p class="text-muted small mb-2">Sadhu Ramchand Murmu</p>
-              <div class="d-flex align-items-center mb-2">
-                <span class="text-warning me-1"><i class="fa-solid fa-star"></i> 4.7</span>
-                <span class="text-muted small">(98)</span>
-              </div>
-              <div class="mt-auto d-flex align-items-center justify-content-between">
-                <span class="price-tag">₹99</span>
-                <a href="book-details.html?id=2" class="btn btn-outline-gold btn-sm">Details</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-  
-  <footer class="bg-dark text-white pt-5 pb-3 mt-auto">
+  <!-- Hero Banner -->
+  <header class="hero-teal">
     <div class="container">
-      <div class="row g-4">
-        <div class="col-md-4">
-          <h5 class="text-warning mb-3"><i class="fa-solid fa-book-open-reader me-2"></i>Santali Digital Library</h5>
-          <p class="small text-muted">Preserving cultural heritage and empowering modern authors through digital ebook publishing worldwide.</p>
+      <h1 class="hero-title">Discover Thousands of Digital Books</h1>
+      <p class="hero-subtitle">Read anywhere, anytime. Publish your own eBooks in Ol Chiki and multiple languages to reach readers worldwide.</p>
+      
+      <!-- Search Component -->
+      <div class="search-box-wrapper">
+        <div class="input-group">
+          <input type="text" class="form-control search-input" placeholder="Search books, authors, or categories...">
+          <button class="btn search-btn" type="button">
+            <i class="fa-solid fa-magnifying-glass me-1"></i> Search
+          </button>
         </div>
-        <div class="col-md-2">
-          <h6>Quick Links</h6>
-          <ul class="list-unstyled small">
-            <li><a href="browse.html" class="text-white-50 text-decoration-none">Browse Books</a></li>
-            <li><a href="pricing.html" class="text-white-50 text-decoration-none">Publishing Pricing</a></li>
-            <li><a href="about.html" class="text-white-50 text-decoration-none">About Us</a></li>
-            <li><a href="upload.html" class="text-white-50 text-decoration-none">Upload Book</a></li>
-          </ul>
+      </div>
+    </div>
+  </header>
+
+  <!-- Featured Books Section -->
+  <section class="py-5">
+    <div class="container py-3">
+      <h2 class="section-title">Featured Books</h2>
+      <p class="section-subtitle">Handpicked eBooks from top Santali authors and scholars</p>
+      
+      <div class="row g-4 justify-content-center">
+        <!-- Book 1 -->
+        <div class="col-sm-6 col-md-4 col-lg-3">
+          <div class="book-card-pro">
+            <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=500&q=80" class="book-cover-img" alt="Stories of Santhal">
+            <span class="book-badge">Story</span>
+            <h3 class="book-title">Stories of Santhal</h3>
+            <p class="book-author">By John Murmu</p>
+            <div class="d-flex align-items-center justify-content-between mt-auto pt-2 border-top">
+              <span class="book-price">₹149</span>
+              <a href="book-details.html?id=1" class="btn btn-teal btn-sm">Read More</a>
+            </div>
+          </div>
         </div>
-        <div class="col-md-2">
-          <h6>Dashboards</h6>
-          <ul class="list-unstyled small">
-            <li><a href="author-dashboard.html" class="text-white-50 text-decoration-none">Author Portal</a></li>
-            <li><a href="admin-dashboard.html" class="text-white-50 text-decoration-none">Admin Panel</a></li>
-            <li><a href="reader.html" class="text-white-50 text-decoration-none">Online Reader</a></li>
-          </ul>
+
+        <!-- Book 2 -->
+        <div class="col-sm-6 col-md-4 col-lg-3">
+          <div class="book-card-pro">
+            <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=500&q=80" class="book-cover-img" alt="Learning Santali">
+            <span class="book-badge">Education</span>
+            <h3 class="book-title">Learning Santali</h3>
+            <p class="book-author">By Hembram</p>
+            <div class="d-flex align-items-center justify-content-between mt-auto pt-2 border-top">
+              <span class="book-price text-success">FREE</span>
+              <a href="book-details.html?id=2" class="btn btn-teal btn-sm">Read More</a>
+            </div>
+          </div>
         </div>
-        <div class="col-md-4">
-          <h6>Subscribe to Newsletter</h6>
-          <div class="input-group mb-3">
-            <input type="email" class="form-control form-control-sm" placeholder="Enter your email">
-            <button class="btn btn-gold btn-sm" type="button">Subscribe</button>
+
+        <!-- Book 3 -->
+        <div class="col-sm-6 col-md-4 col-lg-3">
+          <div class="book-card-pro">
+            <img src="https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=500&q=80" class="book-cover-img" alt="Children Tales">
+            <span class="book-badge">Children</span>
+            <h3 class="book-title">Children Tales</h3>
+            <p class="book-author">By Soren</p>
+            <div class="d-flex align-items-center justify-content-between mt-auto pt-2 border-top">
+              <span class="book-price">₹99</span>
+              <a href="book-details.html?id=3" class="btn btn-teal btn-sm">Read More</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Book 4 -->
+        <div class="col-sm-6 col-md-4 col-lg-3">
+          <div class="book-card-pro">
+            <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=500&q=80" class="book-cover-img" alt="Kherwal Arang">
+            <span class="book-badge">Literature</span>
+            <h3 class="book-title">Kherwal Arang</h3>
+            <p class="book-author">By Pt. Raghunath Murmu</p>
+            <div class="d-flex align-items-center justify-content-between mt-auto pt-2 border-top">
+              <span class="book-price">₹199</span>
+              <a href="book-details.html?id=4" class="btn btn-teal btn-sm">Read More</a>
+            </div>
           </div>
         </div>
       </div>
-      <hr class="border-secondary my-4">
-      <p class="text-center small text-muted mb-0">&copy; 2026 Santali Digital Library. All rights reserved.</p>
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section class="py-5 bg-white border-top border-bottom">
+    <div class="container">
+      <h2 class="section-title">Categories</h2>
+      <p class="section-subtitle">Browse books across popular genres and learning material</p>
+      
+      <div class="row g-3">
+        <div class="col-6 col-md-4 col-lg-2">
+          <a href="browse.html?cat=story" class="category-card">
+            <i class="fa-solid fa-book-bookmark text-warning"></i> Story
+          </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <a href="browse.html?cat=education" class="category-card">
+            <i class="fa-solid fa-graduation-cap text-warning"></i> Education
+          </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <a href="browse.html?cat=children" class="category-card">
+            <i class="fa-solid fa-child text-warning"></i> Children
+          </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <a href="browse.html?cat=history" class="category-card">
+            <i class="fa-solid fa-landmark text-warning"></i> History
+          </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <a href="browse.html?cat=culture" class="category-card">
+            <i class="fa-solid fa-leaf text-warning"></i> Culture
+          </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <a href="browse.html?cat=literature" class="category-card">
+            <i class="fa-solid fa-feather text-warning"></i> Literature
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Choose Us Section -->
+  <section class="py-5 my-3">
+    <div class="container">
+      <h2 class="section-title">Why Choose Santali Digital Library?</h2>
+      <p class="section-subtitle">Empowering indigenous writers and digital readers worldwide</p>
+      
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="feature-card-pro">
+            <div class="feature-icon-circle">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+            </div>
+            <h3 class="feature-title">Easy Upload</h3>
+            <p class="feature-desc">Authors can upload books within minutes.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="feature-card-pro">
+            <div class="feature-icon-circle">
+              <i class="fa-solid fa-sack-dollar"></i>
+            </div>
+            <h3 class="feature-title">Earn Money</h3>
+            <p class="feature-desc">Sell books directly to readers worldwide.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="feature-card-pro">
+            <div class="feature-icon-circle">
+              <i class="fa-solid fa-mobile-screen-button"></i>
+            </div>
+            <h3 class="feature-title">Read Anywhere</h3>
+            <p class="feature-desc">Mobile, Tablet & Desktop support.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer-teal text-center">
+    <div class="container">
+      <p class="mb-2 fw-bold">&copy; 2026 Santali Digital Library</p>
+      <p class="small mb-0 text-white-50">Made with ❤️ for Authors & Readers</p>
     </div>
   </footer>
-  
+
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script type="module" src="../assets/js/app.js"></script>
 </body>
 </html>
