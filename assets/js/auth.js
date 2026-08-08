@@ -3,7 +3,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 // =========================================================
 // ⚠️ REPLACE THESE TWO STRINGS WITH YOUR ACTUAL SUPABASE KEYS
 // =========================================================
-const SUPABASE_URL = 'https://qdzadypqtctjonnwgxoo.supabase.co'; // Must start with https://
+const SUPABASE_URL = 'https://qdzadypqtctjonnwgxoo.supabase.co'; 
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
 
 // Safe initialization check
@@ -12,10 +12,51 @@ if (SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('YOUR_PROJECT_
   supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
   const alertBox = document.getElementById("authAlert");
   const loginForm = document.getElementById("loginForm");
   const registerForm = document.getElementById("registerForm");
+  const userNavArea = document.getElementById("userNavArea");
+
+  // =========================================================
+  // CHECK USER SESSION & UPDATE NAVBAR ("Hello, Name")
+  // =========================================================
+  if (supabase && userNavArea) {
+    try {
+      // Get the currently logged-in user's session
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (user) {
+        // Fetch the user's full name from the 'profiles' database table
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single();
+
+        // Use the profile name, or default to their email if name is missing
+        const userName = profile && profile.full_name ? profile.full_name : user.email.split('@')[0];
+
+        // Replace Login/Signup buttons with Greeting and Logout button
+        userNavArea.innerHTML = `
+          <div class="d-flex align-items-center gap-3">
+            <span class="text-white fw-semibold">
+              <i class="fa-solid fa-circle-user text-warning me-1"></i> Hello, ${userName}
+            </span>
+            <button id="logoutBtn" class="btn btn-outline-light btn-sm px-3">Logout</button>
+          </div>
+        `;
+
+        // Handle Logout Button Click
+        document.getElementById("logoutBtn").addEventListener("click", async () => {
+          await supabase.auth.signOut();
+          window.location.reload(); // Refresh the page to show Login/Sign Up again
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+    }
+  }
 
   // Helper function to display alert messages
   function showAlert(message, type) {
@@ -26,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Check if Supabase keys are configured properly
-  if (!supabase) {
+  if (!supabase && (loginForm || registerForm)) {
     showAlert("Supabase URL is not configured. Please update auth.js with your project credentials.", "danger");
   }
 

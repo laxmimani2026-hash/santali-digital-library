@@ -7,3 +7,8 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXB
 Publish Key
 
 sb_publishable_Y1WI4fBt5oHOi0IWYIvIig_gdoPEmQ5
+
+
+url
+
+https://qdzadypqtctjonnwgxoo.supabase.co
