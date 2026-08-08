@@ -120,8 +120,36 @@
                 </div>
               </div>
 
+              
               <h5 class="fw-bold mb-4 border-bottom pb-2 mt-5">Files & Media</h5>
 
+              <div class="row g-4 mb-4">
+                <!-- Cover Image Upload -->
+                <div class="col-md-6">
+                  <span class="form-label fw-semibold d-block mb-2">Book Cover Image <span class="text-danger">*</span></span>
+                  <!-- Changed from div to label, removed onclick, added 'for' attribute -->
+                  <label class="file-drop-area d-block w-100" for="coverImage">
+                    <i class="fa-regular fa-image fs-1 text-secondary mb-2"></i>
+                    <p class="mb-1 fw-bold">Click to upload cover</p>
+                    <p class="small text-muted mb-0">JPG, PNG (Max 2MB)</p>
+                    <input type="file" id="coverImage" class="d-none" accept="image/png, image/jpeg" required>
+                  </label>
+                  <div id="coverFileName" class="small text-success mt-2 fw-semibold"></div>
+                </div>
+
+                <!-- PDF File Upload -->
+                <div class="col-md-6">
+                  <span class="form-label fw-semibold d-block mb-2">Book File (PDF) <span class="text-danger">*</span></span>
+                  <!-- Changed from div to label, removed onclick, added 'for' attribute -->
+                  <label class="file-drop-area d-block w-100" for="bookPdf">
+                    <i class="fa-solid fa-file-pdf fs-1 text-danger mb-2"></i>
+                    <p class="mb-1 fw-bold">Click to upload PDF</p>
+                    <p class="small text-muted mb-0">PDF only (Max 20MB)</p>
+                    <input type="file" id="bookPdf" class="d-none" accept="application/pdf" required>
+                  </label>
+                  <div id="pdfFileName" class="small text-success mt-2 fw-semibold"></div>
+                </div>
+              </div>
               <div class="row g-4 mb-4">
                 <!-- Cover Image Upload -->
                 <div class="col-md-6">
