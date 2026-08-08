@@ -19,7 +19,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   const userNavArea = document.getElementById("userNavArea");
 
   // =========================================================
-  // CHECK USER SESSION & UPDATE NAVBAR ("Hello, Name")
+  // CHECK USER SESSION & UPDATE NAVBAR 
+  // (Added "Profile" Button)
   // =========================================================
   if (supabase && userNavArea) {
     try {
@@ -42,12 +43,15 @@ document.addEventListener("DOMContentLoaded", async function () {
           ? '<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65em;">Author</span>' 
           : '';
 
-        // Replace Login/Signup buttons with Greeting and Logout button
+        // Replace Login/Signup buttons with Greeting, PROFILE tab, and Logout button
         userNavArea.innerHTML = `
-          <div class="d-flex align-items-center gap-3">
-            <span class="text-white fw-semibold">
+          <div class="d-flex align-items-center gap-2">
+            <span class="text-white fw-semibold me-2 d-none d-lg-inline">
               <i class="fa-solid fa-circle-user text-warning me-1"></i> Hello, ${userName} ${roleBadge}
             </span>
+            <a href="profile.html" class="btn btn-light btn-sm px-3 fw-bold text-teal">
+              <i class="fa-solid fa-user-pen me-1"></i> Profile
+            </a>
             <button id="logoutBtn" class="btn btn-outline-light btn-sm px-3">Logout</button>
           </div>
         `;
@@ -165,7 +169,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       showAlert("Logging in...", "info");
 
       try {
-        // Step A: Authenticate the user
         const { data, error } = await supabase.auth.signInWithPassword({
           email: email,
           password: password,
@@ -175,7 +178,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         showAlert("Login successful! Checking account type...", "info");
 
-        // Step B: Fetch the user's role from the database
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('role')
@@ -186,16 +188,14 @@ document.addEventListener("DOMContentLoaded", async function () {
             console.error("Error fetching profile for redirect:", profileError);
         }
 
-        // Step C: Determine the target page based on role
-        let targetPage = "index.html"; // Default page for 'reader'
+        let targetPage = "index.html"; 
 
         if (profile && profile.role === "author") {
-          targetPage = "upload.html"; // Redirect page for 'author' / 'publisher'
+          targetPage = "upload.html"; 
         }
 
         showAlert("Redirecting you now...", "success");
 
-        // Step D: Execute the redirect
         setTimeout(() => {
           window.location.href = targetPage;
         }, 1200);
