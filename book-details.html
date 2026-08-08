@@ -175,7 +175,7 @@
         }
 
         // Set the Read button to open the PDF
-        document.getElementById("readBtn").href = book.pdf_url;
+        document.getElementById("readBtn").href = `reader.html?id=${book.id}`;
 
         // Hide loading, show content
         loadingIndicator.classList.add("d-none");

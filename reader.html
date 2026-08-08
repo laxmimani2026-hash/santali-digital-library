@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reading Mode | Santali Digital Library</title>
+  
+  <!-- Bootstrap 5 & FontAwesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    /* Theme Variables */
+    :root {
+      --bg-color: #f8f9fa;
+      --text-color: #212529;
+      --nav-bg: #ffffff;
+      --border-color: #dee2e6;
+    }
+    
+    [data-theme="dark"] {
+      --bg-color: #121212;
+      --text-color: #e0e0e0;
+      --nav-bg: #1e1e1e;
+      --border-color: #333333;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color 0.3s ease, color 0.3s ease;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden; /* Prevents double scrolling */
+    }
+
+    /* Minimalist Reader Toolbar */
+    .reader-nav {
+      background-color: var(--nav-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    /* PDF Viewer Area */
+    .pdf-container {
+      flex-grow: 1;
+      width: 100%;
+      background-color: var(--bg-color);
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Toolbar -->
+  <div class="reader-nav shadow-sm">
+    <button class="btn btn-outline-secondary btn-sm fw-semibold" onclick="window.history.back()">
+      <i class="fa-solid fa-arrow-left me-2"></i> Back to Details
+    </button>
+    
+    <h5 class="mb-0 fw-bold text-truncate mx-3" id="bookTitle">Loading Book...</h5>
+    
+    <button class="btn btn-dark btn-sm fw-semibold shadow-sm" id="themeToggle">
+      <i class="fa-solid fa-moon me-1"></i> Dark Mode
+    </button>
+  </div>
+
+  <!-- PDF Display Area -->
+  <div class="pdf-container d-flex justify-content-center align-items-center">
+    
+    <div id="loading" class="text-center">
+       <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+       <h5 class="text-muted">Preparing your book...</h5>
+    </div>
+    
+    <iframe id="pdfFrame" src="" class="d-none"></iframe>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    // =========================================================
+    // ⚠️ REPLACE THESE WITH YOUR ACTUAL SUPABASE KEYS
+    // =========================================================
+    const SUPABASE_URL = 'https://qdzadypqtctjonnwgxoo.supabase.co'; 
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Get Book ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const bookId = urlParams.get('id');
+
+    // Theme Toggle Logic
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      const isDark = document.body.getAttribute('data-theme') === 'dark';
+      
+      if (isDark) {
+        document.body.removeAttribute('data-theme');
+        themeToggle.innerHTML = '<i class="fa-solid fa-moon me-1"></i> Dark Mode';
+        themeToggle.className = 'btn btn-dark btn-sm fw-semibold shadow-sm';
+      } else {
+        document.body.setAttribute('data-theme', 'dark');
+        themeToggle.innerHTML = '<i class="fa-solid fa-sun me-1"></i> Light Mode';
+        themeToggle.className = 'btn btn-light btn-sm fw-semibold text-dark shadow-sm';
+      }
+    });
+
+    // Fetch and Load PDF
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (!bookId) {
+        document.getElementById('bookTitle').innerText = "Error: No book selected";
+        document.getElementById('loading').innerHTML = "<h5 class='text-danger'>Invalid link. Please open from the library.</h5>";
+        return;
+      }
+
+      try {
+        const { data: book, error } = await supabase
+          .from('books')
+          .select('title, pdf_url')
+          .eq('id', bookId)
+          .single();
+
+        if (error || !book) throw error;
+
+        document.getElementById('bookTitle').innerText = book.title;
+        
+        const pdfFrame = document.getElementById('pdfFrame');
+        // #toolbar=0 hides the messy default PDF tools to keep it clean
+        pdfFrame.src = book.pdf_url + "#toolbar=0"; 
+        
+        document.getElementById('loading').classList.add('d-none');
+        pdfFrame.classList.remove('d-none');
+        
+      } catch (error) {
+        console.error(error);
+        document.getElementById('loading').innerHTML = "<h5 class='text-danger'>Failed to load the book PDF.</h5>";
+      }
+    });
+  </script>
+</body>
+</html>
