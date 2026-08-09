@@ -51,7 +51,10 @@
           <li class="nav-item"><a class="nav-link" href="browse.html">Books</a></li>
           <li class="nav-item"><a class="nav-link" href="categories.html">Categories</a></li>
           <li class="nav-item"><a class="nav-link" href="authors.html">Authors</a></li>
-          <li class="nav-item"><a class="nav-link" href="upload.html">Upload</a></li>
+          
+          <!-- Upload Option (Hidden by default using 'd-none', shown dynamically via JS on author login) -->
+          <li class="nav-item d-none" id="uploadNavArea"><a class="nav-link" href="upload.html">Upload</a></li>
+          
           <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
         </ul>
       </div>
@@ -107,6 +110,13 @@
                   <a href="#" class="small text-decoration-none text-teal">Forgot Password?</a>
                 </div>
                 <button type="submit" class="btn btn-teal w-100 py-2 fw-bold">Login</button>
+                
+                <!-- Admin Login Option -->
+                <div class="text-center mt-4 pt-3 border-top">
+                  <a href="admin-login.html" class="text-decoration-none text-muted small hover-teal">
+                    <i class="fa-solid fa-shield-halved me-1"></i> Admin Login
+                  </a>
+                </div>
               </form>
             </div>
 

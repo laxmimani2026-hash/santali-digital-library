@@ -32,14 +32,17 @@
           <li class="nav-item"><a class="nav-link" href="browse.html">Books</a></li>
           <li class="nav-item"><a class="nav-link" href="categories.html">Categories</a></li>
           <li class="nav-item"><a class="nav-link" href="authors.html">Authors</a></li>
-          <li class="nav-item"><a class="nav-link" href="upload.html">Upload</a></li>
+          
+          <!-- Upload Option (Hidden by default using 'd-none', shown dynamically via JS on author login) -->
+          <li class="nav-item d-none" id="uploadNavArea"><a class="nav-link" href="upload.html">Upload</a></li>
+          
           <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
           
           <!-- Auth Action Buttons (Swapped dynamically by JS when logged in) -->
           <li class="nav-item ms-lg-3 my-2 my-lg-0" id="userNavArea">
             <div class="d-flex align-items-center gap-2">
-              <a class="btn btn-outline-light btn-sm px-3" href="login.html">Login</a>
-              <a class="btn btn-gold btn-sm px-3" href="login.html#register">Sign Up</a>
+              <!-- Combined Login / Sign Up Button -->
+              <a class="btn btn-gold btn-sm px-3" href="login.html">Login / Sign Up</a>
             </div>
           </li>
         </ul>
