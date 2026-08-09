@@ -9,13 +9,17 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
+  <!-- PDF.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  
   <style>
     /* Theme Variables */
     :root {
-      --bg-color: #f8f9fa;
+      --bg-color: #f0f2f5;
       --text-color: #212529;
       --nav-bg: #ffffff;
       --border-color: #dee2e6;
+      --toolbar-bg: #ffffff;
     }
     
     [data-theme="dark"] {
@@ -23,6 +27,7 @@
       --text-color: #e0e0e0;
       --nav-bg: #1e1e1e;
       --border-color: #333333;
+      --toolbar-bg: #1e1e1e;
     }
 
     body {
@@ -32,10 +37,11 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow: hidden; /* Prevents double scrolling */
+      overflow: hidden;
+      margin: 0;
     }
 
-    /* Minimalist Reader Toolbar */
+    /* Top Toolbar */
     .reader-nav {
       background-color: var(--nav-bg);
       border-bottom: 1px solid var(--border-color);
@@ -44,19 +50,47 @@
       justify-content: space-between;
       align-items: center;
       transition: background-color 0.3s ease, border-color 0.3s ease;
+      z-index: 10;
     }
 
     /* PDF Viewer Area */
     .pdf-container {
       flex-grow: 1;
       width: 100%;
-      background-color: var(--bg-color);
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px 0;
     }
 
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
+    canvas {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border-radius: 4px;
+      transition: filter 0.3s ease;
+    }
+
+    /* Smart Dark Mode for PDF Canvas */
+    [data-theme="dark"] canvas {
+      filter: invert(90%) hue-rotate(180deg) contrast(90%);
+    }
+
+    /* Bottom Reading Controls */
+    .reader-controls {
+      background-color: var(--toolbar-bg);
+      border-top: 1px solid var(--border-color);
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
   </style>
 </head>
@@ -65,7 +99,7 @@
   <!-- Top Toolbar -->
   <div class="reader-nav shadow-sm">
     <button class="btn btn-outline-secondary btn-sm fw-semibold" onclick="window.history.back()">
-      <i class="fa-solid fa-arrow-left me-2"></i> Back to Details
+      <i class="fa-solid fa-arrow-left me-2"></i> Back
     </button>
     
     <h5 class="mb-0 fw-bold text-truncate mx-3" id="bookTitle">Loading Book...</h5>
@@ -76,21 +110,48 @@
   </div>
 
   <!-- PDF Display Area -->
-  <div class="pdf-container d-flex justify-content-center align-items-center">
-    
-    <div id="loading" class="text-center">
+  <div class="pdf-container" id="pdfContainer">
+    <div id="loading" class="text-center my-auto">
        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
-       <h5 class="text-muted">Preparing your book...</h5>
+       <h5 class="text-muted" id="loadingText">Preparing your book...</h5>
     </div>
     
-    <iframe id="pdfFrame" src="" class="d-none"></iframe>
+    <canvas id="pdf-render" class="d-none"></canvas>
+  </div>
+
+  <!-- Bottom Reading Controls (Hidden until loaded) -->
+  <div class="reader-controls shadow-lg d-none" id="readerControls">
+    
+    <!-- Zoom Controls -->
+    <div class="control-group">
+      <button class="btn btn-outline-secondary btn-sm" id="zoomOut">
+        <i class="fa-solid fa-magnifying-glass-minus"></i>
+      </button>
+      <span class="fw-semibold small mx-2" id="zoomVal">100%</span>
+      <button class="btn btn-outline-secondary btn-sm" id="zoomIn">
+        <i class="fa-solid fa-magnifying-glass-plus"></i>
+      </button>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="control-group">
+      <button class="btn btn-primary btn-sm" id="prevPage">
+        <i class="fa-solid fa-chevron-left me-1"></i> Prev
+      </button>
+      <span class="fw-bold mx-3 small">
+        Page <span id="pageNum">0</span> of <span id="pageCount">0</span>
+      </span>
+      <button class="btn btn-primary btn-sm" id="nextPage">
+        Next <i class="fa-solid fa-chevron-right ms-1"></i>
+      </button>
+    </div>
   </div>
 
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
     // =========================================================
-    // ⚠️ REPLACE THESE WITH YOUR ACTUAL SUPABASE KEYS
+    // SUPABASE SETUP
     // =========================================================
     const SUPABASE_URL = 'https://qdzadypqtctjonnwgxoo.supabase.co'; 
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
@@ -100,11 +161,12 @@
     const urlParams = new URLSearchParams(window.location.search);
     const bookId = urlParams.get('id');
 
-    // Theme Toggle Logic
+    // =========================================================
+    // THEME TOGGLE LOGIC
+    // =========================================================
     const themeToggle = document.getElementById('themeToggle');
     themeToggle.addEventListener('click', () => {
       const isDark = document.body.getAttribute('data-theme') === 'dark';
-      
       if (isDark) {
         document.body.removeAttribute('data-theme');
         themeToggle.innerHTML = '<i class="fa-solid fa-moon me-1"></i> Dark Mode';
@@ -116,15 +178,102 @@
       }
     });
 
-    // Fetch and Load PDF
+    // =========================================================
+    // PDF.js VIEWER LOGIC
+    // =========================================================
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    let pdfDoc = null,
+        pageNum = 1,
+        pageIsRendering = false,
+        pageNumPending = null,
+        scale = 1.0, // Default 100% zoom
+        canvas = document.getElementById('pdf-render'),
+        ctx = canvas.getContext('2d');
+
+    // Render the page
+    const renderPage = (num) => {
+      pageIsRendering = true;
+
+      // Fetch page
+      pdfDoc.getPage(num).then((page) => {
+        const viewport = page.getViewport({ scale });
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        const renderCtx = {
+          canvasContext: ctx,
+          viewport: viewport
+        };
+
+        page.render(renderCtx).promise.then(() => {
+          pageIsRendering = false;
+          if (pageNumPending !== null) {
+            renderPage(pageNumPending);
+            pageNumPending = null;
+          }
+        });
+
+        // Update Page Counters
+        document.getElementById('pageNum').textContent = num;
+        
+        // Scroll to top of container when page changes
+        document.getElementById('pdfContainer').scrollTop = 0;
+      });
+    };
+
+    // Check for pending renders
+    const queueRenderPage = (num) => {
+      if (pageIsRendering) {
+        pageNumPending = num;
+      } else {
+        renderPage(num);
+      }
+    };
+
+    // Show Previous Page
+    document.getElementById('prevPage').addEventListener('click', () => {
+      if (pageNum <= 1) return;
+      pageNum--;
+      queueRenderPage(pageNum);
+    });
+
+    // Show Next Page
+    document.getElementById('nextPage').addEventListener('click', () => {
+      if (pageNum >= pdfDoc.numPages) return;
+      pageNum++;
+      queueRenderPage(pageNum);
+    });
+
+    // Zoom In
+    document.getElementById('zoomIn').addEventListener('click', () => {
+      if (scale >= 3.0) return; // Max zoom 300%
+      scale += 0.25;
+      document.getElementById('zoomVal').textContent = `${Math.round(scale * 100)}%`;
+      queueRenderPage(pageNum);
+    });
+
+    // Zoom Out
+    document.getElementById('zoomOut').addEventListener('click', () => {
+      if (scale <= 0.5) return; // Min zoom 50%
+      scale -= 0.25;
+      document.getElementById('zoomVal').textContent = `${Math.round(scale * 100)}%`;
+      queueRenderPage(pageNum);
+    });
+
+    // =========================================================
+    // FETCH AND INITIALIZE PDF
+    // =========================================================
     document.addEventListener("DOMContentLoaded", async () => {
       if (!bookId) {
         document.getElementById('bookTitle').innerText = "Error: No book selected";
-        document.getElementById('loading').innerHTML = "<h5 class='text-danger'>Invalid link. Please open from the library.</h5>";
+        document.getElementById('loadingText').innerHTML = "<span class='text-danger'>Invalid link.</span>";
         return;
       }
 
       try {
+        // 1. Fetch Book Data from Supabase
         const { data: book, error } = await supabase
           .from('books')
           .select('title, pdf_url')
@@ -132,19 +281,33 @@
           .single();
 
         if (error || !book) throw error;
-
         document.getElementById('bookTitle').innerText = book.title;
+
+        // 2. Load PDF via PDF.js
+        const loadingTask = pdfjsLib.getDocument(book.pdf_url);
         
-        const pdfFrame = document.getElementById('pdfFrame');
-        // #toolbar=0 hides the messy default PDF tools to keep it clean
-        pdfFrame.src = book.pdf_url + "#toolbar=0"; 
-        
-        document.getElementById('loading').classList.add('d-none');
-        pdfFrame.classList.remove('d-none');
+        loadingTask.promise.then((pdfDoc_) => {
+          pdfDoc = pdfDoc_;
+          
+          document.getElementById('pageCount').textContent = pdfDoc.numPages;
+          
+          // Hide Loading, Show Canvas & Controls
+          document.getElementById('loading').classList.add('d-none');
+          canvas.classList.remove('d-none');
+          document.getElementById('readerControls').classList.remove('d-none');
+          document.getElementById('readerControls').classList.add('d-flex');
+          
+          // Render initial page
+          renderPage(pageNum);
+
+        }).catch(err => {
+          console.error("PDF Loading Error:", err);
+          document.getElementById('loadingText').innerHTML = "<span class='text-danger'>Failed to render the PDF file. Check CORS settings.</span>";
+        });
         
       } catch (error) {
-        console.error(error);
-        document.getElementById('loading').innerHTML = "<h5 class='text-danger'>Failed to load the book PDF.</h5>";
+        console.error("Supabase Fetch Error:", error);
+        document.getElementById('loadingText').innerHTML = "<span class='text-danger'>Failed to load the book details.</span>";
       }
     });
   </script>
