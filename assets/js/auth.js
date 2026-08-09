@@ -138,6 +138,24 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if (authError) throw authError;
 
+        // --- NEW CODE ADDED: Explicitly save profile data into the 'profiles' table ---
+        if (authData.user) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .upsert({
+              id: authData.user.id,
+              full_name: fullName,
+              phone: phone,
+              address: address,
+              role: role
+            });
+            
+          if (profileError) {
+            console.error("Error saving profile data to database:", profileError);
+          }
+        }
+        // ------------------------------------------------------------------------------
+
         showAlert("Account created successfully! Redirecting to login...", "success");
         registerForm.reset();
 
