@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // =========================================================
   // CHECK USER SESSION & UPDATE NAVBAR 
-  // (Professional Dropdown Menu)
+  // (Professional Dropdown Menu with Avatar)
   // =========================================================
   if (supabase && userNavArea) {
     try {
@@ -28,10 +28,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       const { data: { user } } = await supabase.auth.getUser();
 
       if (user) {
-        // Fetch the user's full name and role from the 'profiles' database table
+        // Fetch the user's full name, role, AND avatar_url from the 'profiles' database table
         const { data: profile } = await supabase
           .from('profiles')
-          .select('full_name, role')
+          .select('full_name, role, avatar_url')
           .eq('id', user.id)
           .single();
 
@@ -48,16 +48,22 @@ document.addEventListener("DOMContentLoaded", async function () {
           ? `<li><a class="dropdown-item fw-semibold text-secondary py-2" href="upload.html"><i class="fa-solid fa-upload me-2 text-teal"></i> Author Dashboard</a></li>` 
           : '';
 
+        // Generate Avatar HTML
+        // If the user has uploaded an avatar, display it. Otherwise, show the default FontAwesome icon.
+        const avatarHtml = profile && profile.avatar_url
+          ? `<img src="${profile.avatar_url}" alt="Profile" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 2px solid #ffc107;" class="me-2 shadow-sm">`
+          : `<i class="fa-solid fa-circle-user text-warning fs-5 me-2"></i>`;
+
         // Inject the Bootstrap Dropdown into the navbar
         userNavArea.innerHTML = `
           <div class="nav-item dropdown custom-hover-dropdown">
             <a class="nav-link dropdown-toggle text-white fw-semibold d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="fa-solid fa-circle-user text-warning fs-5 me-2"></i> Hello, ${userName} ${roleBadge}
+              ${avatarHtml} Hello, ${userName} ${roleBadge}
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-1" aria-labelledby="userDropdown" style="min-width: 200px; border-radius: 8px;">
               <li><a class="dropdown-item fw-semibold text-secondary py-2" href="profile.html"><i class="fa-solid fa-user-pen me-2 text-teal"></i> My Profile</a></li>
               
-              <!-- NEW: My Cart Link Added Here -->
+              <!-- My Cart Link Added Here -->
               <li><a class="dropdown-item fw-semibold text-secondary py-2" href="cart.html"><i class="fa-solid fa-cart-shopping me-2 text-teal"></i> My Cart</a></li>
               
               <li><a class="dropdown-item fw-semibold text-secondary py-2" href="orders.html"><i class="fa-solid fa-box-open me-2 text-teal"></i> My Orders</a></li>
@@ -142,7 +148,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if (authError) throw authError;
 
-        // --- NEW CODE ADDED: Explicitly save profile data into the 'profiles' table ---
+        // Explicitly save profile data into the 'profiles' table
         if (authData.user) {
           const { error: profileError } = await supabase
             .from('profiles')
@@ -158,7 +164,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             console.error("Error saving profile data to database:", profileError);
           }
         }
-        // ------------------------------------------------------------------------------
 
         showAlert("Account created successfully! Redirecting to login...", "success");
         registerForm.reset();
