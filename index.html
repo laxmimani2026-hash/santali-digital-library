@@ -10,7 +10,7 @@
   <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Custom CSS (Relative paths for both root and public hosting) -->
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/style.css">
 </head>
@@ -33,15 +33,11 @@
           <li class="nav-item"><a class="nav-link" href="categories.html">Categories</a></li>
           <li class="nav-item"><a class="nav-link" href="authors.html">Authors</a></li>
           
-          <!-- Upload Option (Hidden by default using 'd-none', shown dynamically via JS on author login) -->
           <li class="nav-item d-none" id="uploadNavArea"><a class="nav-link" href="upload.html">Upload</a></li>
-          
           <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
           
-          <!-- Auth Action Buttons (Swapped dynamically by JS when logged in) -->
           <li class="nav-item ms-lg-3 my-2 my-lg-0" id="userNavArea">
             <div class="d-flex align-items-center gap-2">
-              <!-- Combined Login / Sign Up Button -->
               <a class="btn btn-gold btn-sm px-3" href="login.html">Login / Sign Up</a>
             </div>
           </li>
@@ -56,11 +52,11 @@
       <h1 class="hero-title">Discover Thousands of Digital Books</h1>
       <p class="hero-subtitle">Read anywhere, anytime. Publish your own eBooks in Ol Chiki and multiple languages to reach readers worldwide.</p>
       
-      <!-- Search Component -->
+      <!-- ID's Added to Search Input and Button -->
       <div class="search-box-wrapper">
         <div class="input-group">
-          <input type="text" class="form-control search-input" placeholder="Search books, authors, or categories...">
-          <button class="btn search-btn" type="button">
+          <input type="text" class="form-control search-input" id="searchInput" placeholder="Search books, authors, or categories...">
+          <button class="btn search-btn" type="button" id="searchBtn">
             <i class="fa-solid fa-magnifying-glass me-1"></i> Search
           </button>
         </div>
@@ -68,68 +64,22 @@
     </div>
   </header>
 
-  <!-- Featured Books Section -->
-  <section class="py-5">
+  <!-- Featured / Search Results Section -->
+  <section class="py-5" id="bookSection">
     <div class="container py-3">
-      <h2 class="section-title">Featured Books</h2>
-      <p class="section-subtitle">Handpicked eBooks from top Santali authors and scholars</p>
+      <!-- ID's Added to Titles for dynamic updating -->
+      <h2 class="section-title" id="sectionTitle">Featured Books</h2>
+      <p class="section-subtitle" id="sectionSubtitle">Handpicked eBooks from top Santali authors and scholars</p>
       
-      <div class="row g-4 justify-content-center">
-        <!-- Book 1 -->
-        <div class="col-sm-6 col-md-4 col-lg-3">
-          <div class="book-card-pro">
-            <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=500&q=80" class="book-cover-img" alt="Stories of Santhal">
-            <span class="book-badge">Story</span>
-            <h3 class="book-title">Stories of Santhal</h3>
-            <p class="book-author">By John Murmu</p>
-            <div class="d-flex align-items-center justify-content-between mt-auto pt-2 border-top">
-              <span class="book-price">₹149</span>
-              <a href="book-details.html?id=1" class="btn btn-teal btn-sm">Read More</a>
-            </div>
-          </div>
+      <!-- ID added to container, static placeholder books removed -->
+      <div class="row g-4 justify-content-center" id="booksContainer">
+        
+        <!-- Initial Loading State -->
+        <div class="col-12 text-center py-5">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="mt-2 text-muted fw-semibold">Loading books...</p>
         </div>
 
-        <!-- Book 2 -->
-        <div class="col-sm-6 col-md-4 col-lg-3">
-          <div class="book-card-pro">
-            <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=500&q=80" class="book-cover-img" alt="Learning Santali">
-            <span class="book-badge">Education</span>
-            <h3 class="book-title">Learning Santali</h3>
-            <p class="book-author">By Hembram</p>
-            <div class="d-flex align-items-center justify-content-between mt-auto pt-2 border-top">
-              <span class="book-price text-success">FREE</span>
-              <a href="book-details.html?id=2" class="btn btn-teal btn-sm">Read More</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Book 3 -->
-        <div class="col-sm-6 col-md-4 col-lg-3">
-          <div class="book-card-pro">
-            <img src="https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=500&q=80" class="book-cover-img" alt="Children Tales">
-            <span class="book-badge">Children</span>
-            <h3 class="book-title">Children Tales</h3>
-            <p class="book-author">By Soren</p>
-            <div class="d-flex align-items-center justify-content-between mt-auto pt-2 border-top">
-              <span class="book-price">₹99</span>
-              <a href="book-details.html?id=3" class="btn btn-teal btn-sm">Read More</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Book 4 -->
-        <div class="col-sm-6 col-md-4 col-lg-3">
-          <div class="book-card-pro">
-            <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=500&q=80" class="book-cover-img" alt="Kherwal Arang">
-            <span class="book-badge">Literature</span>
-            <h3 class="book-title">Kherwal Arang</h3>
-            <p class="book-author">By Pt. Raghunath Murmu</p>
-            <div class="d-flex align-items-center justify-content-between mt-auto pt-2 border-top">
-              <span class="book-price">₹199</span>
-              <a href="book-details.html?id=4" class="btn btn-teal btn-sm">Read More</a>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </section>
@@ -213,19 +163,8 @@
     </div>
   </section>
 
-  <!-- Sign Up Call-To-Action Banner -->
-  <section class="py-5 hero-teal text-center">
-    <div class="container py-2">
-      <h2 class="hero-title fs-2 mb-2">Ready to Start Reading or Publishing?</h2>
-      <p class="hero-subtitle mb-4">Create your free account today as a Reader or Author in seconds.</p>
-      <a href="login.html#register" class="btn btn-gold btn-lg px-5 font-weight-bold">
-        <i class="fa-solid fa-user-plus me-2"></i>Sign Up For Free
-      </a>
-    </div>
-  </section>
-
   <!-- Footer -->
-  <footer class="footer-teal text-center">
+  <footer class="footer-teal text-center mt-auto">
     <div class="container">
       <p class="mb-2 fw-bold">&copy; 2026 Santali Digital Library</p>
       <p class="small mb-0 text-white-50">Made with ❤️ for Authors & Readers</p>
@@ -236,5 +175,157 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Firebase Auth Script -->
   <script type="module" src="assets/js/auth.js"></script>
+
+  <!-- Search & Book Loading Logic -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const SUPABASE_URL = 'https://qdzadypqtctjonnwgxoo.supabase.co'; 
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const searchInput = document.getElementById('searchInput');
+      const searchBtn = document.getElementById('searchBtn');
+      const booksContainer = document.getElementById('booksContainer');
+      const sectionTitle = document.getElementById('sectionTitle');
+      const sectionSubtitle = document.getElementById('sectionSubtitle');
+
+      // Function to dynamically render books
+      function renderBooks(books, isSearch = false, query = '') {
+        booksContainer.innerHTML = ''; // Clear container
+        
+        // Update Titles
+        if (isSearch) {
+          sectionTitle.textContent = "Search Results";
+          sectionSubtitle.textContent = `Showing results for "${query}"`;
+        } else {
+          sectionTitle.textContent = "Featured Books";
+          sectionSubtitle.textContent = "Handpicked eBooks from top Santali authors and scholars";
+        }
+
+        // Feature: Show "Not Found" professional empty state
+        if (books.length === 0) {
+          booksContainer.innerHTML = `
+            <div class="col-12 text-center py-5">
+              <div class="mb-4">
+                <i class="fa-solid fa-book-open text-muted" style="font-size: 4rem; opacity: 0.5;"></i>
+                <i class="fa-solid fa-magnifying-glass text-warning" style="font-size: 2rem; position: relative; top: 15px; right: 25px;"></i>
+              </div>
+              <h4 class="fw-bold text-dark">No books found</h4>
+              <p class="text-muted">We couldn't find any books matching "<strong>${query}</strong>".</p>
+              <button class="btn btn-outline-primary mt-2 fw-semibold px-4 py-2" onclick="window.location.reload()">
+                <i class="fa-solid fa-rotate-right me-2"></i>Clear Search
+              </button>
+            </div>
+          `;
+          return;
+        }
+
+        // Feature: Show Books
+        books.forEach(book => {
+          // Format Pricing
+          const priceDisplay = (book.price === 0 || String(book.price).toLowerCase() === 'free') 
+            ? '<span class="book-price text-success">FREE</span>' 
+            : `<span class="book-price text-primary fw-bold">₹${book.price}</span>`;
+
+          const bookCategory = book.category ? book.category.toUpperCase() : 'GENERAL';
+
+          const card = `
+            <div class="col-sm-6 col-md-4 col-lg-3">
+              <div class="book-card-pro bg-white border shadow-sm h-100 d-flex flex-column" style="border-radius: 12px; overflow: hidden; transition: transform 0.2s;">
+                
+                <div style="height: 250px; overflow: hidden; position: relative;">
+                  <img src="${book.cover_url || 'https://via.placeholder.com/500x750?text=No+Cover'}" class="w-100 h-100 object-fit-cover" alt="${book.title}" onerror="this.src='https://via.placeholder.com/500x750?text=No+Cover'">
+                  <span class="badge bg-dark position-absolute top-0 end-0 m-2 px-3 py-2 opacity-75">${bookCategory}</span>
+                </div>
+                
+                <div class="p-3 d-flex flex-column flex-grow-1">
+                  <h5 class="fw-bold mb-1 text-dark text-truncate" title="${book.title}">${book.title}</h5>
+                  <p class="text-muted small mb-3 text-truncate">By ${book.author || 'Unknown'}</p>
+                  
+                  <div class="d-flex align-items-center justify-content-between mt-auto pt-2 border-top">
+                    ${priceDisplay}
+                    <a href="book-details.html?id=${book.id}" class="btn btn-warning btn-sm fw-bold text-dark px-3">View</a>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          `;
+          booksContainer.innerHTML += card;
+        });
+      }
+
+      // Feature: Handle Search Query
+      async function handleSearch() {
+        const query = searchInput.value.trim();
+        if (!query) {
+           loadInitialBooks(); // Reload default books if search is empty
+           return;
+        }
+
+        // Show loading state
+        booksContainer.innerHTML = `
+          <div class="col-12 text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-3 text-muted fw-semibold">Searching library...</p>
+          </div>
+        `;
+        sectionTitle.textContent = "Searching...";
+        sectionSubtitle.textContent = "Please wait while we fetch the results.";
+        
+        // Scroll to results
+        document.getElementById('bookSection').scrollIntoView({ behavior: 'smooth' });
+
+        try {
+          // Query Supabase: Case-insensitive search across title, author, or category
+          const { data, error } = await supabase
+            .from('books')
+            .select('*')
+            .or(`title.ilike.%${query}%,author.ilike.%${query}%,category.ilike.%${query}%`);
+
+          if (error) throw error;
+          renderBooks(data, true, query);
+
+        } catch (err) {
+          console.error("Search Error:", err);
+          booksContainer.innerHTML = `<div class="col-12 text-center text-danger py-5"><i class="fa-solid fa-circle-exclamation fs-1 mb-3"></i><br>Failed to load search results. Please check your connection.</div>`;
+        }
+      }
+
+      // Trigger search on button click
+      searchBtn.addEventListener('click', handleSearch);
+      
+      // Trigger search on Enter key press
+      searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleSearch();
+      });
+
+      // Feature: Load Initial Featured Books on Page Load
+      async function loadInitialBooks() {
+        try {
+          const { data, error } = await supabase
+            .from('books')
+            .select('*')
+            .limit(8); // Fetches the newest 8 books for the homepage
+
+          if (error) throw error;
+          
+          if (data && data.length > 0) {
+              renderBooks(data, false);
+          } else {
+             booksContainer.innerHTML = `<div class="col-12 text-center text-muted py-5">No books have been published yet.</div>`;
+          }
+        } catch (err) {
+          console.error("Initial load error:", err);
+          booksContainer.innerHTML = `<div class="col-12 text-center text-danger py-5">Failed to load library database.</div>`;
+        }
+      }
+      
+      // Execute load immediately
+      loadInitialBooks();
+    });
+  </script>
 </body>
 </html>
