@@ -31,9 +31,6 @@
       color: #ffffff !important;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
-    .letter-spacing-2 {
-      letter-spacing: 0.5em;
-    }
   </style>
 </head>
 <body class="bg-light d-flex flex-column min-vh-100">
@@ -119,7 +116,7 @@
               </form>
             </div>
 
-            <!-- SIGN UP & OTP FORM -->
+            <!-- SIGN UP FORM -->
             <div class="tab-pane fade" id="register-panel" role="tabpanel" aria-labelledby="register-tab">
               <h3 class="text-center mb-4 text-teal fw-bold" id="registerTitle">Create Account</h3>
               <form id="registerForm" novalidate>
@@ -188,33 +185,6 @@
                   <button type="submit" class="btn btn-warning w-100 py-2 fw-bold text-dark mt-2" id="signUpBtn">Sign Up</button>
                 </div>
 
-                <!-- OTP VERIFICATION FIELDS (Hidden by Default) -->
-                <div id="otpFields" class="d-none text-center">
-                  <div class="mb-4">
-                    <i class="fa-solid fa-mobile-screen-button text-teal fs-1 mb-3"></i>
-                    <p class="text-muted">We've sent a 6-digit verification code to your mobile number <br> <span id="displayPhone" class="fw-bold text-dark"></span>.</p>
-                  </div>
-                  
-                  <div class="mb-4">
-                    <label for="regOtp" class="form-label fw-semibold">Enter OTP</label>
-                    <div class="d-flex justify-content-center">
-                      <input type="text" class="form-control text-center fs-4 letter-spacing-2" id="regOtp" placeholder="------" maxlength="6" style="max-width: 250px;">
-                    </div>
-                  </div>
-                  
-                  <button type="button" class="btn btn-teal w-100 py-2 fw-bold mt-2" id="verifyOtpBtn">Verify & Create Account</button>
-                  
-                  <div class="mt-4">
-                    <span class="text-muted small">Didn't receive the code?</span>
-                    <a href="#" class="small text-decoration-none text-teal fw-bold ms-1" id="resendOtpBtn">Resend OTP</a>
-                  </div>
-                  <div class="mt-3 border-top pt-3">
-                    <a href="#" class="small text-decoration-none text-secondary" id="changeNumberBtn">
-                      <i class="fa-solid fa-arrow-left me-1"></i> Edit Mobile Number
-                    </a>
-                  </div>
-                </div>
-
               </form>
             </div>
 
@@ -245,137 +215,7 @@
     });
   </script>
 
-  
-  <!-- Frontend UI Logic & Supabase Phone Auth Integration -->
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const registerForm = document.getElementById('registerForm');
-    const signupFields = document.getElementById('signupFields');
-    const otpFields = document.getElementById('otpFields');
-    const registerTitle = document.getElementById('registerTitle');
-    const displayPhone = document.getElementById('displayPhone');
-    const regPhoneInput = document.getElementById('regPhone');
-    
-    const changeNumberBtn = document.getElementById('changeNumberBtn');
-    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
-    const resendOtpBtn = document.getElementById('resendOtpBtn');
-    const authTabsContainer = document.getElementById('authTabsContainer');
-    const authAlert = document.getElementById('authAlert');
-
-    // Store phone number globally for the verification step
-    let currentPhoneNumber = "";
-
-    // 1. Handle Sign Up Submission (Send OTP via Supabase)
-    registerForm.addEventListener('submit', async function(e) {
-      e.preventDefault(); 
-      
-      const phoneValue = regPhoneInput.value.trim();
-      const passwordValue = document.getElementById('regPassword').value;
-      const fullNameValue = document.getElementById('regFullName').value;
-      const roleValue = document.getElementById('regRole').value;
-      
-      if(phoneValue === "" || passwordValue === "") {
-        showAlert("Please fill in all required fields.", "danger");
-        return;
-      }
-
-      // Supabase Call: Sign Up with Phone & Password, store metadata
-      const { data, error } = await supabase.auth.signUp({
-        phone: phoneValue,
-        password: passwordValue,
-        options: {
-          channel: 'sms',
-          data: {
-            full_name: fullNameValue,
-            role: roleValue
-          }
-        }
-      });
-
-      if (error) {
-        showAlert(error.message, "danger");
-        return;
-      }
-      
-      // Update UI for OTP
-      currentPhoneNumber = phoneValue;
-      displayPhone.textContent = currentPhoneNumber;
-      signupFields.classList.add('d-none');
-      authTabsContainer.classList.add('d-none');
-      otpFields.classList.remove('d-none');
-      registerTitle.textContent = "Verify Mobile Number";
-      hideAlert();
-    });
-
-    // 2. Handle Verify OTP (Verify code via Supabase)
-    verifyOtpBtn.addEventListener('click', async function(e) {
-      e.preventDefault();
-      const otpValue = document.getElementById('regOtp').value.trim();
-      
-      if(otpValue.length !== 6) {
-        showAlert("Please enter a valid 6-digit OTP.", "danger");
-        return;
-      }
-
-      // Supabase Call: Verify the SMS OTP
-      const { data, session, error } = await supabase.auth.verifyOtp({
-        phone: currentPhoneNumber,
-        token: otpValue,
-        type: 'sms'
-      });
-
-      if (error) {
-        showAlert(error.message, "danger");
-        return;
-      }
-
-      // Success! User is authenticated.
-      showAlert("Authentication successful! Welcome to the library.", "success");
-      setTimeout(() => {
-          window.location.href = "index.html";
-      }, 1500);
-    });
-
-    // 3. Handle Resend OTP (Supabase Resend logic)
-    resendOtpBtn.addEventListener('click', async function(e) {
-      e.preventDefault();
-      
-      const { data, error } = await supabase.auth.resend({
-        type: 'sms',
-        phone: currentPhoneNumber
-      });
-
-      if (error) {
-         showAlert(error.message, "danger");
-      } else {
-         showAlert("A new OTP has been sent to your mobile number.", "primary");
-      }
-    });
-
-    // 4. Handle Edit Mobile Number (Go back to Sign Up fields)
-    changeNumberBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      otpFields.classList.add('d-none');
-      signupFields.classList.remove('d-none');
-      authTabsContainer.classList.remove('d-none');
-      registerTitle.textContent = "Create Account";
-      currentPhoneNumber = "";
-    });
-
-    // Helper function to show alerts
-    function showAlert(message, type) {
-      authAlert.className = `alert alert-${type} text-center`;
-      authAlert.textContent = message;
-      authAlert.classList.remove('d-none');
-    }
-
-    function hideAlert() {
-      authAlert.classList.add('d-none');
-    }
-  });
-</script>
-
-  <!-- Supabase Auth Integration -->
+  <!-- Supabase Auth Integration (Handles the actual logic) -->
   <script type="module" src="assets/js/auth.js"></script>
 </body>
 </html>
