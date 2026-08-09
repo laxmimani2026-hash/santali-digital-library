@@ -20,7 +20,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // =========================================================
   // CHECK USER SESSION & UPDATE NAVBAR 
-  // (Professional Dropdown Menu with Avatar)
   // =========================================================
   if (supabase && userNavArea) {
     try {
@@ -49,7 +48,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           : '';
 
         // Generate Avatar HTML
-        // If the user has uploaded an avatar, display it. Otherwise, show the default FontAwesome icon.
         const avatarHtml = profile && profile.avatar_url
           ? `<img src="${profile.avatar_url}" alt="Profile" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 2px solid #ffc107;" class="me-2 shadow-sm">`
           : `<i class="fa-solid fa-circle-user text-warning fs-5 me-2"></i>`;
@@ -62,10 +60,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-1" aria-labelledby="userDropdown" style="min-width: 200px; border-radius: 8px;">
               <li><a class="dropdown-item fw-semibold text-secondary py-2" href="profile.html"><i class="fa-solid fa-user-pen me-2 text-teal"></i> My Profile</a></li>
-              
-              <!-- My Cart Link Added Here -->
               <li><a class="dropdown-item fw-semibold text-secondary py-2" href="cart.html"><i class="fa-solid fa-cart-shopping me-2 text-teal"></i> My Cart</a></li>
-              
               <li><a class="dropdown-item fw-semibold text-secondary py-2" href="orders.html"><i class="fa-solid fa-box-open me-2 text-teal"></i> My Orders</a></li>
               ${authorMenuItems}
               <li><hr class="dropdown-divider my-1"></li>
@@ -77,7 +72,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         // Handle Logout Button Click
         document.getElementById("logoutBtn").addEventListener("click", async () => {
           await supabase.auth.signOut();
-          window.location.reload(); // Refresh the page to show Login/Sign Up again
+          window.location.reload(); 
         });
       }
     } catch (error) {
@@ -148,7 +143,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if (authError) throw authError;
 
-        // Explicitly save profile data into the 'profiles' table
         if (authData.user) {
           const { error: profileError } = await supabase
             .from('profiles')
@@ -211,24 +205,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if (error) throw error;
 
-        showAlert("Login successful! Checking account type...", "info");
+        showAlert("Login successful! Redirecting...", "success");
 
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', data.user.id)
-          .single();
-
-        let targetPage = "index.html"; 
-
-        if (profile && profile.role === "author") {
-          targetPage = "upload.html"; 
-        }
-
-        showAlert("Redirecting you now...", "success");
-
+        // Everyone goes to the home page after login now!
         setTimeout(() => {
-          window.location.href = targetPage;
+          window.location.href = "index.html";
         }, 1200);
 
       } catch (error) {
