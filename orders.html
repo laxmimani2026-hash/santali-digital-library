@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders | Santali Digital Library</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <style>
+    body { background-color: #f8f9fa; }
+    .order-card {
+      border: none;
+      border-radius: 12px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .order-card:hover {
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08) !important;
+    }
+    .order-book-cover {
+      width: 70px;
+      height: 95px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
+      background-color: #f1f1f1;
+    }
+  </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: #005f73;">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <i class="fa-solid fa-book-open-reader text-warning fs-3"></i>
+        <span>Santali Digital <span class="text-warning fw-bold">Library</span></span>
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto align-items-center">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="browse.html">Books</a></li>
+          <li class="nav-item"><a class="nav-link" href="categories.html">Categories</a></li>
+          <li class="nav-item"><a class="nav-link" href="upload.html">Upload</a></li>
+          <!-- User Dropdown (Injected by auth.js) -->
+          <li class="nav-item ms-lg-3 my-2 my-lg-0" id="userNavArea">
+            <a href="login.html" class="btn btn-warning btn-sm fw-bold">Login / Sign Up</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Content Container -->
+  <div class="container my-5 flex-grow-1">
+    
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <h2 class="fw-bold mb-1" style="color: #005f73;">My Orders & Library</h2>
+        <p class="text-muted mb-0">View your purchased books and reading history.</p>
+      </div>
+      <a href="browse.html" class="btn btn-outline-primary btn-sm fw-semibold">
+        <i class="fa-solid fa-plus me-1"></i> Browse More
+      </a>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="ordersAlert" class="alert d-none shadow-sm mb-4" role="alert"></div>
+
+    <!-- Loading State -->
+    <div id="ordersLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+      <p class="mt-3 text-muted fw-semibold">Fetching your orders...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="ordersEmpty" class="text-center py-5 bg-white rounded-4 shadow-sm border d-none">
+      <i class="fa-solid fa-box-open fs-1 text-secondary mb-3"></i>
+      <h4 class="fw-bold text-dark">No orders found</h4>
+      <p class="text-muted">You haven't purchased or added any books to your library yet.</p>
+      <a href="browse.html" class="btn btn-warning fw-bold px-4 py-2 mt-2 text-dark shadow-sm">
+        <i class="fa-solid fa-book-open me-2"></i>Explore Books
+      </a>
+    </div>
+
+    <!-- Orders List Container -->
+    <div id="ordersList" class="d-flex flex-column gap-3 d-none">
+      <!-- Dynamic Order Cards Injected via JS -->
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer-teal text-center mt-auto py-3" style="background-color: #005f73;">
+    <div class="container">
+      <p class="mb-1 fw-bold text-white">&copy; 2026 Santali Digital Library</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS & Auth Integration -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="assets/js/auth.js"></script>
+
+  <!-- Orders Logic -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const SUPABASE_URL = 'https://qdzadypqtctjonnwgxoo.supabase.co'; 
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const ordersLoading = document.getElementById('ordersLoading');
+      const ordersEmpty = document.getElementById('ordersEmpty');
+      const ordersList = document.getElementById('ordersList');
+      const ordersAlert = document.getElementById('ordersAlert');
+
+      function showAlert(message, type) {
+        ordersAlert.className = `alert alert-${type} shadow-sm mb-4`;
+        ordersAlert.textContent = message;
+        ordersAlert.classList.remove('d-none');
+      }
+
+      try {
+        // 1. Authenticate User
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (!session) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        // 2. Fetch Orders for the logged-in user
+        const { data: orders, error: ordersError } = await supabase
+          .from('orders')
+          .select('*, books(*)')
+          .eq('user_id', session.user.id)
+          .order('created_at', { ascending: false });
+
+        ordersLoading.classList.add('d-none');
+
+        if (ordersError) throw ordersError;
+
+        if (!orders || orders.length === 0) {
+          ordersEmpty.classList.remove('d-none');
+          return;
+        }
+
+        // 3. Render Orders
+        ordersList.classList.remove('d-none');
+
+        orders.forEach(order => {
+          const book = order.books || {};
+          const orderDate = new Date(order.created_at).toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+          });
+
+          const orderCard = document.createElement('div');
+          orderCard.className = "card shadow-sm order-card bg-white border p-3 p-md-4";
+          
+          orderCard.innerHTML = `
+            <div class="row align-items-center g-3">
+              
+              <!-- Book Cover & Basic Info -->
+              <div class="col-12 col-md-6 d-flex align-items-center">
+                <img src="${book.cover_url || 'https://via.placeholder.com/70x95?text=No+Cover'}" 
+                     class="order-book-cover me-3" alt="Cover"
+                     onerror="this.src='https://via.placeholder.com/70x95?text=No+Cover'">
+                <div>
+                  <span class="badge bg-success mb-1">Completed</span>
+                  <h5 class="fw-bold text-dark mb-1">${book.title || 'Book Title'}</h5>
+                  <p class="text-muted small mb-0">By ${book.author || 'Author'}</p>
+                </div>
+              </div>
+
+              <!-- Order Metadata -->
+              <div class="col-6 col-md-3">
+                <span class="text-muted small d-block">Order Date & Price</span>
+                <span class="fw-semibold text-dark small">${orderDate}</span>
+                <div class="fw-bold text-primary fs-5">₹${order.amount || book.price || 0}</div>
+              </div>
+
+              <!-- Action Button -->
+              <div class="col-6 col-md-3 text-end">
+                <a href="reader.html?id=${book.id || order.book_id}" class="btn btn-warning fw-bold btn-sm w-100 py-2 text-dark shadow-sm">
+                  <i class="fa-solid fa-book-open me-1"></i> Read Now
+                </a>
+              </div>
+
+            </div>
+          `;
+
+          ordersList.appendChild(orderCard);
+        });
+
+      } catch (err) {
+        console.error("Orders Fetch Error:", err);
+        ordersLoading.classList.add('d-none');
+        showAlert("Failed to load your orders. Make sure the 'orders' table is configured in Supabase.", "danger");
+      }
+    });
+  </script>
+</body>
+</html>
