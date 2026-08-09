@@ -73,7 +73,6 @@
       
       <!-- Left Column: Book Cover -->
       <div class="col-md-4 col-lg-4 text-center text-md-start mb-4 mb-md-0">
-        <!-- The 'onerror' attribute handles missing/broken images professionally -->
         <img src="" class="book-cover-large skeleton" alt="Book Cover" id="detailCover" 
              onerror="this.src='https://via.placeholder.com/320x450?text=Cover+Not+Available'; this.classList.remove('skeleton');">
       </div>
@@ -100,14 +99,14 @@
           Loading description...
         </p>
 
-        <!-- Professional Action Buttons (Initially Disabled while loading) -->
+        <!-- Professional Action Buttons -->
         <div class="d-flex flex-wrap gap-3 mt-5">
           <!-- Buy Now -->
           <button class="btn btn-success fw-bold px-4 py-2 shadow-sm" id="buyNowBtn" disabled>
             <i class="fa-solid fa-bolt me-2"></i>Buy Now
           </button>
           
-          <!-- Add to Cart -->
+          <!-- Add to Cart (Dynamically changes to View Cart) -->
           <button class="btn btn-primary fw-bold px-4 py-2 shadow-sm" id="addToCartBtn" disabled>
             <i class="fa-solid fa-cart-plus me-2"></i>Add to Cart
           </button>
@@ -117,9 +116,9 @@
             <i class="fa-solid fa-book-open me-2"></i>Read Book
           </button>
           
-          <!-- Close Tab -->
-          <button class="btn btn-outline-secondary px-4 py-2 fw-semibold" onclick="window.close()">
-            <i class="fa-solid fa-xmark me-2"></i>Close Tab
+          <!-- Back Button (Replaces Close Tab) -->
+          <button class="btn btn-outline-secondary px-4 py-2 fw-semibold" id="backBtn">
+            <i class="fa-solid fa-arrow-left me-2"></i>Back to Library
           </button>
         </div>
 
@@ -134,21 +133,16 @@
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    // =========================================================
-    // ⚠️ KEEP YOUR ACTUAL SUPABASE KEYS HERE
-    // =========================================================
     const SUPABASE_URL = 'https://qdzadypqtctjonnwgxoo.supabase.co'; 
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8'; // Re-insert your long token here
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     document.addEventListener("DOMContentLoaded", async () => {
-      // 1. Get the book ID from the URL (e.g., book-details.html?id=123)
       const urlParams = new URLSearchParams(window.location.search);
       const bookId = urlParams.get('id');
 
       const pageAlert = document.getElementById('pageAlert');
       
-      // DOM Elements
       const coverEl = document.getElementById('detailCover');
       const titleEl = document.getElementById('detailTitle');
       const authorEl = document.getElementById('detailAuthor');
@@ -159,6 +153,7 @@
       const buyNowBtn = document.getElementById('buyNowBtn');
       const addToCartBtn = document.getElementById('addToCartBtn');
       const readBookBtn = document.getElementById('readBookBtn');
+      const backBtn = document.getElementById('backBtn');
 
       if (!bookId) {
         showPageAlert("No book ID provided in URL.", "danger");
@@ -166,7 +161,6 @@
       }
 
       try {
-        // 2. Fetch the specific book from Supabase
         const { data: book, error } = await supabase
           .from('books')
           .select('*')
@@ -175,7 +169,6 @@
 
         if (error || !book) throw error;
 
-        // 3. Populate the UI & Remove Skeleton Classes
         coverEl.src = book.cover_url || '';
         coverEl.classList.remove('skeleton');
 
@@ -199,7 +192,7 @@
         }
         priceEl.classList.remove('skeleton');
 
-        // 4. Enable Buttons
+        // Enable Buttons now that data is loaded
         buyNowBtn.disabled = false;
         addToCartBtn.disabled = false;
         readBookBtn.disabled = false;
@@ -208,21 +201,31 @@
         // BUTTON CLICK LOGIC
         // ==========================================
 
+        // BACK BUTTON: Return to the library
+        backBtn.addEventListener('click', () => {
+          window.location.href = 'browse.html';
+        });
+
         // BUY NOW: Redirect to a checkout page
         buyNowBtn.addEventListener('click', () => {
           window.location.href = `checkout.html?id=${book.id}`;
         });
 
-        // READ BOOK: Redirect to reading page (or open file URL directly)
+        // READ BOOK: Redirect directly to reader page
         readBookBtn.addEventListener('click', () => {
-          // If you have a PDF link in your DB, you could do: window.open(book.file_url, '_blank');
-          // Otherwise, route to your reader UI:
-          window.location.href = `read-book.html?id=${book.id}`;
+          window.location.href = `reader.html?id=${book.id}`;
         });
 
-        // ADD TO CART: Save to Supabase
+        // ADD TO CART: Save to Supabase and transform button
+        let isAddedToCart = false;
+
         addToCartBtn.addEventListener('click', async function () {
-          // Check session
+          // If it was already added, go to the cart page
+          if (isAddedToCart) {
+            window.location.href = "cart.html";
+            return;
+          }
+
           const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
           if (!session) {
@@ -230,25 +233,26 @@
             return;
           }
 
-          // Disable button while processing
           this.disabled = true;
           this.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i>Adding...`;
 
-          // Insert into cart_items table
           const { error: cartError } = await supabase
             .from('cart_items')
             .insert([{ user_id: session.user.id, book_id: book.id, quantity: 1 }]);
 
           if (cartError) {
             showPageAlert("Failed to add to cart. Please try again.", "danger");
-            // Reset button
             this.disabled = false;
             this.innerHTML = `<i class="fa-solid fa-cart-plus me-2"></i>Add to Cart`;
           } else {
             showPageAlert("Book successfully added to your cart!", "success");
-            // Change button state to success
-            this.classList.replace('btn-primary', 'btn-success');
-            this.innerHTML = `<i class="fa-solid fa-check me-2"></i>Added to Cart`;
+            
+            // Transform button to View Cart
+            isAddedToCart = true;
+            this.classList.replace('btn-primary', 'btn-info');
+            this.classList.add('text-white');
+            this.innerHTML = `<i class="fa-solid fa-arrow-right me-2"></i>View Cart`;
+            this.disabled = false; // Re-enable so it can be clicked again
           }
         });
 
@@ -257,12 +261,11 @@
         showPageAlert("Failed to load book details. The book may have been removed.", "danger");
       }
 
-      // Helper function for alerts
       function showPageAlert(message, type) {
         pageAlert.className = `alert alert-${type} shadow-sm mb-4`;
         pageAlert.textContent = message;
         pageAlert.classList.remove('d-none');
-        window.scrollTo(0, 0); // Scroll to top to see error
+        window.scrollTo(0, 0); 
       }
     });
   </script>

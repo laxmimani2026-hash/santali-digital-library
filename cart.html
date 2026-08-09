@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Cart | Santali Digital Library</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+  <!-- Navigation Bar (Same as your other pages) -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: #005f73;">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <i class="fa-solid fa-book-open-reader text-warning fs-3"></i>
+        <span>Santali Digital <span class="text-warning fw-bold">Library</span></span>
+      </a>
+    </div>
+  </nav>
+
+  <div class="container my-5 flex-grow-1">
+    <h2 class="fw-bold mb-4" style="color: #005f73;">Your Cart</h2>
+    
+    <div class="row">
+      <!-- Cart Items Section -->
+      <div class="col-lg-8">
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-body p-0" id="cartContainer">
+            <!-- Loading State -->
+            <div class="text-center p-5" id="cartLoading">
+              <div class="spinner-border text-primary" role="status"></div>
+              <p class="mt-2 text-muted">Loading your cart...</p>
+            </div>
+            
+            <!-- Empty State -->
+            <div class="text-center p-5 d-none" id="cartEmpty">
+              <i class="fa-solid fa-cart-shopping fs-1 text-muted mb-3"></i>
+              <h5 class="text-muted">Your cart is empty.</h5>
+              <a href="browse.html" class="btn btn-outline-primary mt-2">Browse Books</a>
+            </div>
+
+            <!-- Items List -->
+            <ul class="list-group list-group-flush d-none" id="cartList">
+              <!-- JS will inject items here -->
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary Section -->
+      <div class="col-lg-4">
+        <div class="card shadow-sm border-0 bg-white">
+          <div class="card-body p-4">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">Order Summary</h5>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Subtotal</span>
+              <span class="fw-semibold" id="cartSubtotal">₹0</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+              <span class="text-muted">Tax / Fees</span>
+              <span class="text-success">Free</span>
+            </div>
+            <div class="d-flex justify-content-between mb-4">
+              <span class="fw-bold fs-5">Total</span>
+              <span class="fw-bold fs-5 text-primary" id="cartTotal">₹0</span>
+            </div>
+            <button class="btn btn-success w-100 fw-bold py-2 shadow-sm" id="checkoutBtn" disabled>
+              Proceed to Checkout <i class="fa-solid fa-arrow-right ms-2"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const SUPABASE_URL = 'https://qdzadypqtctjonnwgxoo.supabase.co'; 
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const cartLoading = document.getElementById('cartLoading');
+      const cartEmpty = document.getElementById('cartEmpty');
+      const cartList = document.getElementById('cartList');
+      const cartSubtotal = document.getElementById('cartSubtotal');
+      const cartTotal = document.getElementById('cartTotal');
+      const checkoutBtn = document.getElementById('checkoutBtn');
+
+      try {
+        // 1. Get Logged in User
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (!session) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        // 2. Fetch Cart Items for this user
+        const { data: cartData, error: cartError } = await supabase
+          .from('cart_items')
+          .select('*')
+          .eq('user_id', session.user.id);
+
+        if (cartError) throw cartError;
+
+        if (!cartData || cartData.length === 0) {
+          cartLoading.classList.add('d-none');
+          cartEmpty.classList.remove('d-none');
+          return;
+        }
+
+        // 3. Extract Book IDs and Fetch Book Details
+        const bookIds = cartData.map(item => item.book_id);
+        const { data: booksData, error: booksError } = await supabase
+          .from('books')
+          .select('id, title, author, price, cover_url')
+          .in('id', bookIds);
+
+        if (booksError) throw booksError;
+
+        cartLoading.classList.add('d-none');
+        cartList.classList.remove('d-none');
+
+        let totalPrice = 0;
+
+        // 4. Render Items
+        cartData.forEach(cartItem => {
+          const book = booksData.find(b => b.id == cartItem.book_id);
+          if (!book) return;
+
+          const price = book.price || 0;
+          totalPrice += price;
+
+          const listItem = document.createElement('li');
+          listItem.className = "list-group-item p-3 p-md-4";
+          listItem.innerHTML = `
+            <div class="d-flex align-items-center">
+              <img src="${book.cover_url}" alt="Cover" class="rounded shadow-sm" style="width: 60px; height: 80px; object-fit: cover; background:#f1f1f1;">
+              <div class="ms-3 flex-grow-1">
+                <h6 class="fw-bold mb-1">${book.title}</h6>
+                <p class="text-muted small mb-0">By ${book.author}</p>
+                <div class="fw-bold text-primary mt-1">₹${price}</div>
+              </div>
+              <button class="btn btn-outline-danger btn-sm delete-cart-item" data-cart-id="${cartItem.id}">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          `;
+          cartList.appendChild(listItem);
+        });
+
+        // 5. Update Totals & Enable Checkout
+        cartSubtotal.innerText = `₹${totalPrice}`;
+        cartTotal.innerText = `₹${totalPrice}`;
+        checkoutBtn.disabled = false;
+        
+        checkoutBtn.addEventListener('click', () => {
+           window.location.href = "checkout.html";
+        });
+
+        // 6. Handle Delete
+        document.querySelectorAll('.delete-cart-item').forEach(btn => {
+          btn.addEventListener('click', async function() {
+            const cartId = this.getAttribute('data-cart-id');
+            this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+            this.disabled = true;
+
+            const { error } = await supabase.from('cart_items').delete().eq('id', cartId);
+            if (!error) {
+              window.location.reload(); // Reload to refresh totals
+            }
+          });
+        });
+
+      } catch (err) {
+        console.error("Cart Error:", err);
+        cartLoading.innerHTML = `<p class="text-danger">Failed to load cart. Please try again.</p>`;
+      }
+    });
+  </script>
+</body>
+</html>
