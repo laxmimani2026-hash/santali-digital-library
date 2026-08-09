@@ -249,6 +249,20 @@
             // Simulate Payment Processing Delay (Standard for UIs)
             await new Promise(resolve => setTimeout(resolve, 2000));
 
+            // --- NEW: SAVE THE ORDER TO THE DATABASE ---
+            const newOrders = booksToRender.map(book => ({
+              user_id: session.user.id,
+              book_id: book.id,
+              amount: book.price || 0,
+              status: 'completed'
+            }));
+
+            // Insert the purchased books into the 'orders' table
+            const { error: insertError } = await supabase.from('orders').insert(newOrders);
+            
+            if (insertError) throw insertError;
+            // -------------------------------------------
+
             // If this was a cart checkout, clear the user's cart now that they bought it
             if (isCartCheckout) {
                await supabase.from('cart_items').delete().eq('user_id', session.user.id);
@@ -258,12 +272,13 @@
             showAlert("Payment successful! Your order has been placed.", "success");
             
             setTimeout(() => {
-              // Redirect to a success page or back to their library
-              window.location.href = "profile.html"; 
+              // Redirect directly to the orders page so they can see their new book!
+              window.location.href = "orders.html"; 
             }, 2000);
 
           } catch (err) {
-             showAlert("Payment failed. Please try again.", "danger");
+             console.error("Order Insert Error:", err);
+             showAlert("Payment processed, but failed to save order details. Please contact support.", "danger");
              placeOrderBtn.disabled = false;
              placeOrderBtn.innerHTML = `<i class="fa-solid fa-shield-check me-2"></i>Place Order`;
           }
