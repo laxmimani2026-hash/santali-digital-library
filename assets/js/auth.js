@@ -56,6 +56,10 @@ document.addEventListener("DOMContentLoaded", async function () {
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-1" aria-labelledby="userDropdown" style="min-width: 200px; border-radius: 8px;">
               <li><a class="dropdown-item fw-semibold text-secondary py-2" href="profile.html"><i class="fa-solid fa-user-pen me-2 text-teal"></i> My Profile</a></li>
+              
+              <!-- NEW: My Cart Link Added Here -->
+              <li><a class="dropdown-item fw-semibold text-secondary py-2" href="cart.html"><i class="fa-solid fa-cart-shopping me-2 text-teal"></i> My Cart</a></li>
+              
               <li><a class="dropdown-item fw-semibold text-secondary py-2" href="orders.html"><i class="fa-solid fa-box-open me-2 text-teal"></i> My Orders</a></li>
               ${authorMenuItems}
               <li><hr class="dropdown-divider my-1"></li>
