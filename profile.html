@@ -29,7 +29,7 @@
       justify-content: center;
       border-radius: 50%;
       margin: 0 auto 1rem auto;
-      overflow: hidden; /* Ensures the image stays circular */
+      overflow: hidden;
       border: 3px solid #f8f9fa;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
@@ -282,7 +282,7 @@
           avatarUpload.value = ""; // Reset file input
         });
 
-        // Handle Form Submission (Includes Photo Upload Logic)
+        // Handle Form Submission
         editForm.addEventListener("submit", async (e) => {
           e.preventDefault();
 
@@ -293,7 +293,7 @@
           const updatedPhone = document.getElementById("phone").value.trim();
           const updatedAddress = document.getElementById("address").value.trim();
           
-          let currentAvatarUrl = profile.avatar_url; // Keep current if no new file
+          let currentAvatarUrl = profile.avatar_url;
 
           try {
             // Check if a new file was selected
@@ -303,16 +303,19 @@
               const fileName = `${user.id}-${Date.now()}.${fileExt}`;
               const filePath = `${fileName}`;
 
-              // Upload to 'avatars' bucket
+              // Changed to lowercase 'avatars'
               const { error: uploadError } = await supabase.storage
-                .from('AVATARS')
+                .from('avatars')
                 .upload(filePath, file, { upsert: true });
 
-              if (uploadError) throw new Error("Failed to upload image. Did you create the public 'avatars' bucket?");
+              // Properly capture and throw the actual Supabase error message
+              if (uploadError) {
+                console.error("Storage Upload Error:", uploadError);
+                throw new Error("Storage Error: " + uploadError.message);
+              }
 
-              // Get public URL
               const { data: publicUrlData } = supabase.storage
-                .from('AVATARS')
+                .from('avatars')
                 .getPublicUrl(filePath);
               
               currentAvatarUrl = publicUrlData.publicUrl;
@@ -329,7 +332,10 @@
               })
               .eq('id', user.id);
 
-            if (updateError) throw updateError;
+            if (updateError) {
+                console.error("Profile Update Error:", updateError);
+                throw new Error("Database Error: " + updateError.message);
+            }
 
             // Update local profile object & re-render
             profile.full_name = updatedName;
@@ -344,7 +350,8 @@
             showAlert("Profile updated successfully!", "success");
 
           } catch (err) {
-            console.error("Update Error:", err);
+            console.error("Caught Error:", err);
+            // Display the specific error message to the screen
             showAlert(err.message || "Failed to update profile details.", "danger");
           } finally {
             saveBtn.disabled = false;
@@ -353,7 +360,7 @@
         });
 
       } catch (error) {
-        console.error("Profile Error:", error);
+        console.error("Profile Fetch Error:", error);
         showAlert("Failed to load profile details.", "danger");
       }
     });
