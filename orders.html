@@ -140,26 +140,38 @@
         }
 
         // 2. Fetch Orders for the logged-in user
+        // FIX: Removed the buggy '*, books(*)' join that was crashing the page
         const { data: orders, error: ordersError } = await supabase
           .from('orders')
-          .select('*, books(*)')
+          .select('*')
           .eq('user_id', session.user.id)
           .order('created_at', { ascending: false });
 
-        ordersLoading.classList.add('d-none');
-
         if (ordersError) throw ordersError;
+
+        ordersLoading.classList.add('d-none');
 
         if (!orders || orders.length === 0) {
           ordersEmpty.classList.remove('d-none');
           return;
         }
 
-        // 3. Render Orders
+        // 3. Extract Book IDs and Fetch Book Details Separately
+        const bookIds = orders.map(order => order.book_id);
+        const { data: booksData, error: booksError } = await supabase
+          .from('books')
+          .select('*')
+          .in('id', bookIds);
+
+        if (booksError) throw booksError;
+
+        // 4. Render Orders
         ordersList.classList.remove('d-none');
 
         orders.forEach(order => {
-          const book = order.books || {};
+          // Find the matching book for this order
+          const book = booksData.find(b => b.id == order.book_id) || {};
+          
           const orderDate = new Date(order.created_at).toLocaleDateString('en-IN', {
             day: 'numeric',
             month: 'short',
@@ -179,8 +191,8 @@
                      onerror="this.src='https://via.placeholder.com/70x95?text=No+Cover'">
                 <div>
                   <span class="badge bg-success mb-1">Completed</span>
-                  <h5 class="fw-bold text-dark mb-1">${book.title || 'Book Title'}</h5>
-                  <p class="text-muted small mb-0">By ${book.author || 'Author'}</p>
+                  <h5 class="fw-bold text-dark mb-1">${book.title || 'Unknown Book'}</h5>
+                  <p class="text-muted small mb-0">By ${book.author || 'Unknown Author'}</p>
                 </div>
               </div>
 
@@ -193,7 +205,7 @@
 
               <!-- Action Button -->
               <div class="col-6 col-md-3 text-end">
-                <a href="reader.html?id=${book.id || order.book_id}" class="btn btn-warning fw-bold btn-sm w-100 py-2 text-dark shadow-sm">
+                <a href="reader.html?id=${order.book_id}" class="btn btn-warning fw-bold btn-sm w-100 py-2 text-dark shadow-sm">
                   <i class="fa-solid fa-book-open me-1"></i> Read Now
                 </a>
               </div>
@@ -207,7 +219,7 @@
       } catch (err) {
         console.error("Orders Fetch Error:", err);
         ordersLoading.classList.add('d-none');
-        showAlert("Failed to load your orders. Make sure the 'orders' table is configured in Supabase.", "danger");
+        showAlert("Failed to load your orders. Ensure the 'orders' table exists in Supabase.", "danger");
       }
     });
   </script>
