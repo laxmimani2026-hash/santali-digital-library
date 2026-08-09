@@ -19,16 +19,24 @@
       border: none;
     }
     .profile-avatar {
-      width: 90px;
-      height: 90px;
+      width: 100px;
+      height: 100px;
       background-color: #005f73;
       color: white;
-      font-size: 2.5rem;
+      font-size: 3rem;
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: 50%;
       margin: 0 auto 1rem auto;
+      overflow: hidden; /* Ensures the image stays circular */
+      border: 3px solid #f8f9fa;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .profile-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
   </style>
 </head>
@@ -68,9 +76,13 @@
 
         <div class="card shadow-sm profile-card p-4 p-md-5">
           <div class="text-center mb-4">
-            <div class="profile-avatar shadow-sm">
-              <i class="fa-solid fa-user"></i>
+            
+            <!-- Updated Avatar Container -->
+            <div class="profile-avatar position-relative">
+              <i class="fa-solid fa-user" id="defaultAvatarIcon"></i>
+              <img src="" alt="Profile" class="profile-img d-none" id="profileImageDisplay">
             </div>
+
             <h3 id="userDisplayName" class="fw-bold mb-1">Loading Profile...</h3>
             <p id="userEmailDisplay" class="text-muted mb-2"></p>
             <span id="userRoleBadge" class="badge"></span>
@@ -114,6 +126,14 @@
             <h5 class="fw-bold mb-3 border-bottom pb-2">Edit Information</h5>
             
             <div class="row g-3">
+              
+              <!-- NEW: Profile Photo Upload Input -->
+              <div class="col-md-12">
+                <label for="avatarUpload" class="form-label fw-semibold">Profile Photo</label>
+                <input class="form-control" type="file" id="avatarUpload" accept="image/*">
+                <div class="form-text">Choose a square image for the best fit (Max 2MB).</div>
+              </div>
+
               <div class="col-md-12">
                 <label for="fullName" class="form-label fw-semibold">Full Name</label>
                 <input type="text" class="form-control" id="fullName" required>
@@ -139,7 +159,7 @@
               <button type="button" id="cancelEditBtn" class="btn btn-secondary fw-semibold px-4 py-2">
                 Cancel
               </button>
-              <button type="submit" class="btn btn-warning fw-bold px-4 py-2 text-dark shadow-sm">
+              <button type="submit" id="saveProfileBtn" class="btn btn-warning fw-bold px-4 py-2 text-dark shadow-sm">
                 <i class="fa-solid fa-floppy-disk me-2"></i> Save Changes
               </button>
             </div>
@@ -176,11 +196,18 @@
       const editForm = document.getElementById("profileEditForm");
       const editBtn = document.getElementById("editBtn");
       const cancelEditBtn = document.getElementById("cancelEditBtn");
+      const saveBtn = document.getElementById("saveProfileBtn");
+
+      // Avatar Elements
+      const defaultIcon = document.getElementById("defaultAvatarIcon");
+      const profileImage = document.getElementById("profileImageDisplay");
+      const avatarUpload = document.getElementById("avatarUpload");
 
       function showAlert(message, type) {
         alertBox.className = `alert alert-${type} text-center`;
         alertBox.textContent = message;
         alertBox.classList.remove("d-none");
+        window.scrollTo(0, 0);
       }
 
       try {
@@ -217,10 +244,17 @@
           document.getElementById("viewRole").innerText = roleText;
           document.getElementById("roleDisplay").value = roleText;
 
-          // Fill edit fields too
+          // Fill edit fields
           document.getElementById("fullName").value = p.full_name || '';
           document.getElementById("phone").value = p.phone || '';
           document.getElementById("address").value = p.address || '';
+
+          // Display Avatar if it exists
+          if (p.avatar_url) {
+            profileImage.src = p.avatar_url;
+            profileImage.classList.remove('d-none');
+            defaultIcon.classList.add('d-none');
+          }
 
           const roleBadge = document.getElementById("userRoleBadge");
           if (p.role === 'author') {
@@ -245,35 +279,77 @@
         cancelEditBtn.addEventListener("click", () => {
           editForm.classList.add("d-none");
           viewMode.classList.remove("d-none");
+          avatarUpload.value = ""; // Reset file input
         });
 
-        // Handle Form Submission
+        // Handle Form Submission (Includes Photo Upload Logic)
         editForm.addEventListener("submit", async (e) => {
           e.preventDefault();
+
+          saveBtn.disabled = true;
+          saveBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Saving...`;
 
           const updatedName = document.getElementById("fullName").value.trim();
           const updatedPhone = document.getElementById("phone").value.trim();
           const updatedAddress = document.getElementById("address").value.trim();
+          
+          let currentAvatarUrl = profile.avatar_url; // Keep current if no new file
 
-          const { error: updateError } = await supabase
-            .from('profiles')
-            .update({
-              full_name: updatedName,
-              phone: updatedPhone,
-              address: updatedAddress
-            })
-            .eq('id', user.id);
+          try {
+            // Check if a new file was selected
+            if (avatarUpload.files.length > 0) {
+              const file = avatarUpload.files[0];
+              const fileExt = file.name.split('.').pop();
+              const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+              const filePath = `${fileName}`;
 
-          if (updateError) throw updateError;
+              // Upload to 'avatars' bucket
+              const { error: uploadError } = await supabase.storage
+                .from('avatars')
+                .upload(filePath, file, { upsert: true });
 
-          profile.full_name = updatedName;
-          profile.phone = updatedPhone;
-          profile.address = updatedAddress;
+              if (uploadError) throw new Error("Failed to upload image. Did you create the public 'avatars' bucket?");
 
-          renderProfile(profile);
-          editForm.classList.add("d-none");
-          viewMode.classList.remove("d-none");
-          showAlert("Profile updated successfully!", "success");
+              // Get public URL
+              const { data: publicUrlData } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(filePath);
+              
+              currentAvatarUrl = publicUrlData.publicUrl;
+            }
+
+            // Update Database Profile
+            const { error: updateError } = await supabase
+              .from('profiles')
+              .update({
+                full_name: updatedName,
+                phone: updatedPhone,
+                address: updatedAddress,
+                avatar_url: currentAvatarUrl
+              })
+              .eq('id', user.id);
+
+            if (updateError) throw updateError;
+
+            // Update local profile object & re-render
+            profile.full_name = updatedName;
+            profile.phone = updatedPhone;
+            profile.address = updatedAddress;
+            profile.avatar_url = currentAvatarUrl;
+
+            renderProfile(profile);
+            editForm.classList.add("d-none");
+            viewMode.classList.remove("d-none");
+            avatarUpload.value = ""; // Reset input
+            showAlert("Profile updated successfully!", "success");
+
+          } catch (err) {
+            console.error("Update Error:", err);
+            showAlert(err.message || "Failed to update profile details.", "danger");
+          } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = `<i class="fa-solid fa-floppy-disk me-2"></i> Save Changes`;
+          }
         });
 
       } catch (error) {
