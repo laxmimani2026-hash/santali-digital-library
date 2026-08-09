@@ -245,92 +245,135 @@
     });
   </script>
 
-  <!-- Frontend UI Logic for OTP Transition -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const registerForm = document.getElementById('registerForm');
-      const signupFields = document.getElementById('signupFields');
-      const otpFields = document.getElementById('otpFields');
-      const registerTitle = document.getElementById('registerTitle');
-      const displayPhone = document.getElementById('displayPhone');
-      const regPhoneInput = document.getElementById('regPhone');
+  
+  <!-- Frontend UI Logic & Supabase Phone Auth Integration -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const registerForm = document.getElementById('registerForm');
+    const signupFields = document.getElementById('signupFields');
+    const otpFields = document.getElementById('otpFields');
+    const registerTitle = document.getElementById('registerTitle');
+    const displayPhone = document.getElementById('displayPhone');
+    const regPhoneInput = document.getElementById('regPhone');
+    
+    const changeNumberBtn = document.getElementById('changeNumberBtn');
+    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+    const resendOtpBtn = document.getElementById('resendOtpBtn');
+    const authTabsContainer = document.getElementById('authTabsContainer');
+    const authAlert = document.getElementById('authAlert');
+
+    // Store phone number globally for the verification step
+    let currentPhoneNumber = "";
+
+    // 1. Handle Sign Up Submission (Send OTP via Supabase)
+    registerForm.addEventListener('submit', async function(e) {
+      e.preventDefault(); 
       
-      const changeNumberBtn = document.getElementById('changeNumberBtn');
-      const verifyOtpBtn = document.getElementById('verifyOtpBtn');
-      const resendOtpBtn = document.getElementById('resendOtpBtn');
-      const authTabsContainer = document.getElementById('authTabsContainer');
-      const authAlert = document.getElementById('authAlert');
-
-      // 1. Handle Sign Up Submission (Transition to OTP)
-      registerForm.addEventListener('submit', function(e) {
-        e.preventDefault(); 
-        
-        const phoneValue = regPhoneInput.value.trim();
-        
-        // Basic validation (ensure phone is entered)
-        if(phoneValue === "") {
-          showAlert("Please enter a valid mobile number.", "danger");
-          return;
-        }
-
-        // TODO: Call your backend API here to send the OTP SMS
-        
-        // Update UI
-        displayPhone.textContent = phoneValue;
-        signupFields.classList.add('d-none');
-        authTabsContainer.classList.add('d-none'); // Hide tabs so they don't switch during auth
-        otpFields.classList.remove('d-none');
-        registerTitle.textContent = "Verify Mobile Number";
-        hideAlert();
-      });
-
-      // 2. Handle Edit Mobile Number (Go back to Sign Up fields)
-      changeNumberBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        otpFields.classList.add('d-none');
-        signupFields.classList.remove('d-none');
-        authTabsContainer.classList.remove('d-none');
-        registerTitle.textContent = "Create Account";
-      });
-
-      // 3. Handle Verify OTP
-      verifyOtpBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        const otpValue = document.getElementById('regOtp').value.trim();
-        
-        if(otpValue.length !== 6) {
-          showAlert("Please enter a valid 6-digit OTP.", "danger");
-          return;
-        }
-
-        // TODO: Call your backend API here to verify the OTP and finalize user creation
-        
-        // Simulate Success
-        showAlert("Authentication successful! Welcome to the library.", "success");
-        setTimeout(() => {
-            window.location.href = "index.html"; // Redirect to dashboard/home
-        }, 1500);
-      });
-
-      // 4. Handle Resend OTP
-      resendOtpBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        // TODO: Call your backend API here to resend the SMS
-        showAlert("A new OTP has been sent to your mobile number.", "primary");
-      });
-
-      // Helper function to show alerts
-      function showAlert(message, type) {
-        authAlert.className = `alert alert-${type} text-center`;
-        authAlert.textContent = message;
-        authAlert.classList.remove('d-none');
+      const phoneValue = regPhoneInput.value.trim();
+      const passwordValue = document.getElementById('regPassword').value;
+      const fullNameValue = document.getElementById('regFullName').value;
+      const roleValue = document.getElementById('regRole').value;
+      
+      if(phoneValue === "" || passwordValue === "") {
+        showAlert("Please fill in all required fields.", "danger");
+        return;
       }
 
-      function hideAlert() {
-        authAlert.classList.add('d-none');
+      // Supabase Call: Sign Up with Phone & Password, store metadata
+      const { data, error } = await supabase.auth.signUp({
+        phone: phoneValue,
+        password: passwordValue,
+        options: {
+          channel: 'sms',
+          data: {
+            full_name: fullNameValue,
+            role: roleValue
+          }
+        }
+      });
+
+      if (error) {
+        showAlert(error.message, "danger");
+        return;
+      }
+      
+      // Update UI for OTP
+      currentPhoneNumber = phoneValue;
+      displayPhone.textContent = currentPhoneNumber;
+      signupFields.classList.add('d-none');
+      authTabsContainer.classList.add('d-none');
+      otpFields.classList.remove('d-none');
+      registerTitle.textContent = "Verify Mobile Number";
+      hideAlert();
+    });
+
+    // 2. Handle Verify OTP (Verify code via Supabase)
+    verifyOtpBtn.addEventListener('click', async function(e) {
+      e.preventDefault();
+      const otpValue = document.getElementById('regOtp').value.trim();
+      
+      if(otpValue.length !== 6) {
+        showAlert("Please enter a valid 6-digit OTP.", "danger");
+        return;
+      }
+
+      // Supabase Call: Verify the SMS OTP
+      const { data, session, error } = await supabase.auth.verifyOtp({
+        phone: currentPhoneNumber,
+        token: otpValue,
+        type: 'sms'
+      });
+
+      if (error) {
+        showAlert(error.message, "danger");
+        return;
+      }
+
+      // Success! User is authenticated.
+      showAlert("Authentication successful! Welcome to the library.", "success");
+      setTimeout(() => {
+          window.location.href = "index.html";
+      }, 1500);
+    });
+
+    // 3. Handle Resend OTP (Supabase Resend logic)
+    resendOtpBtn.addEventListener('click', async function(e) {
+      e.preventDefault();
+      
+      const { data, error } = await supabase.auth.resend({
+        type: 'sms',
+        phone: currentPhoneNumber
+      });
+
+      if (error) {
+         showAlert(error.message, "danger");
+      } else {
+         showAlert("A new OTP has been sent to your mobile number.", "primary");
       }
     });
-  </script>
+
+    // 4. Handle Edit Mobile Number (Go back to Sign Up fields)
+    changeNumberBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      otpFields.classList.add('d-none');
+      signupFields.classList.remove('d-none');
+      authTabsContainer.classList.remove('d-none');
+      registerTitle.textContent = "Create Account";
+      currentPhoneNumber = "";
+    });
+
+    // Helper function to show alerts
+    function showAlert(message, type) {
+      authAlert.className = `alert alert-${type} text-center`;
+      authAlert.textContent = message;
+      authAlert.classList.remove('d-none');
+    }
+
+    function hideAlert() {
+      authAlert.classList.add('d-none');
+    }
+  });
+</script>
 
   <!-- Supabase Auth Integration -->
   <script type="module" src="assets/js/auth.js"></script>
