@@ -13,6 +13,41 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/style.css">
+
+  <style>
+    /* Professional Marquee (Slider) Styles */
+    .marquee-wrapper {
+      width: 100%;
+      overflow: hidden;
+      padding: 15px 0;
+      position: relative;
+    }
+    
+    .marquee-track {
+      display: flex;
+      gap: 1.5rem;
+      width: max-content;
+      /* Adjust '30s' to make it move faster or slower */
+      animation: scrollBooks 35s linear infinite; 
+    }
+
+    /* Stop movement when the cursor stops over it */
+    .marquee-track:hover {
+      animation-play-state: paused;
+    }
+
+    .marquee-item {
+      width: 260px; /* Fixed width for consistent professional cards */
+      flex-shrink: 0;
+    }
+
+    /* Smooth infinite loop animation */
+    @keyframes scrollBooks {
+      0% { transform: translateX(0); }
+      /* Translates exactly half the track width (accounting for the gap) */
+      100% { transform: translateX(calc(-50% - 0.75rem)); } 
+    }
+  </style>
 </head>
 <body>
 
@@ -52,7 +87,7 @@
       <h1 class="hero-title">Discover Thousands of Digital Books</h1>
       <p class="hero-subtitle">Read anywhere, anytime. Publish your own eBooks in Ol Chiki and multiple languages to reach readers worldwide.</p>
       
-      <!-- ID's Added to Search Input and Button -->
+      <!-- Search Component -->
       <div class="search-box-wrapper">
         <div class="input-group">
           <input type="text" class="form-control search-input" id="searchInput" placeholder="Search books, authors, or categories...">
@@ -65,22 +100,29 @@
   </header>
 
   <!-- Featured / Search Results Section -->
-  <section class="py-5" id="bookSection">
+  <section class="py-5 overflow-hidden" id="bookSection">
     <div class="container py-3">
-      <!-- ID's Added to Titles for dynamic updating -->
       <h2 class="section-title" id="sectionTitle">Featured Books</h2>
       <p class="section-subtitle" id="sectionSubtitle">Handpicked eBooks from top Santali authors and scholars</p>
       
-      <!-- ID added to container, static placeholder books removed -->
-      <div class="row g-4 justify-content-center" id="booksContainer">
-        
-        <!-- Initial Loading State -->
-        <div class="col-12 text-center py-5">
-          <div class="spinner-border text-primary" role="status"></div>
-          <p class="mt-2 text-muted fw-semibold">Loading books...</p>
-        </div>
-
+      <!-- Initial Loading State -->
+      <div class="col-12 text-center py-5" id="loadingState">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2 text-muted fw-semibold">Loading books...</p>
       </div>
+
+      <!-- Marquee Container (For Homepage View) -->
+      <div class="marquee-wrapper d-none" id="marqueeWrapper">
+        <div class="marquee-track" id="marqueeBooksContainer">
+          <!-- Dynamic moving cards injected here -->
+        </div>
+      </div>
+
+      <!-- Static Grid Container (For Search Results View) -->
+      <div class="row g-4 justify-content-center d-none" id="gridBooksContainer">
+         <!-- Search results injected here -->
+      </div>
+
     </div>
   </section>
 
@@ -187,13 +229,20 @@
     document.addEventListener("DOMContentLoaded", async () => {
       const searchInput = document.getElementById('searchInput');
       const searchBtn = document.getElementById('searchBtn');
-      const booksContainer = document.getElementById('booksContainer');
+      
+      const loadingState = document.getElementById('loadingState');
+      const marqueeWrapper = document.getElementById('marqueeWrapper');
+      const marqueeBooksContainer = document.getElementById('marqueeBooksContainer');
+      const gridBooksContainer = document.getElementById('gridBooksContainer');
+      
       const sectionTitle = document.getElementById('sectionTitle');
       const sectionSubtitle = document.getElementById('sectionSubtitle');
 
       // Function to dynamically render books
       function renderBooks(books, isSearch = false, query = '') {
-        booksContainer.innerHTML = ''; // Clear container
+        loadingState.classList.add('d-none');
+        marqueeBooksContainer.innerHTML = '';
+        gridBooksContainer.innerHTML = ''; 
         
         // Update Titles
         if (isSearch) {
@@ -204,9 +253,11 @@
           sectionSubtitle.textContent = "Handpicked eBooks from top Santali authors and scholars";
         }
 
-        // Feature: Show "Not Found" professional empty state
+        // Show "Not Found" professional empty state
         if (books.length === 0) {
-          booksContainer.innerHTML = `
+          marqueeWrapper.classList.add('d-none');
+          gridBooksContainer.classList.remove('d-none');
+          gridBooksContainer.innerHTML = `
             <div class="col-12 text-center py-5">
               <div class="mb-4">
                 <i class="fa-solid fa-book-open text-muted" style="font-size: 4rem; opacity: 0.5;"></i>
@@ -222,39 +273,57 @@
           return;
         }
 
-        // Feature: Show Books
+        // Generate Book HTML
+        let cardsHtml = '';
         books.forEach(book => {
-          // Format Pricing
           const priceDisplay = (book.price === 0 || String(book.price).toLowerCase() === 'free') 
             ? '<span class="book-price text-success">FREE</span>' 
             : `<span class="book-price text-primary fw-bold">₹${book.price}</span>`;
-
           const bookCategory = book.category ? book.category.toUpperCase() : 'GENERAL';
 
-          const card = `
-            <div class="col-sm-6 col-md-4 col-lg-3">
-              <div class="book-card-pro bg-white border shadow-sm h-100 d-flex flex-column" style="border-radius: 12px; overflow: hidden; transition: transform 0.2s;">
-                
-                <div style="height: 250px; overflow: hidden; position: relative;">
-                  <img src="${book.cover_url || 'https://via.placeholder.com/500x750?text=No+Cover'}" class="w-100 h-100 object-fit-cover" alt="${book.title}" onerror="this.src='https://via.placeholder.com/500x750?text=No+Cover'">
-                  <span class="badge bg-dark position-absolute top-0 end-0 m-2 px-3 py-2 opacity-75">${bookCategory}</span>
+          // Inner Card Content
+          const cardContent = `
+            <div class="book-card-pro bg-white border shadow-sm h-100 d-flex flex-column" style="border-radius: 12px; overflow: hidden; transition: transform 0.2s;">
+              <div style="height: 250px; overflow: hidden; position: relative;">
+                <img src="${book.cover_url || 'https://via.placeholder.com/500x750?text=No+Cover'}" style="object-fit: cover;" class="w-100 h-100" alt="${book.title}" onerror="this.src='https://via.placeholder.com/500x750?text=No+Cover'">
+                <span class="badge bg-dark position-absolute top-0 end-0 m-2 px-3 py-2 opacity-75">${bookCategory}</span>
+              </div>
+              <div class="p-3 d-flex flex-column flex-grow-1">
+                <h5 class="fw-bold mb-1 text-dark text-truncate" title="${book.title}">${book.title}</h5>
+                <p class="text-muted small mb-3 text-truncate">By ${book.author || 'Unknown'}</p>
+                <div class="d-flex align-items-center justify-content-between mt-auto pt-2 border-top">
+                  ${priceDisplay}
+                  <a href="book-details.html?id=${book.id}" class="btn btn-warning btn-sm fw-bold text-dark px-3">View</a>
                 </div>
-                
-                <div class="p-3 d-flex flex-column flex-grow-1">
-                  <h5 class="fw-bold mb-1 text-dark text-truncate" title="${book.title}">${book.title}</h5>
-                  <p class="text-muted small mb-3 text-truncate">By ${book.author || 'Unknown'}</p>
-                  
-                  <div class="d-flex align-items-center justify-content-between mt-auto pt-2 border-top">
-                    ${priceDisplay}
-                    <a href="book-details.html?id=${book.id}" class="btn btn-warning btn-sm fw-bold text-dark px-3">View</a>
-                  </div>
-                </div>
-
               </div>
             </div>
           `;
-          booksContainer.innerHTML += card;
+
+          // Wrap card depending on the display mode
+          if (isSearch) {
+             cardsHtml += `<div class="col-sm-6 col-md-4 col-lg-3">${cardContent}</div>`;
+          } else {
+             cardsHtml += `<div class="marquee-item">${cardContent}</div>`;
+          }
         });
+
+        // Inject into appropriate container
+        if (isSearch) {
+            marqueeWrapper.classList.add('d-none');
+            gridBooksContainer.classList.remove('d-none');
+            gridBooksContainer.innerHTML = cardsHtml;
+        } else {
+            gridBooksContainer.classList.add('d-none');
+            marqueeWrapper.classList.remove('d-none');
+            
+            // To create an infinite loop effect, we duplicate the book string
+            let infiniteLoopHtml = cardsHtml;
+            // If there are very few books, duplicate them extra times to fill the screen
+            if (books.length < 5) { infiniteLoopHtml += cardsHtml; }
+            infiniteLoopHtml += infiniteLoopHtml; 
+            
+            marqueeBooksContainer.innerHTML = infiniteLoopHtml;
+        }
       }
 
       // Feature: Handle Search Query
@@ -266,20 +335,15 @@
         }
 
         // Show loading state
-        booksContainer.innerHTML = `
-          <div class="col-12 text-center py-5">
-            <div class="spinner-border text-primary" role="status"></div>
-            <p class="mt-3 text-muted fw-semibold">Searching library...</p>
-          </div>
-        `;
+        marqueeWrapper.classList.add('d-none');
+        gridBooksContainer.classList.add('d-none');
+        loadingState.classList.remove('d-none');
+        
         sectionTitle.textContent = "Searching...";
         sectionSubtitle.textContent = "Please wait while we fetch the results.";
-        
-        // Scroll to results
         document.getElementById('bookSection').scrollIntoView({ behavior: 'smooth' });
 
         try {
-          // Query Supabase: Case-insensitive search across title, author, or category
           const { data, error } = await supabase
             .from('books')
             .select('*')
@@ -290,36 +354,44 @@
 
         } catch (err) {
           console.error("Search Error:", err);
-          booksContainer.innerHTML = `<div class="col-12 text-center text-danger py-5"><i class="fa-solid fa-circle-exclamation fs-1 mb-3"></i><br>Failed to load search results. Please check your connection.</div>`;
+          loadingState.classList.add('d-none');
+          gridBooksContainer.classList.remove('d-none');
+          gridBooksContainer.innerHTML = `<div class="col-12 text-center text-danger py-5"><i class="fa-solid fa-circle-exclamation fs-1 mb-3"></i><br>Failed to load search results. Please check your connection.</div>`;
         }
       }
 
-      // Trigger search on button click
+      // Trigger search on button click & Enter key
       searchBtn.addEventListener('click', handleSearch);
-      
-      // Trigger search on Enter key press
       searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleSearch();
       });
 
-      // Feature: Load Initial Featured Books on Page Load
+      // Feature: Load Initial Featured Books on Page Load (Marquee View)
       async function loadInitialBooks() {
+        marqueeWrapper.classList.add('d-none');
+        gridBooksContainer.classList.add('d-none');
+        loadingState.classList.remove('d-none');
+        
         try {
           const { data, error } = await supabase
             .from('books')
             .select('*')
-            .limit(8); // Fetches the newest 8 books for the homepage
+            .limit(10); // Fetch newest books
 
           if (error) throw error;
           
           if (data && data.length > 0) {
               renderBooks(data, false);
           } else {
-             booksContainer.innerHTML = `<div class="col-12 text-center text-muted py-5">No books have been published yet.</div>`;
+             loadingState.classList.add('d-none');
+             gridBooksContainer.classList.remove('d-none');
+             gridBooksContainer.innerHTML = `<div class="col-12 text-center text-muted py-5">No books have been published yet.</div>`;
           }
         } catch (err) {
           console.error("Initial load error:", err);
-          booksContainer.innerHTML = `<div class="col-12 text-center text-danger py-5">Failed to load library database.</div>`;
+          loadingState.classList.add('d-none');
+          gridBooksContainer.classList.remove('d-none');
+          gridBooksContainer.innerHTML = `<div class="col-12 text-center text-danger py-5">Failed to load library database.</div>`;
         }
       }
       
