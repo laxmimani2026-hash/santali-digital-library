@@ -305,14 +305,14 @@
 
               // Upload to 'avatars' bucket
               const { error: uploadError } = await supabase.storage
-                .from('avatars')
+                .from('AVATARS')
                 .upload(filePath, file, { upsert: true });
 
               if (uploadError) throw new Error("Failed to upload image. Did you create the public 'avatars' bucket?");
 
               // Get public URL
               const { data: publicUrlData } = supabase.storage
-                .from('avatars')
+                .from('AVATARS')
                 .getPublicUrl(filePath);
               
               currentAvatarUrl = publicUrlData.publicUrl;
