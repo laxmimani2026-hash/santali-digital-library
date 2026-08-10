@@ -27,24 +27,20 @@
       display: flex;
       gap: 1.5rem;
       width: max-content;
-      /* Adjust '30s' to make it move faster or slower */
       animation: scrollBooks 35s linear infinite; 
     }
 
-    /* Stop movement when the cursor stops over it */
     .marquee-track:hover {
       animation-play-state: paused;
     }
 
     .marquee-item {
-      width: 260px; /* Fixed width for consistent professional cards */
+      width: 260px;
       flex-shrink: 0;
     }
 
-    /* Smooth infinite loop animation */
     @keyframes scrollBooks {
       0% { transform: translateX(0); }
-      /* Translates exactly half the track width (accounting for the gap) */
       100% { transform: translateX(calc(-50% - 0.75rem)); } 
     }
   </style>
@@ -63,29 +59,29 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto align-items-center">
-          <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="browse.html">Books</a></li>
-          <li class="nav-item"><a class="nav-link" href="categories.html">Categories</a></li>
-          <li class="nav-item"><a class="nav-link" href="authors.html">Authors</a></li>
+          <li class="nav-item"><a class="nav-link active" href="index.html" data-i18n="navHome">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="browse.html" data-i18n="navBooks">Books</a></li>
+          <li class="nav-item"><a class="nav-link" href="categories.html" data-i18n="navCategories">Categories</a></li>
+          <li class="nav-item"><a class="nav-link" href="authors.html" data-i18n="navAuthors">Authors</a></li>
           
-          <li class="nav-item d-none" id="uploadNavArea"><a class="nav-link" href="upload.html">Upload</a></li>
-          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item d-none" id="uploadNavArea"><a class="nav-link" href="upload.html" data-i18n="navUpload">Upload</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html" data-i18n="navContact">Contact</a></li>
 
           <!-- Language Selector Dropdown -->
           <li class="nav-item dropdown ms-lg-2">
             <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="fa-solid fa-globe"></i> EN
+              <i class="fa-solid fa-globe"></i> <span id="langLabelText">EN</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="languageDropdown">
-              <li><a class="dropdown-item active" href="#">English</a></li>
-              <li><a class="dropdown-item" href="#">ᱥᱟᱱᱛᱟᱲᱤ (Santali)</a></li>
-              <li><a class="dropdown-item" href="#">हिन्दी (Hindi)</a></li>
+              <li><a class="dropdown-item lang-select" href="#" data-lang="en">English</a></li>
+              <li><a class="dropdown-item lang-select" href="#" data-lang="sat">ᱥᱟᱱᱛᱟᱲᱤ (Santali)</a></li>
+              <li><a class="dropdown-item lang-select" href="#" data-lang="hi">हिन्दी (Hindi)</a></li>
             </ul>
           </li>
           
           <li class="nav-item ms-lg-3 my-2 my-lg-0" id="userNavArea">
             <div class="d-flex align-items-center gap-2">
-              <a class="btn btn-gold btn-sm px-3" href="login.html">Login / Sign Up</a>
+              <a class="btn btn-gold btn-sm px-3" href="login.html" data-i18n="navLogin">Login / Sign Up</a>
             </div>
           </li>
         </ul>
@@ -96,15 +92,15 @@
   <!-- Hero Banner -->
   <header class="hero-teal">
     <div class="container">
-      <h1 class="hero-title">Discover Thousands of Digital Books</h1>
-      <p class="hero-subtitle">Read anywhere, anytime. Publish your own eBooks in Ol Chiki and multiple languages to reach readers worldwide.</p>
+      <h1 class="hero-title" data-i18n="heroTitle">Discover Thousands of Digital Books</h1>
+      <p class="hero-subtitle" data-i18n="heroSub">Read anywhere, anytime. Publish your own eBooks in Ol Chiki and multiple languages to reach readers worldwide.</p>
       
       <!-- Search Component -->
       <div class="search-box-wrapper">
         <div class="input-group">
           <input type="text" class="form-control search-input" id="searchInput" placeholder="Search books, authors, or categories...">
           <button class="btn search-btn" type="button" id="searchBtn">
-            <i class="fa-solid fa-magnifying-glass me-1"></i> Search
+            <i class="fa-solid fa-magnifying-glass me-1"></i> <span data-i18n="searchBtnText">Search</span>
           </button>
         </div>
       </div>
@@ -114,8 +110,8 @@
   <!-- Featured / Search Results Section -->
   <section class="py-5 overflow-hidden" id="bookSection">
     <div class="container py-3">
-      <h2 class="section-title" id="sectionTitle">Featured Books</h2>
-      <p class="section-subtitle" id="sectionSubtitle">Handpicked eBooks from top Santali authors and scholars</p>
+      <h2 class="section-title" id="sectionTitle" data-i18n="sectionFeatured">Featured Books</h2>
+      <p class="section-subtitle" id="sectionSubtitle" data-i18n="sectionFeaturedSub">Handpicked eBooks from top Santali authors and scholars</p>
       
       <!-- Initial Loading State -->
       <div class="col-12 text-center py-5" id="loadingState">
@@ -123,56 +119,51 @@
         <p class="mt-2 text-muted fw-semibold">Loading books...</p>
       </div>
 
-      <!-- Marquee Container (For Homepage View) -->
+      <!-- Marquee Container -->
       <div class="marquee-wrapper d-none" id="marqueeWrapper">
-        <div class="marquee-track" id="marqueeBooksContainer">
-          <!-- Dynamic moving cards injected here -->
-        </div>
+        <div class="marquee-track" id="marqueeBooksContainer"></div>
       </div>
 
-      <!-- Static Grid Container (For Search Results View) -->
-      <div class="row g-4 justify-content-center d-none" id="gridBooksContainer">
-         <!-- Search results injected here -->
-      </div>
-
+      <!-- Static Grid Container -->
+      <div class="row g-4 justify-content-center d-none" id="gridBooksContainer"></div>
     </div>
   </section>
 
   <!-- Categories Section -->
   <section class="py-5 bg-white border-top border-bottom">
     <div class="container">
-      <h2 class="section-title">Categories</h2>
-      <p class="section-subtitle">Browse books across popular genres and learning material</p>
+      <h2 class="section-title" data-i18n="catTitle">Categories</h2>
+      <p class="section-subtitle" data-i18n="catSub">Browse books across popular genres and learning material</p>
       
       <div class="row g-3">
         <div class="col-6 col-md-4 col-lg-2">
           <a href="browse.html?cat=story" class="category-card">
-            <i class="fa-solid fa-book-bookmark text-warning"></i> Story
+            <i class="fa-solid fa-book-bookmark text-warning"></i> <span data-i18n="catStory">Story</span>
           </a>
         </div>
         <div class="col-6 col-md-4 col-lg-2">
           <a href="browse.html?cat=education" class="category-card">
-            <i class="fa-solid fa-graduation-cap text-warning"></i> Education
+            <i class="fa-solid fa-graduation-cap text-warning"></i> <span data-i18n="catEdu">Education</span>
           </a>
         </div>
         <div class="col-6 col-md-4 col-lg-2">
           <a href="browse.html?cat=children" class="category-card">
-            <i class="fa-solid fa-child text-warning"></i> Children
+            <i class="fa-solid fa-child text-warning"></i> <span data-i18n="catChild">Children</span>
           </a>
         </div>
         <div class="col-6 col-md-4 col-lg-2">
           <a href="browse.html?cat=history" class="category-card">
-            <i class="fa-solid fa-landmark text-warning"></i> History
+            <i class="fa-solid fa-landmark text-warning"></i> <span data-i18n="catHistory">History</span>
           </a>
         </div>
         <div class="col-6 col-md-4 col-lg-2">
           <a href="browse.html?cat=culture" class="category-card">
-            <i class="fa-solid fa-leaf text-warning"></i> Culture
+            <i class="fa-solid fa-leaf text-warning"></i> <span data-i18n="catCulture">Culture</span>
           </a>
         </div>
         <div class="col-6 col-md-4 col-lg-2">
           <a href="browse.html?cat=literature" class="category-card">
-            <i class="fa-solid fa-feather text-warning"></i> Literature
+            <i class="fa-solid fa-feather text-warning"></i> <span data-i18n="catLit">Literature</span>
           </a>
         </div>
       </div>
@@ -182,8 +173,8 @@
   <!-- Why Choose Us Section -->
   <section class="py-5 my-3">
     <div class="container">
-      <h2 class="section-title">Why Choose Santali Digital Library?</h2>
-      <p class="section-subtitle">Empowering indigenous writers and digital readers worldwide</p>
+      <h2 class="section-title" data-i18n="whyTitle">Why Choose Santali Digital Library?</h2>
+      <p class="section-subtitle" data-i18n="whySub">Empowering indigenous writers and digital readers worldwide</p>
       
       <div class="row g-4">
         <div class="col-md-4">
@@ -191,8 +182,8 @@
             <div class="feature-icon-circle">
               <i class="fa-solid fa-cloud-arrow-up"></i>
             </div>
-            <h3 class="feature-title">Easy Upload</h3>
-            <p class="feature-desc">Authors can upload books within minutes.</p>
+            <h3 class="feature-title" data-i18n="feat1Title">Easy Upload</h3>
+            <p class="feature-desc" data-i18n="feat1Desc">Authors can upload books within minutes.</p>
           </div>
         </div>
         <div class="col-md-4">
@@ -200,8 +191,8 @@
             <div class="feature-icon-circle">
               <i class="fa-solid fa-sack-dollar"></i>
             </div>
-            <h3 class="feature-title">Earn Money</h3>
-            <p class="feature-desc">Sell books directly to readers worldwide.</p>
+            <h3 class="feature-title" data-i18n="feat2Title">Earn Money</h3>
+            <p class="feature-desc" data-i18n="feat2Desc">Sell books directly to readers worldwide.</p>
           </div>
         </div>
         <div class="col-md-4">
@@ -209,8 +200,8 @@
             <div class="feature-icon-circle">
               <i class="fa-solid fa-mobile-screen-button"></i>
             </div>
-            <h3 class="feature-title">Read Anywhere</h3>
-            <p class="feature-desc">Mobile, Tablet & Desktop support.</p>
+            <h3 class="feature-title" data-i18n="feat3Title">Read Anywhere</h3>
+            <p class="feature-desc" data-i18n="feat3Desc">Mobile, Tablet & Desktop support.</p>
           </div>
         </div>
       </div>
@@ -221,12 +212,103 @@
   <footer class="footer-teal text-center mt-auto">
     <div class="container">
       <p class="mb-2 fw-bold">&copy; 2026 Santali Digital Library</p>
-      <p class="small mb-0 text-white-50">Made with ❤️ for Authors & Readers</p>
+      <p class="small mb-0 text-white-50" data-i18n="footerText">Made with ❤️ for Authors & Readers</p>
     </div>
   </footer>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Language Translation Script -->
+  <script>
+    // Dictionary containing translations
+    const translations = {
+      en: {
+        navHome: "Home", navBooks: "Books", navCategories: "Categories", navAuthors: "Authors", navUpload: "Upload", navContact: "Contact", navLogin: "Login / Sign Up",
+        heroTitle: "Discover Thousands of Digital Books",
+        heroSub: "Read anywhere, anytime. Publish your own eBooks in Ol Chiki and multiple languages to reach readers worldwide.",
+        searchPlaceholder: "Search books, authors, or categories...", searchBtnText: "Search",
+        sectionFeatured: "Featured Books", sectionFeaturedSub: "Handpicked eBooks from top Santali authors and scholars",
+        catTitle: "Categories", catSub: "Browse books across popular genres and learning material",
+        catStory: "Story", catEdu: "Education", catChild: "Children", catHistory: "History", catCulture: "Culture", catLit: "Literature",
+        whyTitle: "Why Choose Santali Digital Library?", whySub: "Empowering indigenous writers and digital readers worldwide",
+        feat1Title: "Easy Upload", feat1Desc: "Authors can upload books within minutes.",
+        feat2Title: "Earn Money", feat2Desc: "Sell books directly to readers worldwide.",
+        feat3Title: "Read Anywhere", feat3Desc: "Mobile, Tablet & Desktop support.",
+        footerText: "Made with ❤️ for Authors & Readers",
+        langLabel: "EN"
+      },
+      sat: {
+        // NOTE: Please replace these with accurate Ol Chiki translations! These are approximations.
+        navHome: "ᱚᱲᱟᱜ (Home)", navBooks: "ᱯᱚᱛᱚᱵ (Books)", navCategories: "ᱦᱟᱹᱴᱤᱧ (Categories)", navAuthors: "ᱚᱱᱚᱞᱤᱭᱟᱹ (Authors)", navUpload: "ᱞᱟᱫᱮ (Upload)", navContact: "ᱡᱚᱜᱟᱡᱚᱜᱽ (Contact)", navLogin: "ᱵᱚᱞᱚᱱ / ᱥᱮᱞᱮᱫᱚᱜ",
+        heroTitle: "ᱦᱟᱡᱟᱨ ᱦᱟᱡᱟᱨ ᱰᱤᱡᱤᱴᱟᱞ ᱯᱚᱛᱚᱵ ᱥᱮᱸᱫᱽᱨᱟᱭ ᱢᱮ",
+        heroSub: "ᱡᱟᱦᱟᱸ ᱨᱮᱜᱮ, ᱡᱟᱦᱟᱸ ᱛᱤᱥ ᱜᱮ ᱯᱟᱲᱦᱟᱣ ᱢᱮ᱾ ᱟᱢᱟᱜ ᱤ-ᱯᱚᱛᱚᱵ ᱚᱞ ᱪᱤᱠᱤ ᱟᱨ ᱮᱴᱟᱜ ᱯᱟᱹᱨᱥᱤ ᱛᱮ ᱯᱟᱨᱥᱟᱞ ᱢᱮ᱾",
+        searchPlaceholder: "ᱯᱚᱛᱚᱵ, ᱚᱱᱚᱞᱤᱭᱟᱹ ᱥᱮ ᱦᱟᱹᱴᱤᱧ ᱥᱮᱸᱫᱽᱨᱟᱭ ᱢᱮ...", searchBtnText: "ᱥᱮᱸᱫᱽᱨᱟᱭ",
+        sectionFeatured: "ᱵᱟᱪᱷᱟᱣ ᱯᱚᱛᱚᱵ", sectionFeaturedSub: "ᱥᱚᱨᱮᱥ ᱥᱟᱱᱛᱟᱲᱤ ᱚᱱᱚᱞᱤᱭᱟᱹ ᱠᱚᱣᱟᱜ ᱤ-ᱯᱚᱛᱚᱵ",
+        catTitle: "ᱦᱟᱹᱴᱤᱧ ᱠᱚ", catSub: "ᱵᱷᱮᱜᱟᱨ ᱵᱷᱮᱜᱟᱨ ᱯᱚᱛᱚᱵ ᱠᱚ ᱯᱟᱲᱦᱟᱣ ᱢᱮ",
+        catStory: "ᱠᱟᱹᱦᱱᱤ", catEdu: "ᱥᱮᱪᱮᱫ", catChild: "ᱜᱤᱫᱽᱨᱟᱹ", catHistory: "ᱱᱟᱜᱟᱢ", catCulture: "ᱞᱟᱭᱞᱟᱠᱪᱟᱨ", catLit: "ᱥᱟᱶᱦᱮᱫ",
+        whyTitle: "ᱥᱟᱱᱛᱟᱲᱤ ᱰᱤᱡᱤᱴᱟᱞ ᱞᱟᱭᱵᱽᱨᱮᱨᱤ ᱪᱮᱫᱟᱜ ᱮᱢ ᱵᱟᱪᱷᱟᱣᱟ?", whySub: "ᱚᱱᱚᱞᱤᱭᱟᱹ ᱟᱨ ᱯᱟᱹᱲᱦᱟᱹᱣᱤᱭᱟᱹ ᱠᱚ ᱜᱚᱲᱚ ᱮᱢᱟᱠᱚ",
+        feat1Title: "ᱟᱞᱜᱟ ᱛᱮ ᱞᱟᱫᱮ", feat1Desc: "ᱚᱱᱚᱞᱤᱭᱟᱹ ᱠᱚ ᱞᱚᱜᱚᱱ ᱯᱚᱛᱚᱵ ᱠᱚ ᱞᱟᱫᱮ ᱫᱟᱲᱮᱭᱟᱜ-ᱟ᱾",
+        feat2Title: "ᱴᱟᱠᱟ ᱟᱨᱡᱟᱣ", feat2Desc: "ᱯᱚᱛᱚᱵ ᱟᱹᱠᱷᱨᱤᱧ ᱠᱟᱛᱮ ᱴᱟᱠᱟ ᱟᱨᱡᱟᱣ ᱢᱮ᱾",
+        feat3Title: "ᱡᱟᱦᱟᱸ ᱨᱮᱜᱮ ᱯᱟᱲᱦᱟᱣ", feat3Desc: "ᱢᱚᱵᱟᱭᱤᱞ, ᱴᱮᱵᱽᱞᱮᱴ ᱟᱨ ᱰᱮᱥᱠᱴᱚᱯ ᱨᱮ ᱯᱟᱲᱦᱟᱣ ᱢᱮ᱾",
+        footerText: "ᱚᱱᱚᱞᱤᱭᱟᱹ ᱟᱨ ᱯᱟᱹᱲᱦᱟᱹᱣᱤᱭᱟᱹ ᱠᱚ ᱞᱟᱹᱜᱤᱫ ❤️ ᱛᱮ ᱵᱮᱱᱟᱣ ᱟᱠᱟᱱᱟ",
+        langLabel: "SAT"
+      },
+      hi: {
+        navHome: "होम", navBooks: "पुस्तकें", navCategories: "श्रेणियाँ", navAuthors: "लेखक", navUpload: "अपलोड", navContact: "संपर्क", navLogin: "लॉगिन / साइन अप",
+        heroTitle: "हजारों डिजिटल पुस्तकें खोजें",
+        heroSub: "कहीं भी, कभी भी पढ़ें। अपनी ई-पुस्तकें प्रकाशित करें और दुनिया भर के पाठकों तक पहुंचें।",
+        searchPlaceholder: "पुस्तकें, लेखक या श्रेणियाँ खोजें...", searchBtnText: "खोजें",
+        sectionFeatured: "चुनिंदा पुस्तकें", sectionFeaturedSub: "शीर्ष संथाली लेखकों और विद्वानों की ई-पुस्तकें",
+        catTitle: "श्रेणियाँ", catSub: "लोकप्रिय शैलियों और शिक्षण सामग्री में ब्राउज़ करें",
+        catStory: "कहानी", catEdu: "शिक्षा", catChild: "बच्चे", catHistory: "इतिहास", catCulture: "संस्कृति", catLit: "साहित्य",
+        whyTitle: "संथाली डिजिटल लाइब्रेरी क्यों चुनें?", whySub: "स्वदेशी लेखकों और डिजिटल पाठकों को सशक्त बनाना",
+        feat1Title: "आसान अपलोड", feat1Desc: "लेखक मिनटों में किताबें अपलोड कर सकते हैं।",
+        feat2Title: "पैसे कमाएं", feat2Desc: "सीधे दुनिया भर के पाठकों को किताबें बेचें।",
+        feat3Title: "कहीं भी पढ़ें", feat3Desc: "मोबाइल, टैबलेट और डेस्कटॉप समर्थन।",
+        footerText: "लेखकों और पाठकों के लिए ❤️ से निर्मित",
+        langLabel: "HI"
+      }
+    };
+
+    function changeLanguage(lang) {
+      const texts = translations[lang];
+      if (!texts) return;
+
+      // Swap out the texts on elements matching data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (texts[key]) el.innerHTML = texts[key];
+      });
+
+      // Update placeholder
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) searchInput.placeholder = texts.searchPlaceholder;
+
+      // Update dropdown label
+      const langLabel = document.getElementById('langLabelText');
+      if (langLabel) langLabel.textContent = texts.langLabel;
+
+      // Save preference so it remembers on page reload
+      localStorage.setItem('selectedLang', lang);
+    }
+
+    // Attach click events to the dropdown items
+    document.querySelectorAll('.lang-select').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const lang = e.currentTarget.getAttribute('data-lang');
+        changeLanguage(lang);
+      });
+    });
+
+    // Check browser memory on initial load
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedLang = localStorage.getItem('selectedLang') || 'en';
+      changeLanguage(savedLang);
+    });
+  </script>
+
   <!-- Firebase Auth Script -->
   <script type="module" src="assets/js/auth.js"></script>
 
@@ -250,22 +332,21 @@
       const sectionTitle = document.getElementById('sectionTitle');
       const sectionSubtitle = document.getElementById('sectionSubtitle');
 
-      // Function to dynamically render books
       function renderBooks(books, isSearch = false, query = '') {
         loadingState.classList.add('d-none');
         marqueeBooksContainer.innerHTML = '';
         gridBooksContainer.innerHTML = ''; 
         
-        // Update Titles
         if (isSearch) {
           sectionTitle.textContent = "Search Results";
           sectionSubtitle.textContent = `Showing results for "${query}"`;
         } else {
-          sectionTitle.textContent = "Featured Books";
-          sectionSubtitle.textContent = "Handpicked eBooks from top Santali authors and scholars";
+          // Re-trigger language update for default titles just in case
+          const currentLang = localStorage.getItem('selectedLang') || 'en';
+          sectionTitle.textContent = translations[currentLang].sectionFeatured;
+          sectionSubtitle.textContent = translations[currentLang].sectionFeaturedSub;
         }
 
-        // Show "Not Found" professional empty state
         if (books.length === 0) {
           marqueeWrapper.classList.add('d-none');
           gridBooksContainer.classList.remove('d-none');
@@ -285,7 +366,6 @@
           return;
         }
 
-        // Generate Book HTML
         let cardsHtml = '';
         books.forEach(book => {
           const priceDisplay = (book.price === 0 || String(book.price).toLowerCase() === 'free') 
@@ -293,7 +373,6 @@
             : `<span class="book-price text-primary fw-bold">₹${book.price}</span>`;
           const bookCategory = book.category ? book.category.toUpperCase() : 'GENERAL';
 
-          // Inner Card Content
           const cardContent = `
             <div class="book-card-pro bg-white border shadow-sm h-100 d-flex flex-column" style="border-radius: 12px; overflow: hidden; transition: transform 0.2s;">
               <div style="height: 250px; overflow: hidden; position: relative;">
@@ -311,7 +390,6 @@
             </div>
           `;
 
-          // Wrap card depending on the display mode
           if (isSearch) {
              cardsHtml += `<div class="col-sm-6 col-md-4 col-lg-3">${cardContent}</div>`;
           } else {
@@ -319,7 +397,6 @@
           }
         });
 
-        // Inject into appropriate container
         if (isSearch) {
             marqueeWrapper.classList.add('d-none');
             gridBooksContainer.classList.remove('d-none');
@@ -328,9 +405,7 @@
             gridBooksContainer.classList.add('d-none');
             marqueeWrapper.classList.remove('d-none');
             
-            // To create an infinite loop effect, we duplicate the book string
             let infiniteLoopHtml = cardsHtml;
-            // If there are very few books, duplicate them extra times to fill the screen
             if (books.length < 5) { infiniteLoopHtml += cardsHtml; }
             infiniteLoopHtml += infiniteLoopHtml; 
             
@@ -338,15 +413,13 @@
         }
       }
 
-      // Feature: Handle Search Query
       async function handleSearch() {
         const query = searchInput.value.trim();
         if (!query) {
-           loadInitialBooks(); // Reload default books if search is empty
+           loadInitialBooks(); 
            return;
         }
 
-        // Show loading state
         marqueeWrapper.classList.add('d-none');
         gridBooksContainer.classList.add('d-none');
         loadingState.classList.remove('d-none');
@@ -372,13 +445,11 @@
         }
       }
 
-      // Trigger search on button click & Enter key
       searchBtn.addEventListener('click', handleSearch);
       searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleSearch();
       });
 
-      // Feature: Load Initial Featured Books on Page Load (Marquee View)
       async function loadInitialBooks() {
         marqueeWrapper.classList.add('d-none');
         gridBooksContainer.classList.add('d-none');
@@ -388,7 +459,7 @@
           const { data, error } = await supabase
             .from('books')
             .select('*')
-            .limit(10); // Fetch newest books
+            .limit(10); 
 
           if (error) throw error;
           
@@ -407,7 +478,6 @@
         }
       }
       
-      // Execute load immediately
       loadInitialBooks();
     });
   </script>
