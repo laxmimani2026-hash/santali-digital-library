@@ -38,6 +38,10 @@
       height: 100%;
       object-fit: cover;
     }
+    /* Added to break long URLs in view mode */
+    .word-break-all {
+      word-break: break-all;
+    }
   </style>
 </head>
 <body class="bg-light d-flex flex-column min-vh-100">
@@ -90,31 +94,55 @@
 
           <!-- VIEW MODE SECTION (Shown initially) -->
           <div id="profileViewMode">
-            <h5 class="fw-bold mb-3 border-bottom pb-2">Personal Information</h5>
+            <h5 class="fw-bold mb-3 border-bottom pb-2">Professional & Personal Information</h5>
             
-            <div class="row g-3 mb-4">
-              <div class="col-md-12">
-                <span class="text-muted small d-block">Full Name</span>
-                <h5 id="viewFullName" class="fw-semibold text-dark">-</h5>
-              </div>
-
+            <div class="row g-4 mb-4">
+              <!-- Basic Info -->
               <div class="col-md-6">
-                <span class="text-muted small d-block">Phone Number</span>
-                <p id="viewPhone" class="fw-semibold text-dark mb-0">Not provided</p>
+                <span class="text-muted small d-block">Full Name</span>
+                <h6 id="viewFullName" class="fw-semibold text-dark">-</h6>
               </div>
-
               <div class="col-md-6">
                 <span class="text-muted small d-block">Account Type</span>
-                <p id="viewRole" class="fw-semibold text-dark mb-0">-</p>
+                <h6 id="viewRole" class="fw-semibold text-dark mb-0">-</h6>
+              </div>
+              <div class="col-md-6">
+                <span class="text-muted small d-block">Organization/Affiliation</span>
+                <h6 id="viewOrganization" class="fw-semibold text-dark mb-0">Not provided</h6>
+              </div>
+              <div class="col-md-6">
+                <span class="text-muted small d-block">Website / Social Link</span>
+                <h6 id="viewWebsite" class="fw-semibold text-dark mb-0 word-break-all">Not provided</h6>
+              </div>
+              
+              <!-- Bio -->
+              <div class="col-12">
+                <span class="text-muted small d-block">Bio / About Me</span>
+                <p id="viewBio" class="fw-semibold text-dark mb-0">Not provided</p>
               </div>
 
-              <div class="col-12">
+              <!-- Library Preferences -->
+              <div class="col-md-6">
+                <span class="text-muted small d-block">Reading/Writing Interests</span>
+                <h6 id="viewInterests" class="fw-semibold text-dark mb-0">Not provided</h6>
+              </div>
+              <div class="col-md-6">
+                <span class="text-muted small d-block">Preferred Language</span>
+                <h6 id="viewLanguage" class="fw-semibold text-dark mb-0">Not provided</h6>
+              </div>
+
+              <!-- Contact & Location -->
+              <div class="col-md-6">
+                <span class="text-muted small d-block">Phone Number</span>
+                <h6 id="viewPhone" class="fw-semibold text-dark mb-0">Not provided</h6>
+              </div>
+              <div class="col-md-6">
                 <span class="text-muted small d-block">Address</span>
-                <p id="viewAddress" class="fw-semibold text-dark mb-0">Not provided</p>
+                <h6 id="viewAddress" class="fw-semibold text-dark mb-0">Not provided</h6>
               </div>
             </div>
 
-            <div class="text-end">
+            <div class="text-end border-top pt-3">
               <button id="editBtn" class="btn btn-outline-dark fw-bold px-4 py-2 shadow-sm">
                 <i class="fa-solid fa-pen-to-square me-2"></i> Edit Profile
               </button>
@@ -127,35 +155,67 @@
             
             <div class="row g-3">
               
-              <!-- NEW: Profile Photo Upload Input -->
-              <div class="col-md-12">
+              <!-- Profile Photo Upload Input -->
+              <div class="col-md-12 mb-2">
                 <label for="avatarUpload" class="form-label fw-semibold">Profile Photo</label>
                 <input class="form-control" type="file" id="avatarUpload" accept="image/*">
                 <div class="form-text">Choose a square image for the best fit (Max 2MB).</div>
               </div>
 
-              <div class="col-md-12">
+              <h6 class="fw-bold mt-4 mb-2 text-secondary">Basic Details</h6>
+              <div class="col-md-6">
                 <label for="fullName" class="form-label fw-semibold">Full Name</label>
                 <input type="text" class="form-control" id="fullName" required>
               </div>
-
-              <div class="col-md-6">
-                <label for="phone" class="form-label fw-semibold">Phone Number</label>
-                <input type="text" class="form-control" id="phone" placeholder="Enter phone number">
-              </div>
-
               <div class="col-md-6">
                 <label class="form-label fw-semibold">Account Type</label>
                 <input type="text" class="form-control bg-light" id="roleDisplay" readonly disabled>
               </div>
 
-              <div class="col-12">
-                <label for="address" class="form-label fw-semibold">Address</label>
-                <textarea class="form-control" id="address" rows="3" placeholder="Enter address"></textarea>
+              <h6 class="fw-bold mt-4 mb-2 text-secondary">Professional Identity</h6>
+              <div class="col-md-6">
+                <label for="organization" class="form-label fw-semibold">Organization / Affiliation</label>
+                <input type="text" class="form-control" id="organization" placeholder="e.g., University, Publishing House">
               </div>
+              <div class="col-md-6">
+                <label for="website" class="form-label fw-semibold">Website / Social Profile</label>
+                <input type="url" class="form-control" id="website" placeholder="https://linkedin.com/in/yourprofile">
+              </div>
+              <div class="col-12">
+                <label for="bio" class="form-label fw-semibold">Bio / About Me</label>
+                <textarea class="form-control" id="bio" rows="3" placeholder="Share a brief overview of your professional background and interests..."></textarea>
+              </div>
+
+              <h6 class="fw-bold mt-4 mb-2 text-secondary">Platform Preferences</h6>
+              <div class="col-md-6">
+                <label for="interests" class="form-label fw-semibold">Reading/Writing Interests</label>
+                <input type="text" class="form-control" id="interests" placeholder="e.g., Santali History, Fiction, Poetry">
+              </div>
+              <div class="col-md-6">
+                <label for="preferredLanguage" class="form-label fw-semibold">Preferred Interface Language</label>
+                <select class="form-select" id="preferredLanguage">
+                  <option value="">Select Language</option>
+                  <option value="Santali">Santali</option>
+                  <option value="English">English</option>
+                  <option value="Odia">Odia</option>
+                  <option value="Hindi">Hindi</option>
+                  <option value="Bengali">Bengali</option>
+                </select>
+              </div>
+
+              <h6 class="fw-bold mt-4 mb-2 text-secondary">Contact Information</h6>
+              <div class="col-md-6">
+                <label for="phone" class="form-label fw-semibold">Phone Number</label>
+                <input type="text" class="form-control" id="phone" placeholder="Enter phone number">
+              </div>
+              <div class="col-md-6">
+                <label for="address" class="form-label fw-semibold">Location / Address</label>
+                <input type="text" class="form-control" id="address" placeholder="City, State, Country">
+              </div>
+
             </div>
 
-            <div class="text-end mt-4 d-flex justify-content-end gap-2">
+            <div class="text-end mt-5 border-top pt-3 d-flex justify-content-end gap-2">
               <button type="button" id="cancelEditBtn" class="btn btn-secondary fw-semibold px-4 py-2">
                 Cancel
               </button>
@@ -235,19 +295,32 @@
         }
 
         function renderProfile(p) {
+          // --- View Mode Population ---
           document.getElementById("userDisplayName").innerText = p.full_name || 'My Profile';
           document.getElementById("viewFullName").innerText = p.full_name || '-';
           document.getElementById("viewPhone").innerText = p.phone || 'Not provided';
           document.getElementById("viewAddress").innerText = p.address || 'Not provided';
           
+          document.getElementById("viewOrganization").innerText = p.organization || 'Not provided';
+          document.getElementById("viewWebsite").innerHTML = p.website ? `<a href="${p.website}" target="_blank" class="text-decoration-none">${p.website}</a>` : 'Not provided';
+          document.getElementById("viewBio").innerText = p.bio || 'Not provided';
+          document.getElementById("viewInterests").innerText = p.interests || 'Not provided';
+          document.getElementById("viewLanguage").innerText = p.preferred_language || 'Not provided';
+          
           const roleText = p.role ? p.role.toUpperCase() : 'READER';
           document.getElementById("viewRole").innerText = roleText;
           document.getElementById("roleDisplay").value = roleText;
 
-          // Fill edit fields
+          // --- Edit Form Population ---
           document.getElementById("fullName").value = p.full_name || '';
           document.getElementById("phone").value = p.phone || '';
           document.getElementById("address").value = p.address || '';
+          
+          document.getElementById("organization").value = p.organization || '';
+          document.getElementById("website").value = p.website || '';
+          document.getElementById("bio").value = p.bio || '';
+          document.getElementById("interests").value = p.interests || '';
+          document.getElementById("preferredLanguage").value = p.preferred_language || '';
 
           // Display Avatar if it exists
           if (p.avatar_url) {
@@ -260,6 +333,9 @@
           if (p.role === 'author') {
             roleBadge.className = "badge bg-warning text-dark px-3 py-2";
             roleBadge.innerText = "Publisher / Author Account";
+          } else if(p.role === 'admin') {
+            roleBadge.className = "badge bg-danger px-3 py-2";
+            roleBadge.innerText = "Admin Account";
           } else {
             roleBadge.className = "badge bg-secondary px-3 py-2";
             roleBadge.innerText = "Reader Account";
@@ -293,6 +369,13 @@
           const updatedPhone = document.getElementById("phone").value.trim();
           const updatedAddress = document.getElementById("address").value.trim();
           
+          // New professional fields
+          const updatedOrg = document.getElementById("organization").value.trim();
+          const updatedWebsite = document.getElementById("website").value.trim();
+          const updatedBio = document.getElementById("bio").value.trim();
+          const updatedInterests = document.getElementById("interests").value.trim();
+          const updatedLang = document.getElementById("preferredLanguage").value;
+          
           let currentAvatarUrl = profile.avatar_url;
 
           try {
@@ -303,12 +386,10 @@
               const fileName = `${user.id}-${Date.now()}.${fileExt}`;
               const filePath = `${fileName}`;
 
-              // Changed to lowercase 'avatars'
               const { error: uploadError } = await supabase.storage
                 .from('avatars')
                 .upload(filePath, file, { upsert: true });
 
-              // Properly capture and throw the actual Supabase error message
               if (uploadError) {
                 console.error("Storage Upload Error:", uploadError);
                 throw new Error("Storage Error: " + uploadError.message);
@@ -328,7 +409,12 @@
                 full_name: updatedName,
                 phone: updatedPhone,
                 address: updatedAddress,
-                avatar_url: currentAvatarUrl
+                avatar_url: currentAvatarUrl,
+                organization: updatedOrg,
+                website: updatedWebsite,
+                bio: updatedBio,
+                interests: updatedInterests,
+                preferred_language: updatedLang
               })
               .eq('id', user.id);
 
@@ -342,6 +428,11 @@
             profile.phone = updatedPhone;
             profile.address = updatedAddress;
             profile.avatar_url = currentAvatarUrl;
+            profile.organization = updatedOrg;
+            profile.website = updatedWebsite;
+            profile.bio = updatedBio;
+            profile.interests = updatedInterests;
+            profile.preferred_language = updatedLang;
 
             renderProfile(profile);
             editForm.classList.add("d-none");
@@ -351,7 +442,6 @@
 
           } catch (err) {
             console.error("Caught Error:", err);
-            // Display the specific error message to the screen
             showAlert(err.message || "Failed to update profile details.", "danger");
           } finally {
             saveBtn.disabled = false;
