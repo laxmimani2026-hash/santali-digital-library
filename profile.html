@@ -130,11 +130,13 @@
                 <h6 id="viewLanguage" class="fw-semibold text-dark mb-0">Not provided</h6>
               </div>
 
-              <!-- Contact & Location (WITH VERIFICATION UI) -->
+              <!-- Contact & Location (WITH VERIFICATION UI FIXED) -->
               <div class="col-md-6">
                 <span class="text-muted small d-block"><i class="fa-regular fa-envelope me-1"></i> Contact Email</span>
-                <div class="d-flex align-items-center gap-2">
-                  <h6 id="viewContactEmail" class="fw-semibold text-dark mb-0">Not provided</h6>
+                <!-- Added flex-wrap to prevent badge overflowing into next column -->
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <!-- Added word-break-all to properly format long emails -->
+                  <h6 id="viewContactEmail" class="fw-semibold text-dark mb-0 word-break-all">Not provided</h6>
                   <!-- Verification Badges/Buttons injected here -->
                   <span id="emailVerificationArea"></span>
                 </div>
@@ -142,7 +144,7 @@
               
               <div class="col-md-6">
                 <span class="text-muted small d-block"><i class="fa-solid fa-phone me-1"></i> Phone Number</span>
-                <h6 id="viewPhone" class="fw-semibold text-dark mb-0">Not provided</h6>
+                <h6 id="viewPhone" class="fw-semibold text-dark mb-0 word-break-all">Not provided</h6>
               </div>
               <div class="col-md-6">
                 <span class="text-muted small d-block"><i class="fa-solid fa-location-dot me-1"></i> Address</span>
