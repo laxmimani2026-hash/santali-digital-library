@@ -32,6 +32,7 @@
       overflow: hidden;
       border: 3px solid #f8f9fa;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      position: relative;
     }
     .profile-img {
       width: 100%;
@@ -40,6 +41,10 @@
     }
     .word-break-all {
       word-break: break-all;
+    }
+    /* Toast Positioning */
+    .toast-container {
+      z-index: 1055;
     }
   </style>
 </head>
@@ -69,190 +74,196 @@
     </div>
   </nav>
 
+  <!-- Global Floating Toast Notification -->
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="systemToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body fw-bold" id="systemToastMessage">
+          <!-- Message injected via JS -->
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
   <!-- Profile Content Container -->
   <div class="container my-5 flex-grow-1">
     <div class="row justify-content-center">
       <div class="col-lg-8">
         
-        <!-- Alert Box -->
-        <div id="profileAlert" class="alert d-none text-center" role="alert"></div>
-
         <div class="card shadow-sm profile-card p-4 p-md-5">
-          <div class="text-center mb-4">
-            <!-- Avatar Container -->
-            <div class="profile-avatar position-relative">
-              <i class="fa-solid fa-user" id="defaultAvatarIcon"></i>
-              <img src="" alt="Profile" class="profile-img d-none" id="profileImageDisplay">
-            </div>
-
-            <h3 id="userDisplayName" class="fw-bold mb-1">Loading Profile...</h3>
-            <!-- This is the account login email -->
-            <p id="userEmailDisplay" class="text-muted mb-2"></p> 
-            <span id="userRoleBadge" class="badge"></span>
+          
+          <!-- Initial Loader -->
+          <div id="initialLoader" class="text-center py-5">
+            <div class="spinner-border text-teal mb-3" style="color: #005f73; width: 3rem; height: 3rem;" role="status"></div>
+            <h5 class="fw-bold text-muted">Loading your profile...</h5>
           </div>
 
-          <!-- VIEW MODE SECTION -->
-          <div id="profileViewMode">
-            <h5 class="fw-bold mb-3 border-bottom pb-2">Professional & Personal Information</h5>
-            
-            <div class="row g-4 mb-4">
-              <!-- Basic Info -->
-              <div class="col-md-6">
-                <span class="text-muted small d-block"><i class="fa-regular fa-id-card me-1"></i> Full Name</span>
-                <h6 id="viewFullName" class="fw-semibold text-dark">-</h6>
+          <!-- Main Content (Hidden until loaded) -->
+          <div id="mainProfileContent" class="d-none">
+            <div class="text-center mb-4">
+              <!-- Avatar Container -->
+              <div class="profile-avatar position-relative">
+                <i class="fa-solid fa-user" id="defaultAvatarIcon"></i>
+                <img src="" alt="Profile" class="profile-img d-none" id="profileImageDisplay">
               </div>
-              <div class="col-md-6">
-                <span class="text-muted small d-block"><i class="fa-solid fa-user-shield me-1"></i> Account Type</span>
-                <h6 id="viewRole" class="fw-semibold text-dark mb-0">-</h6>
-              </div>
-              <div class="col-md-6">
-                <span class="text-muted small d-block"><i class="fa-solid fa-building me-1"></i> Organization/Affiliation</span>
-                <h6 id="viewOrganization" class="fw-semibold text-dark mb-0">Not provided</h6>
-              </div>
-              <div class="col-md-6">
-                <span class="text-muted small d-block"><i class="fa-solid fa-link me-1"></i> Website / Social Link</span>
-                <h6 id="viewWebsite" class="fw-semibold text-dark mb-0 word-break-all">Not provided</h6>
-              </div>
+
+              <h3 id="userDisplayName" class="fw-bold mb-1">User Name</h3>
+              <p id="userEmailDisplay" class="text-muted mb-2"></p> 
+              <span id="userRoleBadge" class="badge"></span>
+            </div>
+
+            <!-- VIEW MODE SECTION -->
+            <div id="profileViewMode">
+              <h5 class="fw-bold mb-3 border-bottom pb-2">Professional & Personal Information</h5>
               
-              <!-- Bio -->
-              <div class="col-12">
-                <span class="text-muted small d-block"><i class="fa-solid fa-circle-info me-1"></i> Bio / About Me</span>
-                <p id="viewBio" class="fw-semibold text-dark mb-0">Not provided</p>
-              </div>
+              <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                  <span class="text-muted small d-block"><i class="fa-regular fa-id-card me-1"></i> Full Name</span>
+                  <h6 id="viewFullName" class="fw-semibold text-dark">-</h6>
+                </div>
+                <div class="col-md-6">
+                  <span class="text-muted small d-block"><i class="fa-solid fa-user-shield me-1"></i> Account Type</span>
+                  <h6 id="viewRole" class="fw-semibold text-dark mb-0">-</h6>
+                </div>
+                <div class="col-md-6">
+                  <span class="text-muted small d-block"><i class="fa-solid fa-building me-1"></i> Organization/Affiliation</span>
+                  <h6 id="viewOrganization" class="fw-semibold text-dark mb-0"></h6>
+                </div>
+                <div class="col-md-6">
+                  <span class="text-muted small d-block"><i class="fa-solid fa-link me-1"></i> Website / Social Link</span>
+                  <h6 id="viewWebsite" class="fw-semibold text-dark mb-0 word-break-all"></h6>
+                </div>
+                
+                <div class="col-12">
+                  <span class="text-muted small d-block"><i class="fa-solid fa-circle-info me-1"></i> Bio / About Me</span>
+                  <p id="viewBio" class="fw-semibold text-dark mb-0"></p>
+                </div>
 
-              <!-- Library Preferences -->
-              <div class="col-md-6">
-                <span class="text-muted small d-block"><i class="fa-solid fa-book-bookmark me-1"></i> Reading/Writing Interests</span>
-                <h6 id="viewInterests" class="fw-semibold text-dark mb-0">Not provided</h6>
-              </div>
-              <div class="col-md-6">
-                <span class="text-muted small d-block"><i class="fa-solid fa-language me-1"></i> Preferred Language</span>
-                <h6 id="viewLanguage" class="fw-semibold text-dark mb-0">Not provided</h6>
-              </div>
+                <div class="col-md-6">
+                  <span class="text-muted small d-block"><i class="fa-solid fa-book-bookmark me-1"></i> Reading/Writing Interests</span>
+                  <h6 id="viewInterests" class="fw-semibold text-dark mb-0"></h6>
+                </div>
+                <div class="col-md-6">
+                  <span class="text-muted small d-block"><i class="fa-solid fa-language me-1"></i> Preferred Language</span>
+                  <h6 id="viewLanguage" class="fw-semibold text-dark mb-0"></h6>
+                </div>
 
-              <!-- Contact & Location (WITH VERIFICATION UI FIXED) -->
-              <div class="col-md-6">
-                <span class="text-muted small d-block"><i class="fa-regular fa-envelope me-1"></i> Contact Email</span>
-                <!-- Added flex-wrap to prevent badge overflowing into next column -->
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                  <!-- Added word-break-all to properly format long emails -->
-                  <h6 id="viewContactEmail" class="fw-semibold text-dark mb-0 word-break-all">Not provided</h6>
-                  <!-- Verification Badges/Buttons injected here -->
-                  <span id="emailVerificationArea"></span>
+                <div class="col-md-6">
+                  <span class="text-muted small d-block"><i class="fa-regular fa-envelope me-1"></i> Contact Email</span>
+                  <div class="d-flex flex-wrap align-items-center gap-2">
+                    <h6 id="viewContactEmail" class="fw-semibold text-dark mb-0 word-break-all"></h6>
+                    <span id="emailVerificationArea"></span>
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <span class="text-muted small d-block"><i class="fa-solid fa-phone me-1"></i> Phone Number</span>
+                  <h6 id="viewPhone" class="fw-semibold text-dark mb-0 word-break-all"></h6>
+                </div>
+                <div class="col-md-6">
+                  <span class="text-muted small d-block"><i class="fa-solid fa-location-dot me-1"></i> Address</span>
+                  <h6 id="viewAddress" class="fw-semibold text-dark mb-0"></h6>
+                </div>
+                <div class="col-md-6">
+                  <span class="text-muted small d-block"><i class="fa-solid fa-map-pin me-1"></i> PIN / Postal Code</span>
+                  <h6 id="viewPinCode" class="fw-semibold text-dark mb-0"></h6>
                 </div>
               </div>
-              
-              <div class="col-md-6">
-                <span class="text-muted small d-block"><i class="fa-solid fa-phone me-1"></i> Phone Number</span>
-                <h6 id="viewPhone" class="fw-semibold text-dark mb-0 word-break-all">Not provided</h6>
-              </div>
-              <div class="col-md-6">
-                <span class="text-muted small d-block"><i class="fa-solid fa-location-dot me-1"></i> Address</span>
-                <h6 id="viewAddress" class="fw-semibold text-dark mb-0">Not provided</h6>
-              </div>
-              <div class="col-md-6">
-                <span class="text-muted small d-block"><i class="fa-solid fa-map-pin me-1"></i> PIN / Postal Code</span>
-                <h6 id="viewPinCode" class="fw-semibold text-dark mb-0">Not provided</h6>
+
+              <div class="text-end border-top pt-3">
+                <button id="editBtn" class="btn btn-outline-dark fw-bold px-4 py-2 shadow-sm">
+                  <i class="fa-solid fa-pen-to-square me-2"></i> Edit Profile
+                </button>
               </div>
             </div>
 
-            <div class="text-end border-top pt-3">
-              <button id="editBtn" class="btn btn-outline-dark fw-bold px-4 py-2 shadow-sm">
-                <i class="fa-solid fa-pen-to-square me-2"></i> Edit Profile
-              </button>
-            </div>
+            <!-- EDIT MODE SECTION -->
+            <form id="profileEditForm" class="d-none" novalidate>
+              <h5 class="fw-bold mb-3 border-bottom pb-2">Edit Information</h5>
+              
+              <div class="row g-3">
+                <div class="col-md-12 mb-2">
+                  <label for="avatarUpload" class="form-label fw-semibold">Update Profile Photo</label>
+                  <input class="form-control" type="file" id="avatarUpload" accept="image/*">
+                  <div class="form-text">Choose a square image for the best fit (Max 2MB). Image previews automatically.</div>
+                </div>
+
+                <h6 class="fw-bold mt-4 mb-2 text-secondary">Basic Details</h6>
+                <div class="col-md-6">
+                  <label for="fullName" class="form-label fw-semibold">Full Name</label>
+                  <input type="text" class="form-control" id="fullName" required>
+                  <div class="invalid-feedback">Please enter your full name.</div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Account Type</label>
+                  <input type="text" class="form-control bg-light" id="roleDisplay" readonly disabled>
+                </div>
+
+                <h6 class="fw-bold mt-4 mb-2 text-secondary">Professional Identity</h6>
+                <div class="col-md-6">
+                  <label for="organization" class="form-label fw-semibold">Organization / Affiliation</label>
+                  <input type="text" class="form-control" id="organization" placeholder="e.g., University, Publishing House">
+                </div>
+                <div class="col-md-6">
+                  <label for="website" class="form-label fw-semibold">Website / Social Profile</label>
+                  <input type="url" class="form-control" id="website" placeholder="https://linkedin.com/in/yourprofile">
+                  <div class="invalid-feedback">Please enter a valid URL (include http:// or https://).</div>
+                </div>
+                <div class="col-12">
+                  <label for="bio" class="form-label fw-semibold">Bio / About Me</label>
+                  <textarea class="form-control" id="bio" rows="3" placeholder="Share a brief overview of your professional background and interests..."></textarea>
+                </div>
+
+                <h6 class="fw-bold mt-4 mb-2 text-secondary">Platform Preferences</h6>
+                <div class="col-md-6">
+                  <label for="interests" class="form-label fw-semibold">Reading/Writing Interests</label>
+                  <input type="text" class="form-control" id="interests" placeholder="e.g., Santali History, Fiction, Poetry">
+                </div>
+                <div class="col-md-6">
+                  <label for="preferredLanguage" class="form-label fw-semibold">Preferred Interface Language</label>
+                  <select class="form-select" id="preferredLanguage">
+                    <option value="">Select Language</option>
+                    <option value="Santali">Santali</option>
+                    <option value="English">English</option>
+                    <option value="Odia">Odia</option>
+                    <option value="Hindi">Hindi</option>
+                    <option value="Bengali">Bengali</option>
+                  </select>
+                </div>
+
+                <h6 class="fw-bold mt-4 mb-2 text-secondary">Contact Information</h6>
+                <div class="col-md-6">
+                  <label for="contactEmail" class="form-label fw-semibold">Contact Email</label>
+                  <input type="email" class="form-control" id="contactEmail" placeholder="your@email.com">
+                  <div class="invalid-feedback">Please enter a valid email address.</div>
+                </div>
+                <div class="col-md-6">
+                  <label for="phone" class="form-label fw-semibold">Phone Number</label>
+                  <input type="tel" class="form-control" id="phone" placeholder="10-digit number" pattern="^[0-9]{10}$">
+                  <div class="invalid-feedback">Please enter a valid 10-digit phone number.</div>
+                </div>
+                <div class="col-md-6">
+                  <label for="address" class="form-label fw-semibold">Location / Address</label>
+                  <input type="text" class="form-control" id="address" placeholder="City, State, Country">
+                </div>
+                <div class="col-md-6">
+                  <label for="pinCode" class="form-label fw-semibold">PIN / Postal Code</label>
+                  <input type="text" class="form-control" id="pinCode" placeholder="e.g. 751001" pattern="^[1-9][0-9]{5}$">
+                  <div class="invalid-feedback">Please enter a valid 6-digit PIN code.</div>
+                </div>
+              </div>
+
+              <div class="text-end mt-5 border-top pt-3 d-flex justify-content-end gap-2">
+                <button type="button" id="cancelEditBtn" class="btn btn-secondary fw-semibold px-4 py-2">
+                  Cancel
+                </button>
+                <button type="submit" id="saveProfileBtn" class="btn btn-warning fw-bold px-4 py-2 text-dark shadow-sm">
+                  <i class="fa-solid fa-floppy-disk me-2"></i> Save Changes
+                </button>
+              </div>
+            </form>
           </div>
-
-          <!-- EDIT MODE SECTION -->
-          <form id="profileEditForm" class="d-none" novalidate>
-            <h5 class="fw-bold mb-3 border-bottom pb-2">Edit Information</h5>
-            
-            <div class="row g-3">
-              <div class="col-md-12 mb-2">
-                <label for="avatarUpload" class="form-label fw-semibold">Profile Photo</label>
-                <input class="form-control" type="file" id="avatarUpload" accept="image/*">
-                <div class="form-text">Choose a square image for the best fit (Max 2MB).</div>
-              </div>
-
-              <h6 class="fw-bold mt-4 mb-2 text-secondary">Basic Details</h6>
-              <div class="col-md-6">
-                <label for="fullName" class="form-label fw-semibold">Full Name</label>
-                <input type="text" class="form-control" id="fullName" required>
-                <div class="invalid-feedback">Please enter your full name.</div>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label fw-semibold">Account Type</label>
-                <input type="text" class="form-control bg-light" id="roleDisplay" readonly disabled>
-              </div>
-
-              <h6 class="fw-bold mt-4 mb-2 text-secondary">Professional Identity</h6>
-              <div class="col-md-6">
-                <label for="organization" class="form-label fw-semibold">Organization / Affiliation</label>
-                <input type="text" class="form-control" id="organization" placeholder="e.g., University, Publishing House">
-              </div>
-              <div class="col-md-6">
-                <label for="website" class="form-label fw-semibold">Website / Social Profile</label>
-                <input type="url" class="form-control" id="website" placeholder="https://linkedin.com/in/yourprofile">
-                <div class="invalid-feedback">Please enter a valid URL (include http:// or https://).</div>
-              </div>
-              <div class="col-12">
-                <label for="bio" class="form-label fw-semibold">Bio / About Me</label>
-                <textarea class="form-control" id="bio" rows="3" placeholder="Share a brief overview of your professional background and interests..."></textarea>
-              </div>
-
-              <h6 class="fw-bold mt-4 mb-2 text-secondary">Platform Preferences</h6>
-              <div class="col-md-6">
-                <label for="interests" class="form-label fw-semibold">Reading/Writing Interests</label>
-                <input type="text" class="form-control" id="interests" placeholder="e.g., Santali History, Fiction, Poetry">
-              </div>
-              <div class="col-md-6">
-                <label for="preferredLanguage" class="form-label fw-semibold">Preferred Interface Language</label>
-                <select class="form-select" id="preferredLanguage">
-                  <option value="">Select Language</option>
-                  <option value="Santali">Santali</option>
-                  <option value="English">English</option>
-                  <option value="Odia">Odia</option>
-                  <option value="Hindi">Hindi</option>
-                  <option value="Bengali">Bengali</option>
-                </select>
-              </div>
-
-              <h6 class="fw-bold mt-4 mb-2 text-secondary">Contact Information</h6>
-              
-              <div class="col-md-6">
-                <label for="contactEmail" class="form-label fw-semibold">Contact Email</label>
-                <input type="email" class="form-control" id="contactEmail" placeholder="your@email.com">
-                <div class="invalid-feedback">Please enter a valid email address.</div>
-              </div>
-
-              <div class="col-md-6">
-                <label for="phone" class="form-label fw-semibold">Phone Number</label>
-                <input type="tel" class="form-control" id="phone" placeholder="10-digit number" pattern="^[0-9]{10}$">
-                <div class="invalid-feedback">Please enter a valid 10-digit phone number.</div>
-              </div>
-
-              <div class="col-md-6">
-                <label for="address" class="form-label fw-semibold">Location / Address</label>
-                <input type="text" class="form-control" id="address" placeholder="City, State, Country">
-              </div>
-
-              <div class="col-md-6">
-                <label for="pinCode" class="form-label fw-semibold">PIN / Postal Code</label>
-                <input type="text" class="form-control" id="pinCode" placeholder="e.g. 751001" pattern="^[1-9][0-9]{5}$">
-                <div class="invalid-feedback">Please enter a valid 6-digit PIN code.</div>
-              </div>
-            </div>
-
-            <div class="text-end mt-5 border-top pt-3 d-flex justify-content-end gap-2">
-              <button type="button" id="cancelEditBtn" class="btn btn-secondary fw-semibold px-4 py-2">
-                Cancel
-              </button>
-              <button type="submit" id="saveProfileBtn" class="btn btn-warning fw-bold px-4 py-2 text-dark shadow-sm">
-                <i class="fa-solid fa-floppy-disk me-2"></i> Save Changes
-              </button>
-            </div>
-          </form>
-
         </div>
       </div>
     </div>
@@ -262,7 +273,7 @@
   <div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow">
-        <div class="modal-header bg-teal text-white" style="background-color: #005f73;">
+        <div class="modal-header text-white" style="background-color: #005f73;">
           <h5 class="modal-title fw-bold" id="otpModalLabel"><i class="fa-solid fa-envelope-circle-check me-2"></i> Verify Your Email</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -301,7 +312,6 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     document.addEventListener("DOMContentLoaded", async () => {
-      const alertBox = document.getElementById("profileAlert");
       const viewMode = document.getElementById("profileViewMode");
       const editForm = document.getElementById("profileEditForm");
       const editBtn = document.getElementById("editBtn");
@@ -311,11 +321,27 @@
       let currentUser = null;
       let currentProfileData = null;
 
+      // UX Improvement: Floating Toast Function
       function showAlert(message, type) {
-        alertBox.className = `alert alert-${type} text-center`;
-        alertBox.textContent = message;
-        alertBox.classList.remove("d-none");
-        window.scrollTo(0, 0);
+        const toastEl = document.getElementById('systemToast');
+        const toastMessage = document.getElementById('systemToastMessage');
+        
+        toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning');
+        
+        if (type === 'success') {
+            toastEl.classList.add('bg-success');
+            toastMessage.innerHTML = `<i class="fa-solid fa-circle-check me-2"></i> ${message}`;
+        } else if (type === 'danger') {
+            toastEl.classList.add('bg-danger');
+            toastMessage.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-2"></i> ${message}`;
+        } else {
+            toastEl.classList.add('bg-warning', 'text-dark');
+            toastEl.classList.remove('text-white');
+            toastMessage.innerHTML = message;
+        }
+
+        const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+        toast.show();
       }
 
       async function initProfile() {
@@ -326,7 +352,7 @@
             return;
           }
           currentUser = user;
-          document.getElementById("userEmailDisplay").innerText = user.email;
+          document.getElementById("userEmailDisplay").innerText = `Login: ${user.email}`;
 
           let { data: profile, error: profileError } = await supabase
             .from('profiles')
@@ -346,43 +372,53 @@
           currentProfileData = profile;
           renderProfile(profile);
 
+          // UX Improvement: Hide loader, show content
+          document.getElementById("initialLoader").classList.add('d-none');
+          document.getElementById("mainProfileContent").classList.remove('d-none');
+
         } catch (error) {
           console.error("Profile Fetch Error:", error);
-          showAlert("Failed to load profile details.", "danger");
+          showAlert("Failed to load profile details. Check connection.", "danger");
         }
+      }
+
+      function getEmptyStateHtml() {
+          return `<span class="text-muted fst-italic">Not provided</span>`;
       }
 
       function renderProfile(p) {
         document.getElementById("userDisplayName").innerText = p.full_name || 'My Profile';
-        document.getElementById("viewFullName").innerText = p.full_name || '-';
+        document.getElementById("viewFullName").innerHTML = p.full_name || getEmptyStateHtml();
         
-        // --- Email Verification Logic ---
-        document.getElementById("viewContactEmail").innerText = p.contact_email || 'Not provided';
         const verifyArea = document.getElementById("emailVerificationArea");
         
         if (p.contact_email) {
-            // Check if the contact email is the same as the Auth email and if the Auth email is verified
+            document.getElementById("viewContactEmail").innerHTML = p.contact_email;
             if (p.contact_email === currentUser.email && currentUser.email_confirmed_at) {
                verifyArea.innerHTML = `<span class="badge bg-success"><i class="fa-solid fa-circle-check"></i> Verified</span>`;
             } else {
                verifyArea.innerHTML = `<button class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3 py-0" id="initVerifyBtn">Verify Now</button>`;
-               
-               // Attach event listener to the dynamically created Verify button
                document.getElementById("initVerifyBtn").addEventListener("click", handleVerificationRequest);
             }
         } else {
+            document.getElementById("viewContactEmail").innerHTML = getEmptyStateHtml();
             verifyArea.innerHTML = '';
         }
 
-        document.getElementById("viewPhone").innerText = p.phone || 'Not provided';
-        document.getElementById("viewAddress").innerText = p.address || 'Not provided';
-        document.getElementById("viewPinCode").innerText = p.pin_code || 'Not provided';
-        document.getElementById("viewOrganization").innerText = p.organization || 'Not provided';
-        document.getElementById("viewWebsite").innerHTML = p.website ? `<a href="${p.website}" target="_blank" class="text-decoration-none">${p.website}</a>` : 'Not provided';
-        document.getElementById("viewBio").innerText = p.bio || 'Not provided';
-        document.getElementById("viewInterests").innerText = p.interests || 'Not provided';
-        document.getElementById("viewLanguage").innerText = p.preferred_language || 'Not provided';
+        document.getElementById("viewPhone").innerHTML = p.phone || getEmptyStateHtml();
+        document.getElementById("viewAddress").innerHTML = p.address || getEmptyStateHtml();
+        document.getElementById("viewPinCode").innerHTML = p.pin_code || getEmptyStateHtml();
+        document.getElementById("viewOrganization").innerHTML = p.organization || getEmptyStateHtml();
+        document.getElementById("viewBio").innerHTML = p.bio || getEmptyStateHtml();
+        document.getElementById("viewInterests").innerHTML = p.interests || getEmptyStateHtml();
+        document.getElementById("viewLanguage").innerHTML = p.preferred_language || getEmptyStateHtml();
         
+        if(p.website) {
+            document.getElementById("viewWebsite").innerHTML = `<a href="${p.website}" target="_blank" class="text-decoration-none fw-bold">${p.website}</a>`;
+        } else {
+            document.getElementById("viewWebsite").innerHTML = getEmptyStateHtml();
+        }
+
         const roleText = p.role ? p.role.toUpperCase() : 'READER';
         document.getElementById("viewRole").innerText = roleText;
         document.getElementById("roleDisplay").value = roleText;
@@ -418,8 +454,21 @@
         }
       }
 
+      // UX Improvement: Live Image Preview
+      document.getElementById("avatarUpload").addEventListener("change", function(event) {
+          const file = event.target.files[0];
+          if (file) {
+              const reader = new FileReader();
+              reader.onload = function(e) {
+                  document.getElementById("profileImageDisplay").src = e.target.result;
+                  document.getElementById("profileImageDisplay").classList.remove('d-none');
+                  document.getElementById("defaultAvatarIcon").classList.add('d-none');
+              }
+              reader.readAsDataURL(file);
+          }
+      });
+
       // --- VERIFICATION HANDLERS ---
-      
       const otpModalEl = document.getElementById('otpModal');
       const otpModal = new bootstrap.Modal(otpModalEl);
       const submitOtpBtn = document.getElementById('submitOtpBtn');
@@ -430,7 +479,6 @@
           document.getElementById("initVerifyBtn").innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
           
           try {
-             // Ask Supabase to link this new email. This sends the OTP.
              const { error } = await supabase.auth.updateUser({ email: targetEmail });
              if (error) throw error;
 
@@ -439,7 +487,7 @@
              otpModal.show();
           } catch (err) {
              console.error(err);
-             showAlert("Failed to send verification code: " + err.message, "danger");
+             showAlert("Failed to send verification code. You may have hit a rate limit.", "danger");
              document.getElementById("initVerifyBtn").innerText = "Verify Now";
           }
       }
@@ -466,12 +514,9 @@
 
              if (error) throw error;
 
-             // Success! Reload user details
              otpModal.hide();
              document.getElementById('otpInput').value = '';
              showAlert("Email verified successfully!", "success");
-             
-             // Refresh data to show green verified badge
              await initProfile();
 
          } catch(err) {
@@ -482,25 +527,29 @@
          }
       });
 
-      // Clear modal data on close
       otpModalEl.addEventListener('hidden.bs.modal', () => {
           document.getElementById('otpInput').value = '';
           otpErrorMsg.classList.add('d-none');
       });
-
 
       // --- STANDARD EDIT HANDLERS ---
       editBtn.addEventListener("click", () => {
         viewMode.classList.add("d-none");
         editForm.classList.remove("d-none");
         editForm.classList.remove("was-validated");
-        alertBox.classList.add("d-none");
       });
 
       cancelEditBtn.addEventListener("click", () => {
         editForm.classList.add("d-none");
         viewMode.classList.remove("d-none");
         document.getElementById("avatarUpload").value = ""; 
+        // Reset preview if they cancel
+        if (currentProfileData && currentProfileData.avatar_url) {
+            document.getElementById("profileImageDisplay").src = currentProfileData.avatar_url;
+        } else {
+            document.getElementById("profileImageDisplay").classList.add('d-none');
+            document.getElementById("defaultAvatarIcon").classList.remove('d-none');
+        }
       });
 
       editForm.addEventListener("submit", async (e) => {
@@ -562,7 +611,6 @@
 
           showAlert("Profile updated successfully!", "success");
           
-          // Re-fetch everything completely to ensure data sync
           await initProfile();
           editForm.classList.add("d-none");
           viewMode.classList.remove("d-none");
