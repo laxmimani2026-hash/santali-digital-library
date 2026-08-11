@@ -65,7 +65,7 @@
       position: absolute;
       right: 0;
       top: 100%;
-      background-color: #ffffff; /* White background */
+      background-color: #ffffff;
       min-width: 14rem;
       border-radius: 0.5rem;
       box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
@@ -87,7 +87,7 @@
       padding: 0.6rem 1.25rem;
       font-size: 0.875rem;
       font-weight: 500;
-      color: #374151 !important; /* Dark text to contrast white bg */
+      color: #374151 !important;
       text-decoration: none;
       transition: background-color 0.15s ease;
     }
@@ -95,7 +95,7 @@
     /* Hover effect for links inside dropdown */
     #userNavArea .dropdown-menu a:hover,
     #userNavArea .dropdown-menu .dropdown-item:hover {
-      background-color: #f3f4f6 !important; /* Light gray hover */
+      background-color: #f3f4f6 !important;
       color: #111827 !important;
     }
 
@@ -248,7 +248,11 @@
                 <h6 id="viewLanguage" class="font-semibold text-gray-900"></h6>
               </div>
 
-              <!-- Contact Info -->
+              <!-- Contact & Location Info -->
+              <div class="col-span-1 md:col-span-2 mt-4 border-t border-gray-100 pt-4">
+                 <h6 class="font-bold text-gray-600 mb-4">Contact & Location Details</h6>
+              </div>
+
               <div>
                 <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-regular fa-envelope mr-1"></i> Contact Email</span>
                 <div class="flex flex-wrap items-center gap-2">
@@ -256,14 +260,25 @@
                   <span id="emailVerificationArea"></span>
                 </div>
               </div>
-              
               <div>
                 <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-phone mr-1"></i> Phone Number</span>
                 <h6 id="viewPhone" class="font-semibold text-gray-900 break-all"></h6>
               </div>
               <div>
-                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-location-dot mr-1"></i> Address</span>
+                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-location-dot mr-1"></i> Street Address / Area</span>
                 <h6 id="viewAddress" class="font-semibold text-gray-900"></h6>
+              </div>
+              <div>
+                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-tree-city mr-1"></i> City / Village / Town</span>
+                <h6 id="viewCity" class="font-semibold text-gray-900"></h6>
+              </div>
+              <div>
+                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-map mr-1"></i> District</span>
+                <h6 id="viewDistrict" class="font-semibold text-gray-900"></h6>
+              </div>
+              <div>
+                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-building-flag mr-1"></i> State</span>
+                <h6 id="viewState" class="font-semibold text-gray-900"></h6>
               </div>
               <div>
                 <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-map-pin mr-1"></i> PIN / Postal Code</span>
@@ -344,7 +359,7 @@
               </div>
 
               <div class="col-span-1 md:col-span-2 mt-2">
-                <h6 class="font-bold text-gray-500">Contact Information</h6>
+                <h6 class="font-bold text-gray-500">Contact & Location Information</h6>
               </div>
               
               <div>
@@ -357,9 +372,21 @@
                 <input type="tel" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="phone" placeholder="10-digit number" pattern="^[0-9]{10}$">
                 <div class="invalid-feedback">Please enter a valid 10-digit phone number.</div>
               </div>
+              <div class="col-span-1 md:col-span-2">
+                <label for="address" class="block text-sm font-semibold text-gray-700 mb-1">Street Address / Area</label>
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="address" placeholder="e.g. Unit 9, Plot 45">
+              </div>
               <div>
-                <label for="address" class="block text-sm font-semibold text-gray-700 mb-1">Location / Address</label>
-                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="address" placeholder="City, State, Country">
+                <label for="city" class="block text-sm font-semibold text-gray-700 mb-1">City / Village / Town</label>
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="city" placeholder="e.g. Bhubaneswar">
+              </div>
+              <div>
+                <label for="district" class="block text-sm font-semibold text-gray-700 mb-1">District</label>
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="district" placeholder="e.g. Khordha">
+              </div>
+              <div>
+                <label for="state" class="block text-sm font-semibold text-gray-700 mb-1">State</label>
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="state" placeholder="e.g. Odisha">
               </div>
               <div>
                 <label for="pinCode" class="block text-sm font-semibold text-gray-700 mb-1">PIN / Postal Code</label>
@@ -548,6 +575,12 @@
 
         document.getElementById("viewPhone").innerHTML = p.phone || getEmptyStateHtml();
         document.getElementById("viewAddress").innerHTML = p.address || getEmptyStateHtml();
+        
+        // Render new Location Fields
+        document.getElementById("viewCity").innerHTML = p.city || getEmptyStateHtml();
+        document.getElementById("viewDistrict").innerHTML = p.district || getEmptyStateHtml();
+        document.getElementById("viewState").innerHTML = p.state || getEmptyStateHtml();
+        
         document.getElementById("viewPinCode").innerHTML = p.pin_code || getEmptyStateHtml();
         document.getElementById("viewOrganization").innerHTML = p.organization || getEmptyStateHtml();
         document.getElementById("viewBio").innerHTML = p.bio || getEmptyStateHtml();
@@ -564,10 +597,17 @@
         document.getElementById("viewRole").innerText = roleText;
         document.getElementById("roleDisplay").value = roleText;
 
+        // Populate Form Fields
         document.getElementById("fullName").value = p.full_name || '';
         document.getElementById("contactEmail").value = p.contact_email || '';
         document.getElementById("phone").value = p.phone || '';
         document.getElementById("address").value = p.address || '';
+        
+        // Populate new Location Fields
+        document.getElementById("city").value = p.city || '';
+        document.getElementById("district").value = p.district || '';
+        document.getElementById("state").value = p.state || '';
+        
         document.getElementById("pinCode").value = p.pin_code || '';
         document.getElementById("organization").value = p.organization || '';
         document.getElementById("website").value = p.website || '';
@@ -709,6 +749,12 @@
         const updatedContactEmail = document.getElementById("contactEmail").value.trim();
         const updatedPhone = document.getElementById("phone").value.trim();
         const updatedAddress = document.getElementById("address").value.trim();
+        
+        // Extract new Location Fields
+        const updatedCity = document.getElementById("city").value.trim();
+        const updatedDistrict = document.getElementById("district").value.trim();
+        const updatedState = document.getElementById("state").value.trim();
+        
         const updatedPinCode = document.getElementById("pinCode").value.trim();
         const updatedOrg = document.getElementById("organization").value.trim();
         const updatedWebsite = document.getElementById("website").value.trim();
@@ -738,6 +784,9 @@
               contact_email: updatedContactEmail,
               phone: updatedPhone,
               address: updatedAddress,
+              city: updatedCity,
+              district: updatedDistrict,
+              state: updatedState,
               pin_code: updatedPinCode,
               avatar_url: currentAvatarUrl,
               organization: updatedOrg,
