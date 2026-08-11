@@ -38,7 +38,6 @@
       height: 100%;
       object-fit: cover;
     }
-    /* Added to break long URLs in view mode */
     .word-break-all {
       word-break: break-all;
     }
@@ -81,64 +80,73 @@
         <div class="card shadow-sm profile-card p-4 p-md-5">
           <div class="text-center mb-4">
             
-            <!-- Updated Avatar Container -->
+            <!-- Avatar Container -->
             <div class="profile-avatar position-relative">
               <i class="fa-solid fa-user" id="defaultAvatarIcon"></i>
               <img src="" alt="Profile" class="profile-img d-none" id="profileImageDisplay">
             </div>
 
             <h3 id="userDisplayName" class="fw-bold mb-1">Loading Profile...</h3>
-            <p id="userEmailDisplay" class="text-muted mb-2"></p>
+            <!-- This is the account login email (read-only) -->
+            <p id="userEmailDisplay" class="text-muted mb-2"></p> 
             <span id="userRoleBadge" class="badge"></span>
           </div>
 
-          <!-- VIEW MODE SECTION (Shown initially) -->
+          <!-- VIEW MODE SECTION -->
           <div id="profileViewMode">
             <h5 class="fw-bold mb-3 border-bottom pb-2">Professional & Personal Information</h5>
             
             <div class="row g-4 mb-4">
               <!-- Basic Info -->
               <div class="col-md-6">
-                <span class="text-muted small d-block">Full Name</span>
+                <span class="text-muted small d-block"><i class="fa-regular fa-id-card me-1"></i> Full Name</span>
                 <h6 id="viewFullName" class="fw-semibold text-dark">-</h6>
               </div>
               <div class="col-md-6">
-                <span class="text-muted small d-block">Account Type</span>
+                <span class="text-muted small d-block"><i class="fa-solid fa-user-shield me-1"></i> Account Type</span>
                 <h6 id="viewRole" class="fw-semibold text-dark mb-0">-</h6>
               </div>
               <div class="col-md-6">
-                <span class="text-muted small d-block">Organization/Affiliation</span>
+                <span class="text-muted small d-block"><i class="fa-solid fa-building me-1"></i> Organization/Affiliation</span>
                 <h6 id="viewOrganization" class="fw-semibold text-dark mb-0">Not provided</h6>
               </div>
               <div class="col-md-6">
-                <span class="text-muted small d-block">Website / Social Link</span>
+                <span class="text-muted small d-block"><i class="fa-solid fa-link me-1"></i> Website / Social Link</span>
                 <h6 id="viewWebsite" class="fw-semibold text-dark mb-0 word-break-all">Not provided</h6>
               </div>
               
               <!-- Bio -->
               <div class="col-12">
-                <span class="text-muted small d-block">Bio / About Me</span>
+                <span class="text-muted small d-block"><i class="fa-solid fa-circle-info me-1"></i> Bio / About Me</span>
                 <p id="viewBio" class="fw-semibold text-dark mb-0">Not provided</p>
               </div>
 
               <!-- Library Preferences -->
               <div class="col-md-6">
-                <span class="text-muted small d-block">Reading/Writing Interests</span>
+                <span class="text-muted small d-block"><i class="fa-solid fa-book-bookmark me-1"></i> Reading/Writing Interests</span>
                 <h6 id="viewInterests" class="fw-semibold text-dark mb-0">Not provided</h6>
               </div>
               <div class="col-md-6">
-                <span class="text-muted small d-block">Preferred Language</span>
+                <span class="text-muted small d-block"><i class="fa-solid fa-language me-1"></i> Preferred Language</span>
                 <h6 id="viewLanguage" class="fw-semibold text-dark mb-0">Not provided</h6>
               </div>
 
               <!-- Contact & Location -->
               <div class="col-md-6">
-                <span class="text-muted small d-block">Phone Number</span>
+                <span class="text-muted small d-block"><i class="fa-regular fa-envelope me-1"></i> Contact Email</span>
+                <h6 id="viewContactEmail" class="fw-semibold text-dark mb-0">Not provided</h6>
+              </div>
+              <div class="col-md-6">
+                <span class="text-muted small d-block"><i class="fa-solid fa-phone me-1"></i> Phone Number</span>
                 <h6 id="viewPhone" class="fw-semibold text-dark mb-0">Not provided</h6>
               </div>
               <div class="col-md-6">
-                <span class="text-muted small d-block">Address</span>
+                <span class="text-muted small d-block"><i class="fa-solid fa-location-dot me-1"></i> Address</span>
                 <h6 id="viewAddress" class="fw-semibold text-dark mb-0">Not provided</h6>
+              </div>
+              <div class="col-md-6">
+                <span class="text-muted small d-block"><i class="fa-solid fa-map-pin me-1"></i> PIN / Postal Code</span>
+                <h6 id="viewPinCode" class="fw-semibold text-dark mb-0">Not provided</h6>
               </div>
             </div>
 
@@ -149,8 +157,8 @@
             </div>
           </div>
 
-          <!-- EDIT MODE SECTION (Hidden initially) -->
-          <form id="profileEditForm" class="d-none">
+          <!-- EDIT MODE SECTION (Added novalidate for custom Bootstrap validation) -->
+          <form id="profileEditForm" class="d-none" novalidate>
             <h5 class="fw-bold mb-3 border-bottom pb-2">Edit Information</h5>
             
             <div class="row g-3">
@@ -166,6 +174,7 @@
               <div class="col-md-6">
                 <label for="fullName" class="form-label fw-semibold">Full Name</label>
                 <input type="text" class="form-control" id="fullName" required>
+                <div class="invalid-feedback">Please enter your full name.</div>
               </div>
               <div class="col-md-6">
                 <label class="form-label fw-semibold">Account Type</label>
@@ -180,6 +189,7 @@
               <div class="col-md-6">
                 <label for="website" class="form-label fw-semibold">Website / Social Profile</label>
                 <input type="url" class="form-control" id="website" placeholder="https://linkedin.com/in/yourprofile">
+                <div class="invalid-feedback">Please enter a valid URL (include http:// or https://).</div>
               </div>
               <div class="col-12">
                 <label for="bio" class="form-label fw-semibold">Bio / About Me</label>
@@ -204,13 +214,31 @@
               </div>
 
               <h6 class="fw-bold mt-4 mb-2 text-secondary">Contact Information</h6>
+              
+              <!-- Contact Email with Email Validation -->
+              <div class="col-md-6">
+                <label for="contactEmail" class="form-label fw-semibold">Contact Email</label>
+                <input type="email" class="form-control" id="contactEmail" placeholder="your@email.com">
+                <div class="invalid-feedback">Please enter a valid email address.</div>
+              </div>
+
+              <!-- Phone with Regex Pattern Validation -->
               <div class="col-md-6">
                 <label for="phone" class="form-label fw-semibold">Phone Number</label>
-                <input type="text" class="form-control" id="phone" placeholder="Enter phone number">
+                <input type="tel" class="form-control" id="phone" placeholder="10-digit number" pattern="^[0-9]{10}$">
+                <div class="invalid-feedback">Please enter a valid 10-digit phone number.</div>
               </div>
+
               <div class="col-md-6">
                 <label for="address" class="form-label fw-semibold">Location / Address</label>
                 <input type="text" class="form-control" id="address" placeholder="City, State, Country">
+              </div>
+
+              <!-- PIN Code with Regex Pattern Validation -->
+              <div class="col-md-6">
+                <label for="pinCode" class="form-label fw-semibold">PIN / Postal Code</label>
+                <input type="text" class="form-control" id="pinCode" placeholder="e.g. 751001" pattern="^[1-9][0-9]{5}$">
+                <div class="invalid-feedback">Please enter a valid 6-digit PIN code.</div>
               </div>
 
             </div>
@@ -298,8 +326,11 @@
           // --- View Mode Population ---
           document.getElementById("userDisplayName").innerText = p.full_name || 'My Profile';
           document.getElementById("viewFullName").innerText = p.full_name || '-';
+          
+          document.getElementById("viewContactEmail").innerText = p.contact_email || 'Not provided';
           document.getElementById("viewPhone").innerText = p.phone || 'Not provided';
           document.getElementById("viewAddress").innerText = p.address || 'Not provided';
+          document.getElementById("viewPinCode").innerText = p.pin_code || 'Not provided';
           
           document.getElementById("viewOrganization").innerText = p.organization || 'Not provided';
           document.getElementById("viewWebsite").innerHTML = p.website ? `<a href="${p.website}" target="_blank" class="text-decoration-none">${p.website}</a>` : 'Not provided';
@@ -313,8 +344,10 @@
 
           // --- Edit Form Population ---
           document.getElementById("fullName").value = p.full_name || '';
+          document.getElementById("contactEmail").value = p.contact_email || '';
           document.getElementById("phone").value = p.phone || '';
           document.getElementById("address").value = p.address || '';
+          document.getElementById("pinCode").value = p.pin_code || '';
           
           document.getElementById("organization").value = p.organization || '';
           document.getElementById("website").value = p.website || '';
@@ -348,6 +381,7 @@
         editBtn.addEventListener("click", () => {
           viewMode.classList.add("d-none");
           editForm.classList.remove("d-none");
+          editForm.classList.remove("was-validated"); // Reset validation state
           alertBox.classList.add("d-none");
         });
 
@@ -358,18 +392,26 @@
           avatarUpload.value = ""; // Reset file input
         });
 
-        // Handle Form Submission
+        // Handle Form Submission with Validation
         editForm.addEventListener("submit", async (e) => {
           e.preventDefault();
+          
+          // Trigger frontend HTML5 pattern verification
+          if (!editForm.checkValidity()) {
+            e.stopPropagation();
+            editForm.classList.add('was-validated');
+            return; // Stop submission if validation fails
+          }
 
           saveBtn.disabled = true;
           saveBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Saving...`;
 
           const updatedName = document.getElementById("fullName").value.trim();
+          const updatedContactEmail = document.getElementById("contactEmail").value.trim();
           const updatedPhone = document.getElementById("phone").value.trim();
           const updatedAddress = document.getElementById("address").value.trim();
+          const updatedPinCode = document.getElementById("pinCode").value.trim();
           
-          // New professional fields
           const updatedOrg = document.getElementById("organization").value.trim();
           const updatedWebsite = document.getElementById("website").value.trim();
           const updatedBio = document.getElementById("bio").value.trim();
@@ -407,8 +449,10 @@
               .from('profiles')
               .update({
                 full_name: updatedName,
+                contact_email: updatedContactEmail,
                 phone: updatedPhone,
                 address: updatedAddress,
+                pin_code: updatedPinCode,
                 avatar_url: currentAvatarUrl,
                 organization: updatedOrg,
                 website: updatedWebsite,
@@ -425,8 +469,10 @@
 
             // Update local profile object & re-render
             profile.full_name = updatedName;
+            profile.contact_email = updatedContactEmail;
             profile.phone = updatedPhone;
             profile.address = updatedAddress;
+            profile.pin_code = updatedPinCode;
             profile.avatar_url = currentAvatarUrl;
             profile.organization = updatedOrg;
             profile.website = updatedWebsite;
