@@ -5,305 +5,340 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Profile | Santali Digital Library</title>
   
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Configure Tailwind custom colors -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            teal: '#005f73',
+            gold: '#ffb703'
+          }
+        }
+      }
+    }
+  </script>
+  
   <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="assets/css/style.css">
-
   <style>
-    .profile-card {
-      border-radius: 12px;
-      border: none;
+    /* Custom validation styles since Bootstrap's .was-validated is gone */
+    .was-validated :invalid {
+      border-color: #ef4444; /* Tailwind red-500 */
     }
-    .profile-avatar {
-      width: 100px;
-      height: 100px;
-      background-color: #005f73;
-      color: white;
-      font-size: 3rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      margin: 0 auto 1rem auto;
-      overflow: hidden;
-      border: 3px solid #f8f9fa;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      position: relative;
+    .was-validated :invalid ~ .invalid-feedback {
+      display: block;
     }
-    .profile-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    .invalid-feedback {
+      display: none;
+      color: #ef4444;
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
     }
-    .word-break-all {
-      word-break: break-all;
+    /* Toast Animation */
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
-    /* Toast Positioning */
-    .toast-container {
-      z-index: 1055;
+    .toast-enter {
+      animation: slideIn 0.3s ease-out forwards;
     }
   </style>
 </head>
-<body class="bg-light d-flex flex-column min-vh-100">
+<body class="bg-gray-50 flex flex-col min-h-screen text-gray-800">
 
   <!-- Navigation Bar -->
-  <nav class="navbar navbar-expand-lg navbar-dark navbar-teal sticky-top" style="background-color: #005f73;">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
-        <i class="fa-solid fa-book-open-reader text-warning fs-3"></i>
-        <span>Santali Digital <span class="text-warning fw-bold">Library</span></span>
+  <nav class="bg-teal sticky top-0 z-40 shadow-md text-white">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+      <a class="flex items-center gap-2 text-xl font-bold no-underline text-white" href="index.html">
+        <i class="fa-solid fa-book-open-reader text-gold text-2xl"></i>
+        <span>Santali Digital <span class="text-gold">Library</span></span>
       </a>
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
+      
+      <!-- Mobile Menu Button -->
+      <button id="mobileMenuBtn" class="lg:hidden text-white focus:outline-none text-2xl">
+        <i class="fa-solid fa-bars"></i>
       </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto align-items-center">
-          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="browse.html">Books</a></li>
-          <li class="nav-item"><a class="nav-link" href="categories.html">Categories</a></li>
-          <li class="nav-item"><a class="nav-link" href="upload.html">Upload</a></li>
-          <li class="nav-item ms-lg-3 my-2 my-lg-0" id="userNavArea">
-            <a href="login.html" class="btn btn-warning btn-sm fw-bold">Login / Sign Up</a>
-          </li>
-        </ul>
+
+      <!-- Desktop Nav -->
+      <div id="navbarNav" class="hidden lg:flex items-center space-x-6">
+        <a class="hover:text-gold transition font-medium" href="index.html">Home</a>
+        <a class="hover:text-gold transition font-medium" href="browse.html">Books</a>
+        <a class="hover:text-gold transition font-medium" href="categories.html">Categories</a>
+        <a class="hover:text-gold transition font-medium" href="upload.html">Upload</a>
+        <div id="userNavArea" class="ml-4">
+          <a href="login.html" class="bg-gold hover:bg-yellow-500 text-black px-4 py-2 rounded font-bold transition shadow-sm text-sm">Login / Sign Up</a>
+        </div>
       </div>
+    </div>
+    
+    <!-- Mobile Nav Dropdown -->
+    <div id="mobileMenu" class="hidden lg:hidden bg-teal border-t border-teal-700 pb-4">
+      <a class="block px-4 py-2 hover:bg-teal-700" href="index.html">Home</a>
+      <a class="block px-4 py-2 hover:bg-teal-700" href="browse.html">Books</a>
+      <a class="block px-4 py-2 hover:bg-teal-700" href="categories.html">Categories</a>
+      <a class="block px-4 py-2 hover:bg-teal-700" href="upload.html">Upload</a>
+      <a class="block px-4 py-2 text-gold font-bold" href="login.html">Login / Sign Up</a>
     </div>
   </nav>
 
   <!-- Global Floating Toast Notification -->
-  <div class="toast-container position-fixed top-0 end-0 p-3">
-    <div id="systemToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="d-flex">
-        <div class="toast-body fw-bold" id="systemToastMessage">
-          <!-- Message injected via JS -->
-        </div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+  <div id="systemToast" class="fixed top-20 right-4 z-50 hidden max-w-xs w-full bg-white shadow-lg rounded-lg border-l-4 overflow-hidden toast-enter">
+    <div class="p-4 flex items-start justify-between">
+      <div id="systemToastMessage" class="font-bold text-sm">
+        <!-- Message injected via JS -->
       </div>
+      <button id="closeToastBtn" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
     </div>
   </div>
 
   <!-- Profile Content Container -->
-  <div class="container my-5 flex-grow-1">
-    <div class="row justify-content-center">
-      <div class="col-lg-8">
+  <div class="container mx-auto px-4 py-10 flex-grow flex justify-center">
+    <div class="w-full max-w-4xl">
+      
+      <!-- Main Card -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-10 relative">
         
-        <div class="card shadow-sm profile-card p-4 p-md-5">
+        <!-- Alert Box -->
+        <div id="profileAlert" class="hidden p-4 mb-6 text-center rounded-lg font-semibold border"></div>
+
+        <!-- Initial Loader -->
+        <div id="initialLoader" class="text-center py-12">
+          <i class="fa-solid fa-circle-notch fa-spin text-teal text-5xl mb-4"></i>
+          <h5 class="font-bold text-gray-500">Loading your profile...</h5>
+        </div>
+
+        <!-- Main Content (Hidden until loaded) -->
+        <div id="mainProfileContent" class="hidden">
           
-          <!-- Initial Loader -->
-          <div id="initialLoader" class="text-center py-5">
-            <div class="spinner-border text-teal mb-3" style="color: #005f73; width: 3rem; height: 3rem;" role="status"></div>
-            <h5 class="fw-bold text-muted">Loading your profile...</h5>
-          </div>
-
-          <!-- Main Content (Hidden until loaded) -->
-          <div id="mainProfileContent" class="d-none">
-            <div class="text-center mb-4">
-              <!-- Avatar Container -->
-              <div class="profile-avatar position-relative">
-                <i class="fa-solid fa-user" id="defaultAvatarIcon"></i>
-                <img src="" alt="Profile" class="profile-img d-none" id="profileImageDisplay">
-              </div>
-
-              <h3 id="userDisplayName" class="fw-bold mb-1">User Name</h3>
-              <p id="userEmailDisplay" class="text-muted mb-2"></p> 
-              <span id="userRoleBadge" class="badge"></span>
+          <!-- Header Area -->
+          <div class="text-center mb-8">
+            <!-- Avatar Container -->
+            <div class="w-28 h-28 mx-auto mb-4 rounded-full border-4 border-gray-100 shadow-md bg-teal text-white flex items-center justify-center text-5xl overflow-hidden relative">
+              <i class="fa-solid fa-user" id="defaultAvatarIcon"></i>
+              <img src="" alt="Profile" class="w-full h-full object-cover hidden" id="profileImageDisplay">
             </div>
 
-            <!-- VIEW MODE SECTION -->
-            <div id="profileViewMode">
-              <h5 class="fw-bold mb-3 border-bottom pb-2">Professional & Personal Information</h5>
+            <h3 id="userDisplayName" class="text-2xl font-bold mb-1 text-gray-900">User Name</h3>
+            <p id="userEmailDisplay" class="text-gray-500 mb-3 text-sm"></p> 
+            <span id="userRoleBadge" class="inline-block px-3 py-1 text-xs font-bold rounded-full"></span>
+          </div>
+
+          <!-- VIEW MODE SECTION -->
+          <div id="profileViewMode">
+            <h5 class="text-lg font-bold mb-6 border-b border-gray-200 pb-2 text-gray-800">Professional & Personal Information</h5>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <!-- Basic Info -->
+              <div>
+                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-regular fa-id-card mr-1"></i> Full Name</span>
+                <h6 id="viewFullName" class="font-semibold text-gray-900">-</h6>
+              </div>
+              <div>
+                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-user-shield mr-1"></i> Account Type</span>
+                <h6 id="viewRole" class="font-semibold text-gray-900">-</h6>
+              </div>
+              <div>
+                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-building mr-1"></i> Organization/Affiliation</span>
+                <h6 id="viewOrganization" class="font-semibold text-gray-900"></h6>
+              </div>
+              <div>
+                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-link mr-1"></i> Website / Social Link</span>
+                <h6 id="viewWebsite" class="font-semibold text-gray-900 break-all"></h6>
+              </div>
               
-              <div class="row g-4 mb-4">
-                <div class="col-md-6">
-                  <span class="text-muted small d-block"><i class="fa-regular fa-id-card me-1"></i> Full Name</span>
-                  <h6 id="viewFullName" class="fw-semibold text-dark">-</h6>
-                </div>
-                <div class="col-md-6">
-                  <span class="text-muted small d-block"><i class="fa-solid fa-user-shield me-1"></i> Account Type</span>
-                  <h6 id="viewRole" class="fw-semibold text-dark mb-0">-</h6>
-                </div>
-                <div class="col-md-6">
-                  <span class="text-muted small d-block"><i class="fa-solid fa-building me-1"></i> Organization/Affiliation</span>
-                  <h6 id="viewOrganization" class="fw-semibold text-dark mb-0"></h6>
-                </div>
-                <div class="col-md-6">
-                  <span class="text-muted small d-block"><i class="fa-solid fa-link me-1"></i> Website / Social Link</span>
-                  <h6 id="viewWebsite" class="fw-semibold text-dark mb-0 word-break-all"></h6>
-                </div>
-                
-                <div class="col-12">
-                  <span class="text-muted small d-block"><i class="fa-solid fa-circle-info me-1"></i> Bio / About Me</span>
-                  <p id="viewBio" class="fw-semibold text-dark mb-0"></p>
-                </div>
-
-                <div class="col-md-6">
-                  <span class="text-muted small d-block"><i class="fa-solid fa-book-bookmark me-1"></i> Reading/Writing Interests</span>
-                  <h6 id="viewInterests" class="fw-semibold text-dark mb-0"></h6>
-                </div>
-                <div class="col-md-6">
-                  <span class="text-muted small d-block"><i class="fa-solid fa-language me-1"></i> Preferred Language</span>
-                  <h6 id="viewLanguage" class="fw-semibold text-dark mb-0"></h6>
-                </div>
-
-                <div class="col-md-6">
-                  <span class="text-muted small d-block"><i class="fa-regular fa-envelope me-1"></i> Contact Email</span>
-                  <div class="d-flex flex-wrap align-items-center gap-2">
-                    <h6 id="viewContactEmail" class="fw-semibold text-dark mb-0 word-break-all"></h6>
-                    <span id="emailVerificationArea"></span>
-                  </div>
-                </div>
-                
-                <div class="col-md-6">
-                  <span class="text-muted small d-block"><i class="fa-solid fa-phone me-1"></i> Phone Number</span>
-                  <h6 id="viewPhone" class="fw-semibold text-dark mb-0 word-break-all"></h6>
-                </div>
-                <div class="col-md-6">
-                  <span class="text-muted small d-block"><i class="fa-solid fa-location-dot me-1"></i> Address</span>
-                  <h6 id="viewAddress" class="fw-semibold text-dark mb-0"></h6>
-                </div>
-                <div class="col-md-6">
-                  <span class="text-muted small d-block"><i class="fa-solid fa-map-pin me-1"></i> PIN / Postal Code</span>
-                  <h6 id="viewPinCode" class="fw-semibold text-dark mb-0"></h6>
-                </div>
+              <!-- Bio -->
+              <div class="col-span-1 md:col-span-2">
+                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-circle-info mr-1"></i> Bio / About Me</span>
+                <p id="viewBio" class="font-semibold text-gray-900"></p>
               </div>
 
-              <div class="text-end border-top pt-3">
-                <button id="editBtn" class="btn btn-outline-dark fw-bold px-4 py-2 shadow-sm">
-                  <i class="fa-solid fa-pen-to-square me-2"></i> Edit Profile
-                </button>
+              <!-- Preferences -->
+              <div>
+                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-book-bookmark mr-1"></i> Reading/Writing Interests</span>
+                <h6 id="viewInterests" class="font-semibold text-gray-900"></h6>
+              </div>
+              <div>
+                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-language mr-1"></i> Preferred Language</span>
+                <h6 id="viewLanguage" class="font-semibold text-gray-900"></h6>
+              </div>
+
+              <!-- Contact Info -->
+              <div>
+                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-regular fa-envelope mr-1"></i> Contact Email</span>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h6 id="viewContactEmail" class="font-semibold text-gray-900 break-all"></h6>
+                  <span id="emailVerificationArea"></span>
+                </div>
+              </div>
+              
+              <div>
+                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-phone mr-1"></i> Phone Number</span>
+                <h6 id="viewPhone" class="font-semibold text-gray-900 break-all"></h6>
+              </div>
+              <div>
+                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-location-dot mr-1"></i> Address</span>
+                <h6 id="viewAddress" class="font-semibold text-gray-900"></h6>
+              </div>
+              <div>
+                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-map-pin mr-1"></i> PIN / Postal Code</span>
+                <h6 id="viewPinCode" class="font-semibold text-gray-900"></h6>
               </div>
             </div>
 
-            <!-- EDIT MODE SECTION -->
-            <form id="profileEditForm" class="d-none" novalidate>
-              <h5 class="fw-bold mb-3 border-bottom pb-2">Edit Information</h5>
-              
-              <div class="row g-3">
-                <div class="col-md-12 mb-2">
-                  <label for="avatarUpload" class="form-label fw-semibold">Update Profile Photo</label>
-                  <input class="form-control" type="file" id="avatarUpload" accept="image/*">
-                  <div class="form-text">Choose a square image for the best fit (Max 2MB). Image previews automatically.</div>
-                </div>
-
-                <h6 class="fw-bold mt-4 mb-2 text-secondary">Basic Details</h6>
-                <div class="col-md-6">
-                  <label for="fullName" class="form-label fw-semibold">Full Name</label>
-                  <input type="text" class="form-control" id="fullName" required>
-                  <div class="invalid-feedback">Please enter your full name.</div>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold">Account Type</label>
-                  <input type="text" class="form-control bg-light" id="roleDisplay" readonly disabled>
-                </div>
-
-                <h6 class="fw-bold mt-4 mb-2 text-secondary">Professional Identity</h6>
-                <div class="col-md-6">
-                  <label for="organization" class="form-label fw-semibold">Organization / Affiliation</label>
-                  <input type="text" class="form-control" id="organization" placeholder="e.g., University, Publishing House">
-                </div>
-                <div class="col-md-6">
-                  <label for="website" class="form-label fw-semibold">Website / Social Profile</label>
-                  <input type="url" class="form-control" id="website" placeholder="https://linkedin.com/in/yourprofile">
-                  <div class="invalid-feedback">Please enter a valid URL (include http:// or https://).</div>
-                </div>
-                <div class="col-12">
-                  <label for="bio" class="form-label fw-semibold">Bio / About Me</label>
-                  <textarea class="form-control" id="bio" rows="3" placeholder="Share a brief overview of your professional background and interests..."></textarea>
-                </div>
-
-                <h6 class="fw-bold mt-4 mb-2 text-secondary">Platform Preferences</h6>
-                <div class="col-md-6">
-                  <label for="interests" class="form-label fw-semibold">Reading/Writing Interests</label>
-                  <input type="text" class="form-control" id="interests" placeholder="e.g., Santali History, Fiction, Poetry">
-                </div>
-                <div class="col-md-6">
-                  <label for="preferredLanguage" class="form-label fw-semibold">Preferred Interface Language</label>
-                  <select class="form-select" id="preferredLanguage">
-                    <option value="">Select Language</option>
-                    <option value="Santali">Santali</option>
-                    <option value="English">English</option>
-                    <option value="Odia">Odia</option>
-                    <option value="Hindi">Hindi</option>
-                    <option value="Bengali">Bengali</option>
-                  </select>
-                </div>
-
-                <h6 class="fw-bold mt-4 mb-2 text-secondary">Contact Information</h6>
-                <div class="col-md-6">
-                  <label for="contactEmail" class="form-label fw-semibold">Contact Email</label>
-                  <input type="email" class="form-control" id="contactEmail" placeholder="your@email.com">
-                  <div class="invalid-feedback">Please enter a valid email address.</div>
-                </div>
-                <div class="col-md-6">
-                  <label for="phone" class="form-label fw-semibold">Phone Number</label>
-                  <input type="tel" class="form-control" id="phone" placeholder="10-digit number" pattern="^[0-9]{10}$">
-                  <div class="invalid-feedback">Please enter a valid 10-digit phone number.</div>
-                </div>
-                <div class="col-md-6">
-                  <label for="address" class="form-label fw-semibold">Location / Address</label>
-                  <input type="text" class="form-control" id="address" placeholder="City, State, Country">
-                </div>
-                <div class="col-md-6">
-                  <label for="pinCode" class="form-label fw-semibold">PIN / Postal Code</label>
-                  <input type="text" class="form-control" id="pinCode" placeholder="e.g. 751001" pattern="^[1-9][0-9]{5}$">
-                  <div class="invalid-feedback">Please enter a valid 6-digit PIN code.</div>
-                </div>
-              </div>
-
-              <div class="text-end mt-5 border-top pt-3 d-flex justify-content-end gap-2">
-                <button type="button" id="cancelEditBtn" class="btn btn-secondary fw-semibold px-4 py-2">
-                  Cancel
-                </button>
-                <button type="submit" id="saveProfileBtn" class="btn btn-warning fw-bold px-4 py-2 text-dark shadow-sm">
-                  <i class="fa-solid fa-floppy-disk me-2"></i> Save Changes
-                </button>
-              </div>
-            </form>
+            <div class="flex justify-end border-t border-gray-200 pt-6">
+              <button id="editBtn" class="flex items-center border-2 border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white font-bold py-2 px-6 rounded-lg transition">
+                <i class="fa-solid fa-pen-to-square mr-2"></i> Edit Profile
+              </button>
+            </div>
           </div>
+
+          <!-- EDIT MODE SECTION -->
+          <form id="profileEditForm" class="hidden" novalidate>
+            <h5 class="text-lg font-bold mb-6 border-b border-gray-200 pb-2 text-gray-800">Edit Information</h5>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- File Upload -->
+              <div class="col-span-1 md:col-span-2">
+                <label for="avatarUpload" class="block text-sm font-semibold text-gray-700 mb-1">Update Profile Photo</label>
+                <input class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal focus:border-teal outline-none transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal file:text-white hover:file:bg-teal/80 cursor-pointer text-gray-500" type="file" id="avatarUpload" accept="image/*">
+                <p class="text-xs text-gray-500 mt-1">Choose a square image for the best fit (Max 2MB). Image previews automatically.</p>
+              </div>
+
+              <!-- Details Sections -->
+              <div class="col-span-1 md:col-span-2 mt-2">
+                <h6 class="font-bold text-gray-500">Basic Details</h6>
+              </div>
+              
+              <div>
+                <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal focus:border-teal outline-none transition" id="fullName" required>
+                <div class="invalid-feedback">Please enter your full name.</div>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Account Type</label>
+                <input type="text" class="w-full border border-gray-200 bg-gray-100 text-gray-500 rounded-lg px-4 py-2 cursor-not-allowed" id="roleDisplay" readonly disabled>
+              </div>
+
+              <div class="col-span-1 md:col-span-2 mt-2">
+                <h6 class="font-bold text-gray-500">Professional Identity</h6>
+              </div>
+              
+              <div>
+                <label for="organization" class="block text-sm font-semibold text-gray-700 mb-1">Organization / Affiliation</label>
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="organization" placeholder="e.g., University, Publishing House">
+              </div>
+              <div>
+                <label for="website" class="block text-sm font-semibold text-gray-700 mb-1">Website / Social Profile</label>
+                <input type="url" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="website" placeholder="https://linkedin.com/in/yourprofile">
+                <div class="invalid-feedback">Please enter a valid URL (include http:// or https://).</div>
+              </div>
+              <div class="col-span-1 md:col-span-2">
+                <label for="bio" class="block text-sm font-semibold text-gray-700 mb-1">Bio / About Me</label>
+                <textarea class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition resize-y" id="bio" rows="3" placeholder="Share a brief overview of your professional background and interests..."></textarea>
+              </div>
+
+              <div class="col-span-1 md:col-span-2 mt-2">
+                <h6 class="font-bold text-gray-500">Platform Preferences</h6>
+              </div>
+              
+              <div>
+                <label for="interests" class="block text-sm font-semibold text-gray-700 mb-1">Reading/Writing Interests</label>
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="interests" placeholder="e.g., Santali History, Fiction, Poetry">
+              </div>
+              <div>
+                <label for="preferredLanguage" class="block text-sm font-semibold text-gray-700 mb-1">Preferred Interface Language</label>
+                <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition bg-white" id="preferredLanguage">
+                  <option value="">Select Language</option>
+                  <option value="Santali">Santali</option>
+                  <option value="English">English</option>
+                  <option value="Odia">Odia</option>
+                  <option value="Hindi">Hindi</option>
+                  <option value="Bengali">Bengali</option>
+                </select>
+              </div>
+
+              <div class="col-span-1 md:col-span-2 mt-2">
+                <h6 class="font-bold text-gray-500">Contact Information</h6>
+              </div>
+              
+              <div>
+                <label for="contactEmail" class="block text-sm font-semibold text-gray-700 mb-1">Contact Email</label>
+                <input type="email" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="contactEmail" placeholder="your@email.com">
+                <div class="invalid-feedback">Please enter a valid email address.</div>
+              </div>
+              <div>
+                <label for="phone" class="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
+                <input type="tel" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="phone" placeholder="10-digit number" pattern="^[0-9]{10}$">
+                <div class="invalid-feedback">Please enter a valid 10-digit phone number.</div>
+              </div>
+              <div>
+                <label for="address" class="block text-sm font-semibold text-gray-700 mb-1">Location / Address</label>
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="address" placeholder="City, State, Country">
+              </div>
+              <div>
+                <label for="pinCode" class="block text-sm font-semibold text-gray-700 mb-1">PIN / Postal Code</label>
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="pinCode" placeholder="e.g. 751001" pattern="^[1-9][0-9]{5}$">
+                <div class="invalid-feedback">Please enter a valid 6-digit PIN code.</div>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex justify-end gap-3 border-t border-gray-200 mt-8 pt-6">
+              <button type="button" id="cancelEditBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-lg transition">
+                Cancel
+              </button>
+              <button type="submit" id="saveProfileBtn" class="flex items-center bg-gold hover:bg-yellow-500 text-black font-bold py-2 px-6 rounded-lg shadow-sm transition">
+                <i class="fa-solid fa-floppy-disk mr-2"></i> Save Changes
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- OTP Verification Modal -->
-  <div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-0 shadow">
-        <div class="modal-header text-white" style="background-color: #005f73;">
-          <h5 class="modal-title fw-bold" id="otpModalLabel"><i class="fa-solid fa-envelope-circle-check me-2"></i> Verify Your Email</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body p-4 text-center">
-          <p class="mb-4">We've sent a 6-digit security code to <strong id="otpTargetEmail"></strong>. Please enter it below to verify your email address.</p>
-          
-          <input type="text" class="form-control form-control-lg text-center fw-bold letter-spacing-wide mx-auto mb-3" id="otpInput" placeholder="000000" maxlength="6" style="max-width: 200px; letter-spacing: 10px;">
-          
-          <div id="otpErrorMsg" class="text-danger small fw-bold d-none mb-3">Invalid or expired code. Please try again.</div>
-          
-          <button type="button" class="btn btn-warning fw-bold w-100 py-2" id="submitOtpBtn">
-            Confirm Email
-          </button>
-        </div>
+  <!-- OTP Verification Modal (Tailwind Implementation) -->
+  <div id="otpModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center backdrop-blur-sm px-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-[slideIn_0.2s_ease-out]">
+      <!-- Header -->
+      <div class="bg-teal text-white px-6 py-4 flex justify-between items-center">
+        <h5 class="font-bold text-lg"><i class="fa-solid fa-envelope-circle-check mr-2"></i> Verify Your Email</h5>
+        <button id="closeModalBtn" class="text-white hover:text-gray-200 focus:outline-none">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+      <!-- Body -->
+      <div class="p-6 text-center">
+        <p class="text-gray-600 mb-6">We've sent a 6-digit security code to <strong id="otpTargetEmail" class="text-gray-900"></strong>. Please enter it below to verify your email address.</p>
+        
+        <input type="text" class="w-48 mx-auto border-2 border-gray-300 rounded-lg px-4 py-3 text-center text-xl font-bold tracking-[10px] focus:border-teal focus:ring-teal outline-none transition mb-4 block" id="otpInput" placeholder="000000" maxlength="6">
+        
+        <div id="otpErrorMsg" class="text-red-500 text-sm font-bold hidden mb-4">Invalid or expired code. Please try again.</div>
+        
+        <button type="button" class="w-full bg-gold hover:bg-yellow-500 text-black font-bold py-3 rounded-lg shadow-sm transition flex justify-center items-center" id="submitOtpBtn">
+          Confirm Email
+        </button>
       </div>
     </div>
   </div>
 
   <!-- Footer -->
-  <footer class="footer-teal text-center mt-auto py-3" style="background-color: #005f73;">
-    <div class="container">
-      <p class="mb-1 fw-bold text-white">&copy; 2026 Santali Digital Library</p>
+  <footer class="bg-teal text-center py-5 mt-auto">
+    <div class="container mx-auto px-4">
+      <p class="mb-0 font-bold text-white text-sm">&copy; 2026 Santali Digital Library</p>
     </div>
   </footer>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Firebase Auth Script (Kept from original) -->
   <script type="module" src="assets/js/auth.js"></script>
 
-  <!-- Profile Script -->
+  <!-- Profile Script & UI Logic -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -312,36 +347,65 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     document.addEventListener("DOMContentLoaded", async () => {
+      
+      // Elements
       const viewMode = document.getElementById("profileViewMode");
       const editForm = document.getElementById("profileEditForm");
       const editBtn = document.getElementById("editBtn");
       const cancelEditBtn = document.getElementById("cancelEditBtn");
       const saveBtn = document.getElementById("saveProfileBtn");
+      const alertBox = document.getElementById("profileAlert");
 
       let currentUser = null;
       let currentProfileData = null;
 
-      // UX Improvement: Floating Toast Function
+      // Mobile Menu Logic
+      const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+      const mobileMenu = document.getElementById("mobileMenu");
+      mobileMenuBtn.addEventListener("click", () => {
+          mobileMenu.classList.toggle("hidden");
+      });
+
+      // Tailwind Toast Logic
+      let toastTimeout;
       function showAlert(message, type) {
         const toastEl = document.getElementById('systemToast');
         const toastMessage = document.getElementById('systemToastMessage');
         
-        toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning');
+        // Reset classes
+        toastEl.className = 'fixed top-20 right-4 z-50 hidden max-w-xs w-full shadow-lg rounded-lg border-l-4 overflow-hidden toast-enter';
         
         if (type === 'success') {
-            toastEl.classList.add('bg-success');
-            toastMessage.innerHTML = `<i class="fa-solid fa-circle-check me-2"></i> ${message}`;
+            toastEl.classList.add('bg-green-50', 'border-green-500', 'text-green-800');
+            toastMessage.innerHTML = `<i class="fa-solid fa-circle-check mr-2 text-green-500"></i> ${message}`;
         } else if (type === 'danger') {
-            toastEl.classList.add('bg-danger');
-            toastMessage.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-2"></i> ${message}`;
+            toastEl.classList.add('bg-red-50', 'border-red-500', 'text-red-800');
+            toastMessage.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-2 text-red-500"></i> ${message}`;
         } else {
-            toastEl.classList.add('bg-warning', 'text-dark');
-            toastEl.classList.remove('text-white');
+            toastEl.classList.add('bg-yellow-50', 'border-yellow-500', 'text-yellow-800');
             toastMessage.innerHTML = message;
         }
 
-        const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
-        toast.show();
+        toastEl.classList.remove('hidden');
+        
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            toastEl.classList.add('hidden');
+        }, 4000);
+      }
+      
+      document.getElementById("closeToastBtn").addEventListener("click", () => {
+          document.getElementById('systemToast').classList.add('hidden');
+      });
+
+      // Inline Alert Logic
+      function showInlineAlert(message, type) {
+        alertBox.className = `p-4 mb-6 text-center rounded-lg font-semibold border ${
+          type === 'danger' ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'
+        }`;
+        alertBox.textContent = message;
+        alertBox.classList.remove("hidden");
+        window.scrollTo(0, 0);
       }
 
       async function initProfile() {
@@ -372,18 +436,17 @@
           currentProfileData = profile;
           renderProfile(profile);
 
-          // UX Improvement: Hide loader, show content
-          document.getElementById("initialLoader").classList.add('d-none');
-          document.getElementById("mainProfileContent").classList.remove('d-none');
+          document.getElementById("initialLoader").classList.add('hidden');
+          document.getElementById("mainProfileContent").classList.remove('hidden');
 
         } catch (error) {
           console.error("Profile Fetch Error:", error);
-          showAlert("Failed to load profile details. Check connection.", "danger");
+          showInlineAlert("Failed to load profile details. Check connection.", "danger");
         }
       }
 
       function getEmptyStateHtml() {
-          return `<span class="text-muted fst-italic">Not provided</span>`;
+          return `<span class="text-gray-400 italic font-normal">Not provided</span>`;
       }
 
       function renderProfile(p) {
@@ -395,9 +458,9 @@
         if (p.contact_email) {
             document.getElementById("viewContactEmail").innerHTML = p.contact_email;
             if (p.contact_email === currentUser.email && currentUser.email_confirmed_at) {
-               verifyArea.innerHTML = `<span class="badge bg-success"><i class="fa-solid fa-circle-check"></i> Verified</span>`;
+               verifyArea.innerHTML = `<span class="bg-green-100 text-green-800 border border-green-200 px-2 py-0.5 rounded text-xs font-bold inline-flex items-center"><i class="fa-solid fa-circle-check mr-1"></i> Verified</span>`;
             } else {
-               verifyArea.innerHTML = `<button class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3 py-0" id="initVerifyBtn">Verify Now</button>`;
+               verifyArea.innerHTML = `<button type="button" class="border border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 px-3 py-1 rounded-full text-xs font-bold transition" id="initVerifyBtn">Verify Now</button>`;
                document.getElementById("initVerifyBtn").addEventListener("click", handleVerificationRequest);
             }
         } else {
@@ -414,7 +477,7 @@
         document.getElementById("viewLanguage").innerHTML = p.preferred_language || getEmptyStateHtml();
         
         if(p.website) {
-            document.getElementById("viewWebsite").innerHTML = `<a href="${p.website}" target="_blank" class="text-decoration-none fw-bold">${p.website}</a>`;
+            document.getElementById("viewWebsite").innerHTML = `<a href="${p.website}" target="_blank" class="text-teal hover:underline font-bold">${p.website}</a>`;
         } else {
             document.getElementById("viewWebsite").innerHTML = getEmptyStateHtml();
         }
@@ -437,46 +500,54 @@
 
         if (p.avatar_url) {
           document.getElementById("profileImageDisplay").src = p.avatar_url;
-          document.getElementById("profileImageDisplay").classList.remove('d-none');
-          document.getElementById("defaultAvatarIcon").classList.add('d-none');
+          document.getElementById("profileImageDisplay").classList.remove('hidden');
+          document.getElementById("defaultAvatarIcon").classList.add('hidden');
         }
 
         const roleBadge = document.getElementById("userRoleBadge");
+        roleBadge.className = "inline-block px-3 py-1 text-xs font-bold rounded-full mt-2 ";
         if (p.role === 'author') {
-          roleBadge.className = "badge bg-warning text-dark px-3 py-2";
+          roleBadge.className += "bg-yellow-100 text-yellow-800 border border-yellow-300";
           roleBadge.innerText = "Publisher / Author Account";
         } else if(p.role === 'admin') {
-          roleBadge.className = "badge bg-danger px-3 py-2";
+          roleBadge.className += "bg-red-100 text-red-800 border border-red-300";
           roleBadge.innerText = "Admin Account";
         } else {
-          roleBadge.className = "badge bg-secondary px-3 py-2";
+          roleBadge.className += "bg-gray-200 text-gray-700 border border-gray-300";
           roleBadge.innerText = "Reader Account";
         }
       }
 
-      // UX Improvement: Live Image Preview
+      // Live Image Preview
       document.getElementById("avatarUpload").addEventListener("change", function(event) {
           const file = event.target.files[0];
           if (file) {
               const reader = new FileReader();
               reader.onload = function(e) {
                   document.getElementById("profileImageDisplay").src = e.target.result;
-                  document.getElementById("profileImageDisplay").classList.remove('d-none');
-                  document.getElementById("defaultAvatarIcon").classList.add('d-none');
+                  document.getElementById("profileImageDisplay").classList.remove('hidden');
+                  document.getElementById("defaultAvatarIcon").classList.add('hidden');
               }
               reader.readAsDataURL(file);
           }
       });
 
-      // --- VERIFICATION HANDLERS ---
+      // --- VERIFICATION HANDLERS (Tailwind Modal) ---
       const otpModalEl = document.getElementById('otpModal');
-      const otpModal = new bootstrap.Modal(otpModalEl);
       const submitOtpBtn = document.getElementById('submitOtpBtn');
       const otpErrorMsg = document.getElementById('otpErrorMsg');
 
+      function hideModal() {
+         otpModalEl.classList.add('hidden');
+         document.getElementById('otpInput').value = '';
+         otpErrorMsg.classList.add('hidden');
+      }
+
+      document.getElementById('closeModalBtn').addEventListener("click", hideModal);
+
       async function handleVerificationRequest() {
           const targetEmail = currentProfileData.contact_email;
-          document.getElementById("initVerifyBtn").innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
+          document.getElementById("initVerifyBtn").innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i>`;
           
           try {
              const { error } = await supabase.auth.updateUser({ email: targetEmail });
@@ -484,7 +555,7 @@
 
              document.getElementById('otpTargetEmail').innerText = targetEmail;
              document.getElementById("initVerifyBtn").innerText = "Verify Now";
-             otpModal.show();
+             otpModalEl.classList.remove('hidden');
           } catch (err) {
              console.error(err);
              showAlert("Failed to send verification code. You may have hit a rate limit.", "danger");
@@ -498,12 +569,12 @@
          
          if(token.length !== 6) {
              otpErrorMsg.innerText = "Please enter a valid 6-digit code.";
-             otpErrorMsg.classList.remove('d-none');
+             otpErrorMsg.classList.remove('hidden');
              return;
          }
 
-         submitOtpBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Verifying...`;
-         otpErrorMsg.classList.add('d-none');
+         submitOtpBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Verifying...`;
+         otpErrorMsg.classList.add('hidden');
 
          try {
              const { data, error } = await supabase.auth.verifyOtp({
@@ -514,41 +585,36 @@
 
              if (error) throw error;
 
-             otpModal.hide();
-             document.getElementById('otpInput').value = '';
+             hideModal();
              showAlert("Email verified successfully!", "success");
              await initProfile();
 
          } catch(err) {
              otpErrorMsg.innerText = "Invalid or expired code. Please try again.";
-             otpErrorMsg.classList.remove('d-none');
+             otpErrorMsg.classList.remove('hidden');
          } finally {
              submitOtpBtn.innerHTML = "Confirm Email";
          }
       });
 
-      otpModalEl.addEventListener('hidden.bs.modal', () => {
-          document.getElementById('otpInput').value = '';
-          otpErrorMsg.classList.add('d-none');
-      });
 
       // --- STANDARD EDIT HANDLERS ---
       editBtn.addEventListener("click", () => {
-        viewMode.classList.add("d-none");
-        editForm.classList.remove("d-none");
+        viewMode.classList.add("hidden");
+        editForm.classList.remove("hidden");
         editForm.classList.remove("was-validated");
+        alertBox.classList.add("hidden");
       });
 
       cancelEditBtn.addEventListener("click", () => {
-        editForm.classList.add("d-none");
-        viewMode.classList.remove("d-none");
+        editForm.classList.add("hidden");
+        viewMode.classList.remove("hidden");
         document.getElementById("avatarUpload").value = ""; 
-        // Reset preview if they cancel
         if (currentProfileData && currentProfileData.avatar_url) {
             document.getElementById("profileImageDisplay").src = currentProfileData.avatar_url;
         } else {
-            document.getElementById("profileImageDisplay").classList.add('d-none');
-            document.getElementById("defaultAvatarIcon").classList.remove('d-none');
+            document.getElementById("profileImageDisplay").classList.add('hidden');
+            document.getElementById("defaultAvatarIcon").classList.remove('hidden');
         }
       });
 
@@ -562,7 +628,7 @@
         }
 
         saveBtn.disabled = true;
-        saveBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Saving...`;
+        saveBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Saving...`;
 
         const updatedName = document.getElementById("fullName").value.trim();
         const updatedContactEmail = document.getElementById("contactEmail").value.trim();
@@ -612,15 +678,15 @@
           showAlert("Profile updated successfully!", "success");
           
           await initProfile();
-          editForm.classList.add("d-none");
-          viewMode.classList.remove("d-none");
+          editForm.classList.add("hidden");
+          viewMode.classList.remove("hidden");
           document.getElementById("avatarUpload").value = "";
 
         } catch (err) {
           showAlert(err.message || "Failed to update profile details.", "danger");
         } finally {
           saveBtn.disabled = false;
-          saveBtn.innerHTML = `<i class="fa-solid fa-floppy-disk me-2"></i> Save Changes`;
+          saveBtn.innerHTML = `<i class="fa-solid fa-floppy-disk mr-2"></i> Save Changes`;
         }
       });
 
