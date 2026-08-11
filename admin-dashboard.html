@@ -613,7 +613,6 @@
         let filteredData = globalMessages;
         if (filterVal !== 'all') {
            filteredData = globalMessages.filter(msg => {
-              // Note: Also checking for 'read' to maintain backwards compatibility with old database entries
               const isResolved = msg.status === 'resolved' || msg.status === 'read';
               return filterVal === 'resolved' ? isResolved : !isResolved;
            });
@@ -637,7 +636,6 @@
 
           const tr = document.createElement('tr');
           
-          // Apply custom CSS class for left-border and subtle background highlighting
           if (isResolved) {
              tr.classList.add('row-resolved');
           } else {
@@ -665,7 +663,6 @@
         attachMessageListeners();
       }
 
-      // Attach filter change event
       document.getElementById('msgFilter').addEventListener('change', renderFilteredMessages);
       document.getElementById('refreshMessagesBtn').addEventListener('click', fetchAdminMessages);
 
@@ -677,13 +674,17 @@
             this.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
             this.disabled = true;
             try {
-              // Update database status to 'resolved'
-              const { error } = await supabase.from('messages').update({ status: 'resolved' }).eq('id', id);
+              // Ensure we ask Supabase to return the data so we know the policy allowed it
+              const { data, error } = await supabase.from('messages').update({ status: 'resolved' }).eq('id', id).select();
+              
               if (error) throw error;
+              if (!data || data.length === 0) throw new Error("Blocked by database security rules.");
+              
               showAlert("Inquiry marked as resolved.", "success");
               fetchAdminMessages(); 
             } catch (err) {
-              showAlert("Failed to update status.", "danger");
+              console.error("Update Error:", err);
+              showAlert("Failed to update status. Check RLS policies.", "danger");
               this.innerHTML = originalHtml;
               this.disabled = false;
             }
@@ -698,12 +699,16 @@
             this.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
             this.disabled = true;
             try {
-              const { error } = await supabase.from('messages').delete().eq('id', id);
+              const { data, error } = await supabase.from('messages').delete().eq('id', id).select();
+              
               if (error) throw error;
+              if (!data || data.length === 0) throw new Error("Blocked by database security rules.");
+              
               showAlert("Inquiry deleted.", "success");
               fetchAdminMessages(); 
             } catch (err) {
-              showAlert("Failed to delete inquiry.", "danger");
+              console.error("Delete Error:", err);
+              showAlert("Failed to delete inquiry. Check RLS policies.", "danger");
               this.innerHTML = originalHtml;
               this.disabled = false;
             }
