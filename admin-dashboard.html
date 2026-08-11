@@ -47,10 +47,13 @@
     <a class="nav-link-item" data-target="reportsSection">
       <i class="fa-solid fa-file-invoice-dollar me-2 w-20px"></i> Sales Report
     </a>
-    
-    <!-- NEW: User Report Tab -->
     <a class="nav-link-item" data-target="usersSection">
       <i class="fa-solid fa-users me-2 w-20px"></i> User Report
+    </a>
+    
+    <!-- NEW: Messages / Inquiries Tab -->
+    <a class="nav-link-item" data-target="messagesSection">
+      <i class="fa-solid fa-envelope me-2 w-20px"></i> Inquiries
     </a>
     
     <div class="mt-auto mb-3">
@@ -195,7 +198,7 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- SECTION 4: USER REPORT (NEW) -->
+    <!-- SECTION 4: USER REPORT -->
     <!-- ========================================== -->
     <div id="usersSection" class="content-section d-none">
       <div class="card stat-card p-0 overflow-hidden">
@@ -225,6 +228,43 @@
                 <tr>
                   <td colspan="4" class="text-center py-5 text-muted">
                     <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div> Loading users...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SECTION 5: MESSAGES / INQUIRIES (NEW)      -->
+    <!-- ========================================== -->
+    <div id="messagesSection" class="content-section d-none">
+      <div class="card stat-card p-0 overflow-hidden">
+        <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold mb-0 text-dark">Contact Inquiries</h5>
+          <button class="btn btn-sm btn-outline-primary" id="refreshMessagesBtn">
+            <i class="fa-solid fa-rotate-right me-1"></i> Refresh
+          </button>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light text-secondary small">
+                <tr>
+                  <th class="ps-4">Date</th>
+                  <th>Sender Info</th>
+                  <th>Subject</th>
+                  <th>Message</th>
+                  <th>Status</th>
+                  <th class="text-end pe-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminMessagesList">
+                <tr>
+                  <td colspan="6" class="text-center py-5 text-muted">
+                    <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div> Loading messages...
                   </td>
                 </tr>
               </tbody>
@@ -303,6 +343,9 @@
           } else if (targetId === 'usersSection') {
             pageTitle.textContent = "User Report";
             fetchAdminUsers();
+          } else if (targetId === 'messagesSection') { // NEW TAB CATCH
+            pageTitle.textContent = "Contact Inquiries";
+            fetchAdminMessages();
           }
         });
       });
@@ -380,7 +423,7 @@
       }
 
       // ==========================================
-      // 5. FETCH & RENDER USERS (NEW)
+      // 5. FETCH & RENDER USERS
       // ==========================================
       async function fetchAdminUsers() {
         const adminUsersList = document.getElementById('adminUsersList');
@@ -397,7 +440,6 @@
           
           adminUsersList.innerHTML = ''; 
           users.forEach(user => {
-            // Determine badge color based on role
             let roleBadge = `<span class="badge bg-secondary">Reader</span>`;
             if (user.role === 'author') roleBadge = `<span class="badge bg-warning text-dark">Author</span>`;
             if (user.role === 'admin') roleBadge = `<span class="badge bg-danger">Admin</span>`;
@@ -529,6 +571,102 @@
       }
 
       document.getElementById('refreshBooksBtn').addEventListener('click', fetchAdminBooks);
+
+      // ==========================================
+      // 8. FETCH & RENDER MESSAGES (NEW)
+      // ==========================================
+      async function fetchAdminMessages() {
+        const tbody = document.getElementById('adminMessagesList');
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading messages...</td></tr>`;
+        
+        try {
+          const { data: messages, error } = await supabase.from('messages').select('*').order('created_at', { ascending: false });
+          if (error) throw error;
+          
+          if (!messages || messages.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted fw-semibold">No messages found.</td></tr>`;
+            return;
+          }
+          
+          tbody.innerHTML = ''; 
+          messages.forEach(msg => {
+            const dateObj = new Date(msg.created_at);
+            const date = dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) + '<br><small class="text-muted">' + dateObj.toLocaleTimeString('en-IN', {hour: '2-digit', minute:'2-digit'}) + '</small>';
+            
+            const statusBadge = msg.status === 'read' 
+              ? `<span class="badge bg-success bg-opacity-10 text-success border border-success">Read</span>`
+              : `<span class="badge bg-warning bg-opacity-10 text-warning border border-warning">Unread</span>`;
+
+            const tr = document.createElement('tr');
+            // Highlight unread rows slightly
+            if (msg.status !== 'read') tr.classList.add('table-warning', 'bg-opacity-10');
+            
+            tr.innerHTML = `
+              <td class="ps-4 text-muted small">${date}</td>
+              <td>
+                <h6 class="fw-bold mb-0 text-dark text-truncate" style="max-width: 150px;" title="${msg.name}">${msg.name}</h6>
+                <a href="mailto:${msg.email}" class="small text-decoration-none">${msg.email}</a>
+              </td>
+              <td><span class="badge bg-secondary text-uppercase">${msg.subject}</span></td>
+              <td>
+                <div class="text-truncate small text-wrap" style="max-width: 300px; max-height: 60px; overflow: hidden;" title="${msg.message}">${msg.message}</div>
+              </td>
+              <td>${statusBadge}</td>
+              <td class="text-end pe-4">
+                ${msg.status !== 'read' ? `<button class="btn btn-sm btn-outline-success mark-read-btn me-1" data-id="${msg.id}" title="Mark as Read"><i class="fa-solid fa-check"></i></button>` : ''}
+                <button class="btn btn-sm btn-outline-danger delete-msg-btn" data-id="${msg.id}" title="Delete"><i class="fa-solid fa-trash-can"></i></button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+          attachMessageListeners();
+        } catch (err) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load messages.</td></tr>`;
+        }
+      }
+
+      function attachMessageListeners() {
+        document.querySelectorAll('.mark-read-btn').forEach(btn => {
+          btn.addEventListener('click', async function() {
+            const id = this.getAttribute('data-id');
+            const originalHtml = this.innerHTML;
+            this.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
+            this.disabled = true;
+            try {
+              const { error } = await supabase.from('messages').update({ status: 'read' }).eq('id', id);
+              if (error) throw error;
+              showAlert("Message marked as read.", "success");
+              fetchAdminMessages(); 
+            } catch (err) {
+              showAlert("Failed to update message.", "danger");
+              this.innerHTML = originalHtml;
+              this.disabled = false;
+            }
+          });
+        });
+
+        document.querySelectorAll('.delete-msg-btn').forEach(btn => {
+          btn.addEventListener('click', async function() {
+            if (!confirm("Delete this message permanently?")) return;
+            const id = this.getAttribute('data-id');
+            const originalHtml = this.innerHTML;
+            this.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
+            this.disabled = true;
+            try {
+              const { error } = await supabase.from('messages').delete().eq('id', id);
+              if (error) throw error;
+              showAlert("Message deleted.", "success");
+              fetchAdminMessages(); 
+            } catch (err) {
+              showAlert("Failed to delete message.", "danger");
+              this.innerHTML = originalHtml;
+              this.disabled = false;
+            }
+          });
+        });
+      }
+
+      document.getElementById('refreshMessagesBtn').addEventListener('click', fetchAdminMessages);
 
       // Handle Logout
       document.getElementById('logoutBtn').addEventListener('click', async (e) => {
