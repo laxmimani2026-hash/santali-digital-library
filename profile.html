@@ -25,9 +25,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
-    /* Custom validation styles since Bootstrap's .was-validated is gone */
+    /* Custom validation styles */
     .was-validated :invalid {
-      border-color: #ef4444; /* Tailwind red-500 */
+      border-color: #ef4444; 
     }
     .was-validated :invalid ~ .invalid-feedback {
       display: block;
@@ -38,6 +38,7 @@
       font-size: 0.75rem;
       margin-top: 0.25rem;
     }
+
     /* Toast Animation */
     @keyframes slideIn {
       from { transform: translateX(100%); opacity: 0; }
@@ -45,6 +46,83 @@
     }
     .toast-enter {
       animation: slideIn 0.3s ease-out forwards;
+    }
+
+    /* =======================================================
+       FIX FOR auth.js DROPDOWN INJECTION 
+       Styles the Bootstrap classes injected by auth.js 
+       into a modern Tailwind hovering dropdown.
+       ======================================================= */
+    #userNavArea {
+      position: relative;
+      cursor: pointer;
+      padding: 0.5rem 0; /* Creates a larger hover area */
+    }
+    
+    /* Target the injected dropdown menu */
+    #userNavArea .dropdown-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      background-color: #ffffff; /* White background */
+      min-width: 14rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+      z-index: 50;
+      padding: 0.5rem 0;
+      border: 1px solid #e5e7eb;
+      margin-top: 0;
+    }
+    
+    /* Show menu on hover */
+    #userNavArea:hover .dropdown-menu {
+      display: block;
+    }
+
+    /* Target the injected dropdown items/links */
+    #userNavArea .dropdown-menu a,
+    #userNavArea .dropdown-menu .dropdown-item {
+      display: block;
+      padding: 0.6rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #374151 !important; /* Dark text to contrast white bg */
+      text-decoration: none;
+      transition: background-color 0.15s ease;
+    }
+
+    /* Hover effect for links inside dropdown */
+    #userNavArea .dropdown-menu a:hover,
+    #userNavArea .dropdown-menu .dropdown-item:hover {
+      background-color: #f3f4f6 !important; /* Light gray hover */
+      color: #111827 !important;
+    }
+
+    /* Style dividers */
+    #userNavArea .dropdown-divider {
+      border-top: 1px solid #e5e7eb;
+      margin: 0.5rem 0;
+    }
+
+    /* Target the injected user info text (like "Hello, test eight") */
+    #userNavArea .dropdown-menu span,
+    #userNavArea .dropdown-menu p {
+      color: #374151; 
+      padding: 0.25rem 1.25rem;
+      display: block;
+    }
+
+    /* Format Author/Admin Badges injected by Auth */
+    #userNavArea .badge {
+      background-color: #ffb703;
+      color: #000;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      margin-left: 0.5rem;
+      vertical-align: middle;
     }
   </style>
 </head>
@@ -69,7 +147,9 @@
         <a class="hover:text-gold transition font-medium" href="browse.html">Books</a>
         <a class="hover:text-gold transition font-medium" href="categories.html">Categories</a>
         <a class="hover:text-gold transition font-medium" href="upload.html">Upload</a>
-        <div id="userNavArea" class="ml-4">
+        
+        <!-- The userNavArea (Dropdown target) -->
+        <div id="userNavArea" class="ml-4 h-full flex items-center">
           <a href="login.html" class="bg-gold hover:bg-yellow-500 text-black px-4 py-2 rounded font-bold transition shadow-sm text-sm">Login / Sign Up</a>
         </div>
       </div>
@@ -303,7 +383,7 @@
     </div>
   </div>
 
-  <!-- OTP Verification Modal (Tailwind Implementation) -->
+  <!-- OTP Verification Modal -->
   <div id="otpModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center backdrop-blur-sm px-4">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-[slideIn_0.2s_ease-out]">
       <!-- Header -->
@@ -335,7 +415,7 @@
     </div>
   </footer>
 
-  <!-- Firebase Auth Script (Kept from original) -->
+  <!-- Firebase Auth Script -->
   <script type="module" src="assets/js/auth.js"></script>
 
   <!-- Profile Script & UI Logic -->
@@ -348,7 +428,6 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
       
-      // Elements
       const viewMode = document.getElementById("profileViewMode");
       const editForm = document.getElementById("profileEditForm");
       const editBtn = document.getElementById("editBtn");
@@ -372,7 +451,6 @@
         const toastEl = document.getElementById('systemToast');
         const toastMessage = document.getElementById('systemToastMessage');
         
-        // Reset classes
         toastEl.className = 'fixed top-20 right-4 z-50 hidden max-w-xs w-full shadow-lg rounded-lg border-l-4 overflow-hidden toast-enter';
         
         if (type === 'success') {
@@ -486,7 +564,6 @@
         document.getElementById("viewRole").innerText = roleText;
         document.getElementById("roleDisplay").value = roleText;
 
-        // Edit Form Population
         document.getElementById("fullName").value = p.full_name || '';
         document.getElementById("contactEmail").value = p.contact_email || '';
         document.getElementById("phone").value = p.phone || '';
@@ -518,7 +595,6 @@
         }
       }
 
-      // Live Image Preview
       document.getElementById("avatarUpload").addEventListener("change", function(event) {
           const file = event.target.files[0];
           if (file) {
@@ -596,7 +672,6 @@
              submitOtpBtn.innerHTML = "Confirm Email";
          }
       });
-
 
       // --- STANDARD EDIT HANDLERS ---
       editBtn.addEventListener("click", () => {
@@ -690,7 +765,6 @@
         }
       });
 
-      // Execute Initialization
       initProfile();
     });
   </script>
