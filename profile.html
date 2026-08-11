@@ -250,6 +250,10 @@
                 <h6 id="viewAddress" class="font-semibold text-gray-900"></h6>
               </div>
               <div>
+                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-map-pin mr-1"></i> PIN / Postal Code</span>
+                <h6 id="viewPinCode" class="font-semibold text-gray-900"></h6>
+              </div>
+              <div>
                 <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-tree-city mr-1"></i> City / Village / Town</span>
                 <h6 id="viewCity" class="font-semibold text-gray-900"></h6>
               </div>
@@ -260,10 +264,6 @@
               <div>
                 <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-building-flag mr-1"></i> State</span>
                 <h6 id="viewState" class="font-semibold text-gray-900"></h6>
-              </div>
-              <div>
-                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-map-pin mr-1"></i> PIN / Postal Code</span>
-                <h6 id="viewPinCode" class="font-semibold text-gray-900"></h6>
               </div>
             </div>
 
@@ -356,17 +356,21 @@
                 <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="address" placeholder="e.g. Unit 9, Plot 45">
               </div>
               
-              <!-- PIN Code with Auto-fetch logic applied via JS -->
+              <!-- PIN Code Field triggers auto-fetch -->
               <div>
                 <label for="pinCode" class="block text-sm font-semibold text-gray-700 mb-1">PIN / Postal Code</label>
                 <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="pinCode" placeholder="e.g. 751001" pattern="^[1-9][0-9]{5}$">
-                <div id="pinCodeFeedback" class="text-xs mt-1 font-semibold"></div>
+                <div id="pinCodeFeedback" class="text-xs mt-1 font-semibold text-gray-500">Enter PIN to auto-fetch details</div>
                 <div class="invalid-feedback">Please enter a valid 6-digit PIN code.</div>
               </div>
+              
+              <!-- City Field mapped to a datalist -->
               <div>
                 <label for="city" class="block text-sm font-semibold text-gray-700 mb-1">City / Village / Town</label>
-                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="city" placeholder="e.g. Bhubaneswar">
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="city" list="cityOptions" placeholder="Type or select from list...">
+                <datalist id="cityOptions"></datalist>
               </div>
+
               <div>
                 <label for="district" class="block text-sm font-semibold text-gray-700 mb-1">District</label>
                 <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition bg-gray-50" id="district" placeholder="Auto-filled from PIN">
@@ -577,6 +581,7 @@
         document.getElementById("viewRole").innerText = roleText;
         document.getElementById("roleDisplay").value = roleText;
 
+        // Populate Form Fields
         document.getElementById("fullName").value = p.full_name || '';
         document.getElementById("contactEmail").value = p.contact_email || '';
         document.getElementById("phone").value = p.phone || '';
@@ -626,10 +631,12 @@
           }
       });
 
-      // --- AUTO-FETCH DISTRICT & STATE FROM PIN CODE ---
+      // --- AUTO-FETCH DISTRICT, STATE & CITY FROM PIN CODE ---
       const pinCodeInput = document.getElementById("pinCode");
       const districtInput = document.getElementById("district");
       const stateInput = document.getElementById("state");
+      const cityInput = document.getElementById("city");
+      const cityOptions = document.getElementById("cityOptions");
       const pinCodeFeedback = document.getElementById("pinCodeFeedback");
 
       pinCodeInput.addEventListener("input", async (e) => {
@@ -644,13 +651,33 @@
                   const data = await response.json();
                   
                   if (data && data[0].Status === "Success") {
-                      // Grab the first matching post office location
-                      const postOffice = data[0].PostOffice[0];
-                      districtInput.value = postOffice.District;
-                      stateInput.value = postOffice.State;
+                      const postOffices = data[0].PostOffice;
                       
-                      pinCodeFeedback.textContent = `Found: ${postOffice.District}, ${postOffice.State}`;
-                      pinCodeFeedback.className = "text-xs mt-1 font-semibold text-green-600";
+                      // Auto-fill District and State
+                      districtInput.value = postOffices[0].District;
+                      stateInput.value = postOffices[0].State;
+                      
+                      // Populate City/Village/Town Datalist Options
+                      cityOptions.innerHTML = ''; 
+                      postOffices.forEach(po => {
+                          const option = document.createElement('option');
+                          option.value = po.Name;
+                          cityOptions.appendChild(option);
+                      });
+
+                      // Check if there is only one match or multiple
+                      if (postOffices.length === 1) {
+                          cityInput.value = postOffices[0].Name;
+                          pinCodeFeedback.textContent = `Found: ${postOffices[0].Name}, ${postOffices[0].District}`;
+                      } else {
+                          cityInput.value = ''; // Clear to force selection
+                          cityInput.focus(); // Guide user to the dropdown
+                          pinCodeFeedback.textContent = `Multiple areas found. Please select your City/Village from the dropdown list.`;
+                      }
+
+                      pinCodeFeedback.classList.add("text-green-600");
+                      pinCodeFeedback.classList.remove("text-teal-600");
+
                   } else {
                       pinCodeFeedback.textContent = "Invalid PIN Code.";
                       pinCodeFeedback.className = "text-xs mt-1 font-semibold text-red-500";
@@ -661,7 +688,8 @@
                   pinCodeFeedback.className = "text-xs mt-1 font-semibold text-yellow-600";
               }
           } else {
-              pinCodeFeedback.textContent = "";
+              pinCodeFeedback.textContent = "Enter PIN to auto-fetch details";
+              pinCodeFeedback.className = "text-xs mt-1 font-semibold text-gray-500";
           }
       });
 
