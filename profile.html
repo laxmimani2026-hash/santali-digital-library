@@ -79,7 +79,6 @@
 
         <div class="card shadow-sm profile-card p-4 p-md-5">
           <div class="text-center mb-4">
-            
             <!-- Avatar Container -->
             <div class="profile-avatar position-relative">
               <i class="fa-solid fa-user" id="defaultAvatarIcon"></i>
@@ -87,7 +86,7 @@
             </div>
 
             <h3 id="userDisplayName" class="fw-bold mb-1">Loading Profile...</h3>
-            <!-- This is the account login email (read-only) -->
+            <!-- This is the account login email -->
             <p id="userEmailDisplay" class="text-muted mb-2"></p> 
             <span id="userRoleBadge" class="badge"></span>
           </div>
@@ -131,11 +130,16 @@
                 <h6 id="viewLanguage" class="fw-semibold text-dark mb-0">Not provided</h6>
               </div>
 
-              <!-- Contact & Location -->
+              <!-- Contact & Location (WITH VERIFICATION UI) -->
               <div class="col-md-6">
                 <span class="text-muted small d-block"><i class="fa-regular fa-envelope me-1"></i> Contact Email</span>
-                <h6 id="viewContactEmail" class="fw-semibold text-dark mb-0">Not provided</h6>
+                <div class="d-flex align-items-center gap-2">
+                  <h6 id="viewContactEmail" class="fw-semibold text-dark mb-0">Not provided</h6>
+                  <!-- Verification Badges/Buttons injected here -->
+                  <span id="emailVerificationArea"></span>
+                </div>
               </div>
+              
               <div class="col-md-6">
                 <span class="text-muted small d-block"><i class="fa-solid fa-phone me-1"></i> Phone Number</span>
                 <h6 id="viewPhone" class="fw-semibold text-dark mb-0">Not provided</h6>
@@ -157,13 +161,11 @@
             </div>
           </div>
 
-          <!-- EDIT MODE SECTION (Added novalidate for custom Bootstrap validation) -->
+          <!-- EDIT MODE SECTION -->
           <form id="profileEditForm" class="d-none" novalidate>
             <h5 class="fw-bold mb-3 border-bottom pb-2">Edit Information</h5>
             
             <div class="row g-3">
-              
-              <!-- Profile Photo Upload Input -->
               <div class="col-md-12 mb-2">
                 <label for="avatarUpload" class="form-label fw-semibold">Profile Photo</label>
                 <input class="form-control" type="file" id="avatarUpload" accept="image/*">
@@ -215,14 +217,12 @@
 
               <h6 class="fw-bold mt-4 mb-2 text-secondary">Contact Information</h6>
               
-              <!-- Contact Email with Email Validation -->
               <div class="col-md-6">
                 <label for="contactEmail" class="form-label fw-semibold">Contact Email</label>
                 <input type="email" class="form-control" id="contactEmail" placeholder="your@email.com">
                 <div class="invalid-feedback">Please enter a valid email address.</div>
               </div>
 
-              <!-- Phone with Regex Pattern Validation -->
               <div class="col-md-6">
                 <label for="phone" class="form-label fw-semibold">Phone Number</label>
                 <input type="tel" class="form-control" id="phone" placeholder="10-digit number" pattern="^[0-9]{10}$">
@@ -234,13 +234,11 @@
                 <input type="text" class="form-control" id="address" placeholder="City, State, Country">
               </div>
 
-              <!-- PIN Code with Regex Pattern Validation -->
               <div class="col-md-6">
                 <label for="pinCode" class="form-label fw-semibold">PIN / Postal Code</label>
                 <input type="text" class="form-control" id="pinCode" placeholder="e.g. 751001" pattern="^[1-9][0-9]{5}$">
                 <div class="invalid-feedback">Please enter a valid 6-digit PIN code.</div>
               </div>
-
             </div>
 
             <div class="text-end mt-5 border-top pt-3 d-flex justify-content-end gap-2">
@@ -254,7 +252,29 @@
           </form>
 
         </div>
+      </div>
+    </div>
+  </div>
 
+  <!-- OTP Verification Modal -->
+  <div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-teal text-white" style="background-color: #005f73;">
+          <h5 class="modal-title fw-bold" id="otpModalLabel"><i class="fa-solid fa-envelope-circle-check me-2"></i> Verify Your Email</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4 text-center">
+          <p class="mb-4">We've sent a 6-digit security code to <strong id="otpTargetEmail"></strong>. Please enter it below to verify your email address.</p>
+          
+          <input type="text" class="form-control form-control-lg text-center fw-bold letter-spacing-wide mx-auto mb-3" id="otpInput" placeholder="000000" maxlength="6" style="max-width: 200px; letter-spacing: 10px;">
+          
+          <div id="otpErrorMsg" class="text-danger small fw-bold d-none mb-3">Invalid or expired code. Please try again.</div>
+          
+          <button type="button" class="btn btn-warning fw-bold w-100 py-2" id="submitOtpBtn">
+            Confirm Email
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -286,10 +306,8 @@
       const cancelEditBtn = document.getElementById("cancelEditBtn");
       const saveBtn = document.getElementById("saveProfileBtn");
 
-      // Avatar Elements
-      const defaultIcon = document.getElementById("defaultAvatarIcon");
-      const profileImage = document.getElementById("profileImageDisplay");
-      const avatarUpload = document.getElementById("avatarUpload");
+      let currentUser = null;
+      let currentProfileData = null;
 
       function showAlert(message, type) {
         alertBox.className = `alert alert-${type} text-center`;
@@ -298,207 +316,266 @@
         window.scrollTo(0, 0);
       }
 
-      try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
-          window.location.href = "login.html";
+      async function initProfile() {
+        try {
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          if (userError || !user) {
+            window.location.href = "login.html";
+            return;
+          }
+          currentUser = user;
+          document.getElementById("userEmailDisplay").innerText = user.email;
+
+          let { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .maybeSingle();
+
+          if (!profile) {
+            const { data: newProfile } = await supabase
+              .from('profiles')
+              .insert([{ id: user.id, full_name: user.email.split('@')[0], role: 'reader' }])
+              .select()
+              .single();
+            if (newProfile) profile = newProfile;
+          }
+          
+          currentProfileData = profile;
+          renderProfile(profile);
+
+        } catch (error) {
+          console.error("Profile Fetch Error:", error);
+          showAlert("Failed to load profile details.", "danger");
+        }
+      }
+
+      function renderProfile(p) {
+        document.getElementById("userDisplayName").innerText = p.full_name || 'My Profile';
+        document.getElementById("viewFullName").innerText = p.full_name || '-';
+        
+        // --- Email Verification Logic ---
+        document.getElementById("viewContactEmail").innerText = p.contact_email || 'Not provided';
+        const verifyArea = document.getElementById("emailVerificationArea");
+        
+        if (p.contact_email) {
+            // Check if the contact email is the same as the Auth email and if the Auth email is verified
+            if (p.contact_email === currentUser.email && currentUser.email_confirmed_at) {
+               verifyArea.innerHTML = `<span class="badge bg-success"><i class="fa-solid fa-circle-check"></i> Verified</span>`;
+            } else {
+               verifyArea.innerHTML = `<button class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3 py-0" id="initVerifyBtn">Verify Now</button>`;
+               
+               // Attach event listener to the dynamically created Verify button
+               document.getElementById("initVerifyBtn").addEventListener("click", handleVerificationRequest);
+            }
+        } else {
+            verifyArea.innerHTML = '';
+        }
+
+        document.getElementById("viewPhone").innerText = p.phone || 'Not provided';
+        document.getElementById("viewAddress").innerText = p.address || 'Not provided';
+        document.getElementById("viewPinCode").innerText = p.pin_code || 'Not provided';
+        document.getElementById("viewOrganization").innerText = p.organization || 'Not provided';
+        document.getElementById("viewWebsite").innerHTML = p.website ? `<a href="${p.website}" target="_blank" class="text-decoration-none">${p.website}</a>` : 'Not provided';
+        document.getElementById("viewBio").innerText = p.bio || 'Not provided';
+        document.getElementById("viewInterests").innerText = p.interests || 'Not provided';
+        document.getElementById("viewLanguage").innerText = p.preferred_language || 'Not provided';
+        
+        const roleText = p.role ? p.role.toUpperCase() : 'READER';
+        document.getElementById("viewRole").innerText = roleText;
+        document.getElementById("roleDisplay").value = roleText;
+
+        // Edit Form Population
+        document.getElementById("fullName").value = p.full_name || '';
+        document.getElementById("contactEmail").value = p.contact_email || '';
+        document.getElementById("phone").value = p.phone || '';
+        document.getElementById("address").value = p.address || '';
+        document.getElementById("pinCode").value = p.pin_code || '';
+        document.getElementById("organization").value = p.organization || '';
+        document.getElementById("website").value = p.website || '';
+        document.getElementById("bio").value = p.bio || '';
+        document.getElementById("interests").value = p.interests || '';
+        document.getElementById("preferredLanguage").value = p.preferred_language || '';
+
+        if (p.avatar_url) {
+          document.getElementById("profileImageDisplay").src = p.avatar_url;
+          document.getElementById("profileImageDisplay").classList.remove('d-none');
+          document.getElementById("defaultAvatarIcon").classList.add('d-none');
+        }
+
+        const roleBadge = document.getElementById("userRoleBadge");
+        if (p.role === 'author') {
+          roleBadge.className = "badge bg-warning text-dark px-3 py-2";
+          roleBadge.innerText = "Publisher / Author Account";
+        } else if(p.role === 'admin') {
+          roleBadge.className = "badge bg-danger px-3 py-2";
+          roleBadge.innerText = "Admin Account";
+        } else {
+          roleBadge.className = "badge bg-secondary px-3 py-2";
+          roleBadge.innerText = "Reader Account";
+        }
+      }
+
+      // --- VERIFICATION HANDLERS ---
+      
+      const otpModalEl = document.getElementById('otpModal');
+      const otpModal = new bootstrap.Modal(otpModalEl);
+      const submitOtpBtn = document.getElementById('submitOtpBtn');
+      const otpErrorMsg = document.getElementById('otpErrorMsg');
+
+      async function handleVerificationRequest() {
+          const targetEmail = currentProfileData.contact_email;
+          document.getElementById("initVerifyBtn").innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
+          
+          try {
+             // Ask Supabase to link this new email. This sends the OTP.
+             const { error } = await supabase.auth.updateUser({ email: targetEmail });
+             if (error) throw error;
+
+             document.getElementById('otpTargetEmail').innerText = targetEmail;
+             document.getElementById("initVerifyBtn").innerText = "Verify Now";
+             otpModal.show();
+          } catch (err) {
+             console.error(err);
+             showAlert("Failed to send verification code: " + err.message, "danger");
+             document.getElementById("initVerifyBtn").innerText = "Verify Now";
+          }
+      }
+
+      submitOtpBtn.addEventListener('click', async () => {
+         const token = document.getElementById('otpInput').value.trim();
+         const targetEmail = currentProfileData.contact_email;
+         
+         if(token.length !== 6) {
+             otpErrorMsg.innerText = "Please enter a valid 6-digit code.";
+             otpErrorMsg.classList.remove('d-none');
+             return;
+         }
+
+         submitOtpBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Verifying...`;
+         otpErrorMsg.classList.add('d-none');
+
+         try {
+             const { data, error } = await supabase.auth.verifyOtp({
+                 email: targetEmail,
+                 token: token,
+                 type: 'email_change' 
+             });
+
+             if (error) throw error;
+
+             // Success! Reload user details
+             otpModal.hide();
+             document.getElementById('otpInput').value = '';
+             showAlert("Email verified successfully!", "success");
+             
+             // Refresh data to show green verified badge
+             await initProfile();
+
+         } catch(err) {
+             otpErrorMsg.innerText = "Invalid or expired code. Please try again.";
+             otpErrorMsg.classList.remove('d-none');
+         } finally {
+             submitOtpBtn.innerHTML = "Confirm Email";
+         }
+      });
+
+      // Clear modal data on close
+      otpModalEl.addEventListener('hidden.bs.modal', () => {
+          document.getElementById('otpInput').value = '';
+          otpErrorMsg.classList.add('d-none');
+      });
+
+
+      // --- STANDARD EDIT HANDLERS ---
+      editBtn.addEventListener("click", () => {
+        viewMode.classList.add("d-none");
+        editForm.classList.remove("d-none");
+        editForm.classList.remove("was-validated");
+        alertBox.classList.add("d-none");
+      });
+
+      cancelEditBtn.addEventListener("click", () => {
+        editForm.classList.add("d-none");
+        viewMode.classList.remove("d-none");
+        document.getElementById("avatarUpload").value = ""; 
+      });
+
+      editForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        if (!editForm.checkValidity()) {
+          e.stopPropagation();
+          editForm.classList.add('was-validated');
           return;
         }
 
-        document.getElementById("userEmailDisplay").innerText = user.email;
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Saving...`;
 
-        let { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .maybeSingle();
+        const updatedName = document.getElementById("fullName").value.trim();
+        const updatedContactEmail = document.getElementById("contactEmail").value.trim();
+        const updatedPhone = document.getElementById("phone").value.trim();
+        const updatedAddress = document.getElementById("address").value.trim();
+        const updatedPinCode = document.getElementById("pinCode").value.trim();
+        const updatedOrg = document.getElementById("organization").value.trim();
+        const updatedWebsite = document.getElementById("website").value.trim();
+        const updatedBio = document.getElementById("bio").value.trim();
+        const updatedInterests = document.getElementById("interests").value.trim();
+        const updatedLang = document.getElementById("preferredLanguage").value;
+        
+        let currentAvatarUrl = currentProfileData.avatar_url;
 
-        if (!profile) {
-          const { data: newProfile } = await supabase
+        try {
+          if (document.getElementById("avatarUpload").files.length > 0) {
+            const file = document.getElementById("avatarUpload").files[0];
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${currentUser.id}-${Date.now()}.${fileExt}`;
+            
+            const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, file, { upsert: true });
+            if (uploadError) throw new Error("Storage Error: " + uploadError.message);
+
+            const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(fileName);
+            currentAvatarUrl = publicUrlData.publicUrl;
+          }
+
+          const { error: updateError } = await supabase
             .from('profiles')
-            .insert([{ id: user.id, full_name: user.email.split('@')[0], role: 'reader' }])
-            .select()
-            .single();
-          if (newProfile) profile = newProfile;
-        }
+            .update({
+              full_name: updatedName,
+              contact_email: updatedContactEmail,
+              phone: updatedPhone,
+              address: updatedAddress,
+              pin_code: updatedPinCode,
+              avatar_url: currentAvatarUrl,
+              organization: updatedOrg,
+              website: updatedWebsite,
+              bio: updatedBio,
+              interests: updatedInterests,
+              preferred_language: updatedLang
+            })
+            .eq('id', currentUser.id);
 
-        function renderProfile(p) {
-          // --- View Mode Population ---
-          document.getElementById("userDisplayName").innerText = p.full_name || 'My Profile';
-          document.getElementById("viewFullName").innerText = p.full_name || '-';
+          if (updateError) throw new Error("Database Error: " + updateError.message);
+
+          showAlert("Profile updated successfully!", "success");
           
-          document.getElementById("viewContactEmail").innerText = p.contact_email || 'Not provided';
-          document.getElementById("viewPhone").innerText = p.phone || 'Not provided';
-          document.getElementById("viewAddress").innerText = p.address || 'Not provided';
-          document.getElementById("viewPinCode").innerText = p.pin_code || 'Not provided';
-          
-          document.getElementById("viewOrganization").innerText = p.organization || 'Not provided';
-          document.getElementById("viewWebsite").innerHTML = p.website ? `<a href="${p.website}" target="_blank" class="text-decoration-none">${p.website}</a>` : 'Not provided';
-          document.getElementById("viewBio").innerText = p.bio || 'Not provided';
-          document.getElementById("viewInterests").innerText = p.interests || 'Not provided';
-          document.getElementById("viewLanguage").innerText = p.preferred_language || 'Not provided';
-          
-          const roleText = p.role ? p.role.toUpperCase() : 'READER';
-          document.getElementById("viewRole").innerText = roleText;
-          document.getElementById("roleDisplay").value = roleText;
-
-          // --- Edit Form Population ---
-          document.getElementById("fullName").value = p.full_name || '';
-          document.getElementById("contactEmail").value = p.contact_email || '';
-          document.getElementById("phone").value = p.phone || '';
-          document.getElementById("address").value = p.address || '';
-          document.getElementById("pinCode").value = p.pin_code || '';
-          
-          document.getElementById("organization").value = p.organization || '';
-          document.getElementById("website").value = p.website || '';
-          document.getElementById("bio").value = p.bio || '';
-          document.getElementById("interests").value = p.interests || '';
-          document.getElementById("preferredLanguage").value = p.preferred_language || '';
-
-          // Display Avatar if it exists
-          if (p.avatar_url) {
-            profileImage.src = p.avatar_url;
-            profileImage.classList.remove('d-none');
-            defaultIcon.classList.add('d-none');
-          }
-
-          const roleBadge = document.getElementById("userRoleBadge");
-          if (p.role === 'author') {
-            roleBadge.className = "badge bg-warning text-dark px-3 py-2";
-            roleBadge.innerText = "Publisher / Author Account";
-          } else if(p.role === 'admin') {
-            roleBadge.className = "badge bg-danger px-3 py-2";
-            roleBadge.innerText = "Admin Account";
-          } else {
-            roleBadge.className = "badge bg-secondary px-3 py-2";
-            roleBadge.innerText = "Reader Account";
-          }
-        }
-
-        if (profile) renderProfile(profile);
-
-        // Toggle to Edit Mode
-        editBtn.addEventListener("click", () => {
-          viewMode.classList.add("d-none");
-          editForm.classList.remove("d-none");
-          editForm.classList.remove("was-validated"); // Reset validation state
-          alertBox.classList.add("d-none");
-        });
-
-        // Cancel Edit
-        cancelEditBtn.addEventListener("click", () => {
+          // Re-fetch everything completely to ensure data sync
+          await initProfile();
           editForm.classList.add("d-none");
           viewMode.classList.remove("d-none");
-          avatarUpload.value = ""; // Reset file input
-        });
+          document.getElementById("avatarUpload").value = "";
 
-        // Handle Form Submission with Validation
-        editForm.addEventListener("submit", async (e) => {
-          e.preventDefault();
-          
-          // Trigger frontend HTML5 pattern verification
-          if (!editForm.checkValidity()) {
-            e.stopPropagation();
-            editForm.classList.add('was-validated');
-            return; // Stop submission if validation fails
-          }
+        } catch (err) {
+          showAlert(err.message || "Failed to update profile details.", "danger");
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = `<i class="fa-solid fa-floppy-disk me-2"></i> Save Changes`;
+        }
+      });
 
-          saveBtn.disabled = true;
-          saveBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Saving...`;
-
-          const updatedName = document.getElementById("fullName").value.trim();
-          const updatedContactEmail = document.getElementById("contactEmail").value.trim();
-          const updatedPhone = document.getElementById("phone").value.trim();
-          const updatedAddress = document.getElementById("address").value.trim();
-          const updatedPinCode = document.getElementById("pinCode").value.trim();
-          
-          const updatedOrg = document.getElementById("organization").value.trim();
-          const updatedWebsite = document.getElementById("website").value.trim();
-          const updatedBio = document.getElementById("bio").value.trim();
-          const updatedInterests = document.getElementById("interests").value.trim();
-          const updatedLang = document.getElementById("preferredLanguage").value;
-          
-          let currentAvatarUrl = profile.avatar_url;
-
-          try {
-            // Check if a new file was selected
-            if (avatarUpload.files.length > 0) {
-              const file = avatarUpload.files[0];
-              const fileExt = file.name.split('.').pop();
-              const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-              const filePath = `${fileName}`;
-
-              const { error: uploadError } = await supabase.storage
-                .from('avatars')
-                .upload(filePath, file, { upsert: true });
-
-              if (uploadError) {
-                console.error("Storage Upload Error:", uploadError);
-                throw new Error("Storage Error: " + uploadError.message);
-              }
-
-              const { data: publicUrlData } = supabase.storage
-                .from('avatars')
-                .getPublicUrl(filePath);
-              
-              currentAvatarUrl = publicUrlData.publicUrl;
-            }
-
-            // Update Database Profile
-            const { error: updateError } = await supabase
-              .from('profiles')
-              .update({
-                full_name: updatedName,
-                contact_email: updatedContactEmail,
-                phone: updatedPhone,
-                address: updatedAddress,
-                pin_code: updatedPinCode,
-                avatar_url: currentAvatarUrl,
-                organization: updatedOrg,
-                website: updatedWebsite,
-                bio: updatedBio,
-                interests: updatedInterests,
-                preferred_language: updatedLang
-              })
-              .eq('id', user.id);
-
-            if (updateError) {
-                console.error("Profile Update Error:", updateError);
-                throw new Error("Database Error: " + updateError.message);
-            }
-
-            // Update local profile object & re-render
-            profile.full_name = updatedName;
-            profile.contact_email = updatedContactEmail;
-            profile.phone = updatedPhone;
-            profile.address = updatedAddress;
-            profile.pin_code = updatedPinCode;
-            profile.avatar_url = currentAvatarUrl;
-            profile.organization = updatedOrg;
-            profile.website = updatedWebsite;
-            profile.bio = updatedBio;
-            profile.interests = updatedInterests;
-            profile.preferred_language = updatedLang;
-
-            renderProfile(profile);
-            editForm.classList.add("d-none");
-            viewMode.classList.remove("d-none");
-            avatarUpload.value = ""; // Reset input
-            showAlert("Profile updated successfully!", "success");
-
-          } catch (err) {
-            console.error("Caught Error:", err);
-            showAlert(err.message || "Failed to update profile details.", "danger");
-          } finally {
-            saveBtn.disabled = false;
-            saveBtn.innerHTML = `<i class="fa-solid fa-floppy-disk me-2"></i> Save Changes`;
-          }
-        });
-
-      } catch (error) {
-        console.error("Profile Fetch Error:", error);
-        showAlert("Failed to load profile details.", "danger");
-      }
+      // Execute Initialization
+      initProfile();
     });
   </script>
 </body>
