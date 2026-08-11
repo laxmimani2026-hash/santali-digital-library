@@ -221,7 +221,6 @@
 
   <!-- Language Translation Script -->
   <script>
-    // Dictionary containing translations
     const translations = {
       en: {
         navHome: "Home", navBooks: "Books", navCategories: "Categories", navAuthors: "Authors", navUpload: "Upload", navContact: "Contact", navLogin: "Login / Sign Up",
@@ -239,7 +238,6 @@
         langLabel: "EN"
       },
       sat: {
-        // NOTE: Please replace these with accurate Ol Chiki translations! These are approximations.
         navHome: "ᱚᱲᱟᱜ (Home)", navBooks: "ᱯᱚᱛᱚᱵ (Books)", navCategories: "ᱦᱟᱹᱴᱤᱧ (Categories)", navAuthors: "ᱚᱱᱚᱞᱤᱭᱟᱹ (Authors)", navUpload: "ᱞᱟᱫᱮ (Upload)", navContact: "ᱡᱚᱜᱟᱡᱚᱜᱽ (Contact)", navLogin: "ᱵᱚᱞᱚᱱ / ᱥᱮᱞᱮᱫᱚᱜ",
         heroTitle: "ᱦᱟᱡᱟᱨ ᱦᱟᱡᱟᱨ ᱰᱤᱡᱤᱴᱟᱞ ᱯᱚᱛᱚᱵ ᱥᱮᱸᱫᱽᱨᱟᱭ ᱢᱮ",
         heroSub: "ᱡᱟᱦᱟᱸ ᱨᱮᱜᱮ, ᱡᱟᱦᱟᱸ ᱛᱤᱥ ᱜᱮ ᱯᱟᱲᱦᱟᱣ ᱢᱮ᱾ ᱟᱢᱟᱜ ᱤ-ᱯᱚᱛᱚᱵ ᱚᱞ ᱪᱤᱠᱤ ᱟᱨ ᱮᱴᱟᱜ ᱯᱟᱹᱨᱥᱤ ᱛᱮ ᱯᱟᱨᱥᱟᱞ ᱢᱮ᱾",
@@ -275,25 +273,20 @@
       const texts = translations[lang];
       if (!texts) return;
 
-      // Swap out the texts on elements matching data-i18n
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (texts[key]) el.innerHTML = texts[key];
       });
 
-      // Update placeholder
       const searchInput = document.getElementById('searchInput');
       if (searchInput) searchInput.placeholder = texts.searchPlaceholder;
 
-      // Update dropdown label
       const langLabel = document.getElementById('langLabelText');
       if (langLabel) langLabel.textContent = texts.langLabel;
 
-      // Save preference so it remembers on page reload
       localStorage.setItem('selectedLang', lang);
     }
 
-    // Attach click events to the dropdown items
     document.querySelectorAll('.lang-select').forEach(item => {
       item.addEventListener('click', (e) => {
         e.preventDefault();
@@ -302,7 +295,6 @@
       });
     });
 
-    // Check browser memory on initial load
     document.addEventListener("DOMContentLoaded", () => {
       const savedLang = localStorage.getItem('selectedLang') || 'en';
       changeLanguage(savedLang);
@@ -341,7 +333,6 @@
           sectionTitle.textContent = "Search Results";
           sectionSubtitle.textContent = `Showing results for "${query}"`;
         } else {
-          // Re-trigger language update for default titles just in case
           const currentLang = localStorage.getItem('selectedLang') || 'en';
           sectionTitle.textContent = translations[currentLang].sectionFeatured;
           sectionSubtitle.textContent = translations[currentLang].sectionFeaturedSub;
@@ -456,10 +447,12 @@
         loadingState.classList.remove('d-none');
         
         try {
+          // MODIFIED: Fetches only books where is_featured is true
           const { data, error } = await supabase
             .from('books')
             .select('*')
-            .limit(10); 
+            .eq('is_featured', true)
+            .order('created_at', { ascending: false }); 
 
           if (error) throw error;
           
@@ -468,7 +461,7 @@
           } else {
              loadingState.classList.add('d-none');
              gridBooksContainer.classList.remove('d-none');
-             gridBooksContainer.innerHTML = `<div class="col-12 text-center text-muted py-5">No books have been published yet.</div>`;
+             gridBooksContainer.innerHTML = `<div class="col-12 text-center text-muted py-5">No featured books currently available. Please select books to feature from the admin dashboard.</div>`;
           }
         } catch (err) {
           console.error("Initial load error:", err);

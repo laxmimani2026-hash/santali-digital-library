@@ -516,7 +516,7 @@
       });
 
       // ==========================================
-      // 7. FETCH & RENDER BOOKS
+      // 7. FETCH & RENDER BOOKS (WITH FEATURE TOGGLE)
       // ==========================================
       async function fetchAdminBooks() {
         const adminBooksList = document.getElementById('adminBooksList');
@@ -536,6 +536,10 @@
               ? `<span class="badge bg-success bg-opacity-10 text-success border border-success">FREE</span>` 
               : `₹${book.price}`;
 
+            const isFeatured = book.is_featured === true;
+            const featureBtnClass = isFeatured ? 'btn-warning' : 'btn-outline-secondary';
+            const featureIcon = isFeatured ? 'fa-solid fa-star' : 'fa-regular fa-star';
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
               <td class="ps-4">
@@ -551,19 +555,22 @@
               <td class="fw-semibold">${priceHtml}</td>
               <td class="text-muted small">${date}</td>
               <td class="text-end pe-4">
+                <button class="btn btn-sm ${featureBtnClass} toggle-feature-btn me-1" data-id="${book.id}" data-featured="${isFeatured}" title="Toggle Featured Marquee">
+                  <i class="${featureIcon}"></i>
+                </button>
                 <a href="book-details.html?id=${book.id}" target="_blank" class="btn btn-sm btn-outline-primary me-1"><i class="fa-solid fa-eye"></i></a>
                 <button class="btn btn-sm btn-outline-danger delete-book-btn" data-id="${book.id}"><i class="fa-solid fa-trash-can"></i></button>
               </td>
             `;
             adminBooksList.appendChild(tr);
           });
-          attachDeleteListeners();
+          attachBookActionListeners();
         } catch (err) {
           adminBooksList.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-danger">Failed to load books.</td></tr>`;
         }
       }
 
-      function attachDeleteListeners() {
+      function attachBookActionListeners() {
         document.querySelectorAll('.delete-book-btn').forEach(btn => {
           btn.addEventListener('click', async function() {
             if (!confirm("Are you sure you want to permanently delete this book?")) return;
@@ -578,6 +585,28 @@
               fetchDashboardStats(); 
             } catch (err) {
               showAlert("Cannot delete book.", "danger");
+              this.innerHTML = originalHtml;
+              this.disabled = false;
+            }
+          });
+        });
+
+        document.querySelectorAll('.toggle-feature-btn').forEach(btn => {
+          btn.addEventListener('click', async function() {
+            const bookId = this.getAttribute('data-id');
+            const currentStatus = this.getAttribute('data-featured') === 'true';
+            
+            const originalHtml = this.innerHTML;
+            this.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
+            this.disabled = true;
+            
+            try {
+              const { error } = await supabase.from('books').update({ is_featured: !currentStatus }).eq('id', bookId);
+              if (error) throw error;
+              showAlert(`Book has been ${!currentStatus ? 'added to' : 'removed from'} featured marquee.`, "success");
+              fetchAdminBooks(); 
+            } catch (err) {
+              showAlert("Cannot update featured status.", "danger");
               this.innerHTML = originalHtml;
               this.disabled = false;
             }
@@ -609,7 +638,6 @@
         const tbody = document.getElementById('adminMessagesList');
         const filterVal = document.getElementById('msgFilter').value;
         
-        // Filter the global array based on dropdown selection
         let filteredData = globalMessages;
         if (filterVal !== 'all') {
            filteredData = globalMessages.filter(msg => {
@@ -674,7 +702,6 @@
             this.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
             this.disabled = true;
             try {
-              // Ensure we ask Supabase to return the data so we know the policy allowed it
               const { data, error } = await supabase.from('messages').update({ status: 'resolved' }).eq('id', id).select();
               
               if (error) throw error;
@@ -716,14 +743,12 @@
         });
       }
 
-      // Handle Logout
       document.getElementById('logoutBtn').addEventListener('click', async (e) => {
         e.preventDefault();
         await supabase.auth.signOut();
         window.location.href = "admin-login.html";
       });
 
-      // Initialize default view
       fetchDashboardStats();
     });
   </script>
