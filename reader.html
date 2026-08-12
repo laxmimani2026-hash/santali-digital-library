@@ -100,7 +100,8 @@
     .progress-fill-top {
       height: 100%;
       background: var(--brand-primary);
-      width: 0%; /* Dynamic */
+      width: 0%;
+      transition: width 0.3s ease;
     }
 
     .top-nav-right {
@@ -184,7 +185,8 @@
     .progress-fill-left {
       height: 100%;
       background: var(--brand-primary);
-      width: 0%; /* Dynamic */
+      width: 0%;
+      transition: width 0.3s ease;
     }
 
     .nav-menu {
@@ -286,6 +288,7 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.08);
       background-color: #fff;
       max-width: none;
+      cursor: pointer; /* Indicates it's clickable */
     }
 
     .pagination-bar {
@@ -307,6 +310,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      transition: background 0.2s;
     }
     .pagination-btn:hover {
       background: #f0f0f0;
@@ -401,7 +405,7 @@
       font-weight: 500;
       color: var(--text-muted);
     }
-    /* Icon Colors based on image */
+    
     .c-purple { color: #5c4bca; }
     .c-yellow { color: #f59f00; }
     .c-green { color: #2b8a3e; }
@@ -507,7 +511,7 @@
     
     <div class="top-nav-center">
       <div class="book-meta-top">
-        <h1 id="topBookTitle">Loading Book...</h1>
+        <h1 id="topBookTitle">Reading Mode</h1>
         <p>Page <span id="topPageNum">0</span> of <span id="topTotalPages">0</span></p>
       </div>
       <div class="progress-bar-top-container">
@@ -572,10 +576,11 @@
            <p class="fw-medium text-muted" id="loadingText">Preparing document...</p>
         </div>
         
+        <!-- The Canvas: Clicking left side goes back, right side goes forward -->
         <canvas id="pdf-render" class="d-none"></canvas>
 
         <!-- Inline Bottom Pagination -->
-        <div class="pagination-bar d-none" id="paginationBar">
+        <div class="pagination-bar" id="paginationBar">
           <button class="pagination-btn" id="prevChapterBtn"><i class="fa-solid fa-angle-left"></i> Previous Page</button>
           <div class="page-indicator"><span id="inlinePageNum">0</span> of <span id="inlineTotalPages">0</span></div>
           <button class="pagination-btn" id="nextChapterBtn">Next Page <i class="fa-solid fa-angle-right"></i></button>
@@ -583,7 +588,7 @@
       </div>
 
       <!-- Floating Toolbar -->
-      <div class="floating-toolbar d-none" id="floatingToolbar">
+      <div class="floating-toolbar" id="floatingToolbar">
         <button class="toolbar-icon"><i class="fa-solid fa-bars"></i></button>
         <button class="toolbar-icon"><span style="font-weight:700; font-family:serif;">Aa</span></button>
         
@@ -680,15 +685,13 @@
     // UI BEHAVIORS & THEMING
     // =========================================================
     
-    // Page Theme Logic (Applies CSS filters to PDF canvas to simulate themes)
+    // Page Theme Logic
     const themeSwatches = document.querySelectorAll('.theme-swatch');
     const pdfMainContainer = document.getElementById('pdfContainer');
     
     themeSwatches.forEach(swatch => {
       swatch.addEventListener('click', (e) => {
-        // Remove active class from all
         themeSwatches.forEach(s => s.classList.remove('active'));
-        // Add to clicked
         e.target.classList.add('active');
         
         const theme = e.target.getAttribute('data-theme');
@@ -697,7 +700,6 @@
         } else if (theme === 'sepia') {
           pdfMainContainer.style.filter = 'sepia(0.6) contrast(0.9) brightness(0.9)';
         } else if (theme === 'dark') {
-          // Invert colors for dark mode PDF reading
           pdfMainContainer.style.filter = 'invert(0.92) hue-rotate(180deg) contrast(0.85) brightness(0.95)';
         }
       });
@@ -726,7 +728,7 @@
         pageNum = 1,
         pageIsRendering = false,
         pageNumPending = null,
-        scale = 1.2, // Default readable scale
+        scale = 1.2, 
         isInitialLoad = true;
 
     const canvas = document.getElementById('pdf-render');
@@ -745,22 +747,19 @@
     };
 
     const updateUIState = (num, total) => {
-        const percent = Math.round((num / total) * 100);
+        const percent = total > 0 ? Math.round((num / total) * 100) : 0;
         const percentStr = `${percent}% Completed`;
         const widthStr = `${percent}%`;
 
-        // Update Text
         updateElements.topPage.textContent = num;
         updateElements.inlinePage.textContent = num;
         updateElements.widgetPage.textContent = num;
         
-        // Update Progress Bars
         updateElements.topProgText.textContent = percentStr;
         updateElements.sideProgText.textContent = percentStr;
         updateElements.topProgFill.style.width = widthStr;
         updateElements.sideProgFill.style.width = widthStr;
         
-        // Update Zoom Text
         updateElements.zoomText.textContent = `${Math.round(scale * 100)}%`;
     };
 
@@ -770,12 +769,8 @@
       try {
         const page = await pdfDoc.getPage(num);
         const viewport = page.getViewport({ scale: 1 });
-        
-        // Subtract padding 
-        const availW = pdfMainContainer.clientWidth - 80;
-        
+        const availW = pdfMainContainer.clientWidth - 80; // Minus padding
         const calcScale = availW / viewport.width;
-        // Don't blow it up too huge on massive screens, cap at 2.0. Min at 0.5
         scale = Math.min(Math.max(calcScale, 0.5), 1.8); 
       } catch (err) {
         console.error("Scale calculation error:", err);
@@ -831,6 +826,17 @@
       queueRenderPage(pageNum);
     };
 
+    // Canvas click to navigate: Left half = Previous, Right half = Next
+    canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        if (clickX < rect.width / 2) {
+            handlePrevPage();
+        } else {
+            handleNextPage();
+        }
+    });
+
     document.getElementById('prevChapterBtn').addEventListener('click', handlePrevPage);
     document.getElementById('nextChapterBtn').addEventListener('click', handleNextPage);
 
@@ -847,8 +853,11 @@
     // INITIALIZATION & DATA FETCHING
     // =========================================================
     document.addEventListener("DOMContentLoaded", async () => {
+      
+      // If no ID is passed, show a graceful error but keep the beautiful UI visible
       if (!bookId) {
-        document.getElementById('loadingText').innerHTML = "<span class='text-danger'>Invalid link parameters.</span>";
+        document.getElementById('loadingText').innerHTML = "<span class='text-danger fw-bold'>Invalid link parameters (Missing Book ID).</span><br><small>Go back to the library and select a book to read.</small>";
+        document.querySelector('.spinner-border').classList.add('d-none');
         return;
       }
 
@@ -863,7 +872,7 @@
         
         activePdfUrl = book.pdf_url; 
         
-        // Populate Meta Data
+        // Populate Meta Data in Sidebars
         document.getElementById('topBookTitle').textContent = book.title;
         document.getElementById('sidebarTitle').textContent = book.title;
         document.getElementById('sidebarAuthor').textContent = book.author || "Unknown Author";
@@ -881,22 +890,21 @@
           document.getElementById('inlineTotalPages').textContent = totalP;
           document.getElementById('widgetTotalPages').textContent = totalP;
 
-          // Reveal UI
           document.getElementById('loading').classList.add('d-none');
           canvas.classList.remove('d-none');
-          document.getElementById('paginationBar').classList.remove('d-none');
-          document.getElementById('floatingToolbar').classList.remove('d-none');
           
           renderPage(pageNum);
 
         }).catch(err => {
           console.error("PDF Loading Error:", err);
           document.getElementById('loadingText').innerHTML = "<span class='text-danger fw-bold'>Failed to render the PDF file.</span>";
+          document.querySelector('.spinner-border').classList.add('d-none');
         });
         
       } catch (error) {
         console.error("Supabase Fetch Error:", error);
         document.getElementById('loadingText').innerHTML = "<span class='text-danger fw-bold'>Failed to load the book details.</span>";
+        document.querySelector('.spinner-border').classList.add('d-none');
       }
     });
   </script>
