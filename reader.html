@@ -697,7 +697,7 @@
     let pdfDoc = null, pageNum = 1, pageIsRendering = false, scale = 1.2;
     let epubBook = null, epubRendition = null, epubFontSize = 100;
     
-    // Sample PDF fallback if API fails
+    // Fallback sample PDF if book URL fails
     const SAMPLE_PDF_URL = "https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/web/compressed.tracemonkey-pldi-09.pdf";
 
     // UI Updates Utility
@@ -892,7 +892,7 @@
         }
       }
 
-      // Default / Fallback metadata if database query fails or isn't provided
+      // Fallback metadata if database query fails or isn't provided
       if (!bookData) {
         bookData = {
           title: "Santali eBook Reader",
