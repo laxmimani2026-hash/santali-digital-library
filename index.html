@@ -43,6 +43,123 @@
       0% { transform: translateX(0); }
       100% { transform: translateX(calc(-50% - 0.75rem)); } 
     }
+
+    /* Santali Digital Library monetization sections */
+    .sdm-section {
+      padding: 70px 0;
+    }
+    .sdm-section-alt {
+      background: linear-gradient(180deg, #f8fbfa 0%, #ffffff 100%);
+      border-top: 1px solid #e9efed;
+      border-bottom: 1px solid #e9efed;
+    }
+    .sdm-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 13px;
+      border-radius: 999px;
+      background: #e9f7f1;
+      color: #087f5b;
+      font-size: .82rem;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .sdm-card {
+      background: #fff;
+      border: 1px solid #e7ecea;
+      border-radius: 18px;
+      padding: 26px;
+      height: 100%;
+      box-shadow: 0 8px 28px rgba(0,0,0,.05);
+    }
+    .sdm-card:hover {
+      transform: translateY(-4px);
+      transition: .2s ease;
+      box-shadow: 0 14px 34px rgba(0,0,0,.08);
+    }
+    .sdm-icon {
+      width: 52px;
+      height: 52px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      background: #0b7760;
+      color: #fff;
+      font-size: 1.25rem;
+      margin-bottom: 16px;
+    }
+    .sdm-price-card {
+      position: relative;
+      overflow: hidden;
+    }
+    .sdm-price-card.featured {
+      border: 2px solid #d9a441;
+    }
+    .sdm-price {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #0b7760;
+    }
+    .sdm-price small {
+      font-size: .85rem;
+      color: #6c757d;
+      font-weight: 600;
+    }
+    .sdm-check {
+      color: #0b7760;
+      margin-right: 8px;
+    }
+    .sdm-flow {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 28px;
+    }
+    .sdm-flow-item {
+      min-width: 145px;
+      padding: 16px 14px;
+      text-align: center;
+      background: #fff;
+      border: 1px solid #e6ece9;
+      border-radius: 14px;
+      font-weight: 700;
+      box-shadow: 0 5px 18px rgba(0,0,0,.04);
+    }
+    .sdm-flow-item i {
+      display: block;
+      color: #d19a2d;
+      font-size: 1.35rem;
+      margin-bottom: 7px;
+    }
+    .sdm-stat {
+      border-radius: 16px;
+      padding: 20px;
+      background: #0b7760;
+      color: #fff;
+      height: 100%;
+    }
+    .sdm-stat .number {
+      font-size: 1.8rem;
+      font-weight: 800;
+    }
+    .sdm-note {
+      background: #fff8e7;
+      border-left: 4px solid #d19a2d;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .sdm-cta {
+      background: linear-gradient(135deg, #075e4d, #0b8a69);
+      color: #fff;
+      border-radius: 24px;
+      padding: 42px;
+      box-shadow: 0 16px 40px rgba(7,94,77,.2);
+    }
+
   </style>
 </head>
 <body>
@@ -103,6 +220,15 @@
             <i class="fa-solid fa-magnifying-glass me-1"></i> <span data-i18n="searchBtnText">Search</span>
           </button>
         </div>
+      </div>
+
+      <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
+        <a href="#membership" class="btn btn-warning btn-lg fw-bold px-4">
+          <i class="fa-solid fa-crown me-2"></i>View Membership
+        </a>
+        <a href="upload.html" class="btn btn-outline-light btn-lg px-4">
+          <i class="fa-solid fa-pen-nib me-2"></i>Publish & Earn
+        </a>
       </div>
     </div>
   </header>
@@ -192,7 +318,7 @@
               <i class="fa-solid fa-sack-dollar"></i>
             </div>
             <h3 class="feature-title" data-i18n="feat2Title">Earn Money</h3>
-            <p class="feature-desc" data-i18n="feat2Desc">Sell books directly to readers worldwide.</p>
+            <p class="feature-desc" data-i18n="feat2Desc">Sell eBooks, earn from subscriptions, and build a sustainable author income.</p>
           </div>
         </div>
         <div class="col-md-4">
@@ -208,11 +334,247 @@
     </div>
   </section>
 
+
+  <!-- Reader Subscription & Revenue Model -->
+  <section class="sdm-section sdm-section-alt" id="membership">
+    <div class="container">
+      <div class="text-center mb-5">
+        <span class="sdm-eyebrow"><i class="fa-solid fa-crown"></i> Reader Membership</span>
+        <h2 class="section-title mt-3" data-i18n="memberTitle">Read More with Membership</h2>
+        <p class="section-subtitle" data-i18n="memberSub">Affordable access to Santali books while helping authors earn from their work.</p>
+      </div>
+
+      <div class="row g-4 justify-content-center">
+        <div class="col-md-6 col-lg-4">
+          <div class="sdm-card sdm-price-card">
+            <h4 class="fw-bold">Basic Reader</h4>
+            <div class="sdm-price">₹49 <small>/ month</small></div>
+            <hr>
+            <p><i class="fa-solid fa-check sdm-check"></i>Access to selected books</p>
+            <p><i class="fa-solid fa-check sdm-check"></i>Mobile, tablet & desktop reading</p>
+            <p><i class="fa-solid fa-check sdm-check"></i>Save favourite books</p>
+            <a href="login.html" class="btn btn-outline-primary w-100 mt-2">Join as Reader</a>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <div class="sdm-card sdm-price-card featured">
+            <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3">POPULAR</span>
+            <h4 class="fw-bold">Full Library</h4>
+            <div class="sdm-price">₹99 <small>/ month</small></div>
+            <hr>
+            <p><i class="fa-solid fa-check sdm-check"></i>Participating Santali eBooks</p>
+            <p><i class="fa-solid fa-check sdm-check"></i>Premium reading collection</p>
+            <p><i class="fa-solid fa-check sdm-check"></i>Reading history & bookmarks</p>
+            <p><i class="fa-solid fa-check sdm-check"></i>Support Santali authors</p>
+            <a href="login.html" class="btn btn-warning w-100 mt-2 fw-bold">Start Membership</a>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <div class="sdm-card sdm-price-card">
+            <h4 class="fw-bold">Annual Reader</h4>
+            <div class="sdm-price">₹999 <small>/ year</small></div>
+            <hr>
+            <p><i class="fa-solid fa-check sdm-check"></i>Full participating library access</p>
+            <p><i class="fa-solid fa-check sdm-check"></i>Better value for regular readers</p>
+            <p><i class="fa-solid fa-check sdm-check"></i>New titles as they are added</p>
+            <a href="login.html" class="btn btn-outline-primary w-100 mt-2">Choose Annual</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Author Earnings -->
+  <section class="sdm-section" id="authors-earn">
+    <div class="container">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+          <span class="sdm-eyebrow"><i class="fa-solid fa-pen-nib"></i> For Authors</span>
+          <h2 class="section-title text-start mt-3">Publish, Reach Readers & Earn</h2>
+          <p class="lead text-muted">
+            Give Santali writers a simple digital publishing route. Authors can choose free distribution,
+            paid eBook sales, or participation in the subscription revenue pool.
+          </p>
+          <div class="sdm-note mt-4">
+            <strong>Example:</strong> If an eBook is sold for ₹99, the platform can retain a defined service
+            commission and pay the remaining eligible amount to the author. Final revenue-share rules can be
+            configured in the author agreement.
+          </div>
+          <a href="upload.html" class="btn btn-success btn-lg mt-4">
+            <i class="fa-solid fa-cloud-arrow-up me-2"></i>Publish Your eBook
+          </a>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="sdm-stat">
+                <div class="number">₹99</div>
+                <div>Example eBook price</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="sdm-stat">
+                <div class="number">20%</div>
+                <div>Illustrative platform commission</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="sdm-stat">
+                <div class="number">₹79.20</div>
+                <div>Illustrative author share per sale</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="sdm-stat">
+                <div class="number">100%</div>
+                <div>Author earnings dashboard visibility</div>
+              </div>
+            </div>
+          </div>
+          <p class="small text-muted mt-3 mb-0">
+            Examples are illustrative. Actual author payouts should be based on your final commercial and publishing agreements.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Revenue Streams -->
+  <section class="sdm-section sdm-section-alt" id="revenue-model">
+    <div class="container">
+      <div class="text-center mb-5">
+        <span class="sdm-eyebrow"><i class="fa-solid fa-chart-line"></i> Sustainable Platform</span>
+        <h2 class="section-title mt-3">How Santali Digital Library Can Earn</h2>
+        <p class="section-subtitle">Multiple revenue channels reduce dependence on a single source of income.</p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+          <div class="sdm-card">
+            <div class="sdm-icon"><i class="fa-solid fa-users"></i></div>
+            <h4>Reader Subscriptions</h4>
+            <p class="text-muted mb-0">Monthly and annual memberships for access to participating eBooks.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="sdm-card">
+            <div class="sdm-icon"><i class="fa-solid fa-book"></i></div>
+            <h4>eBook Sales</h4>
+            <p class="text-muted mb-0">Readers can purchase individual books without taking a subscription.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="sdm-card">
+            <div class="sdm-icon"><i class="fa-solid fa-headphones"></i></div>
+            <h4>Audiobooks</h4>
+            <p class="text-muted mb-0">Offer Santali audiobooks as premium purchases or part of selected plans.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="sdm-card">
+            <div class="sdm-icon"><i class="fa-solid fa-school"></i></div>
+            <h4>Institutional Plans</h4>
+            <p class="text-muted mb-0">Annual access packages for schools, colleges, libraries and institutions.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="sdm-card">
+            <div class="sdm-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+            <h4>Author Services</h4>
+            <p class="text-muted mb-0">eBook conversion, cover design, editing, formatting and publishing assistance.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="sdm-card">
+            <div class="sdm-icon"><i class="fa-solid fa-bullhorn"></i></div>
+            <h4>Promotion</h4>
+            <p class="text-muted mb-0">Optional featured-book and author promotion packages for wider reach.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Institutional Access -->
+  <section class="sdm-section" id="institutional">
+    <div class="container">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-7">
+          <span class="sdm-eyebrow"><i class="fa-solid fa-building-columns"></i> Institutional Library</span>
+          <h2 class="section-title text-start mt-3">Bring Santali Literature to Institutions</h2>
+          <p class="lead text-muted">
+            Create institutional subscriptions for schools, colleges, universities, libraries, research centres
+            and cultural organisations.
+          </p>
+          <div class="sdm-flow">
+            <div class="sdm-flow-item"><i class="fa-solid fa-school"></i>Schools</div>
+            <div class="sdm-flow-item"><i class="fa-solid fa-graduation-cap"></i>Colleges</div>
+            <div class="sdm-flow-item"><i class="fa-solid fa-building-columns"></i>Universities</div>
+            <div class="sdm-flow-item"><i class="fa-solid fa-book-open"></i>Libraries</div>
+            <div class="sdm-flow-item"><i class="fa-solid fa-landmark"></i>Institutions</div>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="sdm-card">
+            <h4 class="fw-bold">Institutional Plan</h4>
+            <p class="text-muted">Custom annual pricing based on users, access rights and collection size.</p>
+            <ul class="list-unstyled">
+              <li class="mb-2"><i class="fa-solid fa-check sdm-check"></i>Central reading access</li>
+              <li class="mb-2"><i class="fa-solid fa-check sdm-check"></i>Usage reporting</li>
+              <li class="mb-2"><i class="fa-solid fa-check sdm-check"></i>Curated Santali collections</li>
+              <li class="mb-2"><i class="fa-solid fa-check sdm-check"></i>Institution administrator</li>
+            </ul>
+            <a href="contact.html" class="btn btn-primary w-100 mt-2">Request Institutional Plan</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Business Model Flow -->
+  <section class="sdm-section sdm-section-alt" id="how-earn">
+    <div class="container text-center">
+      <span class="sdm-eyebrow"><i class="fa-solid fa-diagram-project"></i> Platform Model</span>
+      <h2 class="section-title mt-3">Author → Library → Reader → Revenue</h2>
+      <p class="section-subtitle">A simple ecosystem designed to benefit both readers and creators.</p>
+
+      <div class="sdm-flow">
+        <div class="sdm-flow-item"><i class="fa-solid fa-user-pen"></i>Author Uploads</div>
+        <div class="sdm-flow-item"><i class="fa-solid fa-book-open"></i>Digital Library</div>
+        <div class="sdm-flow-item"><i class="fa-solid fa-mobile-screen-button"></i>Reader Access</div>
+        <div class="sdm-flow-item"><i class="fa-solid fa-indian-rupee-sign"></i>Payment</div>
+        <div class="sdm-flow-item"><i class="fa-solid fa-hand-holding-dollar"></i>Author Share</div>
+        <div class="sdm-flow-item"><i class="fa-solid fa-server"></i>Platform Revenue</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="sdm-section">
+    <div class="container">
+      <div class="sdm-cta text-center">
+        <h2 class="fw-bold">Build the Digital Home of Santali Books</h2>
+        <p class="lead mb-4">
+          Read, publish, earn and preserve Santali literature for the next generation.
+        </p>
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+          <a href="browse.html" class="btn btn-light btn-lg px-4">Explore Books</a>
+          <a href="upload.html" class="btn btn-warning btn-lg px-4 fw-bold">Publish a Book</a>
+          <a href="login.html" class="btn btn-outline-light btn-lg px-4">Join the Library</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Footer -->
   <footer class="footer-teal text-center mt-auto">
     <div class="container">
       <p class="mb-2 fw-bold">&copy; 2026 Santali Digital Library</p>
-      <p class="small mb-0 text-white-50" data-i18n="footerText">Made with ❤️ for Authors & Readers</p>
+      <p class="small mb-1 text-white-50" data-i18n="footerText">Made with ❤️ for Authors & Readers</p>
+      <p class="small mb-0 text-white-50">Reader subscriptions • eBook sales • Institutional plans • Author services</p>
     </div>
   </footer>
 
@@ -234,7 +596,7 @@
         feat1Title: "Easy Upload", feat1Desc: "Authors can upload books within minutes.",
         feat2Title: "Earn Money", feat2Desc: "Sell books directly to readers worldwide.",
         feat3Title: "Read Anywhere", feat3Desc: "Mobile, Tablet & Desktop support.",
-        footerText: "Made with ❤️ for Authors & Readers",
+        footerText: "Made with ❤️ for Authors & Readers", memberTitle: "Read More with Membership", memberSub: "Affordable access to Santali books while helping authors earn from their work.",
         langLabel: "EN"
       },
       sat: {
@@ -249,7 +611,7 @@
         feat1Title: "ᱟᱞᱜᱟ ᱛᱮ ᱞᱟᱫᱮ", feat1Desc: "ᱚᱱᱚᱞᱤᱭᱟᱹ ᱠᱚ ᱞᱚᱜᱚᱱ ᱯᱚᱛᱚᱵ ᱠᱚ ᱞᱟᱫᱮ ᱫᱟᱲᱮᱭᱟᱜ-ᱟ᱾",
         feat2Title: "ᱴᱟᱠᱟ ᱟᱨᱡᱟᱣ", feat2Desc: "ᱯᱚᱛᱚᱵ ᱟᱹᱠᱷᱨᱤᱧ ᱠᱟᱛᱮ ᱴᱟᱠᱟ ᱟᱨᱡᱟᱣ ᱢᱮ᱾",
         feat3Title: "ᱡᱟᱦᱟᱸ ᱨᱮᱜᱮ ᱯᱟᱲᱦᱟᱣ", feat3Desc: "ᱢᱚᱵᱟᱭᱤᱞ, ᱴᱮᱵᱽᱞᱮᱴ ᱟᱨ ᱰᱮᱥᱠᱴᱚᱯ ᱨᱮ ᱯᱟᱲᱦᱟᱣ ᱢᱮ᱾",
-        footerText: "ᱚᱱᱚᱞᱤᱭᱟᱹ ᱟᱨ ᱯᱟᱹᱲᱦᱟᱹᱣᱤᱭᱟᱹ ᱠᱚ ᱞᱟᱹᱜᱤᱫ ❤️ ᱛᱮ ᱵᱮᱱᱟᱣ ᱟᱠᱟᱱᱟ",
+        footerText: "ᱚᱱᱚᱞᱤᱭᱟᱹ ᱟᱨ ᱯᱟᱹᱲᱦᱟᱹᱣᱤᱭᱟᱹ ᱠᱚ ᱞᱟᱹᱜᱤᱫ ❤️ ᱛᱮ ᱵᱮᱱᱟᱣ ᱟᱠᱟᱱᱟ", memberTitle: "ᱯᱚᱛᱚᱵ ᱟᱨ ᱜᱚᱲᱚ ᱥᱟᱶ ᱯᱟᱲᱦᱟᱣ ᱢᱮ", memberSub: "ᱥᱟᱱᱛᱟᱲᱤ ᱯᱚᱛᱚᱵ ᱯᱟᱲᱦᱟᱣ ᱟᱨ ᱚᱱᱚᱞᱤᱭᱟᱹ ᱠᱚ ᱜᱚᱲᱚ ᱢᱮ",
         langLabel: "SAT"
       },
       hi: {
@@ -264,7 +626,7 @@
         feat1Title: "आसान अपलोड", feat1Desc: "लेखक मिनटों में किताबें अपलोड कर सकते हैं।",
         feat2Title: "पैसे कमाएं", feat2Desc: "सीधे दुनिया भर के पाठकों को किताबें बेचें।",
         feat3Title: "कहीं भी पढ़ें", feat3Desc: "मोबाइल, टैबलेट और डेस्कटॉप समर्थन।",
-        footerText: "लेखकों और पाठकों के लिए ❤️ से निर्मित",
+        footerText: "लेखकों और पाठकों के लिए ❤️ से निर्मित", memberTitle: "सदस्यता के साथ अधिक पढ़ें", memberSub: "सस्ती पहुंच और लेखकों के लिए बेहतर कमाई का अवसर।",
         langLabel: "HI"
       }
     };
