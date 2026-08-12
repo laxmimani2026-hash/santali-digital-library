@@ -21,7 +21,7 @@
       --sidebar-text: #ffffff;
       --canvas-bg: #000000;
       --toolbar-bg: #333333;
-      --accent-color: #8bb4e7; /* Light blue from sample text */
+      --accent-color: #8bb4e7;
       --active-block-bg: #3a3a3a;
     }
 
@@ -35,7 +35,7 @@
       overflow: hidden;
     }
 
-    /* --- Dual-Pane Sidebar Styles --- */
+    /* --- Sidebar Styles --- */
     .sidebar-container {
       display: flex;
       height: calc(100vh - 45px);
@@ -124,7 +124,6 @@
     }
 
     /* --- Visual Adjustments Advanced UI --- */
-    
     .filter-block {
       border: 1px solid #555;
       border-radius: 6px;
@@ -148,7 +147,6 @@
       margin: 0;
     }
 
-    /* Used for the simple checkboxes at the bottom */
     .custom-checkbox-row.standalone {
       padding: 10px 0;
       margin-bottom: 5px;
@@ -177,7 +175,7 @@
       position: absolute;
       top: -2px;
       left: 3px;
-      color: #111; /* Dark checkmark on light blue background */
+      color: #111; 
       font-size: 14px;
       font-weight: bold;
     }
@@ -216,7 +214,6 @@
       cursor: pointer;
     }
 
-    /* Zoom Buttons in Panel */
     .zoom-btn-large {
       background: transparent;
       border: none;
@@ -244,14 +241,13 @@
       flex-grow: 1;
       overflow: auto;
       display: flex;
-      /* Using flex to keep items centered but allowing scrolling */
       flex-direction: column; 
-      padding: 40px; /* Generous margin ensures PDF stays within bounds */
+      padding: 40px; /* Generous 40px padding for margins */
       position: relative;
     }
 
     #canvas-container {
-      margin: auto; /* Centers the canvas vertically and horizontally */
+      margin: auto; 
       display: flex;
       gap: 15px;
       justify-content: center;
@@ -263,14 +259,16 @@
     canvas {
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
       background-color: #fff;
-      max-width: none; /* Allows true zooming */
+      max-width: none; 
       transition: transform 0.2s ease;
     }
 
-    /* Add pointer cursors to indicate click-to-navigate in two-page mode */
-    .double-mode #pdf-render-left,
+    /* Interactive cursor for two-page mode navigation */
+    .double-mode #pdf-render-left {
+      cursor: w-resize; /* Indicates left/previous */
+    }
     .double-mode #pdf-render-right {
-      cursor: pointer;
+      cursor: e-resize; /* Indicates right/next */
     }
 
     /* --- Bottom Toolbar Styles --- */
@@ -370,20 +368,16 @@
 
   <!-- Dual-Pane Left Sidebar -->
   <aside class="sidebar-container">
-    <!-- Icon Bar -->
     <div class="sidebar-icon-bar">
       <button class="icon-btn" title="Search inside"><i class="fa-solid fa-magnifying-glass"></i></button>
       <button class="icon-btn" title="Bookmarks"><i class="fa-regular fa-bookmark"></i></button>
       <button class="icon-btn" id="downloadBtn" title="Downloadable files"><i class="fa-solid fa-download"></i></button>
-      
-      <!-- Visual Adjustments Toggle -->
       <button class="icon-btn" id="visualMenuBtn" title="Visual Adjustments"><i class="fa-solid fa-circle-half-stroke"></i></button>
-      
       <div style="flex-grow: 1;"></div>
       <button class="icon-btn mb-2" id="backBtn" title="Return to Library"><i class="fa-solid fa-arrow-left"></i></button>
     </div>
 
-    <!-- Sub-Panel for Visual Adjustments -->
+    <!-- Visual Adjustments Panel -->
     <div class="sidebar-panel" id="visualAdjustPanel">
       <div class="panel-header">
         <h5>Visual Adjustments <span id="activeCount">(0 active)</span></h5>
@@ -391,7 +385,6 @@
       </div>
       <div class="panel-body">
         
-        <!-- Brightness Block -->
         <div class="filter-block" id="block-brightness">
           <label class="custom-checkbox-row">
             <span>Adjust brightness</span>
@@ -403,7 +396,6 @@
           </div>
         </div>
 
-        <!-- Contrast Block -->
         <div class="filter-block" id="block-contrast">
           <label class="custom-checkbox-row">
             <span>Adjust contrast</span>
@@ -415,7 +407,6 @@
           </div>
         </div>
 
-        <!-- Standard Checkboxes -->
         <label class="custom-checkbox-row standalone mt-3">
           <span>Invert colors (dark mode)</span>
           <input type="checkbox" id="cb-invert">
@@ -444,7 +435,7 @@
          <p class="fw-medium" id="loadingText">Preparing document...</p>
       </div>
       
-      <!-- Container for Dual Canvas Rendering -->
+      <!-- Canvas Container -->
       <div id="canvas-container" class="d-none">
         <canvas id="pdf-render-left" title="Previous Page"></canvas>
         <canvas id="pdf-render-right" class="d-none" title="Next Page"></canvas>
@@ -469,18 +460,14 @@
         <button class="toolbar-btn active" id="prevPage" title="Previous Page"><i class="fa-solid fa-caret-left"></i></button>
         <button class="toolbar-btn active" id="nextPage" title="Next Page"><i class="fa-solid fa-caret-right"></i></button>
         
-        <!-- One/Two Page Layout Toggles -->
         <button class="toolbar-btn active ms-2" id="btnSinglePage" title="Single Page"><i class="fa-regular fa-file"></i></button>
         <button class="toolbar-btn" id="btnTwoPage" title="Two Pages"><i class="fa-solid fa-book-open"></i></button>
-        
         <button class="toolbar-btn" title="Thumbnails"><i class="fa-solid fa-table-cells-large"></i></button>
         
-        <!-- Standard Toolbar Zoom/Fullscreen -->
         <button class="toolbar-btn ms-3" id="toolbarZoomOut" title="Zoom Out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
         <button class="toolbar-btn" id="toolbarZoomIn" title="Zoom In"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
         <button class="toolbar-btn ms-1" id="fullscreenBtn" title="Toggle Fullscreen"><i class="fa-solid fa-expand" id="fullscreenIcon"></i></button>
       </div>
-
     </footer>
   </div>
 
@@ -498,13 +485,12 @@
     let bookTitleStr = "Document";
 
     // =========================================================
-    // SIDEBAR & VISUAL ADJUSTMENTS LOGIC
+    // UI / PANEL LOGIC
     // =========================================================
     const visualMenuBtn = document.getElementById('visualMenuBtn');
     const visualAdjustPanel = document.getElementById('visualAdjustPanel');
     const closeVisualPanel = document.getElementById('closeVisualPanel');
 
-    // Toggle Panel
     visualMenuBtn.addEventListener('click', () => {
       visualMenuBtn.classList.add('active');
       visualAdjustPanel.classList.add('open');
@@ -515,21 +501,19 @@
       visualAdjustPanel.classList.remove('open');
     });
 
-    // Filtering Components
+    // =========================================================
+    // VISUAL ADJUSTMENTS (FILTERS)
+    // =========================================================
     const cbBrightness = document.getElementById('cb-brightness');
     const cbContrast = document.getElementById('cb-contrast');
     const cbInvert = document.getElementById('cb-invert');
     const cbGrayscale = document.getElementById('cb-grayscale');
-    
     const rangeBrightness = document.getElementById('range-brightness');
     const rangeContrast = document.getElementById('range-contrast');
-    
     const valBrightness = document.getElementById('val-brightness');
     const valContrast = document.getElementById('val-contrast');
-    
     const blockBrightness = document.getElementById('block-brightness');
     const blockContrast = document.getElementById('block-contrast');
-
     const canvasContainer = document.getElementById('canvas-container');
     const activeCountSpan = document.getElementById('activeCount');
 
@@ -537,11 +521,9 @@
       let activeCount = 0;
       let filters = [];
       
-      // Update UI active states
       blockBrightness.classList.toggle('active', cbBrightness.checked);
       blockContrast.classList.toggle('active', cbContrast.checked);
 
-      // Build CSS Filter string
       if(cbBrightness.checked) { 
         filters.push(`brightness(${rangeBrightness.value / 100})`); 
         activeCount++; 
@@ -563,7 +545,6 @@
       activeCountSpan.textContent = `(${activeCount} active)`;
     };
 
-    // Range Input Handlers (updates text dynamically and applies filter)
     rangeBrightness.addEventListener('input', (e) => {
       valBrightness.textContent = `${e.target.value}%`;
       if(cbBrightness.checked) applyFilters();
@@ -574,12 +555,13 @@
       if(cbContrast.checked) applyFilters();
     });
 
-    // Checkbox Listeners
     [cbBrightness, cbContrast, cbInvert, cbGrayscale].forEach(cb => {
       cb.addEventListener('change', applyFilters);
     });
 
-    // Utility Nav Buttons
+    // =========================================================
+    // STANDARD NAV
+    // =========================================================
     document.getElementById('backBtn').addEventListener('click', () => {
       if (window.history.length > 2) window.history.back();
       else window.location.href = 'browse.html';
@@ -610,7 +592,7 @@
     });
 
     // =========================================================
-    // PDF.js DUAL-RENDERER LOGIC
+    // PDF.js RENDERER
     // =========================================================
     const pdfjsLib = window['pdfjs-dist/build/pdf'];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -620,8 +602,7 @@
         pageIsRendering = false,
         pageNumPending = null,
         scale = 1.0, 
-        layoutMode = 'single', // 'single' or 'double'
-        isInitialLoad = true;
+        layoutMode = 'single'; 
 
     const canvasLeft = document.getElementById('pdf-render-left');
     const ctxLeft = canvasLeft.getContext('2d');
@@ -633,30 +614,43 @@
     const currentPageNumSpan = document.getElementById('currentPageNum');
     const absolutePageNumSpan = document.getElementById('absolutePageNum');
 
-    // Canvas Click-to-Navigate Feature (active in double layout)
-    canvasLeft.addEventListener('click', () => {
-      if (layoutMode === 'double') handlePrevPage();
-    });
-    canvasRight.addEventListener('click', () => {
-      if (layoutMode === 'double') handleNextPage();
-    });
-
     // Layout Toggle Buttons
     const btnSingle = document.getElementById('btnSinglePage');
     const btnDouble = document.getElementById('btnTwoPage');
 
-    btnSingle.addEventListener('click', () => {
+    // Robust function to calculate exact fit inside margins
+    async function calculateOptimalScale(num) {
+      if (!pdfDoc) return;
+      try {
+        const page = await pdfDoc.getPage(num);
+        const viewport = page.getViewport({ scale: 1 });
+        
+        // Account for the 40px padding on all sides (80px total)
+        const availH = pdfMainContainer.clientHeight - 80; 
+        const availW = pdfMainContainer.clientWidth - 80;
+        
+        // Target width is doubled plus gap if in two-page mode
+        const targetW = layoutMode === 'double' ? (viewport.width * 2) + 15 : viewport.width;
+        
+        const calcScale = Math.min(availH / viewport.height, availW / targetW);
+        scale = calcScale > 0 ? calcScale : 1; 
+      } catch (err) {
+        console.error("Scale calculation error:", err);
+      }
+    }
+
+    btnSingle.addEventListener('click', async () => {
       layoutMode = 'single';
       btnSingle.classList.add('active');
       btnDouble.classList.remove('active');
       canvasContainer.classList.remove('double-mode');
       canvasRight.classList.add('d-none');
       
-      calculateAndSetOptimalScale(1); // Readjust fit on mode switch
+      await calculateOptimalScale(pageNum);
       queueRenderPage(pageNum);
     });
 
-    btnDouble.addEventListener('click', () => {
+    btnDouble.addEventListener('click', async () => {
       layoutMode = 'double';
       btnDouble.classList.add('active');
       btnSingle.classList.remove('active');
@@ -667,21 +661,21 @@
         pageNum = pageNum - 1; 
       }
       
-      calculateAndSetOptimalScale(pageNum); // Readjust fit on mode switch
+      await calculateOptimalScale(pageNum);
       queueRenderPage(pageNum);
     });
 
     const finalizeRender = (num) => {
       pageIsRendering = false;
       
-      // Update UI Text & Scrubber
       let displayPage = layoutMode === 'double' && num < pdfDoc.numPages ? `${num}-${num+1}` : num;
       currentPageNumSpan.textContent = displayPage;
       absolutePageNumSpan.textContent = displayPage; 
       pageScrubber.value = num;
       
+      // Center Scroll position
       pdfMainContainer.scrollTop = 0;
-      pdfMainContainer.scrollLeft = (pdfMainContainer.scrollWidth - pdfMainContainer.clientWidth) / 2; // Center horizontally if scrolled
+      pdfMainContainer.scrollLeft = (pdfMainContainer.scrollWidth - pdfMainContainer.clientWidth) / 2;
 
       if (pageNumPending !== null) {
         renderPage(pageNumPending);
@@ -689,43 +683,10 @@
       }
     };
 
-    // Dynamically calculate the perfect scale to fit inside the margins
-    const calculateAndSetOptimalScale = (num) => {
-      if (!pdfDoc) return;
-      pdfDoc.getPage(num).then(page => {
-        const viewport = page.getViewport({ scale: 1 });
-        
-        // Subtract generous padding (40px * 2 = 80px) to ensure margins
-        const availableHeight = pdfMainContainer.clientHeight - 80; 
-        const availableWidth = pdfMainContainer.clientWidth - 80;
-        
-        // If double page, we need space for 2 viewports plus the 15px gap
-        const targetWidth = layoutMode === 'double' ? (viewport.width * 2) + 15 : viewport.width;
-        
-        const scaleHeight = availableHeight / viewport.height;
-        const scaleWidth = availableWidth / targetWidth;
-        
-        // Set scale so it fits entirely on screen without scrolling
-        scale = Math.min(scaleHeight, scaleWidth);
-      });
-    }
-
     const renderPage = (num) => {
       pageIsRendering = true;
 
-      // Render Left/Primary Page
       pdfDoc.getPage(num).then((page1) => {
-        
-        // Resolve scale exactly for the first paint to ensure fit
-        if (isInitialLoad) {
-           const vp1 = page1.getViewport({ scale: 1 });
-           const availH = pdfMainContainer.clientHeight - 80; 
-           const availW = pdfMainContainer.clientWidth - 80;
-           const targetW = layoutMode === 'double' ? (vp1.width * 2) + 15 : vp1.width;
-           scale = Math.min(availH / vp1.height, availW / targetW);
-           isInitialLoad = false;
-        }
-
         const viewport1 = page1.getViewport({ scale });
         canvasLeft.height = viewport1.height;
         canvasLeft.width = viewport1.width;
@@ -733,7 +694,6 @@
         page1.render({ canvasContext: ctxLeft, viewport: viewport1 }).promise.then(() => {
           
           if (layoutMode === 'double' && num < pdfDoc.numPages) {
-            // Render Right Page
             pdfDoc.getPage(num + 1).then((page2) => {
               const viewport2 = page2.getViewport({ scale });
               canvasRight.height = viewport2.height;
@@ -745,7 +705,6 @@
               });
             });
           } else {
-            // Hide right canvas if single mode or no next page available
             canvasRight.classList.add('d-none');
             finalizeRender(num);
           }
@@ -761,7 +720,7 @@
       }
     };
 
-    // Pagination Logic Functions
+    // Pagination Logic
     const incrementAmount = () => layoutMode === 'double' ? 2 : 1;
 
     const handlePrevPage = () => {
@@ -779,11 +738,17 @@
       queueRenderPage(pageNum);
     };
 
-    // Connect Navigation Buttons
+    // Click Canvas to Navigate in Double Mode
+    canvasLeft.addEventListener('click', () => {
+      if (layoutMode === 'double') handlePrevPage();
+    });
+    canvasRight.addEventListener('click', () => {
+      if (layoutMode === 'double') handleNextPage();
+    });
+
     document.getElementById('prevPage').addEventListener('click', handlePrevPage);
     document.getElementById('nextPage').addEventListener('click', handleNextPage);
 
-    // Pagination (Scrubber)
     pageScrubber.addEventListener('input', (e) => {
       let desiredPage = parseInt(e.target.value);
       if (desiredPage >= 1 && desiredPage <= pdfDoc.numPages) {
@@ -797,7 +762,7 @@
     });
     pageScrubber.addEventListener('change', () => queueRenderPage(pageNum));
 
-    // Shared Zoom Logic for Panel and Toolbar
+    // Shared Zoom Logic 
     const zoomInAction = () => { if (scale < 3.0) { scale += 0.25; queueRenderPage(pageNum); }};
     const zoomOutAction = () => { if (scale > 0.3) { scale -= 0.25; queueRenderPage(pageNum); }};
 
@@ -829,7 +794,7 @@
 
         const loadingTask = pdfjsLib.getDocument(activePdfUrl);
         
-        loadingTask.promise.then((pdfDoc_) => {
+        loadingTask.promise.then(async (pdfDoc_) => {
           pdfDoc = pdfDoc_;
           
           document.getElementById('totalPages').textContent = pdfDoc.numPages;
@@ -839,11 +804,9 @@
           document.getElementById('loading').classList.add('d-none');
           canvasContainer.classList.remove('d-none');
           
-          // Render first page (scale calculated dynamically inside render block)
+          // Calculate scale BEFORE rendering for a perfect fit
+          await calculateOptimalScale(pageNum);
           renderPage(pageNum);
-
-          // Optional: Initialize filter UI state to matched values if checked
-          applyFilters();
 
         }).catch(err => {
           console.error("PDF Loading Error:", err);
