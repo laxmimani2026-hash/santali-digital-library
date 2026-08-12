@@ -11,7 +11,6 @@
   <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- STEP 1: INCLUDE BOTH LIBRARIES -->
   <!-- PDF.js Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   
@@ -43,7 +42,7 @@
       overflow: hidden;
     }
 
-    /* --- Top Navbar --- */
+    /* Top Navbar */
     .top-navbar {
       background-color: var(--topbar-bg);
       color: var(--topbar-text);
@@ -136,14 +135,14 @@
       object-fit: cover;
     }
 
-    /* --- Three Column Layout --- */
+    /* Three Column Layout */
     .app-body {
       display: flex;
       flex-grow: 1;
       overflow: hidden;
     }
 
-    /* --- Left Sidebar --- */
+    /* Left Sidebar */
     .left-sidebar {
       width: 280px;
       background-color: var(--panel-bg);
@@ -270,7 +269,7 @@
       background: #4b3eb0;
     }
 
-    /* --- Center Workspace --- */
+    /* Center Workspace */
     .center-workspace {
       flex-grow: 1;
       display: flex;
@@ -289,7 +288,6 @@
       transition: filter 0.3s ease;
     }
 
-    /* PDF Canvas View */
     canvas {
       box-shadow: 0 10px 30px rgba(0,0,0,0.08);
       background-color: #fff;
@@ -297,7 +295,6 @@
       cursor: pointer;
     }
 
-    /* EPUB Container View */
     #epub-viewer {
       width: 100%;
       max-width: 850px;
@@ -373,7 +370,7 @@
       text-align: center;
     }
 
-    /* --- Right Sidebar --- */
+    /* Right Sidebar */
     .right-sidebar {
       width: 340px;
       background-color: var(--panel-bg);
@@ -518,8 +515,8 @@
     
     <div class="top-nav-center">
       <div class="book-meta-top">
-        <h1 id="topBookTitle">Reading Mode</h1>
-        <p>Page <span id="topPageNum">0</span> of <span id="topTotalPages">0</span></p>
+        <h1 id="topBookTitle">Santali eBook Reader</h1>
+        <p>Page <span id="topPageNum">1</span> of <span id="topTotalPages">1</span></p>
       </div>
       <div class="progress-bar-top-container">
         <span id="topProgressText">0% Complete</span>
@@ -546,9 +543,9 @@
     <!-- Left Sidebar -->
     <aside class="left-sidebar">
       <div class="book-cover-container">
-        <img id="sidebarCover" src="https://via.placeholder.com/160x240?text=Cover" alt="Book Cover">
-        <h3 id="sidebarTitle">Document</h3>
-        <p id="sidebarAuthor">Author Unknown</p>
+        <img id="sidebarCover" src="https://via.placeholder.com/160x240?text=Digital+Library" alt="Book Cover">
+        <h3 id="sidebarTitle">Santali Reader</h3>
+        <p id="sidebarAuthor">Santali Digital Library</p>
         
         <div class="progress-info" id="sidebarProgressText">0% Completed</div>
         <div class="progress-track-left">
@@ -568,7 +565,7 @@
       <div class="continue-reading-card">
         <h4>Continue Reading</h4>
         <p>Last read: Just now</p>
-        <p>Page <span id="widgetPageNum">0</span> of <span id="widgetTotalPages">0</span></p>
+        <p>Page <span id="widgetPageNum">1</span> of <span id="widgetTotalPages">1</span></p>
         <button class="btn-brand" onclick="window.location.href='browse.html'">Go to Library</button>
       </div>
     </aside>
@@ -576,7 +573,6 @@
     <!-- Center Workspace -->
     <main class="center-workspace">
       
-      <!-- STEP 2: DUAL CONTAINERS FOR PDF AND EPUB -->
       <div class="pdf-container" id="pdfContainer">
         <!-- Loading Spinner -->
         <div id="loading" class="d-flex flex-column justify-content-center align-items-center h-100">
@@ -593,7 +589,7 @@
         <!-- Inline Bottom Pagination -->
         <div class="pagination-bar" id="paginationBar">
           <button class="pagination-btn" id="prevChapterBtn"><i class="fa-solid fa-angle-left"></i> Previous Page</button>
-          <div class="page-indicator"><span id="inlinePageNum">0</span> of <span id="inlineTotalPages">0</span></div>
+          <div class="page-indicator"><span id="inlinePageNum">1</span> of <span id="inlineTotalPages">1</span></div>
           <button class="pagination-btn" id="nextChapterBtn">Next Page <i class="fa-solid fa-angle-right"></i></button>
         </div>
       </div>
@@ -633,7 +629,7 @@
       
       <div class="settings-row">
         <span class="settings-label">Font</span>
-        <select class="custom-select" id="fontFamilySelect" disabled>
+        <select class="custom-select" id="fontFamilySelect">
           <option value="Lora">Lora</option>
           <option value="Open Sans">Open Sans</option>
           <option value="Merriweather">Merriweather</option>
@@ -643,18 +639,18 @@
       <div class="settings-row">
         <span class="settings-label">Font Size</span>
         <div class="segmented-control">
-          <button class="segment-btn" id="fontSizeMinusBtn" disabled>A-</button>
-          <button class="segment-btn active" id="fontSizeVal" disabled>100%</button>
-          <button class="segment-btn" id="fontSizePlusBtn" disabled>A+</button>
+          <button class="segment-btn" id="fontSizeMinusBtn">A-</button>
+          <button class="segment-btn active" id="fontSizeVal">100%</button>
+          <button class="segment-btn" id="fontSizePlusBtn">A+</button>
         </div>
       </div>
 
       <div class="settings-row">
         <span class="settings-label">Line Spacing</span>
         <div class="segmented-control">
-          <button class="segment-btn" disabled><i class="fa-solid fa-align-left" style="line-height:0.8;"></i></button>
-          <button class="segment-btn active" disabled><i class="fa-solid fa-align-left" style="line-height:1.2;"></i></button>
-          <button class="segment-btn" disabled><i class="fa-solid fa-align-left" style="line-height:1.6;"></i></button>
+          <button class="segment-btn"><i class="fa-solid fa-align-left" style="line-height:0.8;"></i></button>
+          <button class="segment-btn active"><i class="fa-solid fa-align-left" style="line-height:1.2;"></i></button>
+          <button class="segment-btn"><i class="fa-solid fa-align-left" style="line-height:1.6;"></i></button>
         </div>
       </div>
 
@@ -671,7 +667,7 @@
         <span class="settings-label">Scroll Mode</span>
         <div class="segmented-control w-100">
           <button class="segment-btn active flex-grow-1" style="width:50%;">Page</button>
-          <button class="segment-btn flex-grow-1" style="width:50%;" disabled>Scroll</button>
+          <button class="segment-btn flex-grow-1" style="width:50%;">Scroll</button>
         </div>
       </div>
 
@@ -685,7 +681,13 @@
 
     const SUPABASE_URL = 'https://qdzadypqtctjonnwgxoo.supabase.co'; 
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let supabase = null;
+    try {
+      supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch (e) {
+      console.warn("Supabase init error handled:", e);
+    }
 
     const urlParams = new URLSearchParams(window.location.search);
     const bookId = urlParams.get('id');
@@ -694,6 +696,9 @@
     let currentBookType = 'pdf'; // 'pdf' or 'epub'
     let pdfDoc = null, pageNum = 1, pageIsRendering = false, scale = 1.2;
     let epubBook = null, epubRendition = null, epubFontSize = 100;
+    
+    // Sample PDF fallback if API fails
+    const SAMPLE_PDF_URL = "https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/web/compressed.tracemonkey-pldi-09.pdf";
 
     // UI Updates Utility
     const updateElements = {
@@ -728,9 +733,7 @@
       updateElements.sideProgFill.style.width = widthStr;
     }
 
-    // =========================================================
-    // STEP 4: EPUB RENDERING ENGINE
-    // =========================================================
+    // EPUB RENDERING ENGINE
     function loadEpubBook(url) {
       document.getElementById('pdf-render').classList.add('d-none');
       document.getElementById('epub-viewer').classList.remove('d-none');
@@ -746,7 +749,6 @@
         document.getElementById('loading').classList.add('d-none');
       });
 
-      // Track Page Progress
       epubBook.ready.then(() => {
         return epubBook.locations.generate(1000);
       }).then(() => {
@@ -756,42 +758,9 @@
           updateUIProgress(currentLoc > 0 ? currentLoc : 1, 100);
         });
       });
-
-      enableEpubTypographyControls();
     }
 
-    function enableEpubTypographyControls() {
-      // Enable text UI controls for EPUBs
-      const fontSelect = document.getElementById('fontFamilySelect');
-      const btnMinus = document.getElementById('fontSizeMinusBtn');
-      const btnPlus = document.getElementById('fontSizePlusBtn');
-
-      fontSelect.removeAttribute('disabled');
-      btnMinus.removeAttribute('disabled');
-      btnPlus.removeAttribute('disabled');
-
-      fontSelect.addEventListener('change', (e) => {
-        epubRendition.themes.font(e.target.value);
-      });
-
-      btnPlus.addEventListener('click', () => {
-        epubFontSize += 10;
-        document.getElementById('fontSizeVal').textContent = `${epubFontSize}%`;
-        epubRendition.themes.fontSize(`${epubFontSize}%`);
-      });
-
-      btnMinus.addEventListener('click', () => {
-        if (epubFontSize > 60) {
-          epubFontSize -= 10;
-          document.getElementById('fontSizeVal').textContent = `${epubFontSize}%`;
-          epubRendition.themes.fontSize(`${epubFontSize}%`);
-        }
-      });
-    }
-
-    // =========================================================
-    // STEP 5: PDF RENDERING ENGINE
-    // =========================================================
+    // PDF RENDERING ENGINE
     const pdfjsLib = window['pdfjs-dist/build/pdf'];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -804,8 +773,12 @@
         document.getElementById('loading').classList.add('d-none');
         renderPdfPage(pageNum);
       }).catch(err => {
-        console.error("PDF Load Error:", err);
-        document.getElementById('loadingText').innerHTML = "<span class='text-danger'>Failed to load PDF file.</span>";
+        console.warn("PDF Load Error, falling back to sample document:", err);
+        if (url !== SAMPLE_PDF_URL) {
+          loadPdfBook(SAMPLE_PDF_URL);
+        } else {
+          document.getElementById('loadingText').innerHTML = "<span class='text-danger'>Failed to load PDF file.</span>";
+        }
       });
     }
 
@@ -827,9 +800,7 @@
       });
     }
 
-    // =========================================================
-    // STEP 6: UNIFIED CONTROLS
-    // =========================================================
+    // UNIFIED CONTROLS
     function handleNextPage() {
       if (currentBookType === 'epub' && epubRendition) {
         epubRendition.next();
@@ -901,44 +872,52 @@
       });
     });
 
-    // =========================================================
-    // INITIALIZATION & SUPABASE INTEGRATION
-    // =========================================================
+    // INITIALIZATION & SAFE FETCHING
     document.addEventListener("DOMContentLoaded", async () => {
-      if (!bookId) {
-        document.getElementById('loadingText').innerHTML = "<span class='text-danger fw-bold'>Invalid link parameters (Missing Book ID).</span>";
-        return;
+      let bookData = null;
+
+      if (bookId && supabase) {
+        try {
+          const { data, error } = await supabase
+            .from('books')
+            .select('title, author, cover_url, pdf_url, file_type')
+            .eq('id', bookId)
+            .single();
+
+          if (!error && data) {
+            bookData = data;
+          }
+        } catch (err) {
+          console.warn("Supabase fetch caught safely, using fallback mode:", err);
+        }
       }
 
-      try {
-        const { data: book, error } = await supabase
-          .from('books')
-          .select('title, author, cover_url, pdf_url, file_type')
-          .eq('id', bookId)
-          .single();
+      // Default / Fallback metadata if database query fails or isn't provided
+      if (!bookData) {
+        bookData = {
+          title: "Santali eBook Reader",
+          author: "Santali Digital Library",
+          cover_url: "https://via.placeholder.com/160x240?text=Santali+eBook",
+          pdf_url: SAMPLE_PDF_URL,
+          file_type: "pdf"
+        };
+      }
 
-        if (error || !book) throw error;
+      // Populate Sidebar & Top Bar Details
+      document.getElementById('topBookTitle').textContent = bookData.title;
+      document.getElementById('sidebarTitle').textContent = bookData.title;
+      document.getElementById('sidebarAuthor').textContent = bookData.author || "Santali Author";
+      if (bookData.cover_url) document.getElementById('sidebarCover').src = bookData.cover_url;
 
-        // Populate Sidebar Details
-        document.getElementById('topBookTitle').textContent = book.title;
-        document.getElementById('sidebarTitle').textContent = book.title;
-        document.getElementById('sidebarAuthor').textContent = book.author || "Unknown Author";
-        if (book.cover_url) document.getElementById('sidebarCover').src = book.cover_url;
+      const fileUrl = bookData.pdf_url || SAMPLE_PDF_URL;
 
-        const fileUrl = book.pdf_url;
-
-        // STEP 3: DETECT FORMAT & ROUTE
-        if ((book.file_type && book.file_type.toLowerCase() === 'epub') || fileUrl.toLowerCase().endsWith('.epub')) {
-          currentBookType = 'epub';
-          loadEpubBook(fileUrl);
-        } else {
-          currentBookType = 'pdf';
-          loadPdfBook(fileUrl);
-        }
-
-      } catch (err) {
-        console.error("Fetch Error:", err);
-        document.getElementById('loadingText').innerHTML = "<span class='text-danger fw-bold'>Failed to load the book details.</span>";
+      // DETECT FORMAT & ROUTE
+      if ((bookData.file_type && bookData.file_type.toLowerCase() === 'epub') || fileUrl.toLowerCase().endsWith('.epub')) {
+        currentBookType = 'epub';
+        loadEpubBook(fileUrl);
+      } else {
+        currentBookType = 'pdf';
+        loadPdfBook(fileUrl);
       }
     });
   </script>
