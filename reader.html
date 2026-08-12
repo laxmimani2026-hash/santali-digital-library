@@ -22,6 +22,7 @@
       --canvas-bg: #000000;
       --toolbar-bg: #333333;
       --accent-color: #8bb4e7; /* Light blue from sample text */
+      --active-block-bg: #3a3a3a;
     }
 
     body {
@@ -37,11 +38,10 @@
     /* --- Dual-Pane Sidebar Styles --- */
     .sidebar-container {
       display: flex;
-      height: calc(100vh - 45px); /* Full height minus bottom toolbar */
+      height: calc(100vh - 45px);
       z-index: 100;
     }
 
-    /* Narrow left icon bar */
     .sidebar-icon-bar {
       width: 60px;
       background-color: var(--sidebar-icons-bg);
@@ -69,7 +69,6 @@
       background-color: var(--sidebar-panel-bg);
     }
 
-    /* Expanding Panel */
     .sidebar-panel {
       width: 0;
       background-color: var(--sidebar-panel-bg);
@@ -81,7 +80,7 @@
     }
 
     .sidebar-panel.open {
-      width: 300px;
+      width: 320px;
     }
 
     .panel-header {
@@ -124,15 +123,35 @@
       padding: 20px;
     }
 
-    /* Custom Checkbox Row */
+    /* --- Visual Adjustments Advanced UI --- */
+    
+    .filter-block {
+      border: 1px solid #555;
+      border-radius: 6px;
+      padding: 12px 15px;
+      margin-bottom: 12px;
+      background-color: transparent;
+      transition: background-color 0.2s;
+    }
+
+    .filter-block.active {
+      background-color: var(--active-block-bg);
+    }
+
     .custom-checkbox-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 0;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 1rem;
+      margin: 0;
+    }
+
+    /* Used for the simple checkboxes at the bottom */
+    .custom-checkbox-row.standalone {
+      padding: 10px 0;
+      margin-bottom: 5px;
     }
 
     .custom-checkbox-row input {
@@ -149,8 +168,8 @@
     }
 
     .custom-checkbox-row input:checked {
-      background: #555;
-      border-color: #999;
+      background: var(--accent-color);
+      border-color: var(--accent-color);
     }
     
     .custom-checkbox-row input:checked::after {
@@ -158,8 +177,43 @@
       position: absolute;
       top: -2px;
       left: 3px;
-      color: white;
+      color: #111; /* Dark checkmark on light blue background */
       font-size: 14px;
+      font-weight: bold;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .slider-row span {
+      min-width: 45px;
+      text-align: right;
+      font-size: 0.9rem;
+      color: #ddd;
+    }
+
+    .slider-row input[type=range] {
+      appearance: none;
+      -webkit-appearance: none;
+      flex-grow: 1;
+      height: 4px;
+      background: #666;
+      border-radius: 2px;
+      outline: none;
+    }
+
+    .slider-row input[type=range]::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-color);
+      cursor: pointer;
     }
 
     /* Zoom Buttons in Panel */
@@ -190,24 +244,33 @@
       flex-grow: 1;
       overflow: auto;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 30px;
+      /* Using flex to keep items centered but allowing scrolling */
+      flex-direction: column; 
+      padding: 40px; /* Generous margin ensures PDF stays within bounds */
       position: relative;
     }
 
     #canvas-container {
+      margin: auto; /* Centers the canvas vertically and horizontally */
       display: flex;
       gap: 15px;
       justify-content: center;
       align-items: center;
-      transition: filter 0.3s ease; /* For visual adjustments */
+      transition: filter 0.3s ease;
+      max-width: 100%;
     }
 
     canvas {
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
       background-color: #fff;
-      max-width: none;
+      max-width: none; /* Allows true zooming */
+      transition: transform 0.2s ease;
+    }
+
+    /* Add pointer cursors to indicate click-to-navigate in two-page mode */
+    .double-mode #pdf-render-left,
+    .double-mode #pdf-render-right {
+      cursor: pointer;
     }
 
     /* --- Bottom Toolbar Styles --- */
@@ -238,18 +301,18 @@
       align-items: center;
     }
 
-    input[type=range] {
+    .scrubber-container input[type=range] {
       appearance: none;
-      -webkit-appearance: none; /* Fix for CSS linter warning */
+      -webkit-appearance: none; 
       width: 100%;
       background: transparent;
     }
 
-    input[type=range]:focus {
+    .scrubber-container input[type=range]:focus {
       outline: none;
     }
 
-    input[type=range]::-webkit-slider-runnable-track {
+    .scrubber-container input[type=range]::-webkit-slider-runnable-track {
       width: 100%;
       height: 4px;
       cursor: pointer;
@@ -257,34 +320,15 @@
       border-radius: 2px;
     }
 
-    input[type=range]::-webkit-slider-thumb {
+    .scrubber-container input[type=range]::-webkit-slider-thumb {
       appearance: none;
-      -webkit-appearance: none; /* Fix for CSS linter warning */
+      -webkit-appearance: none;
       height: 16px;
       width: 16px;
       border-radius: 50%;
       background: #ffffff;
       cursor: pointer;
       margin-top: -6px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.5);
-    }
-    
-    /* Cross-browser support for Firefox */
-    input[type=range]::-moz-range-track {
-      width: 100%;
-      height: 4px;
-      cursor: pointer;
-      background: #555;
-      border-radius: 2px;
-    }
-
-    input[type=range]::-moz-range-thumb {
-      height: 16px;
-      width: 16px;
-      border-radius: 50%;
-      background: #ffffff;
-      cursor: pointer;
-      border: none;
       box-shadow: 0 1px 3px rgba(0,0,0,0.5);
     }
 
@@ -317,7 +361,7 @@
       background: var(--canvas-bg);
     }
     ::-webkit-scrollbar-thumb {
-      background-color: #444;
+      background-color: #555;
       border-radius: 4px;
     }
   </style>
@@ -346,19 +390,37 @@
         <button class="close-panel-btn" id="closeVisualPanel"><i class="fa-solid fa-angle-left"></i></button>
       </div>
       <div class="panel-body">
-        <label class="custom-checkbox-row">
-          <span>Adjust brightness</span>
-          <input type="checkbox" id="cb-brightness">
-        </label>
-        <label class="custom-checkbox-row">
-          <span>Adjust contrast</span>
-          <input type="checkbox" id="cb-contrast">
-        </label>
-        <label class="custom-checkbox-row">
+        
+        <!-- Brightness Block -->
+        <div class="filter-block" id="block-brightness">
+          <label class="custom-checkbox-row">
+            <span>Adjust brightness</span>
+            <input type="checkbox" id="cb-brightness">
+          </label>
+          <div class="slider-row" id="row-brightness">
+            <input type="range" id="range-brightness" min="50" max="150" value="108">
+            <span id="val-brightness">108%</span>
+          </div>
+        </div>
+
+        <!-- Contrast Block -->
+        <div class="filter-block" id="block-contrast">
+          <label class="custom-checkbox-row">
+            <span>Adjust contrast</span>
+            <input type="checkbox" id="cb-contrast">
+          </label>
+          <div class="slider-row" id="row-contrast">
+            <input type="range" id="range-contrast" min="50" max="150" value="123">
+            <span id="val-contrast">123%</span>
+          </div>
+        </div>
+
+        <!-- Standard Checkboxes -->
+        <label class="custom-checkbox-row standalone mt-3">
           <span>Invert colors (dark mode)</span>
           <input type="checkbox" id="cb-invert">
         </label>
-        <label class="custom-checkbox-row">
+        <label class="custom-checkbox-row standalone">
           <span>Convert to grayscale</span>
           <input type="checkbox" id="cb-grayscale">
         </label>
@@ -377,15 +439,15 @@
     
     <!-- PDF Display Area -->
     <main class="pdf-main" id="pdfMainContainer">
-      <div id="loading" class="d-flex flex-column justify-content-center align-items-center h-100 text-light">
+      <div id="loading" class="d-flex flex-column justify-content-center align-items-center h-100 text-light" style="margin: auto;">
          <div class="spinner-border text-light mb-3" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
          <p class="fw-medium" id="loadingText">Preparing document...</p>
       </div>
       
       <!-- Container for Dual Canvas Rendering -->
       <div id="canvas-container" class="d-none">
-        <canvas id="pdf-render-left"></canvas>
-        <canvas id="pdf-render-right" class="d-none"></canvas>
+        <canvas id="pdf-render-left" title="Previous Page"></canvas>
+        <canvas id="pdf-render-right" class="d-none" title="Next Page"></canvas>
       </div>
     </main>
 
@@ -453,8 +515,21 @@
       visualAdjustPanel.classList.remove('open');
     });
 
-    // Checkbox Filters Logic
-    const checkboxes = document.querySelectorAll('.custom-checkbox-row input[type="checkbox"]');
+    // Filtering Components
+    const cbBrightness = document.getElementById('cb-brightness');
+    const cbContrast = document.getElementById('cb-contrast');
+    const cbInvert = document.getElementById('cb-invert');
+    const cbGrayscale = document.getElementById('cb-grayscale');
+    
+    const rangeBrightness = document.getElementById('range-brightness');
+    const rangeContrast = document.getElementById('range-contrast');
+    
+    const valBrightness = document.getElementById('val-brightness');
+    const valContrast = document.getElementById('val-contrast');
+    
+    const blockBrightness = document.getElementById('block-brightness');
+    const blockContrast = document.getElementById('block-contrast');
+
     const canvasContainer = document.getElementById('canvas-container');
     const activeCountSpan = document.getElementById('activeCount');
 
@@ -462,16 +537,47 @@
       let activeCount = 0;
       let filters = [];
       
-      if(document.getElementById('cb-brightness').checked) { filters.push('brightness(1.3)'); activeCount++; }
-      if(document.getElementById('cb-contrast').checked) { filters.push('contrast(1.4)'); activeCount++; }
-      if(document.getElementById('cb-invert').checked) { filters.push('invert(0.92) hue-rotate(180deg)'); activeCount++; }
-      if(document.getElementById('cb-grayscale').checked) { filters.push('grayscale(1)'); activeCount++; }
+      // Update UI active states
+      blockBrightness.classList.toggle('active', cbBrightness.checked);
+      blockContrast.classList.toggle('active', cbContrast.checked);
+
+      // Build CSS Filter string
+      if(cbBrightness.checked) { 
+        filters.push(`brightness(${rangeBrightness.value / 100})`); 
+        activeCount++; 
+      }
+      if(cbContrast.checked) { 
+        filters.push(`contrast(${rangeContrast.value / 100})`); 
+        activeCount++; 
+      }
+      if(cbInvert.checked) { 
+        filters.push('invert(0.92) hue-rotate(180deg)'); 
+        activeCount++; 
+      }
+      if(cbGrayscale.checked) { 
+        filters.push('grayscale(1)'); 
+        activeCount++; 
+      }
 
       canvasContainer.style.filter = filters.length > 0 ? filters.join(' ') : 'none';
       activeCountSpan.textContent = `(${activeCount} active)`;
     };
 
-    checkboxes.forEach(cb => cb.addEventListener('change', applyFilters));
+    // Range Input Handlers (updates text dynamically and applies filter)
+    rangeBrightness.addEventListener('input', (e) => {
+      valBrightness.textContent = `${e.target.value}%`;
+      if(cbBrightness.checked) applyFilters();
+    });
+
+    rangeContrast.addEventListener('input', (e) => {
+      valContrast.textContent = `${e.target.value}%`;
+      if(cbContrast.checked) applyFilters();
+    });
+
+    // Checkbox Listeners
+    [cbBrightness, cbContrast, cbInvert, cbGrayscale].forEach(cb => {
+      cb.addEventListener('change', applyFilters);
+    });
 
     // Utility Nav Buttons
     document.getElementById('backBtn').addEventListener('click', () => {
@@ -514,16 +620,26 @@
         pageIsRendering = false,
         pageNumPending = null,
         scale = 1.0, 
-        layoutMode = 'single'; // 'single' or 'double'
+        layoutMode = 'single', // 'single' or 'double'
+        isInitialLoad = true;
 
     const canvasLeft = document.getElementById('pdf-render-left');
     const ctxLeft = canvasLeft.getContext('2d');
     const canvasRight = document.getElementById('pdf-render-right');
     const ctxRight = canvasRight.getContext('2d');
+    const pdfMainContainer = document.getElementById('pdfMainContainer');
     
     const pageScrubber = document.getElementById('pageScrubber');
     const currentPageNumSpan = document.getElementById('currentPageNum');
     const absolutePageNumSpan = document.getElementById('absolutePageNum');
+
+    // Canvas Click-to-Navigate Feature (active in double layout)
+    canvasLeft.addEventListener('click', () => {
+      if (layoutMode === 'double') handlePrevPage();
+    });
+    canvasRight.addEventListener('click', () => {
+      if (layoutMode === 'double') handleNextPage();
+    });
 
     // Layout Toggle Buttons
     const btnSingle = document.getElementById('btnSinglePage');
@@ -533,7 +649,10 @@
       layoutMode = 'single';
       btnSingle.classList.add('active');
       btnDouble.classList.remove('active');
+      canvasContainer.classList.remove('double-mode');
       canvasRight.classList.add('d-none');
+      
+      calculateAndSetOptimalScale(1); // Readjust fit on mode switch
       queueRenderPage(pageNum);
     });
 
@@ -541,11 +660,14 @@
       layoutMode = 'double';
       btnDouble.classList.add('active');
       btnSingle.classList.remove('active');
+      canvasContainer.classList.add('double-mode');
       canvasRight.classList.remove('d-none');
-      // If we are on the last page, shift back by one to show pair if possible
+      
       if (pageNum === pdfDoc.numPages && pdfDoc.numPages > 1) {
         pageNum = pageNum - 1; 
       }
+      
+      calculateAndSetOptimalScale(pageNum); // Readjust fit on mode switch
       queueRenderPage(pageNum);
     });
 
@@ -558,7 +680,8 @@
       absolutePageNumSpan.textContent = displayPage; 
       pageScrubber.value = num;
       
-      document.getElementById('pdfMainContainer').scrollTop = 0;
+      pdfMainContainer.scrollTop = 0;
+      pdfMainContainer.scrollLeft = (pdfMainContainer.scrollWidth - pdfMainContainer.clientWidth) / 2; // Center horizontally if scrolled
 
       if (pageNumPending !== null) {
         renderPage(pageNumPending);
@@ -566,11 +689,43 @@
       }
     };
 
+    // Dynamically calculate the perfect scale to fit inside the margins
+    const calculateAndSetOptimalScale = (num) => {
+      if (!pdfDoc) return;
+      pdfDoc.getPage(num).then(page => {
+        const viewport = page.getViewport({ scale: 1 });
+        
+        // Subtract generous padding (40px * 2 = 80px) to ensure margins
+        const availableHeight = pdfMainContainer.clientHeight - 80; 
+        const availableWidth = pdfMainContainer.clientWidth - 80;
+        
+        // If double page, we need space for 2 viewports plus the 15px gap
+        const targetWidth = layoutMode === 'double' ? (viewport.width * 2) + 15 : viewport.width;
+        
+        const scaleHeight = availableHeight / viewport.height;
+        const scaleWidth = availableWidth / targetWidth;
+        
+        // Set scale so it fits entirely on screen without scrolling
+        scale = Math.min(scaleHeight, scaleWidth);
+      });
+    }
+
     const renderPage = (num) => {
       pageIsRendering = true;
 
       // Render Left/Primary Page
       pdfDoc.getPage(num).then((page1) => {
+        
+        // Resolve scale exactly for the first paint to ensure fit
+        if (isInitialLoad) {
+           const vp1 = page1.getViewport({ scale: 1 });
+           const availH = pdfMainContainer.clientHeight - 80; 
+           const availW = pdfMainContainer.clientWidth - 80;
+           const targetW = layoutMode === 'double' ? (vp1.width * 2) + 15 : vp1.width;
+           scale = Math.min(availH / vp1.height, availW / targetW);
+           isInitialLoad = false;
+        }
+
         const viewport1 = page1.getViewport({ scale });
         canvasLeft.height = viewport1.height;
         canvasLeft.width = viewport1.width;
@@ -583,7 +738,7 @@
               const viewport2 = page2.getViewport({ scale });
               canvasRight.height = viewport2.height;
               canvasRight.width = viewport2.width;
-              canvasRight.classList.remove('d-none'); // Ensure visible
+              canvasRight.classList.remove('d-none');
               
               page2.render({ canvasContext: ctxRight, viewport: viewport2 }).promise.then(() => {
                 finalizeRender(num);
@@ -606,24 +761,27 @@
       }
     };
 
-    // Pagination (Buttons)
+    // Pagination Logic Functions
     const incrementAmount = () => layoutMode === 'double' ? 2 : 1;
 
-    document.getElementById('prevPage').addEventListener('click', () => {
+    const handlePrevPage = () => {
       if (pageNum <= 1) return;
       pageNum = Math.max(1, pageNum - incrementAmount());
       queueRenderPage(pageNum);
-    });
+    };
 
-    document.getElementById('nextPage').addEventListener('click', () => {
+    const handleNextPage = () => {
       if (pageNum >= pdfDoc.numPages) return;
       pageNum = Math.min(pdfDoc.numPages, pageNum + incrementAmount());
-      // Adjust if we try to view a non-existent double page pair
       if (layoutMode === 'double' && pageNum === pdfDoc.numPages && pdfDoc.numPages > 1) {
          pageNum = pdfDoc.numPages - 1;
       }
       queueRenderPage(pageNum);
-    });
+    };
+
+    // Connect Navigation Buttons
+    document.getElementById('prevPage').addEventListener('click', handlePrevPage);
+    document.getElementById('nextPage').addEventListener('click', handleNextPage);
 
     // Pagination (Scrubber)
     pageScrubber.addEventListener('input', (e) => {
@@ -631,18 +789,17 @@
       if (desiredPage >= 1 && desiredPage <= pdfDoc.numPages) {
         pageNum = desiredPage;
         if (layoutMode === 'double' && pageNum === pdfDoc.numPages && pdfDoc.numPages > 1) {
-            pageNum = pdfDoc.numPages - 1; // Prevent orphaned page on right side if possible
+            pageNum = pdfDoc.numPages - 1;
         }
         currentPageNumSpan.textContent = layoutMode === 'double' && pageNum < pdfDoc.numPages ? `${pageNum}-${pageNum+1}` : pageNum;
         absolutePageNumSpan.textContent = currentPageNumSpan.textContent;
       }
     });
-
     pageScrubber.addEventListener('change', () => queueRenderPage(pageNum));
 
     // Shared Zoom Logic for Panel and Toolbar
     const zoomInAction = () => { if (scale < 3.0) { scale += 0.25; queueRenderPage(pageNum); }};
-    const zoomOutAction = () => { if (scale > 0.5) { scale -= 0.25; queueRenderPage(pageNum); }};
+    const zoomOutAction = () => { if (scale > 0.3) { scale -= 0.25; queueRenderPage(pageNum); }};
 
     document.getElementById('panelZoomIn').addEventListener('click', zoomInAction);
     document.getElementById('panelZoomOut').addEventListener('click', zoomOutAction);
@@ -678,18 +835,15 @@
           document.getElementById('totalPages').textContent = pdfDoc.numPages;
           pageScrubber.max = pdfDoc.numPages;
           pageScrubber.disabled = false;
-          
-          // Basic initial sizing
-          const containerWidth = document.getElementById('pdfMainContainer').clientWidth;
-          scale = (containerWidth > 800) ? 1.2 : 1.0; 
 
           document.getElementById('loading').classList.add('d-none');
           canvasContainer.classList.remove('d-none');
           
-          // Open Panel automatically on load to show off feature
-          visualMenuBtn.click();
-          
+          // Render first page (scale calculated dynamically inside render block)
           renderPage(pageNum);
+
+          // Optional: Initialize filter UI state to matched values if checked
+          applyFilters();
 
         }).catch(err => {
           console.error("PDF Loading Error:", err);
