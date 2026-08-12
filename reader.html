@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#000000" id="theme-color-meta">
+  <meta name="theme-color" content="#1a1b26" id="theme-color-meta">
   <title>Reading Mode | Santali Digital Library</title>
   
   <!-- Bootstrap 5 CSS -->
@@ -16,459 +16,652 @@
   
   <style>
     :root {
-      --sidebar-icons-bg: #1c1c1c;
-      --sidebar-panel-bg: #323232;
-      --sidebar-text: #ffffff;
-      --canvas-bg: #000000;
-      --toolbar-bg: #333333;
-      --accent-color: #8bb4e7;
-      --active-block-bg: #3a3a3a;
+      --brand-primary: #5c4bca;
+      --brand-light: #f3f0ff;
+      --topbar-bg: #151623;
+      --topbar-text: #ffffff;
+      --panel-bg: #ffffff;
+      --center-bg: #fafafa;
+      --text-main: #333333;
+      --text-muted: #777777;
+      --border-color: #eaeaea;
     }
 
     body {
-      background-color: var(--canvas-bg);
-      color: var(--sidebar-text);
+      background-color: var(--panel-bg);
+      color: var(--text-main);
       height: 100vh;
       margin: 0;
       display: flex;
+      flex-direction: column;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       overflow: hidden;
     }
 
-    /* --- Sidebar Styles --- */
-    .sidebar-container {
+    /* --- Top Navbar --- */
+    .top-navbar {
+      background-color: var(--topbar-bg);
+      color: var(--topbar-text);
+      height: 64px;
       display: flex;
-      height: calc(100vh - 45px);
-      z-index: 100;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      flex-shrink: 0;
+      z-index: 1000;
     }
 
-    .sidebar-icon-bar {
-      width: 60px;
-      background-color: var(--sidebar-icons-bg);
+    .top-nav-left a {
+      color: var(--topbar-text);
+      text-decoration: none;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .top-nav-center {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .book-meta-top {
+      text-align: center;
+    }
+    .book-meta-top h1 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0;
+    }
+    .book-meta-top p {
+      font-size: 0.8rem;
+      color: #aaa;
+      margin: 0;
+    }
+
+    .progress-bar-top-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding-top: 10px;
-      border-right: 1px solid #111;
+      width: 200px;
     }
-
-    .icon-btn {
-      background: none;
-      border: none;
-      color: #ffffff;
-      font-size: 1.5rem;
+    .progress-bar-top-container span {
+      font-size: 0.75rem;
+      margin-bottom: 4px;
+    }
+    .progress-track-top {
       width: 100%;
-      padding: 15px 0;
-      cursor: pointer;
-      transition: background-color 0.2s, color 0.2s;
-      display: flex;
-      justify-content: center;
-    }
-
-    .icon-btn:hover, .icon-btn.active {
-      background-color: var(--sidebar-panel-bg);
-    }
-
-    .sidebar-panel {
-      width: 0;
-      background-color: var(--sidebar-panel-bg);
-      overflow-x: hidden;
-      overflow-y: auto;
-      transition: width 0.3s ease;
-      white-space: nowrap;
-      border-right: 1px solid #111;
-    }
-
-    .sidebar-panel.open {
-      width: 320px;
-    }
-
-    .panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 20px;
-      border-bottom: 1px solid #444;
-    }
-
-    .panel-header h5 {
-      color: var(--accent-color);
-      font-weight: 700;
-      margin: 0;
-      font-size: 1.1rem;
-    }
-
-    .panel-header h5 span {
-      color: #ffffff;
-      font-weight: normal;
-      font-size: 1rem;
-    }
-
-    .close-panel-btn {
-      background: #ffffff;
-      color: var(--sidebar-panel-bg);
-      border: none;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      font-size: 1rem;
-      padding: 0;
-    }
-
-    .panel-body {
-      padding: 20px;
-    }
-
-    /* --- Visual Adjustments Advanced UI --- */
-    .filter-block {
-      border: 1px solid #555;
-      border-radius: 6px;
-      padding: 12px 15px;
-      margin-bottom: 12px;
-      background-color: transparent;
-      transition: background-color 0.2s;
-    }
-
-    .filter-block.active {
-      background-color: var(--active-block-bg);
-    }
-
-    .custom-checkbox-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 1rem;
-      margin: 0;
-    }
-
-    .custom-checkbox-row.standalone {
-      padding: 10px 0;
-      margin-bottom: 5px;
-    }
-
-    .custom-checkbox-row input {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 22px;
-      height: 22px;
-      border: 2px solid #777;
-      border-radius: 4px;
-      background: transparent;
-      outline: none;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .custom-checkbox-row input:checked {
-      background: var(--accent-color);
-      border-color: var(--accent-color);
-    }
-    
-    .custom-checkbox-row input:checked::after {
-      content: '✔';
-      position: absolute;
-      top: -2px;
-      left: 3px;
-      color: #111; 
-      font-size: 14px;
-      font-weight: bold;
-    }
-
-    .slider-row {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      margin-top: 15px;
-    }
-
-    .slider-row span {
-      min-width: 45px;
-      text-align: right;
-      font-size: 0.9rem;
-      color: #ddd;
-    }
-
-    .slider-row input[type=range] {
-      appearance: none;
-      -webkit-appearance: none;
-      flex-grow: 1;
       height: 4px;
-      background: #666;
+      background: #333;
       border-radius: 2px;
-      outline: none;
+      overflow: hidden;
+    }
+    .progress-fill-top {
+      height: 100%;
+      background: var(--brand-primary);
+      width: 0%; /* Dynamic */
     }
 
-    .slider-row input[type=range]::-webkit-slider-thumb {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: var(--accent-color);
-      cursor: pointer;
+    .top-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
     }
-
-    .zoom-btn-large {
-      background: transparent;
-      border: none;
-      color: white;
-      font-size: 1.8rem;
+    .top-nav-right i {
+      font-size: 1.2rem;
       cursor: pointer;
-      margin-right: 15px;
-      padding: 0;
+      color: #ccc;
       transition: color 0.2s;
     }
-    .zoom-btn-large:hover {
-      color: var(--accent-color);
+    .top-nav-right i:hover {
+      color: #fff;
+    }
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .user-profile img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
     }
 
-    /* --- Main Workspace --- */
-    .main-wrapper {
+    /* --- Three Column Layout --- */
+    .app-body {
+      display: flex;
+      flex-grow: 1;
+      overflow: hidden;
+    }
+
+    /* --- Left Sidebar --- */
+    .left-sidebar {
+      width: 280px;
+      background-color: var(--panel-bg);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    .book-cover-container {
+      padding: 24px;
+      text-align: center;
+    }
+    .book-cover-container img {
+      width: 160px;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 16px;
+    }
+    .book-cover-container h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 0 0 4px 0;
+    }
+    .book-cover-container p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin: 0 0 16px 0;
+    }
+    .progress-info {
+      text-align: left;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .progress-track-left {
+      width: 100%;
+      height: 4px;
+      background: #eee;
+      border-radius: 2px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .progress-fill-left {
+      height: 100%;
+      background: var(--brand-primary);
+      width: 0%; /* Dynamic */
+    }
+
+    .nav-menu {
+      list-style: none;
+      padding: 0 12px;
+      margin: 0;
+    }
+    .nav-menu li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      margin-bottom: 4px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      transition: background 0.2s;
+    }
+    .nav-menu li:hover {
+      background-color: #f9f9f9;
+    }
+    .nav-menu li.active {
+      background-color: var(--brand-light);
+      color: var(--brand-primary);
+      font-weight: 600;
+    }
+    .nav-menu li i {
+      width: 24px;
+      color: var(--text-muted);
+    }
+    .nav-menu li.active i {
+      color: var(--brand-primary);
+    }
+    .nav-badge {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .badge-purple { background: #e5dbff; color: #5f3dc4; }
+    .badge-yellow { background: #fff3bf; color: #f59f00; }
+    .badge-green { background: #d3f9d8; color: #2b8a3e; }
+
+    .continue-reading-card {
+      margin: auto 16px 24px 16px;
+      padding: 20px;
+      background-color: var(--brand-light);
+      border-radius: 12px;
+    }
+    .continue-reading-card h4 {
+      font-size: 1rem;
+      color: var(--brand-primary);
+      margin: 0 0 8px 0;
+      font-weight: 700;
+    }
+    .continue-reading-card p {
+      font-size: 0.85rem;
+      margin: 0 0 4px 0;
+      color: #555;
+    }
+    .btn-brand {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background: var(--brand-primary);
+      color: white;
+      text-align: center;
+      border: none;
+      border-radius: 6px;
+      margin-top: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-brand:hover {
+      background: #4b3eb0;
+    }
+
+    /* --- Center Workspace --- */
+    .center-workspace {
       flex-grow: 1;
       display: flex;
       flex-direction: column;
+      background-color: var(--center-bg);
       position: relative;
-      height: 100vh;
     }
 
-    .pdf-main {
+    .pdf-container {
       flex-grow: 1;
       overflow: auto;
+      padding: 40px;
       display: flex;
-      flex-direction: column; 
-      padding: 40px; /* Generous 40px padding for margins */
-      position: relative;
-    }
-
-    #canvas-container {
-      margin: auto; 
-      display: flex;
-      gap: 15px;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
       transition: filter 0.3s ease;
-      max-width: 100%;
     }
 
     canvas {
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
       background-color: #fff;
-      max-width: none; 
-      transition: transform 0.2s ease;
+      max-width: none;
     }
 
-    /* Interactive cursor for two-page mode navigation */
-    .double-mode #pdf-render-left {
-      cursor: w-resize; /* Indicates left/previous */
-    }
-    .double-mode #pdf-render-right {
-      cursor: e-resize; /* Indicates right/next */
-    }
-
-    /* --- Bottom Toolbar Styles --- */
-    .bottom-toolbar {
-      background-color: var(--toolbar-bg);
-      padding: 8px 15px;
+    .pagination-bar {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      border-top: 1px solid #111;
-      z-index: 1000;
-      height: 45px;
+      align-items: center;
       width: 100%;
+      max-width: 800px;
+      margin: 40px auto 20px auto;
     }
-
-    .page-info {
-      font-size: 0.85rem;
-      color: #ddd;
-      white-space: nowrap;
-      min-width: 120px;
-    }
-
-    /* Scrubber */
-    .scrubber-container {
-      flex-grow: 1;
-      margin: 0 20px;
+    .pagination-btn {
+      background: white;
+      border: 1px solid var(--border-color);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--text-main);
       display: flex;
       align-items: center;
+      gap: 8px;
+    }
+    .pagination-btn:hover {
+      background: #f0f0f0;
+    }
+    .page-indicator {
+      font-weight: 600;
+      color: var(--text-main);
     }
 
-    .scrubber-container input[type=range] {
-      appearance: none;
-      -webkit-appearance: none; 
-      width: 100%;
-      background: transparent;
-    }
-
-    .scrubber-container input[type=range]:focus {
-      outline: none;
-    }
-
-    .scrubber-container input[type=range]::-webkit-slider-runnable-track {
-      width: 100%;
-      height: 4px;
-      cursor: pointer;
-      background: #555;
-      border-radius: 2px;
-    }
-
-    .scrubber-container input[type=range]::-webkit-slider-thumb {
-      appearance: none;
-      -webkit-appearance: none;
-      height: 16px;
-      width: 16px;
-      border-radius: 50%;
-      background: #ffffff;
-      cursor: pointer;
-      margin-top: -6px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.5);
-    }
-
-    .toolbar-actions {
+    /* Floating Bottom Toolbar */
+    .floating-toolbar {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 30px;
+      padding: 8px 24px;
       display: flex;
-      gap: 12px;
       align-items: center;
+      gap: 24px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      z-index: 100;
     }
-
-    .toolbar-btn {
+    .toolbar-icon {
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 1.1rem;
       background: none;
       border: none;
-      color: #888;
-      font-size: 1.1rem;
-      cursor: pointer;
       padding: 0;
-      transition: color 0.2s;
+    }
+    .zoom-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .zoom-text {
+      font-weight: 600;
+      font-size: 0.9rem;
+      width: 45px;
+      text-align: center;
     }
 
-    .toolbar-btn:hover, .toolbar-btn.active {
-      color: #ffffff;
+    /* --- Right Sidebar --- */
+    .right-sidebar {
+      width: 340px;
+      background-color: var(--panel-bg);
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      flex-shrink: 0;
+      padding: 24px;
     }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 0 0 16px 0;
+      color: var(--text-main);
     }
-    ::-webkit-scrollbar-track {
-      background: var(--canvas-bg);
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 32px;
     }
-    ::-webkit-scrollbar-thumb {
-      background-color: #555;
-      border-radius: 4px;
+    .tool-btn {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
+    .tool-btn:hover {
+      border-color: #ccc;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .tool-btn i {
+      font-size: 1.25rem;
+    }
+    .tool-btn span {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+    /* Icon Colors based on image */
+    .c-purple { color: #5c4bca; }
+    .c-yellow { color: #f59f00; }
+    .c-green { color: #2b8a3e; }
+    .c-dark { color: #333; }
+
+    .settings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .settings-label {
+      font-size: 0.9rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+    
+    .custom-select {
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 0.9rem;
+      outline: none;
+      width: 140px;
+    }
+
+    .segmented-control {
+      display: flex;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .segment-btn {
+      background: white;
+      border: none;
+      border-right: 1px solid var(--border-color);
+      padding: 6px 16px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .segment-btn:last-child {
+      border-right: none;
+    }
+    .segment-btn.active {
+      background: var(--brand-light);
+      color: var(--brand-primary);
+    }
+    .segment-btn i {
+      color: var(--text-muted);
+    }
+    .segment-btn.active i {
+      color: var(--brand-primary);
+    }
+
+    .theme-swatches {
+      display: flex;
+      gap: 12px;
+    }
+    .theme-swatch {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+    }
+    .theme-swatch.active {
+      border: 2px solid var(--brand-primary);
+    }
+    .theme-light { background: #ffffff; }
+    .theme-sepia { background: #f4ecd8; }
+    .theme-dark { background: #1a1a1a; }
+
+    .btn-outline-settings {
+      width: 100%;
+      padding: 10px;
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .btn-outline-settings:hover {
+      background: #f9f9f9;
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background-color: #ddd; border-radius: 3px; }
+
   </style>
 </head>
 <body>
 
-  <!-- Dual-Pane Left Sidebar -->
-  <aside class="sidebar-container">
-    <div class="sidebar-icon-bar">
-      <button class="icon-btn" title="Search inside"><i class="fa-solid fa-magnifying-glass"></i></button>
-      <button class="icon-btn" title="Bookmarks"><i class="fa-regular fa-bookmark"></i></button>
-      <button class="icon-btn" id="downloadBtn" title="Downloadable files"><i class="fa-solid fa-download"></i></button>
-      <button class="icon-btn" id="visualMenuBtn" title="Visual Adjustments"><i class="fa-solid fa-circle-half-stroke"></i></button>
-      <div style="flex-grow: 1;"></div>
-      <button class="icon-btn mb-2" id="backBtn" title="Return to Library"><i class="fa-solid fa-arrow-left"></i></button>
+  <!-- Top Navbar -->
+  <nav class="top-navbar">
+    <div class="top-nav-left">
+      <a href="browse.html" id="backToLibrary"><i class="fa-solid fa-arrow-left"></i> Back to Library</a>
     </div>
-
-    <!-- Visual Adjustments Panel -->
-    <div class="sidebar-panel" id="visualAdjustPanel">
-      <div class="panel-header">
-        <h5>Visual Adjustments <span id="activeCount">(0 active)</span></h5>
-        <button class="close-panel-btn" id="closeVisualPanel"><i class="fa-solid fa-angle-left"></i></button>
-      </div>
-      <div class="panel-body">
-        
-        <div class="filter-block" id="block-brightness">
-          <label class="custom-checkbox-row">
-            <span>Adjust brightness</span>
-            <input type="checkbox" id="cb-brightness">
-          </label>
-          <div class="slider-row" id="row-brightness">
-            <input type="range" id="range-brightness" min="50" max="150" value="108">
-            <span id="val-brightness">108%</span>
-          </div>
-        </div>
-
-        <div class="filter-block" id="block-contrast">
-          <label class="custom-checkbox-row">
-            <span>Adjust contrast</span>
-            <input type="checkbox" id="cb-contrast">
-          </label>
-          <div class="slider-row" id="row-contrast">
-            <input type="range" id="range-contrast" min="50" max="150" value="123">
-            <span id="val-contrast">123%</span>
-          </div>
-        </div>
-
-        <label class="custom-checkbox-row standalone mt-3">
-          <span>Invert colors (dark mode)</span>
-          <input type="checkbox" id="cb-invert">
-        </label>
-        <label class="custom-checkbox-row standalone">
-          <span>Convert to grayscale</span>
-          <input type="checkbox" id="cb-grayscale">
-        </label>
-
-        <div class="mt-4 pt-2">
-          <p class="fw-bold mb-3" style="font-size: 1.05rem;">Adjust zoom</p>
-          <button class="zoom-btn-large" id="panelZoomOut" title="Zoom Out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
-          <button class="zoom-btn-large" id="panelZoomIn" title="Zoom In"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
-        </div>
-      </div>
-    </div>
-  </aside>
-
-  <!-- Main Workspace -->
-  <div class="main-wrapper">
     
-    <!-- PDF Display Area -->
-    <main class="pdf-main" id="pdfMainContainer">
-      <div id="loading" class="d-flex flex-column justify-content-center align-items-center h-100 text-light" style="margin: auto;">
-         <div class="spinner-border text-light mb-3" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
-         <p class="fw-medium" id="loadingText">Preparing document...</p>
+    <div class="top-nav-center">
+      <div class="book-meta-top">
+        <h1 id="topBookTitle">Loading Book...</h1>
+        <p>Page <span id="topPageNum">0</span> of <span id="topTotalPages">0</span></p>
       </div>
+      <div class="progress-bar-top-container">
+        <span id="topProgressText">0% Complete</span>
+        <div class="progress-track-top">
+          <div class="progress-fill-top" id="topProgressFill"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="top-nav-right">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <i class="fa-solid fa-gear"></i>
+      <i class="fa-solid fa-moon"></i>
+      <div class="user-profile">
+        <img src="https://ui-avatars.com/api/?name=User&background=random" alt="User Profile">
+        <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Three Column Application Body -->
+  <div class="app-body">
+    
+    <!-- Left Sidebar -->
+    <aside class="left-sidebar">
+      <div class="book-cover-container">
+        <img id="sidebarCover" src="https://via.placeholder.com/160x240?text=Cover" alt="Book Cover">
+        <h3 id="sidebarTitle">Document</h3>
+        <p id="sidebarAuthor">Author Unknown</p>
+        
+        <div class="progress-info" id="sidebarProgressText">0% Completed</div>
+        <div class="progress-track-left">
+          <div class="progress-fill-left" id="sidebarProgressFill"></div>
+        </div>
+      </div>
+
+      <ul class="nav-menu">
+        <li class="active"><i class="fa-solid fa-list-ul"></i> Table of Contents</li>
+        <li><i class="fa-regular fa-bookmark"></i> Bookmarks <span class="nav-badge badge-purple">0</span></li>
+        <li><i class="fa-solid fa-pen-nib"></i> Highlights <span class="nav-badge badge-yellow">0</span></li>
+        <li><i class="fa-regular fa-note-sticky"></i> Notes <span class="nav-badge badge-green">0</span></li>
+        <li><i class="fa-solid fa-magnifying-glass"></i> Search in Book</li>
+        <li><i class="fa-solid fa-circle-info"></i> Book Information</li>
+      </ul>
+
+      <div class="continue-reading-card">
+        <h4>Continue Reading</h4>
+        <p>Last read: Just now</p>
+        <p>Page <span id="widgetPageNum">0</span> of <span id="widgetTotalPages">0</span></p>
+        <button class="btn-brand" onclick="window.location.href='browse.html'">Go to Library</button>
+      </div>
+    </aside>
+
+    <!-- Center Workspace -->
+    <main class="center-workspace">
       
-      <!-- Canvas Container -->
-      <div id="canvas-container" class="d-none">
-        <canvas id="pdf-render-left" title="Previous Page"></canvas>
-        <canvas id="pdf-render-right" class="d-none" title="Next Page"></canvas>
+      <!-- PDF Rendering Area -->
+      <div class="pdf-container" id="pdfContainer">
+        <div id="loading" class="d-flex flex-column justify-content-center align-items-center h-100">
+           <div class="spinner-border text-primary mb-3" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
+           <p class="fw-medium text-muted" id="loadingText">Preparing document...</p>
+        </div>
+        
+        <canvas id="pdf-render" class="d-none"></canvas>
+
+        <!-- Inline Bottom Pagination -->
+        <div class="pagination-bar d-none" id="paginationBar">
+          <button class="pagination-btn" id="prevChapterBtn"><i class="fa-solid fa-angle-left"></i> Previous Page</button>
+          <div class="page-indicator"><span id="inlinePageNum">0</span> of <span id="inlineTotalPages">0</span></div>
+          <button class="pagination-btn" id="nextChapterBtn">Next Page <i class="fa-solid fa-angle-right"></i></button>
+        </div>
+      </div>
+
+      <!-- Floating Toolbar -->
+      <div class="floating-toolbar d-none" id="floatingToolbar">
+        <button class="toolbar-icon"><i class="fa-solid fa-bars"></i></button>
+        <button class="toolbar-icon"><span style="font-weight:700; font-family:serif;">Aa</span></button>
+        
+        <div class="zoom-controls">
+          <button class="toolbar-icon" id="zoomOutBtn"><i class="fa-solid fa-minus"></i></button>
+          <span class="zoom-text" id="zoomLevelText">100%</span>
+          <button class="toolbar-icon" id="zoomInBtn"><i class="fa-solid fa-plus"></i></button>
+        </div>
+        
+        <button class="toolbar-icon" id="fullscreenToggleBtn"><i class="fa-solid fa-expand" id="fsIcon"></i></button>
       </div>
     </main>
 
-    <!-- Bottom Reading Controls -->
-    <footer class="bottom-toolbar">
+    <!-- Right Sidebar -->
+    <aside class="right-sidebar">
       
-      <!-- Page Info -->
-      <div class="page-info" id="pageInfoText">
-        Page <span id="currentPageNum">0</span> (<span id="absolutePageNum">0</span>/<span id="totalPages">0</span>)
+      <h2 class="section-title">Reading Tools</h2>
+      <div class="tools-grid">
+        <div class="tool-btn"><i class="fa-solid fa-bookmark c-purple"></i><span>Bookmark</span></div>
+        <div class="tool-btn"><i class="fa-solid fa-highlighter c-yellow"></i><span>Highlight</span></div>
+        <div class="tool-btn"><i class="fa-solid fa-note-sticky c-green"></i><span>Note</span></div>
+        <div class="tool-btn"><i class="fa-solid fa-magnifying-glass c-dark"></i><span>Search</span></div>
+        <div class="tool-btn"><i class="fa-solid fa-book c-dark"></i><span>Dictionary</span></div>
+        <div class="tool-btn"><i class="fa-solid fa-language c-purple"></i><span>Translate</span></div>
+        <div class="tool-btn"><i class="fa-solid fa-volume-high c-purple"></i><span>Read Aloud</span></div>
+        <div class="tool-btn"><i class="fa-solid fa-share-nodes c-dark"></i><span>Share</span></div>
+        <div class="tool-btn"><i class="fa-solid fa-ellipsis c-dark"></i><span>More</span></div>
       </div>
 
-      <!-- Scrubber -->
-      <div class="scrubber-container">
-        <input type="range" id="pageScrubber" min="1" max="1" value="1" disabled>
+      <h2 class="section-title">Reading Settings</h2>
+      
+      <div class="settings-row">
+        <span class="settings-label">Font</span>
+        <select class="custom-select" disabled title="Not available for PDF files">
+          <option>Lora</option>
+          <option>Open Sans</option>
+          <option>Merriweather</option>
+        </select>
       </div>
 
-      <!-- Actions -->
-      <div class="toolbar-actions">
-        <button class="toolbar-btn active" id="prevPage" title="Previous Page"><i class="fa-solid fa-caret-left"></i></button>
-        <button class="toolbar-btn active" id="nextPage" title="Next Page"><i class="fa-solid fa-caret-right"></i></button>
-        
-        <button class="toolbar-btn active ms-2" id="btnSinglePage" title="Single Page"><i class="fa-regular fa-file"></i></button>
-        <button class="toolbar-btn" id="btnTwoPage" title="Two Pages"><i class="fa-solid fa-book-open"></i></button>
-        <button class="toolbar-btn" title="Thumbnails"><i class="fa-solid fa-table-cells-large"></i></button>
-        
-        <button class="toolbar-btn ms-3" id="toolbarZoomOut" title="Zoom Out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
-        <button class="toolbar-btn" id="toolbarZoomIn" title="Zoom In"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
-        <button class="toolbar-btn ms-1" id="fullscreenBtn" title="Toggle Fullscreen"><i class="fa-solid fa-expand" id="fullscreenIcon"></i></button>
+      <div class="settings-row">
+        <span class="settings-label">Font Size</span>
+        <div class="segmented-control">
+          <button class="segment-btn" disabled>A-</button>
+          <button class="segment-btn active" disabled>18</button>
+          <button class="segment-btn" disabled>A+</button>
+        </div>
       </div>
-    </footer>
+
+      <div class="settings-row">
+        <span class="settings-label">Line Spacing</span>
+        <div class="segmented-control">
+          <button class="segment-btn" disabled><i class="fa-solid fa-align-left" style="line-height:0.8;"></i></button>
+          <button class="segment-btn active" disabled><i class="fa-solid fa-align-left" style="line-height:1.2;"></i></button>
+          <button class="segment-btn" disabled><i class="fa-solid fa-align-left" style="line-height:1.6;"></i></button>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <span class="settings-label">Page Theme</span>
+        <div class="theme-swatches">
+          <div class="theme-swatch theme-light active" data-theme="light"></div>
+          <div class="theme-swatch theme-sepia" data-theme="sepia"></div>
+          <div class="theme-swatch theme-dark" data-theme="dark"></div>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <span class="settings-label">Scroll Mode</span>
+        <div class="segmented-control w-100">
+          <button class="segment-btn active flex-grow-1" style="width:50%;">Page</button>
+          <button class="segment-btn flex-grow-1" style="width:50%;" disabled title="Continuous scroll not enabled">Scroll</button>
+        </div>
+      </div>
+
+      <button class="btn-outline-settings">Customize More Settings</button>
+
+    </aside>
   </div>
 
   <script type="module">
@@ -482,117 +675,49 @@
     const bookId = urlParams.get('id');
     
     let activePdfUrl = "";
-    let bookTitleStr = "Document";
 
     // =========================================================
-    // UI / PANEL LOGIC
+    // UI BEHAVIORS & THEMING
     // =========================================================
-    const visualMenuBtn = document.getElementById('visualMenuBtn');
-    const visualAdjustPanel = document.getElementById('visualAdjustPanel');
-    const closeVisualPanel = document.getElementById('closeVisualPanel');
-
-    visualMenuBtn.addEventListener('click', () => {
-      visualMenuBtn.classList.add('active');
-      visualAdjustPanel.classList.add('open');
+    
+    // Page Theme Logic (Applies CSS filters to PDF canvas to simulate themes)
+    const themeSwatches = document.querySelectorAll('.theme-swatch');
+    const pdfMainContainer = document.getElementById('pdfContainer');
+    
+    themeSwatches.forEach(swatch => {
+      swatch.addEventListener('click', (e) => {
+        // Remove active class from all
+        themeSwatches.forEach(s => s.classList.remove('active'));
+        // Add to clicked
+        e.target.classList.add('active');
+        
+        const theme = e.target.getAttribute('data-theme');
+        if (theme === 'light') {
+          pdfMainContainer.style.filter = 'none';
+        } else if (theme === 'sepia') {
+          pdfMainContainer.style.filter = 'sepia(0.6) contrast(0.9) brightness(0.9)';
+        } else if (theme === 'dark') {
+          // Invert colors for dark mode PDF reading
+          pdfMainContainer.style.filter = 'invert(0.92) hue-rotate(180deg) contrast(0.85) brightness(0.95)';
+        }
+      });
     });
 
-    closeVisualPanel.addEventListener('click', () => {
-      visualMenuBtn.classList.remove('active');
-      visualAdjustPanel.classList.remove('open');
-    });
-
-    // =========================================================
-    // VISUAL ADJUSTMENTS (FILTERS)
-    // =========================================================
-    const cbBrightness = document.getElementById('cb-brightness');
-    const cbContrast = document.getElementById('cb-contrast');
-    const cbInvert = document.getElementById('cb-invert');
-    const cbGrayscale = document.getElementById('cb-grayscale');
-    const rangeBrightness = document.getElementById('range-brightness');
-    const rangeContrast = document.getElementById('range-contrast');
-    const valBrightness = document.getElementById('val-brightness');
-    const valContrast = document.getElementById('val-contrast');
-    const blockBrightness = document.getElementById('block-brightness');
-    const blockContrast = document.getElementById('block-contrast');
-    const canvasContainer = document.getElementById('canvas-container');
-    const activeCountSpan = document.getElementById('activeCount');
-
-    const applyFilters = () => {
-      let activeCount = 0;
-      let filters = [];
-      
-      blockBrightness.classList.toggle('active', cbBrightness.checked);
-      blockContrast.classList.toggle('active', cbContrast.checked);
-
-      if(cbBrightness.checked) { 
-        filters.push(`brightness(${rangeBrightness.value / 100})`); 
-        activeCount++; 
-      }
-      if(cbContrast.checked) { 
-        filters.push(`contrast(${rangeContrast.value / 100})`); 
-        activeCount++; 
-      }
-      if(cbInvert.checked) { 
-        filters.push('invert(0.92) hue-rotate(180deg)'); 
-        activeCount++; 
-      }
-      if(cbGrayscale.checked) { 
-        filters.push('grayscale(1)'); 
-        activeCount++; 
-      }
-
-      canvasContainer.style.filter = filters.length > 0 ? filters.join(' ') : 'none';
-      activeCountSpan.textContent = `(${activeCount} active)`;
-    };
-
-    rangeBrightness.addEventListener('input', (e) => {
-      valBrightness.textContent = `${e.target.value}%`;
-      if(cbBrightness.checked) applyFilters();
-    });
-
-    rangeContrast.addEventListener('input', (e) => {
-      valContrast.textContent = `${e.target.value}%`;
-      if(cbContrast.checked) applyFilters();
-    });
-
-    [cbBrightness, cbContrast, cbInvert, cbGrayscale].forEach(cb => {
-      cb.addEventListener('change', applyFilters);
-    });
-
-    // =========================================================
-    // STANDARD NAV
-    // =========================================================
-    document.getElementById('backBtn').addEventListener('click', () => {
-      if (window.history.length > 2) window.history.back();
-      else window.location.href = 'browse.html';
-    });
-
-    document.getElementById('downloadBtn').addEventListener('click', () => {
-      if(activePdfUrl) {
-        const a = document.createElement('a');
-        a.href = activePdfUrl;
-        a.download = bookTitleStr + ".pdf";
-        a.target = "_blank";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      }
-    });
-
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const fullscreenIcon = document.getElementById('fullscreenIcon');
-    fullscreenBtn.addEventListener('click', () => {
+    // Fullscreen Toggle
+    const fullscreenToggleBtn = document.getElementById('fullscreenToggleBtn');
+    const fsIcon = document.getElementById('fsIcon');
+    fullscreenToggleBtn.addEventListener('click', () => {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(e => console.error(e));
-        fullscreenIcon.classList.replace('fa-expand', 'fa-compress');
+        fsIcon.classList.replace('fa-expand', 'fa-compress');
       } else {
         document.exitFullscreen();
-        fullscreenIcon.classList.replace('fa-compress', 'fa-expand');
+        fsIcon.classList.replace('fa-compress', 'fa-expand');
       }
     });
 
     // =========================================================
-    // PDF.js RENDERER
+    // PDF.js VIEWER LOGIC
     // =========================================================
     const pdfjsLib = window['pdfjs-dist/build/pdf'];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -601,112 +726,85 @@
         pageNum = 1,
         pageIsRendering = false,
         pageNumPending = null,
-        scale = 1.0, 
-        layoutMode = 'single'; 
+        scale = 1.2, // Default readable scale
+        isInitialLoad = true;
 
-    const canvasLeft = document.getElementById('pdf-render-left');
-    const ctxLeft = canvasLeft.getContext('2d');
-    const canvasRight = document.getElementById('pdf-render-right');
-    const ctxRight = canvasRight.getContext('2d');
-    const pdfMainContainer = document.getElementById('pdfMainContainer');
+    const canvas = document.getElementById('pdf-render');
+    const ctx = canvas.getContext('2d');
     
-    const pageScrubber = document.getElementById('pageScrubber');
-    const currentPageNumSpan = document.getElementById('currentPageNum');
-    const absolutePageNumSpan = document.getElementById('absolutePageNum');
+    // UI Elements for updates
+    const updateElements = {
+        topPage: document.getElementById('topPageNum'),
+        inlinePage: document.getElementById('inlinePageNum'),
+        widgetPage: document.getElementById('widgetPageNum'),
+        topProgText: document.getElementById('topProgressText'),
+        topProgFill: document.getElementById('topProgressFill'),
+        sideProgText: document.getElementById('sidebarProgressText'),
+        sideProgFill: document.getElementById('sidebarProgressFill'),
+        zoomText: document.getElementById('zoomLevelText')
+    };
 
-    // Layout Toggle Buttons
-    const btnSingle = document.getElementById('btnSinglePage');
-    const btnDouble = document.getElementById('btnTwoPage');
+    const updateUIState = (num, total) => {
+        const percent = Math.round((num / total) * 100);
+        const percentStr = `${percent}% Completed`;
+        const widthStr = `${percent}%`;
 
-    // Robust function to calculate exact fit inside margins
+        // Update Text
+        updateElements.topPage.textContent = num;
+        updateElements.inlinePage.textContent = num;
+        updateElements.widgetPage.textContent = num;
+        
+        // Update Progress Bars
+        updateElements.topProgText.textContent = percentStr;
+        updateElements.sideProgText.textContent = percentStr;
+        updateElements.topProgFill.style.width = widthStr;
+        updateElements.sideProgFill.style.width = widthStr;
+        
+        // Update Zoom Text
+        updateElements.zoomText.textContent = `${Math.round(scale * 100)}%`;
+    };
+
+    // Calculate perfect fit for the center column
     async function calculateOptimalScale(num) {
       if (!pdfDoc) return;
       try {
         const page = await pdfDoc.getPage(num);
         const viewport = page.getViewport({ scale: 1 });
         
-        // Account for the 40px padding on all sides (80px total)
-        const availH = pdfMainContainer.clientHeight - 80; 
+        // Subtract padding 
         const availW = pdfMainContainer.clientWidth - 80;
         
-        // Target width is doubled plus gap if in two-page mode
-        const targetW = layoutMode === 'double' ? (viewport.width * 2) + 15 : viewport.width;
-        
-        const calcScale = Math.min(availH / viewport.height, availW / targetW);
-        scale = calcScale > 0 ? calcScale : 1; 
+        const calcScale = availW / viewport.width;
+        // Don't blow it up too huge on massive screens, cap at 2.0. Min at 0.5
+        scale = Math.min(Math.max(calcScale, 0.5), 1.8); 
       } catch (err) {
         console.error("Scale calculation error:", err);
       }
     }
 
-    btnSingle.addEventListener('click', async () => {
-      layoutMode = 'single';
-      btnSingle.classList.add('active');
-      btnDouble.classList.remove('active');
-      canvasContainer.classList.remove('double-mode');
-      canvasRight.classList.add('d-none');
-      
-      await calculateOptimalScale(pageNum);
-      queueRenderPage(pageNum);
-    });
-
-    btnDouble.addEventListener('click', async () => {
-      layoutMode = 'double';
-      btnDouble.classList.add('active');
-      btnSingle.classList.remove('active');
-      canvasContainer.classList.add('double-mode');
-      canvasRight.classList.remove('d-none');
-      
-      if (pageNum === pdfDoc.numPages && pdfDoc.numPages > 1) {
-        pageNum = pageNum - 1; 
-      }
-      
-      await calculateOptimalScale(pageNum);
-      queueRenderPage(pageNum);
-    });
-
-    const finalizeRender = (num) => {
-      pageIsRendering = false;
-      
-      let displayPage = layoutMode === 'double' && num < pdfDoc.numPages ? `${num}-${num+1}` : num;
-      currentPageNumSpan.textContent = displayPage;
-      absolutePageNumSpan.textContent = displayPage; 
-      pageScrubber.value = num;
-      
-      // Center Scroll position
-      pdfMainContainer.scrollTop = 0;
-      pdfMainContainer.scrollLeft = (pdfMainContainer.scrollWidth - pdfMainContainer.clientWidth) / 2;
-
-      if (pageNumPending !== null) {
-        renderPage(pageNumPending);
-        pageNumPending = null;
-      }
-    };
-
     const renderPage = (num) => {
       pageIsRendering = true;
 
-      pdfDoc.getPage(num).then((page1) => {
-        const viewport1 = page1.getViewport({ scale });
-        canvasLeft.height = viewport1.height;
-        canvasLeft.width = viewport1.width;
+      pdfDoc.getPage(num).then(async (page) => {
+        
+        if (isInitialLoad) {
+           await calculateOptimalScale(num);
+           isInitialLoad = false;
+        }
 
-        page1.render({ canvasContext: ctxLeft, viewport: viewport1 }).promise.then(() => {
+        const viewport = page.getViewport({ scale });
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        page.render({ canvasContext: ctx, viewport: viewport }).promise.then(() => {
+          pageIsRendering = false;
+          updateUIState(num, pdfDoc.numPages);
           
-          if (layoutMode === 'double' && num < pdfDoc.numPages) {
-            pdfDoc.getPage(num + 1).then((page2) => {
-              const viewport2 = page2.getViewport({ scale });
-              canvasRight.height = viewport2.height;
-              canvasRight.width = viewport2.width;
-              canvasRight.classList.remove('d-none');
-              
-              page2.render({ canvasContext: ctxRight, viewport: viewport2 }).promise.then(() => {
-                finalizeRender(num);
-              });
-            });
-          } else {
-            canvasRight.classList.add('d-none');
-            finalizeRender(num);
+          pdfMainContainer.scrollTop = 0;
+
+          if (pageNumPending !== null) {
+            renderPage(pageNumPending);
+            pageNumPending = null;
           }
         });
       });
@@ -720,59 +818,33 @@
       }
     };
 
-    // Pagination Logic
-    const incrementAmount = () => layoutMode === 'double' ? 2 : 1;
-
+    // Navigation
     const handlePrevPage = () => {
       if (pageNum <= 1) return;
-      pageNum = Math.max(1, pageNum - incrementAmount());
+      pageNum--;
       queueRenderPage(pageNum);
     };
 
     const handleNextPage = () => {
       if (pageNum >= pdfDoc.numPages) return;
-      pageNum = Math.min(pdfDoc.numPages, pageNum + incrementAmount());
-      if (layoutMode === 'double' && pageNum === pdfDoc.numPages && pdfDoc.numPages > 1) {
-         pageNum = pdfDoc.numPages - 1;
-      }
+      pageNum++;
       queueRenderPage(pageNum);
     };
 
-    // Click Canvas to Navigate in Double Mode
-    canvasLeft.addEventListener('click', () => {
-      if (layoutMode === 'double') handlePrevPage();
+    document.getElementById('prevChapterBtn').addEventListener('click', handlePrevPage);
+    document.getElementById('nextChapterBtn').addEventListener('click', handleNextPage);
+
+    // Zoom
+    document.getElementById('zoomInBtn').addEventListener('click', () => {
+        if (scale < 3.0) { scale += 0.15; queueRenderPage(pageNum); }
     });
-    canvasRight.addEventListener('click', () => {
-      if (layoutMode === 'double') handleNextPage();
+    
+    document.getElementById('zoomOutBtn').addEventListener('click', () => {
+        if (scale > 0.5) { scale -= 0.15; queueRenderPage(pageNum); }
     });
-
-    document.getElementById('prevPage').addEventListener('click', handlePrevPage);
-    document.getElementById('nextPage').addEventListener('click', handleNextPage);
-
-    pageScrubber.addEventListener('input', (e) => {
-      let desiredPage = parseInt(e.target.value);
-      if (desiredPage >= 1 && desiredPage <= pdfDoc.numPages) {
-        pageNum = desiredPage;
-        if (layoutMode === 'double' && pageNum === pdfDoc.numPages && pdfDoc.numPages > 1) {
-            pageNum = pdfDoc.numPages - 1;
-        }
-        currentPageNumSpan.textContent = layoutMode === 'double' && pageNum < pdfDoc.numPages ? `${pageNum}-${pageNum+1}` : pageNum;
-        absolutePageNumSpan.textContent = currentPageNumSpan.textContent;
-      }
-    });
-    pageScrubber.addEventListener('change', () => queueRenderPage(pageNum));
-
-    // Shared Zoom Logic 
-    const zoomInAction = () => { if (scale < 3.0) { scale += 0.25; queueRenderPage(pageNum); }};
-    const zoomOutAction = () => { if (scale > 0.3) { scale -= 0.25; queueRenderPage(pageNum); }};
-
-    document.getElementById('panelZoomIn').addEventListener('click', zoomInAction);
-    document.getElementById('panelZoomOut').addEventListener('click', zoomOutAction);
-    document.getElementById('toolbarZoomIn').addEventListener('click', zoomInAction);
-    document.getElementById('toolbarZoomOut').addEventListener('click', zoomOutAction);
 
     // =========================================================
-    // INITIALIZATION
+    // INITIALIZATION & DATA FETCHING
     // =========================================================
     document.addEventListener("DOMContentLoaded", async () => {
       if (!bookId) {
@@ -783,29 +855,38 @@
       try {
         const { data: book, error } = await supabase
           .from('books')
-          .select('title, pdf_url')
+          .select('title, author, cover_url, pdf_url')
           .eq('id', bookId)
           .single();
 
         if (error || !book) throw error;
         
-        bookTitleStr = book.title;
         activePdfUrl = book.pdf_url; 
+        
+        // Populate Meta Data
+        document.getElementById('topBookTitle').textContent = book.title;
+        document.getElementById('sidebarTitle').textContent = book.title;
+        document.getElementById('sidebarAuthor').textContent = book.author || "Unknown Author";
+        if(book.cover_url) {
+            document.getElementById('sidebarCover').src = book.cover_url;
+        }
 
         const loadingTask = pdfjsLib.getDocument(activePdfUrl);
         
-        loadingTask.promise.then(async (pdfDoc_) => {
+        loadingTask.promise.then((pdfDoc_) => {
           pdfDoc = pdfDoc_;
           
-          document.getElementById('totalPages').textContent = pdfDoc.numPages;
-          pageScrubber.max = pdfDoc.numPages;
-          pageScrubber.disabled = false;
+          const totalP = pdfDoc.numPages;
+          document.getElementById('topTotalPages').textContent = totalP;
+          document.getElementById('inlineTotalPages').textContent = totalP;
+          document.getElementById('widgetTotalPages').textContent = totalP;
 
+          // Reveal UI
           document.getElementById('loading').classList.add('d-none');
-          canvasContainer.classList.remove('d-none');
+          canvas.classList.remove('d-none');
+          document.getElementById('paginationBar').classList.remove('d-none');
+          document.getElementById('floatingToolbar').classList.remove('d-none');
           
-          // Calculate scale BEFORE rendering for a perfect fit
-          await calculateOptimalScale(pageNum);
           renderPage(pageNum);
 
         }).catch(err => {
