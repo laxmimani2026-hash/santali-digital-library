@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#ffffff" id="theme-color-meta">
   <title>Reading Mode | Santali Digital Library</title>
   
-  <!-- Bootstrap 5 & FontAwesome -->
+  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <!-- PDF.js Library -->
@@ -15,193 +17,245 @@
   <style>
     /* Professional Theme Variables */
     :root {
-      --bg-color: #e9ecef;
+      --bg-color: #f0f2f5;
       --text-color: #212529;
-      --nav-bg: #ffffff;
-      --border-color: #ced4da;
-      --toolbar-bg: #ffffff;
-      --canvas-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      --nav-bg: rgba(255, 255, 255, 0.95);
+      --border-color: #dee2e6;
+      --toolbar-bg: rgba(255, 255, 255, 0.95);
+      --canvas-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+      --input-bg: #f8f9fa;
+      --primary-hover: #e9ecef;
     }
     
     [data-theme="dark"] {
       --bg-color: #121212;
       --text-color: #e0e0e0;
-      --nav-bg: #1e1e1e;
-      --border-color: #333333;
-      --toolbar-bg: #1a1a1a;
-      --canvas-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      --nav-bg: rgba(30, 30, 30, 0.95);
+      --border-color: #2c2c2c;
+      --toolbar-bg: rgba(30, 30, 30, 0.95);
+      --canvas-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      --input-bg: #2c2c2c;
+      --primary-hover: #333333;
     }
 
     body {
       background-color: var(--bg-color);
       color: var(--text-color);
-      transition: background-color 0.3s ease, color 0.3s ease;
+      transition: background-color 0.2s ease, color 0.2s ease;
       height: 100vh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* Custom Scrollbar for professional look */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-color);
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: #adb5bd;
+      border-radius: 6px;
+      border: 2px solid var(--bg-color);
+    }
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background-color: #495057;
     }
 
     /* Top Toolbar */
-    .reader-nav {
+    .reader-header {
       background-color: var(--nav-bg);
       border-bottom: 1px solid var(--border-color);
-      padding: 10px 20px;
+      padding: 0.5rem 1.25rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      z-index: 10;
-    }
-
-    .nav-actions {
-      display: flex;
-      gap: 8px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 1000;
     }
 
     /* PDF Viewer Area */
-    .pdf-container {
+    .pdf-main {
       flex-grow: 1;
       width: 100%;
-      overflow: auto;
+      overflow-y: auto;
+      overflow-x: auto;
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      padding: 30px 20px;
+      padding: 2rem 1rem;
       position: relative;
     }
 
     canvas {
       box-shadow: var(--canvas-shadow);
       border-radius: 4px;
-      transition: filter 0.3s ease, transform 0.2s ease;
-      max-width: 100%; /* Prevents extreme overflow */
+      transition: filter 0.3s ease; /* Removed transform transition for smoother reading */
+      max-width: none; /* Allow zooming past 100% viewport width */
+      background-color: #fff; /* Ensure canvas stays white in light mode */
     }
 
     /* Smart Dark Mode for PDF Canvas */
     [data-theme="dark"] canvas {
-      filter: invert(90%) hue-rotate(180deg) contrast(90%);
+      filter: invert(92%) hue-rotate(180deg) contrast(85%) brightness(95%);
     }
 
     /* Bottom Reading Controls */
-    .reader-controls {
+    .reader-footer {
       background-color: var(--toolbar-bg);
       border-top: 1px solid var(--border-color);
-      padding: 12px 20px;
+      padding: 0.75rem 1.25rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      z-index: 10;
-    }
-
-    .control-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 1000;
     }
 
     /* Interactive Page Input */
     .page-input {
-      width: 60px;
+      width: 55px;
       text-align: center;
       border: 1px solid var(--border-color);
-      border-radius: 4px;
-      background: var(--nav-bg);
+      border-radius: 6px;
+      background: var(--input-bg);
       color: var(--text-color);
-      font-weight: bold;
-      padding: 2px 5px;
+      font-weight: 600;
+      padding: 0.25rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
     
-    /* Hide number arrows in input */
+    .page-input:focus {
+      outline: none;
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+    
+    /* Hide number arrows */
     .page-input::-webkit-outer-spin-button,
     .page-input::-webkit-inner-spin-button {
       -webkit-appearance: none;
       margin: 0;
+    }
+    .page-input[type=number] {
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+
+    .btn-toolbar-custom {
+      color: var(--text-color);
+      border-color: var(--border-color);
+    }
+    
+    .btn-toolbar-custom:hover {
+      background-color: var(--primary-hover);
+      color: var(--text-color);
     }
   </style>
 </head>
 <body>
 
   <!-- Top Toolbar -->
-  <div class="reader-nav shadow-sm">
-    <button class="btn btn-outline-secondary btn-sm fw-semibold" id="backBtn">
-      <i class="fa-solid fa-arrow-left me-2"></i> Back
-    </button>
-    
-    <h5 class="mb-0 fw-bold text-truncate mx-3" id="bookTitle">Loading Book...</h5>
-    
-    <div class="nav-actions">
-      <!-- Feature 6: Download -->
-      <button class="btn btn-outline-primary btn-sm" id="downloadBtn" title="Download PDF">
-        <i class="fa-solid fa-download"></i>
+  <header class="reader-header shadow-sm">
+    <div class="d-flex align-items-center">
+      <button class="btn btn-outline-secondary btn-sm fw-semibold d-flex align-items-center gap-2" id="backBtn" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Return to Library">
+        <i class="fa-solid fa-arrow-left"></i> <span class="d-none d-md-inline">Library</span>
       </button>
       
-      <!-- Feature 4: Rotate -->
-      <button class="btn btn-outline-secondary btn-sm" id="rotateBtn" title="Rotate Page">
-        <i class="fa-solid fa-rotate-right"></i>
-      </button>
+      <div class="vr mx-3 opacity-25"></div>
       
-      <!-- Feature 1: Fullscreen -->
-      <button class="btn btn-outline-secondary btn-sm" id="fullscreenBtn" title="Fullscreen">
-        <i class="fa-solid fa-expand" id="fullscreenIcon"></i>
-      </button>
+      <h6 class="mb-0 fw-bold text-truncate" id="bookTitle" style="max-width: 40vw;">Loading Book...</h6>
+    </div>
+    
+    <div class="d-flex align-items-center gap-2">
+      <div class="btn-group shadow-sm">
+        <button class="btn btn-outline-secondary btn-sm btn-toolbar-custom" id="downloadBtn" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Download PDF">
+          <i class="fa-solid fa-download"></i>
+        </button>
+        <button class="btn btn-outline-secondary btn-sm btn-toolbar-custom" id="rotateBtn" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Rotate Page">
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
+        <button class="btn btn-outline-secondary btn-sm btn-toolbar-custom" id="fullscreenBtn" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Toggle Fullscreen">
+          <i class="fa-solid fa-expand" id="fullscreenIcon"></i>
+        </button>
+      </div>
 
       <!-- Theme Toggle -->
-      <button class="btn btn-dark btn-sm fw-semibold shadow-sm" id="themeToggle">
-        <i class="fa-solid fa-moon me-1"></i> Dark Mode
+      <button class="btn btn-dark btn-sm fw-semibold shadow-sm ms-2 d-flex align-items-center gap-2" id="themeToggle">
+        <i class="fa-solid fa-moon"></i> <span class="d-none d-md-inline">Dark Mode</span>
       </button>
     </div>
-  </div>
+  </header>
 
   <!-- PDF Display Area -->
-  <div class="pdf-container" id="pdfContainer">
-    <div id="loading" class="text-center my-auto">
-       <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
-       <h5 class="text-muted" id="loadingText">Preparing your book...</h5>
+  <main class="pdf-main" id="pdfContainer">
+    <div id="loading" class="d-flex flex-column justify-content-center align-items-center h-100">
+       <div class="spinner-border text-primary mb-3" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
+       <p class="text-muted fw-medium" id="loadingText">Preparing your document...</p>
     </div>
     
     <canvas id="pdf-render" class="d-none"></canvas>
-  </div>
+  </main>
 
   <!-- Bottom Reading Controls -->
-  <div class="reader-controls shadow-lg d-none" id="readerControls">
+  <footer class="reader-footer shadow-lg d-none" id="readerControls">
     
-    <!-- Zoom Controls & Fit Width -->
-    <div class="control-group">
-      <button class="btn btn-outline-secondary btn-sm" id="zoomOut" title="Zoom Out">
-        <i class="fa-solid fa-magnifying-glass-minus"></i>
-      </button>
-      <span class="fw-semibold small mx-1 text-center" style="width: 45px;" id="zoomVal">100%</span>
-      <button class="btn btn-outline-secondary btn-sm" id="zoomIn" title="Zoom In">
-        <i class="fa-solid fa-magnifying-glass-plus"></i>
-      </button>
-      <!-- Feature 5: Fit to Width -->
-      <button class="btn btn-outline-secondary btn-sm ms-2" id="fitWidthBtn" title="Fit to Width">
-        <i class="fa-solid fa-arrows-left-right"></i> Fit
+    <!-- Zoom Controls -->
+    <div class="d-flex align-items-center">
+      <div class="btn-group shadow-sm">
+        <button class="btn btn-outline-secondary btn-sm btn-toolbar-custom" id="zoomOut" data-bs-toggle="tooltip" data-bs-placement="top" title="Zoom Out">
+          <i class="fa-solid fa-minus"></i>
+        </button>
+        <button class="btn btn-outline-secondary btn-sm btn-toolbar-custom fw-semibold" style="width: 65px; cursor: default;" id="zoomVal" disabled>
+          100%
+        </button>
+        <button class="btn btn-outline-secondary btn-sm btn-toolbar-custom" id="zoomIn" data-bs-toggle="tooltip" data-bs-placement="top" title="Zoom In">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
+      
+      <button class="btn btn-outline-secondary btn-sm btn-toolbar-custom shadow-sm ms-2" id="fitWidthBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Fit to Width">
+        <i class="fa-solid fa-arrows-left-right"></i>
       </button>
     </div>
 
-    <!-- Feature 3: Jump to Page & Pagination -->
-    <div class="control-group">
-      <button class="btn btn-primary btn-sm" id="prevPage">
-        <i class="fa-solid fa-chevron-left me-1"></i> Prev
-      </button>
+    <!-- Pagination Controls -->
+    <div class="d-flex align-items-center">
+      <div class="btn-group shadow-sm">
+        <button class="btn btn-primary btn-sm d-flex align-items-center gap-1" id="prevPage">
+          <i class="fa-solid fa-chevron-left"></i> <span class="d-none d-sm-inline">Prev</span>
+        </button>
+      </div>
       
-      <span class="fw-bold mx-2 small d-flex align-items-center gap-2">
-        Page 
-        <input type="number" id="pageInput" class="page-input" value="0" min="1"> 
-        of <span id="pageCount">0</span>
-      </span>
+      <div class="fw-medium mx-3 small d-flex align-items-center gap-2 text-muted">
+        <input type="number" id="pageInput" class="page-input shadow-sm" value="0" min="1"> 
+        <span>/ <span id="pageCount" class="fw-bold text-body">0</span></span>
+      </div>
       
-      <button class="btn btn-primary btn-sm" id="nextPage">
-        Next <i class="fa-solid fa-chevron-right ms-1"></i>
-      </button>
+      <div class="btn-group shadow-sm">
+        <button class="btn btn-primary btn-sm d-flex align-items-center gap-1" id="nextPage">
+          <span class="d-none d-sm-inline">Next</span> <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
     </div>
-  </div>
+  </footer>
+
+  <!-- Bootstrap 5 JS Bundle with Popper (Required for Tooltips) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    // Initialize Bootstrap Tooltips
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 
     // =========================================================
     // SUPABASE SETUP
@@ -215,7 +269,7 @@
     const bookId = urlParams.get('id');
 
     // =========================================================
-    // UI BEHAVIORS & NEW FEATURES
+    // UI BEHAVIORS
     // =========================================================
     
     // Smart Back Button
@@ -223,22 +277,26 @@
       if (window.history.length > 2) {
         window.history.back();
       } else {
-        window.location.href = 'browse.html'; // Fallback route
+        window.location.href = 'browse.html';
       }
     });
 
     // Theme Toggle
     const themeToggle = document.getElementById('themeToggle');
+    const metaThemeColor = document.getElementById('theme-color-meta');
+    
     themeToggle.addEventListener('click', () => {
       const isDark = document.body.getAttribute('data-theme') === 'dark';
       if (isDark) {
         document.body.removeAttribute('data-theme');
-        themeToggle.innerHTML = '<i class="fa-solid fa-moon me-1"></i> Dark Mode';
-        themeToggle.className = 'btn btn-dark btn-sm fw-semibold shadow-sm';
+        themeToggle.innerHTML = '<i class="fa-solid fa-moon"></i> <span class="d-none d-md-inline">Dark Mode</span>';
+        themeToggle.className = 'btn btn-dark btn-sm fw-semibold shadow-sm ms-2 d-flex align-items-center gap-2';
+        metaThemeColor.setAttribute('content', '#ffffff');
       } else {
         document.body.setAttribute('data-theme', 'dark');
-        themeToggle.innerHTML = '<i class="fa-solid fa-sun me-1"></i> Light Mode';
-        themeToggle.className = 'btn btn-light btn-sm fw-semibold text-dark shadow-sm';
+        themeToggle.innerHTML = '<i class="fa-solid fa-sun"></i> <span class="d-none d-md-inline">Light Mode</span>';
+        themeToggle.className = 'btn btn-light btn-sm fw-semibold text-dark shadow-sm ms-2 d-flex align-items-center gap-2';
+        metaThemeColor.setAttribute('content', '#1e1e1e');
       }
     });
 
@@ -247,7 +305,7 @@
     const fullscreenIcon = document.getElementById('fullscreenIcon');
     fullscreenBtn.addEventListener('click', () => {
       if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => console.log(err));
+        document.documentElement.requestFullscreen().catch(err => console.error(err));
         fullscreenIcon.classList.replace('fa-expand', 'fa-compress');
       } else {
         document.exitFullscreen();
@@ -255,7 +313,7 @@
       }
     });
 
-    // Download PDF (Initialized later when URL is fetched)
+    // Download PDF
     let activePdfUrl = "";
     document.getElementById('downloadBtn').addEventListener('click', () => {
       if(activePdfUrl) {
@@ -281,17 +339,15 @@
         pageIsRendering = false,
         pageNumPending = null,
         scale = 1.0, 
-        rotation = 0, // Feature: Rotation tracking
+        rotation = 0,
         canvas = document.getElementById('pdf-render'),
         ctx = canvas.getContext('2d'),
         pageInput = document.getElementById('pageInput');
 
-    // Render the page
     const renderPage = (num) => {
       pageIsRendering = true;
 
       pdfDoc.getPage(num).then((page) => {
-        // Apply zoom and rotation
         const viewport = page.getViewport({ scale, rotation });
         canvas.height = viewport.height;
         canvas.width = viewport.width;
@@ -309,10 +365,7 @@
           }
         });
 
-        // Update Page Input Value
         pageInput.value = num;
-        
-        // Scroll to top of container when page changes
         document.getElementById('pdfContainer').scrollTop = 0;
       });
     };
@@ -325,7 +378,7 @@
       }
     };
 
-    // Pagination Controls
+    // Pagination
     document.getElementById('prevPage').addEventListener('click', () => {
       if (pageNum <= 1) return;
       pageNum--;
@@ -338,7 +391,6 @@
       queueRenderPage(pageNum);
     });
 
-    // Jump to Page (Enter key trigger)
     pageInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         let desiredPage = parseInt(pageInput.value);
@@ -346,12 +398,12 @@
           pageNum = desiredPage;
           queueRenderPage(pageNum);
         } else {
-          pageInput.value = pageNum; // Reset if invalid
+          pageInput.value = pageNum;
         }
       }
     });
 
-    // Zoom Controls
+    // Zoom & Layout Controls
     const updateZoomDisplay = () => {
       document.getElementById('zoomVal').textContent = `${Math.round(scale * 100)}%`;
     }
@@ -370,31 +422,29 @@
       queueRenderPage(pageNum);
     });
 
-    // Rotate Feature
     document.getElementById('rotateBtn').addEventListener('click', () => {
       rotation = (rotation + 90) % 360;
       queueRenderPage(pageNum);
     });
 
-    // Fit to Width Feature
     document.getElementById('fitWidthBtn').addEventListener('click', () => {
       pdfDoc.getPage(pageNum).then((page) => {
         const unscaledViewport = page.getViewport({ scale: 1, rotation });
         const containerWidth = document.getElementById('pdfContainer').clientWidth;
-        // Subtract 60px to account for container padding
-        scale = (containerWidth - 60) / unscaledViewport.width; 
+        // Padding adjustment for container layout
+        scale = (containerWidth - 40) / unscaledViewport.width; 
         updateZoomDisplay();
         queueRenderPage(pageNum);
       });
     });
 
     // =========================================================
-    // FETCH AND INITIALIZE PDF
+    // INITIALIZATION
     // =========================================================
     document.addEventListener("DOMContentLoaded", async () => {
       if (!bookId) {
         document.getElementById('bookTitle').innerText = "Error: No book selected";
-        document.getElementById('loadingText').innerHTML = "<span class='text-danger'>Invalid link.</span>";
+        document.getElementById('loadingText').innerHTML = "<span class='text-danger'>Invalid link parameters.</span>";
         return;
       }
 
@@ -408,7 +458,7 @@
         if (error || !book) throw error;
         
         document.getElementById('bookTitle').innerText = book.title;
-        activePdfUrl = book.pdf_url; // Store for download button
+        activePdfUrl = book.pdf_url; 
 
         const loadingTask = pdfjsLib.getDocument(activePdfUrl);
         
@@ -418,22 +468,24 @@
           document.getElementById('pageCount').textContent = pdfDoc.numPages;
           pageInput.max = pdfDoc.numPages;
           
-          // Hide Loading, Show Canvas & Controls
+          // Switch UI states
           document.getElementById('loading').classList.add('d-none');
           canvas.classList.remove('d-none');
-          document.getElementById('readerControls').classList.remove('d-none');
-          document.getElementById('readerControls').classList.add('d-flex');
+          
+          const controls = document.getElementById('readerControls');
+          controls.classList.remove('d-none');
+          controls.classList.add('d-flex');
           
           renderPage(pageNum);
 
         }).catch(err => {
           console.error("PDF Loading Error:", err);
-          document.getElementById('loadingText').innerHTML = "<span class='text-danger'>Failed to render the PDF file.</span>";
+          document.getElementById('loadingText').innerHTML = "<span class='text-danger fw-bold'>Failed to render the PDF file.</span>";
         });
         
       } catch (error) {
         console.error("Supabase Fetch Error:", error);
-        document.getElementById('loadingText').innerHTML = "<span class='text-danger'>Failed to load the book details.</span>";
+        document.getElementById('loadingText').innerHTML = "<span class='text-danger fw-bold'>Failed to load the book details.</span>";
       }
     });
   </script>
