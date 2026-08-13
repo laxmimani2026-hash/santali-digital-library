@@ -127,7 +127,6 @@
       color: #fff;
     }
     
-    /* Login Details Fix */
     .user-profile {
       display: flex;
       align-items: center;
@@ -174,7 +173,6 @@
       flex-shrink: 0;
     }
 
-    /* Book Cover Image Fix */
     .book-cover-container {
       padding: 24px;
       text-align: center;
@@ -407,7 +405,7 @@
       text-align: center;
     }
 
-    /* Right Sidebar - Margin Settings Fix */
+    /* Right Sidebar */
     .right-sidebar {
       width: 320px;
       background-color: var(--panel-bg);
@@ -585,7 +583,6 @@
       <i class="fa-solid fa-gear" title="Settings"></i>
       <i class="fa-solid fa-moon" title="Dark Mode"></i>
       
-      <!-- Fixed User Avatar Badge -->
       <div class="user-profile" title="User Account">
         <div class="user-avatar">US</div>
         <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem; color: #aaa;"></i>
@@ -599,7 +596,6 @@
     <!-- Left Sidebar -->
     <aside class="left-sidebar">
       <div class="book-cover-container">
-        <!-- Fixed Book Cover Placeholder Container -->
         <div class="cover-wrapper">
           <img id="sidebarCover" src="https://placehold.co/160x240/5c4bca/ffffff?text=Santali+eBook" alt="Book Cover" onerror="this.src='https://placehold.co/160x240/5c4bca/ffffff?text=eBook'">
         </div>
@@ -686,15 +682,19 @@
 
       <h2 class="section-title">Reading Settings</h2>
       
+      <!-- Font Family -->
       <div class="settings-row">
         <span class="settings-label">Font</span>
         <select class="custom-select" id="fontFamilySelect">
-          <option value="Lora">Lora</option>
+          <option value="Lora" selected>Lora</option>
           <option value="Open Sans">Open Sans</option>
           <option value="Merriweather">Merriweather</option>
+          <option value="Roboto">Roboto</option>
+          <option value="Georgia">Georgia</option>
         </select>
       </div>
 
+      <!-- Font Size -->
       <div class="settings-row">
         <span class="settings-label">Font Size</span>
         <div class="segmented-control">
@@ -704,15 +704,17 @@
         </div>
       </div>
 
+      <!-- Line Spacing -->
       <div class="settings-row">
         <span class="settings-label">Line Spacing</span>
-        <div class="segmented-control">
-          <button class="segment-btn"><i class="fa-solid fa-align-left" style="line-height:0.8;"></i></button>
-          <button class="segment-btn active"><i class="fa-solid fa-align-left" style="line-height:1.2;"></i></button>
-          <button class="segment-btn"><i class="fa-solid fa-align-left" style="line-height:1.6;"></i></button>
+        <div class="segmented-control" id="lineSpacingGroup">
+          <button class="segment-btn" data-spacing="1.2"><i class="fa-solid fa-align-left" style="line-height:0.8;"></i></button>
+          <button class="segment-btn active" data-spacing="1.5"><i class="fa-solid fa-align-left" style="line-height:1.2;"></i></button>
+          <button class="segment-btn" data-spacing="1.8"><i class="fa-solid fa-align-left" style="line-height:1.6;"></i></button>
         </div>
       </div>
 
+      <!-- Page Theme -->
       <div class="settings-row">
         <span class="settings-label">Page Theme</span>
         <div class="theme-swatches">
@@ -722,6 +724,7 @@
         </div>
       </div>
 
+      <!-- Scroll Mode -->
       <div class="settings-row">
         <span class="settings-label">Scroll Mode</span>
         <div class="segmented-control" style="width: 130px;">
@@ -756,10 +759,15 @@
     let pdfDoc = null, pageNum = 1, pageIsRendering = false, scale = 1.2;
     let epubBook = null, epubRendition = null;
     
-    // Fallback sample PDF if book URL fails
+    // Reading settings states
+    let currentFontSizePercent = 100;
+    let currentFontFamily = 'Lora';
+    let currentLineSpacing = '1.5';
+
+    // Fallback sample PDF
     const SAMPLE_PDF_URL = "https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/web/compressed.tracemonkey-pldi-09.pdf";
 
-    // UI Updates Utility
+    // UI Progress Utility
     const updateElements = {
         topPage: document.getElementById('topPageNum'),
         topTotal: document.getElementById('topTotalPages'),
@@ -806,6 +814,7 @@
 
       epubRendition.display().then(() => {
         document.getElementById('loading').classList.add('d-none');
+        applyAllReadingSettings();
       });
 
       epubBook.ready.then(() => {
@@ -859,7 +868,7 @@
       });
     }
 
-    // UNIFIED CONTROLS
+    // UNIFIED CONTROLS & NAVIGATION
     function handleNextPage() {
       if (currentBookType === 'epub' && epubRendition) {
         epubRendition.next();
@@ -893,17 +902,69 @@
 
     // Zoom Controls
     document.getElementById('zoomInBtn').addEventListener('click', () => {
-      if (currentBookType === 'pdf' && scale < 3.0) {
-        scale += 0.15;
-        renderPdfPage(pageNum);
+      if (currentBookType === 'pdf') {
+        if (scale < 3.0) {
+          scale += 0.15;
+          renderPdfPage(pageNum);
+        }
+      } else if (currentBookType === 'epub') {
+        adjustFontSize(10);
       }
     });
 
     document.getElementById('zoomOutBtn').addEventListener('click', () => {
-      if (currentBookType === 'pdf' && scale > 0.5) {
-        scale -= 0.15;
+      if (currentBookType === 'pdf') {
+        if (scale > 0.5) {
+          scale -= 0.15;
+          renderPdfPage(pageNum);
+        }
+      } else if (currentBookType === 'epub') {
+        adjustFontSize(-10);
+      }
+    });
+
+    // READING SETTINGS HANDLERS (FONT, FONT SIZE, LINE SPACING)
+    function applyAllReadingSettings() {
+      if (currentBookType === 'epub' && epubRendition) {
+        epubRendition.themes.font(currentFontFamily);
+        epubRendition.themes.fontSize(`${currentFontSizePercent}%`);
+        epubRendition.themes.default({
+          'p': { 'line-height': `${currentLineSpacing} !important` },
+          'body': { 'line-height': `${currentLineSpacing} !important` }
+        });
+      } else if (currentBookType === 'pdf') {
+        // Adjust PDF render scale according to font size percent
+        scale = (currentFontSizePercent / 100) * 1.2;
         renderPdfPage(pageNum);
       }
+    }
+
+    // Font Family Switcher
+    document.getElementById('fontFamilySelect').addEventListener('change', (e) => {
+      currentFontFamily = e.target.value;
+      applyAllReadingSettings();
+    });
+
+    // Font Size Controls (A- / A+)
+    function adjustFontSize(delta) {
+      currentFontSizePercent = Math.max(70, Math.min(200, currentFontSizePercent + delta));
+      document.getElementById('fontSizeVal').textContent = `${currentFontSizePercent}%`;
+      updateElements.zoomText.textContent = `${currentFontSizePercent}%`;
+      applyAllReadingSettings();
+    }
+
+    document.getElementById('fontSizeMinusBtn').addEventListener('click', () => adjustFontSize(-10));
+    document.getElementById('fontSizePlusBtn').addEventListener('click', () => adjustFontSize(10));
+
+    // Line Spacing Controls
+    document.querySelectorAll('#lineSpacingGroup .segment-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('#lineSpacingGroup .segment-btn').forEach(b => b.classList.remove('active'));
+        const targetBtn = e.currentTarget;
+        targetBtn.classList.add('active');
+        currentLineSpacing = targetBtn.getAttribute('data-spacing');
+        applyAllReadingSettings();
+      });
     });
 
     // Theme Swatches
@@ -951,7 +1012,6 @@
         }
       }
 
-      // Fallback metadata if database query fails or isn't provided
       if (!bookData) {
         bookData = {
           title: "Santali eBook Reader",
@@ -962,7 +1022,6 @@
         };
       }
 
-      // Populate Sidebar & Top Bar Details
       document.getElementById('topBookTitle').textContent = bookData.title;
       document.getElementById('sidebarTitle').textContent = bookData.title;
       document.getElementById('sidebarAuthor').textContent = bookData.author || "Santali Author";
@@ -972,7 +1031,6 @@
 
       const fileUrl = bookData.pdf_url || SAMPLE_PDF_URL;
 
-      // DETECT FORMAT & ROUTE
       if ((bookData.file_type && bookData.file_type.toLowerCase() === 'epub') || fileUrl.toLowerCase().endsWith('.epub')) {
         currentBookType = 'epub';
         loadEpubBook(fileUrl);
