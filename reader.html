@@ -19,6 +19,10 @@
   <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
   
   <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
     :root {
       --brand-primary: #5c4bca;
       --brand-light: #f3f0ff;
@@ -111,10 +115,10 @@
     .top-nav-right {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 16px;
     }
     .top-nav-right i {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       cursor: pointer;
       color: #ccc;
       transition: color 0.2s;
@@ -122,17 +126,34 @@
     .top-nav-right i:hover {
       color: #fff;
     }
+    
+    /* Login Details Fix */
     .user-profile {
       display: flex;
       align-items: center;
       gap: 8px;
       cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.08);
+      transition: background 0.2s;
     }
-    .user-profile img {
+    .user-profile:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .user-avatar {
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      object-fit: cover;
+      background: var(--brand-primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      border: 1.5px solid rgba(255,255,255,0.3);
     }
 
     /* Three Column Layout */
@@ -153,15 +174,30 @@
       flex-shrink: 0;
     }
 
+    /* Book Cover Image Fix */
     .book-cover-container {
       padding: 24px;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .cover-wrapper {
+      width: 140px;
+      height: 200px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      margin-bottom: 16px;
+      overflow: hidden;
+      background: #f0f0f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .book-cover-container img {
-      width: 160px;
-      border-radius: 4px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 16px;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
     .book-cover-container h3 {
       font-size: 1.1rem;
@@ -177,6 +213,7 @@
       text-align: left;
       font-size: 0.85rem;
       font-weight: 600;
+      width: 100%;
     }
     .progress-track-left {
       width: 100%;
@@ -311,7 +348,7 @@
       align-items: center;
       width: 100%;
       max-width: 800px;
-      margin: 20px auto 20px auto;
+      margin: 20px auto;
     }
     .pagination-btn {
       background: white;
@@ -370,40 +407,42 @@
       text-align: center;
     }
 
-    /* Right Sidebar */
+    /* Right Sidebar - Margin Settings Fix */
     .right-sidebar {
-      width: 340px;
+      width: 320px;
       background-color: var(--panel-bg);
       border-left: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
       overflow-y: auto;
       flex-shrink: 0;
-      padding: 24px;
+      padding: 20px 16px;
     }
 
     .section-title {
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 700;
-      margin: 0 0 16px 0;
+      margin: 0 0 12px 0;
       color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .tools-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 32px;
+      gap: 8px;
+      margin-bottom: 24px;
     }
     .tool-btn {
       background: white;
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      padding: 16px 8px;
+      padding: 12px 4px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       cursor: pointer;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
@@ -412,12 +451,13 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     .tool-btn i {
-      font-size: 1.25rem;
+      font-size: 1.1rem;
     }
     .tool-btn span {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 500;
       color: var(--text-muted);
+      text-align: center;
     }
     
     .c-purple { color: #5c4bca; }
@@ -429,21 +469,23 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
+      gap: 8px;
     }
     .settings-label {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: var(--text-main);
       font-weight: 500;
+      white-space: nowrap;
     }
     
     .custom-select {
       border: 1px solid var(--border-color);
       border-radius: 6px;
-      padding: 6px 12px;
-      font-size: 0.9rem;
+      padding: 5px 8px;
+      font-size: 0.85rem;
       outline: none;
-      width: 140px;
+      width: 130px;
       background: white;
     }
 
@@ -452,15 +494,21 @@
       border: 1px solid var(--border-color);
       border-radius: 6px;
       overflow: hidden;
+      background: #fff;
     }
     .segment-btn {
       background: white;
       border: none;
       border-right: 1px solid var(--border-color);
-      padding: 6px 16px;
-      font-size: 0.9rem;
+      padding: 5px 10px;
+      font-size: 0.8rem;
       font-weight: 500;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      transition: background 0.2s;
     }
     .segment-btn:last-child {
       border-right: none;
@@ -468,15 +516,16 @@
     .segment-btn.active {
       background: var(--brand-light);
       color: var(--brand-primary);
+      font-weight: 600;
     }
 
     .theme-swatches {
       display: flex;
-      gap: 12px;
+      gap: 8px;
     }
     .theme-swatch {
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       border-radius: 6px;
       border: 1px solid var(--border-color);
       cursor: pointer;
@@ -490,14 +539,19 @@
 
     .btn-outline-settings {
       width: 100%;
-      padding: 10px;
+      padding: 9px;
       background: white;
       border: 1px solid var(--border-color);
       border-radius: 6px;
+      font-size: 0.85rem;
       font-weight: 600;
       color: var(--text-main);
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
+    .btn-outline-settings:hover {
+      background: #f8f9fa;
     }
 
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -527,12 +581,14 @@
     </div>
 
     <div class="top-nav-right">
-      <i class="fa-solid fa-magnifying-glass"></i>
-      <i class="fa-solid fa-gear"></i>
-      <i class="fa-solid fa-moon"></i>
-      <div class="user-profile">
-        <img src="https://ui-avatars.com/api/?name=User&background=random" alt="User Profile">
-        <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i>
+      <i class="fa-solid fa-magnifying-glass" title="Search"></i>
+      <i class="fa-solid fa-gear" title="Settings"></i>
+      <i class="fa-solid fa-moon" title="Dark Mode"></i>
+      
+      <!-- Fixed User Avatar Badge -->
+      <div class="user-profile" title="User Account">
+        <div class="user-avatar">US</div>
+        <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem; color: #aaa;"></i>
       </div>
     </div>
   </nav>
@@ -543,7 +599,10 @@
     <!-- Left Sidebar -->
     <aside class="left-sidebar">
       <div class="book-cover-container">
-        <img id="sidebarCover" src="https://via.placeholder.com/160x240?text=Digital+Library" alt="Book Cover">
+        <!-- Fixed Book Cover Placeholder Container -->
+        <div class="cover-wrapper">
+          <img id="sidebarCover" src="https://placehold.co/160x240/5c4bca/ffffff?text=Santali+eBook" alt="Book Cover" onerror="this.src='https://placehold.co/160x240/5c4bca/ffffff?text=eBook'">
+        </div>
         <h3 id="sidebarTitle">Santali Reader</h3>
         <p id="sidebarAuthor">Santali Digital Library</p>
         
@@ -665,9 +724,9 @@
 
       <div class="settings-row">
         <span class="settings-label">Scroll Mode</span>
-        <div class="segmented-control w-100">
-          <button class="segment-btn active flex-grow-1" style="width:50%;">Page</button>
-          <button class="segment-btn flex-grow-1" style="width:50%;">Scroll</button>
+        <div class="segmented-control" style="width: 130px;">
+          <button class="segment-btn active" style="flex:1;">Page</button>
+          <button class="segment-btn" style="flex:1;">Scroll</button>
         </div>
       </div>
 
@@ -693,9 +752,9 @@
     const bookId = urlParams.get('id');
 
     // Global Engine State Variables
-    let currentBookType = 'pdf'; // 'pdf' or 'epub'
+    let currentBookType = 'pdf';
     let pdfDoc = null, pageNum = 1, pageIsRendering = false, scale = 1.2;
-    let epubBook = null, epubRendition = null, epubFontSize = 100;
+    let epubBook = null, epubRendition = null;
     
     // Fallback sample PDF if book URL fails
     const SAMPLE_PDF_URL = "https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/web/compressed.tracemonkey-pldi-09.pdf";
@@ -897,7 +956,7 @@
         bookData = {
           title: "Santali eBook Reader",
           author: "Santali Digital Library",
-          cover_url: "https://via.placeholder.com/160x240?text=Santali+eBook",
+          cover_url: "https://placehold.co/160x240/5c4bca/ffffff?text=Santali+eBook",
           pdf_url: SAMPLE_PDF_URL,
           file_type: "pdf"
         };
@@ -907,7 +966,9 @@
       document.getElementById('topBookTitle').textContent = bookData.title;
       document.getElementById('sidebarTitle').textContent = bookData.title;
       document.getElementById('sidebarAuthor').textContent = bookData.author || "Santali Author";
-      if (bookData.cover_url) document.getElementById('sidebarCover').src = bookData.cover_url;
+      if (bookData.cover_url) {
+        document.getElementById('sidebarCover').src = bookData.cover_url;
+      }
 
       const fileUrl = bookData.pdf_url || SAMPLE_PDF_URL;
 
