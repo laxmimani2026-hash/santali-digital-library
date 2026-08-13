@@ -1053,14 +1053,18 @@
         renderTocInSidebar();
       });
 
+      // GENERATE ACCURATE LOCATIONS BASED ON CHARACTER COUNT (FIX PAGE NUMBERS)
       epubBook.ready.then(() => {
-        return epubBook.locations.generate(1000);
+        return epubBook.locations.generate(1024); // Breaks book into 1024-character standard page chunks
       }).then(() => {
         epubRendition.on('relocated', (location) => {
           currentCfi = location.start.cfi;
-          const percent = epubBook.locations.percentageFromCfi(currentCfi);
-          const currentLoc = Math.round(percent * 100);
-          updateUIProgress(currentLoc > 0 ? currentLoc : 1, 100);
+          
+          // Calculate dynamic page count and current page number
+          const totalPages = epubBook.locations.total || 1;
+          const currentPage = epubBook.locations.locationFromCfi(currentCfi) || 1;
+          
+          updateUIProgress(currentPage, totalPages);
           applyAllReadingSettings();
         });
       });
@@ -1257,7 +1261,11 @@
       const bm = { id: Date.now(), location: locStr, page: pageNum, label: `Bookmark at ${new Date().toLocaleTimeString()}` };
       bookmarks.push(bm);
       localStorage.setItem(`bookmarks_${bookId}`, JSON.stringify(bookmarks));
-      updateUIProgress(pageNum, pdfDoc ? pdfDoc.numPages : 100);
+      
+      const totalPages = currentBookType === 'epub' && epubBook ? (epubBook.locations.total || 1) : (pdfDoc ? pdfDoc.numPages : 100);
+      const curPage = currentBookType === 'epub' && epubBook ? (epubBook.locations.locationFromCfi(currentCfi) || 1) : pageNum;
+      updateUIProgress(curPage, totalPages);
+      
       renderBookmarksInSidebar();
     }
 
@@ -1265,7 +1273,11 @@
       e.stopPropagation();
       bookmarks = bookmarks.filter(b => b.id !== id);
       localStorage.setItem(`bookmarks_${bookId}`, JSON.stringify(bookmarks));
-      updateUIProgress(pageNum, pdfDoc ? pdfDoc.numPages : 100);
+      
+      const totalPages = currentBookType === 'epub' && epubBook ? (epubBook.locations.total || 1) : (pdfDoc ? pdfDoc.numPages : 100);
+      const curPage = currentBookType === 'epub' && epubBook ? (epubBook.locations.locationFromCfi(currentCfi) || 1) : pageNum;
+      updateUIProgress(curPage, totalPages);
+      
       renderBookmarksInSidebar();
     }
 
@@ -1353,7 +1365,11 @@
         epubRendition.annotations.add("highlight", selectedRange, {}, null, "hl-class", { fill: "yellow", "fill-opacity": "0.3" });
         highlights.push({ cfi: selectedRange, id: Date.now() });
         localStorage.setItem(`highlights_${bookId}`, JSON.stringify(highlights));
-        updateUIProgress(pageNum, pdfDoc ? pdfDoc.numPages : 100);
+        
+        const totalPages = currentBookType === 'epub' && epubBook ? (epubBook.locations.total || 1) : (pdfDoc ? pdfDoc.numPages : 100);
+        const curPage = currentBookType === 'epub' && epubBook ? (epubBook.locations.locationFromCfi(currentCfi) || 1) : pageNum;
+        updateUIProgress(curPage, totalPages);
+        
         alert('Text Highlighted!');
       } else {
         alert('Select text inside the ePub book first.');
