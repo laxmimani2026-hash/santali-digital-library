@@ -62,6 +62,7 @@
       padding: 0 24px;
       flex-shrink: 0;
       z-index: 1000;
+      position: relative;
     }
 
     .top-nav-left a {
@@ -121,6 +122,7 @@
       display: flex;
       align-items: center;
       gap: 16px;
+      position: relative;
     }
     .top-nav-right i {
       font-size: 1.1rem;
@@ -131,7 +133,42 @@
     .top-nav-right i:hover {
       color: #fff;
     }
-    
+
+    /* Brightness & Contrast Popup Menu */
+    .settings-popup {
+      position: absolute;
+      top: 50px;
+      right: 100px;
+      width: 240px;
+      background: #ffffff;
+      color: #333;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      padding: 16px;
+      z-index: 1050;
+      display: none;
+    }
+    .settings-popup.show {
+      display: block;
+    }
+    .settings-popup h6 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .slider-group {
+      margin-bottom: 12px;
+    }
+    .slider-group label {
+      font-size: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
     .user-profile {
       display: flex;
       align-items: center;
@@ -334,7 +371,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      transition: filter 0.3s ease;
+      transition: filter 0.2s ease;
     }
 
     canvas {
@@ -533,11 +570,12 @@
 
     .theme-swatches {
       display: flex;
-      gap: 8px;
+      gap: 6px;
+      flex-wrap: wrap;
     }
     .theme-swatch {
-      width: 28px;
-      height: 28px;
+      width: 24px;
+      height: 24px;
       border-radius: 6px;
       border: 1px solid var(--border-color);
       cursor: pointer;
@@ -547,7 +585,9 @@
     }
     .theme-light { background: #ffffff; }
     .theme-sepia { background: #f4ecd8; }
-    .theme-dark { background: #1a1a1a; }
+    .theme-gray  { background: #2d2f34; }
+    .theme-nord  { background: #2e3440; }
+    .theme-dark  { background: #1a1a1a; }
 
     .btn-outline-settings {
       width: 100%;
@@ -580,11 +620,25 @@
       margin-bottom: 8px;
       cursor: pointer;
       font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       transition: background 0.2s;
     }
 
     .item-card:hover {
       background: var(--brand-light);
+    }
+
+    .toc-item {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+      font-size: 0.88rem;
+    }
+    .toc-item:hover {
+      background: var(--brand-light);
+      color: var(--brand-primary);
     }
 
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -615,10 +669,23 @@
 
     <div class="top-nav-right">
       <i class="fa-solid fa-magnifying-glass" title="Search" id="topSearchBtn"></i>
-      <i class="fa-solid fa-gear" title="Settings"></i>
+      <i class="fa-solid fa-gear" title="Settings" id="topSettingsBtn"></i>
       <i class="fa-solid fa-moon" title="Dark Mode" id="topDarkModeBtn"></i>
       
-      <!-- Top Login / Profile Info View -->
+      <!-- Brightness & Contrast Popup Menu -->
+      <div class="settings-popup" id="settingsPopup">
+        <h6>Display Adjustments</h6>
+        <div class="slider-group">
+          <label>Brightness <span id="valBrightness">100%</span></label>
+          <input type="range" class="form-range" id="sliderBrightness" min="50" max="150" value="100">
+        </div>
+        <div class="slider-group">
+          <label>Contrast <span id="valContrast">100%</span></label>
+          <input type="range" class="form-range" id="sliderContrast" min="50" max="150" value="100">
+        </div>
+      </div>
+
+      <!-- User Profile Info -->
       <div class="user-profile" id="userProfileBar" title="User Account">
         <div class="user-avatar" id="userAvatar">US</div>
         <span class="user-name-display" id="userNameDisplay">Guest User</span>
@@ -652,10 +719,12 @@
         <li id="navSearchBtn"><i class="fa-solid fa-magnifying-glass"></i> Search in Book</li>
       </ul>
 
-      <!-- Panel Container for Sidebar Interactivity -->
-      <div id="sidebarDynamicPanel" class="p-3 border-top d-none">
-        <h6 id="sidebarPanelTitle" class="fw-bold mb-2">Panel</h6>
-        <div id="sidebarPanelContent" class="item-list-container"></div>
+      <!-- Dynamic Sidebar Container -->
+      <div id="sidebarDynamicPanel" class="p-3 border-top">
+        <h6 id="sidebarPanelTitle" class="fw-bold mb-2">Table of Contents</h6>
+        <div id="sidebarPanelContent" class="item-list-container">
+          <p class="text-muted small">Loading chapter list...</p>
+        </div>
       </div>
 
       <div class="continue-reading-card">
@@ -758,9 +827,11 @@
       <div class="settings-row">
         <span class="settings-label">Page Theme</span>
         <div class="theme-swatches">
-          <div class="theme-swatch theme-light active" data-theme="light"></div>
-          <div class="theme-swatch theme-sepia" data-theme="sepia"></div>
-          <div class="theme-swatch theme-dark" data-theme="dark"></div>
+          <div class="theme-swatch theme-light active" data-theme="light" title="Light"></div>
+          <div class="theme-swatch theme-sepia" data-theme="sepia" title="Sepia"></div>
+          <div class="theme-swatch theme-gray" data-theme="gray" title="Gray"></div>
+          <div class="theme-swatch theme-nord" data-theme="nord" title="Nord"></div>
+          <div class="theme-swatch theme-dark" data-theme="dark" title="Dark"></div>
         </div>
       </div>
 
@@ -820,6 +891,7 @@
     let pdfDoc = null, pageNum = 1, scale = 1.2;
     let epubBook = null, epubRendition = null;
     let currentCfi = null;
+    let tocNavigationData = [];
     
     // Feature States
     let bookmarks = JSON.parse(localStorage.getItem(`bookmarks_${bookId}`)) || [];
@@ -832,6 +904,8 @@
     let currentLineSpacing = '1.5';
     let currentScrollMode = 'page';
     let currentTheme = 'light';
+    let brightnessVal = 100;
+    let contrastVal = 100;
 
     const SAMPLE_PDF_URL = "https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/web/compressed.tracemonkey-pldi-09.pdf";
 
@@ -849,7 +923,7 @@
         zoomText: document.getElementById('zoomLevelText')
     };
 
-    // FIX 2: FETCH & DISPLAY USER LOGIN DETAILS AT TOP
+    // User Profile
     async function loadUserProfile() {
       if (!supabase) return;
       try {
@@ -858,27 +932,10 @@
           const user = session.user;
           const userEmail = user.email || "User";
           const displayName = user.user_metadata?.full_name || userEmail.split('@')[0];
-          
           document.getElementById('userNameDisplay').textContent = displayName;
-          
-          // Generate Initials Avatar
-          const initials = displayName.substring(0, 2).toUpperCase();
-          document.getElementById('userAvatar').textContent = initials;
-        } else {
-          document.getElementById('userNameDisplay').textContent = "Guest User";
-          document.getElementById('userAvatar').textContent = "GU";
+          document.getElementById('userAvatar').textContent = displayName.substring(0, 2).toUpperCase();
         }
-
-        supabase.auth.onAuthStateChange((event, session) => {
-          if (session && session.user) {
-            const displayName = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
-            document.getElementById('userNameDisplay').textContent = displayName;
-            document.getElementById('userAvatar').textContent = displayName.substring(0, 2).toUpperCase();
-          }
-        });
-      } catch (err) {
-        console.warn("Auth info fetch error:", err);
-      }
+      } catch (err) {}
     }
 
     function updateUIProgress(current, total) {
@@ -902,19 +959,20 @@
       document.getElementById('highlightBadge').textContent = highlights.length;
     }
 
-    // Dynamic Fonts Injector for ePub Context
+    // Dynamic Fonts Injector
     function getGoogleFontUrl(font) {
       return `https://fonts.googleapis.com/css2?family=${font.replace(/ /g, '+')}:wght@400;700&display=swap`;
     }
 
-    // Theme Config CSS Map Generator
+    // FEATURE 3: FIVE PAGE THEMES MAP
     function getThemeStyles(theme) {
-      if (theme === 'sepia') {
-        return { bg: '#f4ecd8', text: '#5b4636' };
-      } else if (theme === 'dark') {
-        return { bg: '#1a1a1a', text: '#eeeeee' };
+      switch(theme) {
+        case 'sepia': return { bg: '#f4ecd8', text: '#5b4636' };
+        case 'gray':  return { bg: '#2d2f34', text: '#e1e1e1' };
+        case 'nord':  return { bg: '#2e3440', text: '#d8dee9' };
+        case 'dark':  return { bg: '#1a1a1a', text: '#eeeeee' };
+        default:      return { bg: '#ffffff', text: '#333333' };
       }
-      return { bg: '#ffffff', text: '#333333' };
     }
 
     // EPUB ENGINE
@@ -933,15 +991,15 @@
       // Register Themes
       epubRendition.themes.register("light", { "body": { "background": "#ffffff", "color": "#333333" } });
       epubRendition.themes.register("sepia", { "body": { "background": "#f4ecd8", "color": "#5b4636" } });
-      epubRendition.themes.register("dark", { "body": { "background": "#1a1a1a", "color": "#eeeeee" } });
+      epubRendition.themes.register("gray",  { "body": { "background": "#2d2f34", "color": "#e1e1e1" } });
+      epubRendition.themes.register("nord",  { "body": { "background": "#2e3440", "color": "#d8dee9" } });
+      epubRendition.themes.register("dark",  { "body": { "background": "#1a1a1a", "color": "#eeeeee" } });
 
-      // FIX 3: CONSTANT THEME ACROSS PAGE CHANGES
-      // Register content hook for continuous theme application whenever a new iframe page/chapter loads
+      // FIX CONSTANT THEME & PAGINATION
       epubRendition.hooks.content.register((contents) => {
         const themeConfig = getThemeStyles(currentTheme);
         contents.addStylesheet(getGoogleFontUrl(currentFontFamily));
         
-        // Inject global constant overrides on new page load
         const styleEl = contents.document.createElement('style');
         styleEl.id = "constant-theme-override";
         styleEl.innerHTML = `
@@ -954,20 +1012,14 @@
         `;
         contents.document.head.appendChild(styleEl);
 
-        // FIX 1: LEFT / RIGHT CLICK NAVIGATION ON EPUB PAGES
+        // Click Page Navigation
         contents.document.addEventListener('click', (e) => {
-          // Check if user is highlighting text instead of tapping to turn page
           const selection = contents.window.getSelection();
           if (selection && selection.toString().length > 0) return;
 
           const pageWidth = contents.window.innerWidth;
-          const clickX = e.clientX;
-
-          if (clickX > pageWidth * 0.7) {
-            handleNextPage();
-          } else if (clickX < pageWidth * 0.3) {
-            handlePrevPage();
-          }
+          if (e.clientX > pageWidth * 0.7) handleNextPage();
+          else if (e.clientX < pageWidth * 0.3) handlePrevPage();
         });
       });
 
@@ -975,6 +1027,12 @@
         document.getElementById('loading').classList.add('d-none');
         applyAllReadingSettings();
         restoreHighlights();
+      });
+
+      // FEATURE 1: TABLE OF CONTENTS IMPLEMENTATION
+      epubBook.loaded.navigation.then((nav) => {
+        tocNavigationData = nav.toc;
+        renderTocInSidebar();
       });
 
       epubBook.ready.then(() => {
@@ -985,27 +1043,37 @@
           const percent = epubBook.locations.percentageFromCfi(currentCfi);
           const currentLoc = Math.round(percent * 100);
           updateUIProgress(currentLoc > 0 ? currentLoc : 1, 100);
-          
-          // Re-enforce theme on relocated event
           applyAllReadingSettings();
         });
       });
 
-      // Selection Listener for Highlights
-      epubRendition.on('selected', (cfiRange, contents) => {
+      epubRendition.on('selected', (cfiRange) => {
         selectedRange = cfiRange;
       });
     }
 
-    // Restores ePub Persistent Highlights
-    function restoreHighlights() {
-      if (currentBookType === 'epub' && epubRendition) {
-        highlights.forEach(h => {
-          try {
-            epubRendition.annotations.add("highlight", h.cfi, {}, null, "hl-class", { fill: "yellow", "fill-opacity": "0.3" });
-          } catch(e) {}
-        });
+    // FEATURE 1: RENDER TABLE OF CONTENTS
+    function renderTocInSidebar() {
+      const panelTitle = document.getElementById('sidebarPanelTitle');
+      const panelContent = document.getElementById('sidebarPanelContent');
+      
+      panelTitle.textContent = "Table of Contents";
+      
+      if (!tocNavigationData || tocNavigationData.length === 0) {
+        panelContent.innerHTML = "<p class='text-muted small'>No TOC available.</p>";
+        return;
       }
+
+      panelContent.innerHTML = tocNavigationData.map(item => 
+        `<div class="toc-item" data-href="${item.href}">${item.label.trim()}</div>`
+      ).join('');
+
+      panelContent.querySelectorAll('.toc-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const href = el.getAttribute('data-href');
+          if (epubRendition) epubRendition.display(href);
+        });
+      });
     }
 
     // PDF ENGINE
@@ -1020,12 +1088,8 @@
         pdfDoc = pdf;
         document.getElementById('loading').classList.add('d-none');
         renderPdfPage(pageNum);
-      }).catch(err => {
-        if (url !== SAMPLE_PDF_URL) {
-          loadPdfBook(SAMPLE_PDF_URL);
-        } else {
-          document.getElementById('loadingText').innerHTML = "<span class='text-danger'>Failed to load document.</span>";
-        }
+      }).catch(() => {
+        if (url !== SAMPLE_PDF_URL) loadPdfBook(SAMPLE_PDF_URL);
       });
     }
 
@@ -1047,20 +1111,16 @@
 
     // PAGE NAVIGATION
     function handleNextPage() {
-      if (currentBookType === 'epub' && epubRendition) {
-        epubRendition.next();
-      } else if (currentBookType === 'pdf' && pdfDoc) {
-        if (pageNum >= pdfDoc.numPages) return;
+      if (currentBookType === 'epub' && epubRendition) epubRendition.next();
+      else if (currentBookType === 'pdf' && pdfDoc && pageNum < pdfDoc.numPages) {
         pageNum++;
         renderPdfPage(pageNum);
       }
     }
 
     function handlePrevPage() {
-      if (currentBookType === 'epub' && epubRendition) {
-        epubRendition.prev();
-      } else if (currentBookType === 'pdf' && pdfDoc) {
-        if (pageNum <= 1) return;
+      if (currentBookType === 'epub' && epubRendition) epubRendition.prev();
+      else if (currentBookType === 'pdf' && pdfDoc && pageNum > 1) {
         pageNum--;
         renderPdfPage(pageNum);
       }
@@ -1069,23 +1129,16 @@
     document.getElementById('nextChapterBtn').addEventListener('click', handleNextPage);
     document.getElementById('prevChapterBtn').addEventListener('click', handlePrevPage);
 
-    // PDF Click navigation fallback
-    document.getElementById('pdf-render').addEventListener('click', (e) => {
-      const rect = e.target.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      if (clickX < rect.width / 2) handlePrevPage();
-      else handleNextPage();
-    });
-
-    // READING SETTINGS ENGINE FUNCTION
+    // APPLY READING & DISPLAY SETTINGS
     function applyAllReadingSettings() {
-      if (currentBookType === 'epub' && epubRendition) {
-        // Theme Apply
-        epubRendition.themes.select(currentTheme);
+      // Apply Brightness & Contrast Filters Globally
+      const container = document.getElementById('pdfContainer');
+      container.style.filter = `brightness(${brightnessVal}%) contrast(${contrastVal}%)`;
 
+      if (currentBookType === 'epub' && epubRendition) {
+        epubRendition.themes.select(currentTheme);
         const themeConfig = getThemeStyles(currentTheme);
 
-        // Update Dynamic Overrides inside iframe
         epubRendition.getContents().forEach(contents => {
           let styleEl = contents.document.getElementById('constant-theme-override');
           if (!styleEl) {
@@ -1104,18 +1157,48 @@
         });
 
         epubRendition.themes.fontSize(`${currentFontSizePercent}%`);
-
       } else if (currentBookType === 'pdf') {
-        const container = document.getElementById('pdfContainer');
         container.style.fontFamily = currentFontFamily;
         scale = (currentFontSizePercent / 100) * 1.2;
         renderPdfPage(pageNum);
-
-        if (currentTheme === 'light') container.style.filter = 'none';
-        else if (currentTheme === 'sepia') container.style.filter = 'sepia(0.6) contrast(0.9)';
-        else if (currentTheme === 'dark') container.style.filter = 'invert(0.92) hue-rotate(180deg)';
       }
     }
+
+    // FEATURE 4: SETTINGS BUTTON POPUP (BRIGHTNESS & CONTRAST)
+    const settingsPopup = document.getElementById('settingsPopup');
+    document.getElementById('topSettingsBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      settingsPopup.classList.toggle('show');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!settingsPopup.contains(e.target)) {
+        settingsPopup.classList.remove('show');
+      }
+    });
+
+    document.getElementById('sliderBrightness').addEventListener('input', (e) => {
+      brightnessVal = e.target.value;
+      document.getElementById('valBrightness').textContent = `${brightnessVal}%`;
+      applyAllReadingSettings();
+    });
+
+    document.getElementById('sliderContrast').addEventListener('input', (e) => {
+      contrastVal = e.target.value;
+      document.getElementById('valContrast').textContent = `${contrastVal}%`;
+      applyAllReadingSettings();
+    });
+
+    // FEATURE 5: TOP RIGHT MOON BUTTON DARK MODE TOGGLE
+    document.getElementById('topDarkModeBtn').addEventListener('click', () => {
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      document.querySelectorAll('.theme-swatch').forEach(s => {
+        s.classList.toggle('active', s.getAttribute('data-theme') === currentTheme);
+      });
+
+      applyAllReadingSettings();
+    });
 
     // FONT FAMILY CHANGE
     document.getElementById('fontFamilySelect').addEventListener('change', (e) => {
@@ -1123,7 +1206,7 @@
       applyAllReadingSettings();
     });
 
-    // FONT SIZE ADJUSTMENT
+    // FONT SIZE CONTROLS
     function adjustFontSize(delta) {
       currentFontSizePercent = Math.max(70, Math.min(200, currentFontSizePercent + delta));
       document.getElementById('fontSizeVal').textContent = `${currentFontSizePercent}%`;
@@ -1136,13 +1219,12 @@
     document.getElementById('zoomInBtn').addEventListener('click', () => adjustFontSize(10));
     document.getElementById('zoomOutBtn').addEventListener('click', () => adjustFontSize(-10));
 
-    // LINE SPACING CHANGE
+    // LINE SPACING
     document.querySelectorAll('#lineSpacingGroup .segment-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         document.querySelectorAll('#lineSpacingGroup .segment-btn').forEach(b => b.classList.remove('active'));
-        const targetBtn = e.currentTarget;
-        targetBtn.classList.add('active');
-        currentLineSpacing = targetBtn.getAttribute('data-spacing');
+        e.currentTarget.classList.add('active');
+        currentLineSpacing = e.currentTarget.getAttribute('data-spacing');
         applyAllReadingSettings();
       });
     });
@@ -1157,21 +1239,103 @@
       });
     });
 
-    // SCROLL MODE CHANGE
-    document.querySelectorAll('#scrollModeGroup .segment-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        document.querySelectorAll('#scrollModeGroup .segment-btn').forEach(b => b.classList.remove('active'));
-        const targetBtn = e.currentTarget;
-        targetBtn.classList.add('active');
-        currentScrollMode = targetBtn.getAttribute('data-mode');
+    // FEATURE 2: BOOKMARK IMPLEMENTATION
+    function addBookmark() {
+      const locStr = currentBookType === 'epub' ? currentCfi : `Page ${pageNum}`;
+      const bm = { id: Date.now(), location: locStr, page: pageNum, label: `Bookmark at ${new Date().toLocaleTimeString()}` };
+      bookmarks.push(bm);
+      localStorage.setItem(`bookmarks_${bookId}`, JSON.stringify(bookmarks));
+      updateUIProgress(pageNum, pdfDoc ? pdfDoc.numPages : 100);
+      renderBookmarksInSidebar();
+    }
 
-        if (currentBookType === 'epub' && epubRendition) {
-          epubRendition.flow(currentScrollMode === 'scroll' ? 'scrolled-doc' : 'paginated');
-        }
+    function removeBookmark(id, e) {
+      e.stopPropagation();
+      bookmarks = bookmarks.filter(b => b.id !== id);
+      localStorage.setItem(`bookmarks_${bookId}`, JSON.stringify(bookmarks));
+      updateUIProgress(pageNum, pdfDoc ? pdfDoc.numPages : 100);
+      renderBookmarksInSidebar();
+    }
+
+    function renderBookmarksInSidebar() {
+      const panelTitle = document.getElementById('sidebarPanelTitle');
+      const panelContent = document.getElementById('sidebarPanelContent');
+      
+      panelTitle.textContent = "Saved Bookmarks";
+      
+      if (bookmarks.length === 0) {
+        panelContent.innerHTML = "<p class='text-muted small'>No bookmarks added.</p>";
+        return;
+      }
+
+      panelContent.innerHTML = bookmarks.map(b => 
+        `<div class="item-card" data-cfi="${b.location}">
+          <span><i class="fa-solid fa-bookmark me-2 text-primary"></i>${b.label}</span>
+          <i class="fa-solid fa-trash text-danger delete-bm" data-id="${b.id}"></i>
+        </div>`
+      ).join('');
+
+      panelContent.querySelectorAll('.item-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const loc = card.getAttribute('data-cfi');
+          if (currentBookType === 'epub') epubRendition.display(loc);
+        });
       });
+
+      panelContent.querySelectorAll('.delete-bm').forEach(delBtn => {
+        delBtn.addEventListener('click', (e) => {
+          removeBookmark(Number(delBtn.getAttribute('data-id')), e);
+        });
+      });
+    }
+
+    document.getElementById('addBookmarkBtn').addEventListener('click', addBookmark);
+    document.getElementById('toolBookmarkBtn').addEventListener('click', addBookmark);
+
+    // SIDEBAR MENU NAVIGATION
+    document.getElementById('navTocBtn').addEventListener('click', () => {
+      setActiveNavMenu('navTocBtn');
+      renderTocInSidebar();
     });
 
-    // FEATURE 3: HIGHLIGHT IMPLEMENTATION
+    document.getElementById('navBookmarksBtn').addEventListener('click', () => {
+      setActiveNavMenu('navBookmarksBtn');
+      renderBookmarksInSidebar();
+    });
+
+    document.getElementById('navHighlightsBtn').addEventListener('click', () => {
+      setActiveNavMenu('navHighlightsBtn');
+      renderHighlightsInSidebar();
+    });
+
+    function setActiveNavMenu(id) {
+      document.querySelectorAll('.nav-menu li').forEach(li => li.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function renderHighlightsInSidebar() {
+      const panelTitle = document.getElementById('sidebarPanelTitle');
+      const panelContent = document.getElementById('sidebarPanelContent');
+      
+      panelTitle.textContent = "Highlights";
+      
+      if (highlights.length === 0) {
+        panelContent.innerHTML = "<p class='text-muted small'>No highlights added.</p>";
+        return;
+      }
+
+      panelContent.innerHTML = highlights.map((h, i) => 
+        `<div class="item-card" data-cfi="${h.cfi}">Highlight #${i+1}</div>`
+      ).join('');
+
+      panelContent.querySelectorAll('.item-card').forEach(card => {
+        card.addEventListener('click', () => {
+          if (currentBookType === 'epub') epubRendition.display(card.getAttribute('data-cfi'));
+        });
+      });
+    }
+
+    // HIGHLIGHT IMPLEMENTATION
     function createHighlight() {
       if (currentBookType === 'epub' && selectedRange) {
         epubRendition.annotations.add("highlight", selectedRange, {}, null, "hl-class", { fill: "yellow", "fill-opacity": "0.3" });
@@ -1180,57 +1344,23 @@
         updateUIProgress(pageNum, pdfDoc ? pdfDoc.numPages : 100);
         alert('Text Highlighted!');
       } else {
-        alert('Please select text inside the ePub book first.');
+        alert('Select text inside the ePub book first.');
       }
     }
     document.getElementById('triggerHighlightBtn').addEventListener('click', createHighlight);
     document.getElementById('toolHighlightBtn').addEventListener('click', createHighlight);
 
-    // FEATURE 5: BOOKMARK IMPLEMENTATION
-    function addBookmark() {
-      const locStr = currentBookType === 'epub' ? currentCfi : `Page ${pageNum}`;
-      const bm = { id: Date.now(), location: locStr, page: pageNum, label: `Bookmark at ${new Date().toLocaleTimeString()}` };
-      bookmarks.push(bm);
-      localStorage.setItem(`bookmarks_${bookId}`, JSON.stringify(bookmarks));
-      updateUIProgress(pageNum, pdfDoc ? pdfDoc.numPages : 100);
-      alert(`Bookmark saved: ${bm.label}`);
+    function restoreHighlights() {
+      if (currentBookType === 'epub' && epubRendition) {
+        highlights.forEach(h => {
+          try {
+            epubRendition.annotations.add("highlight", h.cfi, {}, null, "hl-class", { fill: "yellow", "fill-opacity": "0.3" });
+          } catch(e) {}
+        });
+      }
     }
-    document.getElementById('addBookmarkBtn').addEventListener('click', addBookmark);
-    document.getElementById('toolBookmarkBtn').addEventListener('click', addBookmark);
 
-    // LEFT SIDEBAR INTERACTIVE PANELS
-    const sidebarPanel = document.getElementById('sidebarDynamicPanel');
-    const panelTitle = document.getElementById('sidebarPanelTitle');
-    const panelContent = document.getElementById('sidebarPanelContent');
-
-    document.getElementById('navBookmarksBtn').addEventListener('click', () => {
-      sidebarPanel.classList.remove('d-none');
-      panelTitle.textContent = "Saved Bookmarks";
-      panelContent.innerHTML = bookmarks.length === 0 ? "<p class='text-muted small'>No bookmarks added.</p>" :
-        bookmarks.map(b => `<div class="item-card" data-cfi="${b.location}">${b.label}</div>`).join('');
-
-      panelContent.querySelectorAll('.item-card').forEach(card => {
-        card.addEventListener('click', () => {
-          const loc = card.getAttribute('data-cfi');
-          if (currentBookType === 'epub') epubRendition.display(loc);
-        });
-      });
-    });
-
-    document.getElementById('navHighlightsBtn').addEventListener('click', () => {
-      sidebarPanel.classList.remove('d-none');
-      panelTitle.textContent = "Highlights";
-      panelContent.innerHTML = highlights.length === 0 ? "<p class='text-muted small'>No highlights added.</p>" :
-        highlights.map((h, i) => `<div class="item-card" data-cfi="${h.cfi}">Highlight #${i+1}</div>`).join('');
-
-      panelContent.querySelectorAll('.item-card').forEach(card => {
-        card.addEventListener('click', () => {
-          if (currentBookType === 'epub') epubRendition.display(card.getAttribute('data-cfi'));
-        });
-      });
-    });
-
-    // FEATURE 4: SEARCH IN BOOK IMPLEMENTATION
+    // SEARCH IN BOOK
     const searchModal = new bootstrap.Modal(document.getElementById('searchModal'));
     function openSearchModal() { searchModal.show(); }
 
