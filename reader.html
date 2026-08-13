@@ -9,7 +9,7 @@
   <!-- Google Fonts for Reading Settings -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Georgia&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,700;1,400&family=Georgia&family=Inconsolata:wght@400;700&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Nunito:ital,wght@0,400;0,700;1,400&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=PT+Sans:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Roboto:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
 
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -557,6 +557,27 @@
       background: #f8f9fa;
     }
 
+    /* List Item Styles for Side Panels */
+    .item-list-container {
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .item-card {
+      background: #f8f9fa;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+
+    .item-card:hover {
+      background: var(--brand-light);
+    }
+
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background-color: #ddd; border-radius: 3px; }
@@ -584,9 +605,9 @@
     </div>
 
     <div class="top-nav-right">
-      <i class="fa-solid fa-magnifying-glass" title="Search"></i>
+      <i class="fa-solid fa-magnifying-glass" title="Search" id="topSearchBtn"></i>
       <i class="fa-solid fa-gear" title="Settings"></i>
-      <i class="fa-solid fa-moon" title="Dark Mode"></i>
+      <i class="fa-solid fa-moon" title="Dark Mode" id="topDarkModeBtn"></i>
       
       <div class="user-profile" title="User Account">
         <div class="user-avatar">US</div>
@@ -614,13 +635,17 @@
       </div>
 
       <ul class="nav-menu">
-        <li class="active"><i class="fa-solid fa-list-ul"></i> Table of Contents</li>
-        <li><i class="fa-regular fa-bookmark"></i> Bookmarks <span class="nav-badge badge-purple">0</span></li>
-        <li><i class="fa-solid fa-pen-nib"></i> Highlights <span class="nav-badge badge-yellow">0</span></li>
-        <li><i class="fa-regular fa-note-sticky"></i> Notes <span class="nav-badge badge-green">0</span></li>
-        <li><i class="fa-solid fa-magnifying-glass"></i> Search in Book</li>
-        <li><i class="fa-solid fa-circle-info"></i> Book Information</li>
+        <li class="active" id="navTocBtn"><i class="fa-solid fa-list-ul"></i> Table of Contents</li>
+        <li id="navBookmarksBtn"><i class="fa-regular fa-bookmark"></i> Bookmarks <span class="nav-badge badge-purple" id="bookmarkBadge">0</span></li>
+        <li id="navHighlightsBtn"><i class="fa-solid fa-pen-nib"></i> Highlights <span class="nav-badge badge-yellow" id="highlightBadge">0</span></li>
+        <li id="navSearchBtn"><i class="fa-solid fa-magnifying-glass"></i> Search in Book</li>
       </ul>
+
+      <!-- Panel Container for Sidebar Interactivity -->
+      <div id="sidebarDynamicPanel" class="p-3 border-top d-none">
+        <h6 id="sidebarPanelTitle" class="fw-bold mb-2">Panel</h6>
+        <div id="sidebarPanelContent" class="item-list-container"></div>
+      </div>
 
       <div class="continue-reading-card">
         <h4>Continue Reading</h4>
@@ -656,8 +681,8 @@
 
       <!-- Floating Toolbar -->
       <div class="floating-toolbar" id="floatingToolbar">
-        <button class="toolbar-icon"><i class="fa-solid fa-bars"></i></button>
-        <button class="toolbar-icon"><span style="font-weight:700; font-family:serif;">Aa</span></button>
+        <button class="toolbar-icon" id="addBookmarkBtn" title="Add Bookmark"><i class="fa-regular fa-bookmark"></i></button>
+        <button class="toolbar-icon" id="triggerHighlightBtn" title="Highlight Selected Text"><i class="fa-solid fa-highlighter"></i></button>
         
         <div class="zoom-controls">
           <button class="toolbar-icon" id="zoomOutBtn"><i class="fa-solid fa-minus"></i></button>
@@ -674,15 +699,9 @@
       
       <h2 class="section-title">Reading Tools</h2>
       <div class="tools-grid">
-        <div class="tool-btn"><i class="fa-solid fa-bookmark c-purple"></i><span>Bookmark</span></div>
-        <div class="tool-btn"><i class="fa-solid fa-highlighter c-yellow"></i><span>Highlight</span></div>
-        <div class="tool-btn"><i class="fa-solid fa-note-sticky c-green"></i><span>Note</span></div>
-        <div class="tool-btn"><i class="fa-solid fa-magnifying-glass c-dark"></i><span>Search</span></div>
-        <div class="tool-btn"><i class="fa-solid fa-book c-dark"></i><span>Dictionary</span></div>
-        <div class="tool-btn"><i class="fa-solid fa-language c-purple"></i><span>Translate</span></div>
-        <div class="tool-btn"><i class="fa-solid fa-volume-high c-purple"></i><span>Read Aloud</span></div>
-        <div class="tool-btn"><i class="fa-solid fa-share-nodes c-dark"></i><span>Share</span></div>
-        <div class="tool-btn"><i class="fa-solid fa-ellipsis c-dark"></i><span>More</span></div>
+        <div class="tool-btn" id="toolBookmarkBtn"><i class="fa-solid fa-bookmark c-purple"></i><span>Bookmark</span></div>
+        <div class="tool-btn" id="toolHighlightBtn"><i class="fa-solid fa-highlighter c-yellow"></i><span>Highlight</span></div>
+        <div class="tool-btn" id="toolSearchBtn"><i class="fa-solid fa-magnifying-glass c-dark"></i><span>Search</span></div>
       </div>
 
       <h2 class="section-title">Reading Settings</h2>
@@ -692,10 +711,15 @@
         <span class="settings-label">Font</span>
         <select class="custom-select" id="fontFamilySelect">
           <option value="Lora" selected>Lora</option>
-          <option value="Open Sans">Open Sans</option>
-          <option value="Merriweather">Merriweather</option>
-          <option value="Roboto">Roboto</option>
           <option value="Georgia">Georgia</option>
+          <option value="Merriweather">Merriweather</option>
+          <option value="Open Sans">Open Sans</option>
+          <option value="Roboto">Roboto</option>
+          <option value="Nunito">Nunito</option>
+          <option value="Playfair Display">Playfair Display</option>
+          <option value="PT Sans">PT Sans</option>
+          <option value="Bitter">Bitter</option>
+          <option value="Inconsolata">Inconsolata</option>
         </select>
       </div>
 
@@ -743,6 +767,27 @@
     </aside>
   </div>
 
+  <!-- Search Modal -->
+  <div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fa-solid fa-magnifying-glass me-2"></i>Search Book</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="input-group mb-3">
+            <input type="text" id="searchInputModal" class="form-control" placeholder="Type word or phrase...">
+            <button class="btn btn-primary" id="btnExecuteSearch">Search</button>
+          </div>
+          <div id="searchResultsList" class="item-list-container" style="max-height: 300px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -757,18 +802,25 @@
     }
 
     const urlParams = new URLSearchParams(window.location.search);
-    const bookId = urlParams.get('id');
+    const bookId = urlParams.get('id') || 'default-book';
 
     // Engine States
     let currentBookType = 'pdf';
-    let pdfDoc = null, pageNum = 1, pageIsRendering = false, scale = 1.2;
+    let pdfDoc = null, pageNum = 1, scale = 1.2;
     let epubBook = null, epubRendition = null;
+    let currentCfi = null;
     
+    // Feature States
+    let bookmarks = JSON.parse(localStorage.getItem(`bookmarks_${bookId}`)) || [];
+    let highlights = JSON.parse(localStorage.getItem(`highlights_${bookId}`)) || [];
+    let selectedRange = null;
+
     // Setting Values
     let currentFontSizePercent = 100;
     let currentFontFamily = 'Lora';
     let currentLineSpacing = '1.5';
     let currentScrollMode = 'page';
+    let currentTheme = 'light';
 
     const SAMPLE_PDF_URL = "https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/web/compressed.tracemonkey-pldi-09.pdf";
 
@@ -802,6 +854,14 @@
       updateElements.sideProgText.textContent = percentStr;
       updateElements.topProgFill.style.width = widthStr;
       updateElements.sideProgFill.style.width = widthStr;
+
+      document.getElementById('bookmarkBadge').textContent = bookmarks.length;
+      document.getElementById('highlightBadge').textContent = highlights.length;
+    }
+
+    // Dynamic Fonts Injector for ePub Context
+    function getGoogleFontUrl(font) {
+      return `https://fonts.googleapis.com/css2?family=${font.replace(/ /g, '+')}:wght@400;700&display=swap`;
     }
 
     // EPUB ENGINE
@@ -817,20 +877,43 @@
         flow: currentScrollMode === 'scroll' ? 'scrolled-doc' : 'paginated'
       });
 
+      // Register Themes correctly
+      epubRendition.themes.register("light", { "body": { "background": "#ffffff", "color": "#333333" } });
+      epubRendition.themes.register("sepia", { "body": { "background": "#f4ecd8", "color": "#5b4636" } });
+      epubRendition.themes.register("dark", { "body": { "background": "#1a1a1a", "color": "#eeeeee" } });
+
       epubRendition.display().then(() => {
         document.getElementById('loading').classList.add('d-none');
         applyAllReadingSettings();
+        restoreHighlights();
       });
 
       epubBook.ready.then(() => {
         return epubBook.locations.generate(1000);
       }).then(() => {
         epubRendition.on('relocated', (location) => {
-          const percent = epubBook.locations.percentageFromCfi(location.start.cfi);
+          currentCfi = location.start.cfi;
+          const percent = epubBook.locations.percentageFromCfi(currentCfi);
           const currentLoc = Math.round(percent * 100);
           updateUIProgress(currentLoc > 0 ? currentLoc : 1, 100);
         });
       });
+
+      // Selection Listener for Highlights
+      epubRendition.on('selected', (cfiRange, contents) => {
+        selectedRange = cfiRange;
+      });
+    }
+
+    // Restores ePub Persistent Highlights
+    function restoreHighlights() {
+      if (currentBookType === 'epub' && epubRendition) {
+        highlights.forEach(h => {
+          try {
+            epubRendition.annotations.add("highlight", h.cfi, {}, null, "hl-class", { fill: "yellow", "fill-opacity": "0.3" });
+          } catch(e) {}
+        });
+      }
     }
 
     // PDF ENGINE
@@ -846,7 +929,6 @@
         document.getElementById('loading').classList.add('d-none');
         renderPdfPage(pageNum);
       }).catch(err => {
-        console.warn("PDF Load Error:", err);
         if (url !== SAMPLE_PDF_URL) {
           loadPdfBook(SAMPLE_PDF_URL);
         } else {
@@ -856,7 +938,6 @@
     }
 
     function renderPdfPage(num) {
-      pageIsRendering = true;
       pdfDoc.getPage(num).then((page) => {
         const canvas = document.getElementById('pdf-render');
         const ctx = canvas.getContext('2d');
@@ -866,7 +947,6 @@
         canvas.width = viewport.width;
 
         page.render({ canvasContext: ctx, viewport: viewport }).promise.then(() => {
-          pageIsRendering = false;
           updateUIProgress(num, pdfDoc.numPages);
           updateElements.zoomText.textContent = `${Math.round(scale * 100)}%`;
         });
@@ -897,41 +977,48 @@
     document.getElementById('nextChapterBtn').addEventListener('click', handleNextPage);
     document.getElementById('prevChapterBtn').addEventListener('click', handlePrevPage);
 
-    document.getElementById('pdf-render').addEventListener('click', (e) => {
-      const rect = e.target.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      if (clickX < rect.width / 2) handlePrevPage();
-      else handleNextPage();
-    });
-
-    // ZOOM CONTROLS
-    document.getElementById('zoomInBtn').addEventListener('click', () => adjustFontSize(10));
-    document.getElementById('zoomOutBtn').addEventListener('click', () => adjustFontSize(-10));
-
     // READING SETTINGS ENGINE FUNCTION
     function applyAllReadingSettings() {
       if (currentBookType === 'epub' && epubRendition) {
-        epubRendition.themes.font(currentFontFamily);
-        epubRendition.themes.fontSize(`${currentFontSizePercent}%`);
+        // Theme Apply Fix
+        epubRendition.themes.select(currentTheme);
+
+        // Dynamic Injection Fix for Google Fonts & Custom CSS Rules inside ePub Iframe
+        const fontUrl = getGoogleFontUrl(currentFontFamily);
+        
+        epubRendition.hooks.content.register((contents) => {
+          contents.addStylesheet(fontUrl);
+        });
+
         epubRendition.themes.default({
-          'p': { 
-            'line-height': `${currentLineSpacing} !important`,
-            'font-family': `${currentFontFamily}, serif !important`
-          },
           'body': { 
-            'line-height': `${currentLineSpacing} !important`,
-            'font-family': `${currentFontFamily}, serif !important`
+            'font-family': `'${currentFontFamily}', serif, sans-serif !important`,
+            'line-height': `${currentLineSpacing} !important`
+          },
+          'p': { 
+            'font-family': `'${currentFontFamily}', serif, sans-serif !important`,
+            'line-height': `${currentLineSpacing} !important`
+          },
+          'div': {
+            'font-family': `'${currentFontFamily}', serif, sans-serif !important`
           }
         });
+
+        epubRendition.themes.fontSize(`${currentFontSizePercent}%`);
+
       } else if (currentBookType === 'pdf') {
         const container = document.getElementById('pdfContainer');
         container.style.fontFamily = currentFontFamily;
         scale = (currentFontSizePercent / 100) * 1.2;
         renderPdfPage(pageNum);
+
+        if (currentTheme === 'light') container.style.filter = 'none';
+        else if (currentTheme === 'sepia') container.style.filter = 'sepia(0.6) contrast(0.9)';
+        else if (currentTheme === 'dark') container.style.filter = 'invert(0.92) hue-rotate(180deg)';
       }
     }
 
-    // FONT FAMILY CHANGE
+    // FONT FAMILY CHANGE FIX
     document.getElementById('fontFamilySelect').addEventListener('change', (e) => {
       currentFontFamily = e.target.value;
       applyAllReadingSettings();
@@ -947,6 +1034,8 @@
 
     document.getElementById('fontSizeMinusBtn').addEventListener('click', () => adjustFontSize(-10));
     document.getElementById('fontSizePlusBtn').addEventListener('click', () => adjustFontSize(10));
+    document.getElementById('zoomInBtn').addEventListener('click', () => adjustFontSize(10));
+    document.getElementById('zoomOutBtn').addEventListener('click', () => adjustFontSize(-10));
 
     // LINE SPACING CHANGE
     document.querySelectorAll('#lineSpacingGroup .segment-btn').forEach(btn => {
@@ -955,6 +1044,16 @@
         const targetBtn = e.currentTarget;
         targetBtn.classList.add('active');
         currentLineSpacing = targetBtn.getAttribute('data-spacing');
+        applyAllReadingSettings();
+      });
+    });
+
+    // PAGE THEME CHANGE FIX
+    document.querySelectorAll('.theme-swatch').forEach(swatch => {
+      swatch.addEventListener('click', (e) => {
+        document.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        currentTheme = e.currentTarget.getAttribute('data-theme');
         applyAllReadingSettings();
       });
     });
@@ -968,38 +1067,113 @@
         currentScrollMode = targetBtn.getAttribute('data-mode');
 
         if (currentBookType === 'epub' && epubRendition) {
-          if (currentScrollMode === 'scroll') {
-            epubRendition.flow('scrolled-doc');
-          } else {
-            epubRendition.flow('paginated');
-          }
+          epubRendition.flow(currentScrollMode === 'scroll' ? 'scrolled-doc' : 'paginated');
         }
       });
     });
 
-    // PAGE THEME CHANGE
-    document.querySelectorAll('.theme-swatch').forEach(swatch => {
-      swatch.addEventListener('click', (e) => {
-        document.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('active'));
-        e.target.classList.add('active');
-        const theme = e.target.getAttribute('data-theme');
-        
-        if (currentBookType === 'epub' && epubRendition) {
-          if (theme === 'light') epubRendition.themes.select('default');
-          else if (theme === 'sepia') {
-            epubRendition.themes.register('sepia', { body: { background: '#f4ecd8', color: '#5b4636' } });
-            epubRendition.themes.select('sepia');
-          } else if (theme === 'dark') {
-            epubRendition.themes.register('dark', { body: { background: '#1a1a1a', color: '#eeeeee' } });
-            epubRendition.themes.select('dark');
-          }
-        } else {
-          const container = document.getElementById('pdfContainer');
-          if (theme === 'light') container.style.filter = 'none';
-          else if (theme === 'sepia') container.style.filter = 'sepia(0.6) contrast(0.9)';
-          else if (theme === 'dark') container.style.filter = 'invert(0.92) hue-rotate(180deg)';
-        }
+    // FEATURE 3: HIGHLIGHT IMPLEMENTATION
+    function createHighlight() {
+      if (currentBookType === 'epub' && selectedRange) {
+        epubRendition.annotations.add("highlight", selectedRange, {}, null, "hl-class", { fill: "yellow", "fill-opacity": "0.3" });
+        highlights.push({ cfi: selectedRange, id: Date.now() });
+        localStorage.setItem(`highlights_${bookId}`, JSON.stringify(highlights));
+        updateUIProgress(pageNum, pdfDoc ? pdfDoc.numPages : 100);
+        alert('Text Highlighted!');
+      } else {
+        alert('Please select text inside the ePub book first.');
+      }
+    }
+    document.getElementById('triggerHighlightBtn').addEventListener('click', createHighlight);
+    document.getElementById('toolHighlightBtn').addEventListener('click', createHighlight);
+
+    // FEATURE 5: BOOKMARK IMPLEMENTATION
+    function addBookmark() {
+      const locStr = currentBookType === 'epub' ? currentCfi : `Page ${pageNum}`;
+      const bm = { id: Date.now(), location: locStr, page: pageNum, label: `Bookmark at ${new Date().toLocaleTimeString()}` };
+      bookmarks.push(bm);
+      localStorage.setItem(`bookmarks_${bookId}`, JSON.stringify(bookmarks));
+      updateUIProgress(pageNum, pdfDoc ? pdfDoc.numPages : 100);
+      alert(`Bookmark saved: ${bm.label}`);
+    }
+    document.getElementById('addBookmarkBtn').addEventListener('click', addBookmark);
+    document.getElementById('toolBookmarkBtn').addEventListener('click', addBookmark);
+
+    // LEFT SIDEBAR INTERACTIVE PANELS
+    const sidebarPanel = document.getElementById('sidebarDynamicPanel');
+    const panelTitle = document.getElementById('sidebarPanelTitle');
+    const panelContent = document.getElementById('sidebarPanelContent');
+
+    document.getElementById('navBookmarksBtn').addEventListener('click', () => {
+      sidebarPanel.classList.remove('d-none');
+      panelTitle.textContent = "Saved Bookmarks";
+      panelContent.innerHTML = bookmarks.length === 0 ? "<p class='text-muted small'>No bookmarks added.</p>" :
+        bookmarks.map(b => `<div class="item-card" data-cfi="${b.location}">${b.label}</div>`).join('');
+
+      panelContent.querySelectorAll('.item-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const loc = card.getAttribute('data-cfi');
+          if (currentBookType === 'epub') epubRendition.display(loc);
+        });
       });
+    });
+
+    document.getElementById('navHighlightsBtn').addEventListener('click', () => {
+      sidebarPanel.classList.remove('d-none');
+      panelTitle.textContent = "Highlights";
+      panelContent.innerHTML = highlights.length === 0 ? "<p class='text-muted small'>No highlights added.</p>" :
+        highlights.map((h, i) => `<div class="item-card" data-cfi="${h.cfi}">Highlight #${i+1}</div>`).join('');
+
+      panelContent.querySelectorAll('.item-card').forEach(card => {
+        card.addEventListener('click', () => {
+          if (currentBookType === 'epub') epubRendition.display(card.getAttribute('data-cfi'));
+        });
+      });
+    });
+
+    // FEATURE 4: SEARCH IN BOOK IMPLEMENTATION
+    const searchModal = new bootstrap.Modal(document.getElementById('searchModal'));
+    function openSearchModal() { searchModal.show(); }
+
+    document.getElementById('topSearchBtn').addEventListener('click', openSearchModal);
+    document.getElementById('toolSearchBtn').addEventListener('click', openSearchModal);
+    document.getElementById('navSearchBtn').addEventListener('click', openSearchModal);
+
+    document.getElementById('btnExecuteSearch').addEventListener('click', async () => {
+      const q = document.getElementById('searchInputModal').value.trim();
+      const resultsContainer = document.getElementById('searchResultsList');
+      if (!q) return;
+
+      resultsContainer.innerHTML = "<p class='text-muted small'>Searching...</p>";
+
+      if (currentBookType === 'epub' && epubBook) {
+        const results = await Promise.all(
+          epubBook.spine.spineItems.map(item =>
+            item.load(epubBook.load.bind(epubBook))
+              .then(item.find.bind(item, q))
+              .finally(item.unload.bind(item))
+          )
+        );
+        const mergedResults = [].concat.apply([], results);
+
+        if (mergedResults.length === 0) {
+          resultsContainer.innerHTML = "<p class='text-muted small'>No matches found.</p>";
+          return;
+        }
+
+        resultsContainer.innerHTML = mergedResults.map(res => 
+          `<div class="item-card" data-cfi="${res.cfi}">...${res.excerpt}...</div>`
+        ).join('');
+
+        resultsContainer.querySelectorAll('.item-card').forEach(card => {
+          card.addEventListener('click', () => {
+            epubRendition.display(card.getAttribute('data-cfi'));
+            searchModal.hide();
+          });
+        });
+      } else {
+        resultsContainer.innerHTML = "<p class='text-muted small'>Full-text search available for ePub files.</p>";
+      }
     });
 
     // INIT PAGE
@@ -1014,12 +1188,8 @@
             .eq('id', bookId)
             .single();
 
-          if (!error && data) {
-            bookData = data;
-          }
-        } catch (err) {
-          console.warn("Supabase fetch caught safely:", err);
-        }
+          if (!error && data) bookData = data;
+        } catch (err) {}
       }
 
       if (!bookData) {
@@ -1035,9 +1205,7 @@
       document.getElementById('topBookTitle').textContent = bookData.title;
       document.getElementById('sidebarTitle').textContent = bookData.title;
       document.getElementById('sidebarAuthor').textContent = bookData.author || "Santali Author";
-      if (bookData.cover_url) {
-        document.getElementById('sidebarCover').src = bookData.cover_url;
-      }
+      if (bookData.cover_url) document.getElementById('sidebarCover').src = bookData.cover_url;
 
       const fileUrl = bookData.pdf_url || SAMPLE_PDF_URL;
 
