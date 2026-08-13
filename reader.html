@@ -137,7 +137,7 @@
       align-items: center;
       gap: 8px;
       cursor: pointer;
-      padding: 4px 8px;
+      padding: 4px 12px;
       border-radius: 20px;
       background: rgba(255, 255, 255, 0.08);
       transition: background 0.2s;
@@ -158,6 +158,15 @@
       font-size: 0.85rem;
       letter-spacing: 0.5px;
       border: 1.5px solid rgba(255,255,255,0.3);
+    }
+    .user-name-display {
+      font-size: 0.85rem;
+      color: #fff;
+      font-weight: 500;
+      max-width: 120px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     /* Three Column Layout */
@@ -609,8 +618,10 @@
       <i class="fa-solid fa-gear" title="Settings"></i>
       <i class="fa-solid fa-moon" title="Dark Mode" id="topDarkModeBtn"></i>
       
-      <div class="user-profile" title="User Account">
-        <div class="user-avatar">US</div>
+      <!-- Top Login / Profile Info View -->
+      <div class="user-profile" id="userProfileBar" title="User Account">
+        <div class="user-avatar" id="userAvatar">US</div>
+        <span class="user-name-display" id="userNameDisplay">Guest User</span>
         <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem; color: #aaa;"></i>
       </div>
     </div>
@@ -838,6 +849,38 @@
         zoomText: document.getElementById('zoomLevelText')
     };
 
+    // FIX 2: FETCH & DISPLAY USER LOGIN DETAILS AT TOP
+    async function loadUserProfile() {
+      if (!supabase) return;
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session && session.user) {
+          const user = session.user;
+          const userEmail = user.email || "User";
+          const displayName = user.user_metadata?.full_name || userEmail.split('@')[0];
+          
+          document.getElementById('userNameDisplay').textContent = displayName;
+          
+          // Generate Initials Avatar
+          const initials = displayName.substring(0, 2).toUpperCase();
+          document.getElementById('userAvatar').textContent = initials;
+        } else {
+          document.getElementById('userNameDisplay').textContent = "Guest User";
+          document.getElementById('userAvatar').textContent = "GU";
+        }
+
+        supabase.auth.onAuthStateChange((event, session) => {
+          if (session && session.user) {
+            const displayName = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
+            document.getElementById('userNameDisplay').textContent = displayName;
+            document.getElementById('userAvatar').textContent = displayName.substring(0, 2).toUpperCase();
+          }
+        });
+      } catch (err) {
+        console.warn("Auth info fetch error:", err);
+      }
+    }
+
     function updateUIProgress(current, total) {
       const percent = total > 0 ? Math.round((current / total) * 100) : 0;
       const percentStr = `${percent}% Completed`;
@@ -864,6 +907,16 @@
       return `https://fonts.googleapis.com/css2?family=${font.replace(/ /g, '+')}:wght@400;700&display=swap`;
     }
 
+    // Theme Config CSS Map Generator
+    function getThemeStyles(theme) {
+      if (theme === 'sepia') {
+        return { bg: '#f4ecd8', text: '#5b4636' };
+      } else if (theme === 'dark') {
+        return { bg: '#1a1a1a', text: '#eeeeee' };
+      }
+      return { bg: '#ffffff', text: '#333333' };
+    }
+
     // EPUB ENGINE
     function loadEpubBook(url) {
       document.getElementById('pdf-render').classList.add('d-none');
@@ -877,10 +930,46 @@
         flow: currentScrollMode === 'scroll' ? 'scrolled-doc' : 'paginated'
       });
 
-      // Register Themes correctly
+      // Register Themes
       epubRendition.themes.register("light", { "body": { "background": "#ffffff", "color": "#333333" } });
       epubRendition.themes.register("sepia", { "body": { "background": "#f4ecd8", "color": "#5b4636" } });
       epubRendition.themes.register("dark", { "body": { "background": "#1a1a1a", "color": "#eeeeee" } });
+
+      // FIX 3: CONSTANT THEME ACROSS PAGE CHANGES
+      // Register content hook for continuous theme application whenever a new iframe page/chapter loads
+      epubRendition.hooks.content.register((contents) => {
+        const themeConfig = getThemeStyles(currentTheme);
+        contents.addStylesheet(getGoogleFontUrl(currentFontFamily));
+        
+        // Inject global constant overrides on new page load
+        const styleEl = contents.document.createElement('style');
+        styleEl.id = "constant-theme-override";
+        styleEl.innerHTML = `
+          html, body, p, div, span, h1, h2, h3, h4, h5, h6 {
+            background-color: ${themeConfig.bg} !important;
+            color: ${themeConfig.text} !important;
+            font-family: '${currentFontFamily}', serif, sans-serif !important;
+            line-height: ${currentLineSpacing} !important;
+          }
+        `;
+        contents.document.head.appendChild(styleEl);
+
+        // FIX 1: LEFT / RIGHT CLICK NAVIGATION ON EPUB PAGES
+        contents.document.addEventListener('click', (e) => {
+          // Check if user is highlighting text instead of tapping to turn page
+          const selection = contents.window.getSelection();
+          if (selection && selection.toString().length > 0) return;
+
+          const pageWidth = contents.window.innerWidth;
+          const clickX = e.clientX;
+
+          if (clickX > pageWidth * 0.7) {
+            handleNextPage();
+          } else if (clickX < pageWidth * 0.3) {
+            handlePrevPage();
+          }
+        });
+      });
 
       epubRendition.display().then(() => {
         document.getElementById('loading').classList.add('d-none');
@@ -896,6 +985,9 @@
           const percent = epubBook.locations.percentageFromCfi(currentCfi);
           const currentLoc = Math.round(percent * 100);
           updateUIProgress(currentLoc > 0 ? currentLoc : 1, 100);
+          
+          // Re-enforce theme on relocated event
+          applyAllReadingSettings();
         });
       });
 
@@ -977,31 +1069,38 @@
     document.getElementById('nextChapterBtn').addEventListener('click', handleNextPage);
     document.getElementById('prevChapterBtn').addEventListener('click', handlePrevPage);
 
+    // PDF Click navigation fallback
+    document.getElementById('pdf-render').addEventListener('click', (e) => {
+      const rect = e.target.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      if (clickX < rect.width / 2) handlePrevPage();
+      else handleNextPage();
+    });
+
     // READING SETTINGS ENGINE FUNCTION
     function applyAllReadingSettings() {
       if (currentBookType === 'epub' && epubRendition) {
-        // Theme Apply Fix
+        // Theme Apply
         epubRendition.themes.select(currentTheme);
 
-        // Dynamic Injection Fix for Google Fonts & Custom CSS Rules inside ePub Iframe
-        const fontUrl = getGoogleFontUrl(currentFontFamily);
-        
-        epubRendition.hooks.content.register((contents) => {
-          contents.addStylesheet(fontUrl);
-        });
+        const themeConfig = getThemeStyles(currentTheme);
 
-        epubRendition.themes.default({
-          'body': { 
-            'font-family': `'${currentFontFamily}', serif, sans-serif !important`,
-            'line-height': `${currentLineSpacing} !important`
-          },
-          'p': { 
-            'font-family': `'${currentFontFamily}', serif, sans-serif !important`,
-            'line-height': `${currentLineSpacing} !important`
-          },
-          'div': {
-            'font-family': `'${currentFontFamily}', serif, sans-serif !important`
+        // Update Dynamic Overrides inside iframe
+        epubRendition.getContents().forEach(contents => {
+          let styleEl = contents.document.getElementById('constant-theme-override');
+          if (!styleEl) {
+            styleEl = contents.document.createElement('style');
+            styleEl.id = "constant-theme-override";
+            contents.document.head.appendChild(styleEl);
           }
+          styleEl.innerHTML = `
+            html, body, p, div, span, h1, h2, h3, h4, h5, h6 {
+              background-color: ${themeConfig.bg} !important;
+              color: ${themeConfig.text} !important;
+              font-family: '${currentFontFamily}', serif, sans-serif !important;
+              line-height: ${currentLineSpacing} !important;
+            }
+          `;
         });
 
         epubRendition.themes.fontSize(`${currentFontSizePercent}%`);
@@ -1018,7 +1117,7 @@
       }
     }
 
-    // FONT FAMILY CHANGE FIX
+    // FONT FAMILY CHANGE
     document.getElementById('fontFamilySelect').addEventListener('change', (e) => {
       currentFontFamily = e.target.value;
       applyAllReadingSettings();
@@ -1048,7 +1147,7 @@
       });
     });
 
-    // PAGE THEME CHANGE FIX
+    // PAGE THEME CHANGE
     document.querySelectorAll('.theme-swatch').forEach(swatch => {
       swatch.addEventListener('click', (e) => {
         document.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('active'));
@@ -1178,6 +1277,8 @@
 
     // INIT PAGE
     document.addEventListener("DOMContentLoaded", async () => {
+      await loadUserProfile();
+
       let bookData = null;
 
       if (bookId && supabase) {
