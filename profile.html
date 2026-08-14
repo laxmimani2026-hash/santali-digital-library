@@ -5,9 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Profile | Santali Digital Library</title>
   
-  <!-- Tailwind CSS -->
+  <!-- Bootstrap 5 CSS (matching Cart Page) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom CSS matching site layout -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+
+  <!-- Tailwind CSS for form and profile cards -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Configure Tailwind custom colors -->
   <script>
     tailwind.config = {
       theme: {
@@ -20,12 +28,87 @@
       }
     }
   </script>
-  
-  <!-- FontAwesome 6 Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
+
   <style>
-    /* Custom validation styles */
+    /* Open dropdowns on mouse hover for desktop screens (matching Cart) */
+    @media (min-width: 992px) {
+      .navbar-nav .dropdown:hover .dropdown-menu {
+        display: block;
+        margin-top: 0;
+        animation: fadeIn 0.2s ease-in-out;
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Top Corner Avatar & Badge Styles from Cart Page */
+    .user-avatar-img {
+      width: 32px;
+      height: 32px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .default-avatar-placeholder {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 0.9rem;
+    }
+
+    .badge-reader {
+      background-color: #00b4d8;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 12px;
+    }
+
+    .badge-author {
+      background-color: #ffb703;
+      color: #000;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 12px;
+    }
+
+    .badge-admin {
+      background-color: #ef4444;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 12px;
+    }
+
+    .profile-dropdown-menu .dropdown-item {
+      padding: 9px 20px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: #333;
+    }
+
+    .profile-dropdown-menu .dropdown-item:hover {
+      background-color: #f4f6f8;
+      color: #0b7760;
+    }
+
+    .profile-dropdown-menu .dropdown-item i {
+      width: 22px;
+    }
+
+    /* Validation & animation utilities */
     .was-validated :invalid {
       border-color: #ef4444; 
     }
@@ -39,7 +122,6 @@
       margin-top: 0.25rem;
     }
 
-    /* Toast Animation */
     @keyframes slideIn {
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
@@ -47,109 +129,86 @@
     .toast-enter {
       animation: slideIn 0.3s ease-out forwards;
     }
-
-    /* Dropdown Styling */
-    #userNavArea {
-      position: relative;
-      cursor: pointer;
-      padding: 0.5rem 0;
-    }
-    
-    #userNavArea .dropdown-menu {
-      display: none;
-      position: absolute;
-      right: 0;
-      top: 100%;
-      background-color: #ffffff;
-      min-width: 14rem;
-      border-radius: 0.5rem;
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-      z-index: 50;
-      padding: 0.5rem 0;
-      border: 1px solid #e5e7eb;
-      margin-top: 0;
-    }
-    
-    #userNavArea:hover .dropdown-menu {
-      display: block;
-    }
-
-    #userNavArea .dropdown-menu a,
-    #userNavArea .dropdown-menu .dropdown-item {
-      display: block;
-      padding: 0.6rem 1.25rem;
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: #374151 !important;
-      text-decoration: none;
-      transition: background-color 0.15s ease;
-    }
-
-    #userNavArea .dropdown-menu a:hover,
-    #userNavArea .dropdown-menu .dropdown-item:hover {
-      background-color: #f3f4f6 !important;
-      color: #111827 !important;
-    }
-
-    #userNavArea .dropdown-divider {
-      border-top: 1px solid #e5e7eb;
-      margin: 0.5rem 0;
-    }
-
-    #userNavArea .dropdown-menu span,
-    #userNavArea .dropdown-menu p {
-      color: #374151; 
-      padding: 0.25rem 1.25rem;
-      display: block;
-    }
-
-    #userNavArea .badge {
-      background-color: #ffb703;
-      color: #000;
-      padding: 0.15rem 0.5rem;
-      border-radius: 9999px;
-      font-size: 0.7rem;
-      font-weight: bold;
-      margin-left: 0.5rem;
-      vertical-align: middle;
-    }
   </style>
 </head>
-<body class="bg-gray-50 flex flex-col min-h-screen text-gray-800">
+<body class="bg-light flex flex-col min-h-screen text-gray-800">
 
-  <!-- Navigation Bar -->
-  <nav class="bg-teal sticky top-0 z-40 shadow-md text-white">
-    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-      <a class="flex items-center gap-2 text-xl font-bold no-underline text-white" href="index.html">
-        <i class="fa-solid fa-book-open-reader text-gold text-2xl"></i>
-        <span>Santali Digital <span class="text-gold">Library</span></span>
+  <!-- Navigation Bar (Identical structure to Cart Page) -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-teal sticky-top">
+    <div class="container">
+      <!-- Brand Logo -->
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <i class="fa-solid fa-book-open-reader text-warning fs-3"></i>
+        <span>Santali Digital <span class="highlight">Library</span></span>
       </a>
-      
-      <!-- Mobile Menu Button -->
-      <button id="mobileMenuBtn" class="lg:hidden text-white focus:outline-none text-2xl">
-        <i class="fa-solid fa-bars"></i>
+
+      <!-- Mobile Hamburger Toggle Button -->
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
       </button>
 
-      <!-- Desktop Nav -->
-      <div id="navbarNav" class="hidden lg:flex items-center space-x-6">
-        <a class="hover:text-gold transition font-medium" href="index.html">Home</a>
-        <a class="hover:text-gold transition font-medium" href="browse.html">Books</a>
-        <a class="hover:text-gold transition font-medium" href="categories.html">Categories</a>
-        <a class="hover:text-gold transition font-medium" href="upload.html">Upload</a>
-        
-        <div id="userNavArea" class="ml-4 h-full flex items-center">
-          <a href="login.html" class="bg-gold hover:bg-yellow-500 text-black px-4 py-2 rounded font-bold transition shadow-sm text-sm">Login / Sign Up</a>
-        </div>
+      <!-- Navbar Links -->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto align-items-center">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="browse.html">Books</a></li>
+          <li class="nav-item"><a class="nav-link" href="categories.html">Categories</a></li>
+          <li class="nav-item"><a class="nav-link" href="authors.html">Authors</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+
+          <!-- Language Selector Dropdown -->
+          <li class="nav-item dropdown ms-lg-2">
+            <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fa-solid fa-globe"></i> <span id="langLabelText">EN</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="languageDropdown">
+              <li><a class="dropdown-item" href="#">English</a></li>
+              <li><a class="dropdown-item" href="#">ᱥᱟᱱᱛᱟᱲᱤ (Santali)</a></li>
+              <li><a class="dropdown-item" href="#">हिन्दी (Hindi)</a></li>
+            </ul>
+          </li>
+
+          <!-- User Profile Dropdown (Hover Enabled) -->
+          <li class="nav-item dropdown ms-lg-3 my-2 my-lg-0" id="userNavArea">
+            <a class="nav-link dropdown-toggle text-white d-flex align-items-center gap-2 py-1" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="" alt="Avatar" class="user-avatar-img d-none" id="navUserAvatar">
+              <div class="default-avatar-placeholder" id="navUserAvatarPlaceholder">
+                <i class="fa-solid fa-user"></i>
+              </div>
+              <span id="navUserName">Hello, User</span>
+              <span class="badge badge-reader text-white" id="navUserRoleBadge">Reader</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 profile-dropdown-menu" aria-labelledby="profileDropdown">
+              <li>
+                <a class="dropdown-item d-flex align-items-center active" href="profile.html">
+                  <i class="fa-solid fa-user text-muted"></i> My Profile
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center" href="subscription.html">
+                  <i class="fa-solid fa-crown text-warning"></i> My Subscription
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center" href="cart.html">
+                  <i class="fa-solid fa-cart-shopping text-muted"></i> My Cart
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center" href="orders.html">
+                  <i class="fa-solid fa-box-archive text-muted"></i> My Orders
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <button class="dropdown-item d-flex align-items-center text-danger" id="logoutBtn">
+                  <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                </button>
+              </li>
+            </ul>
+          </li>
+        </ul>
       </div>
-    </div>
-    
-    <!-- Mobile Nav Dropdown -->
-    <div id="mobileMenu" class="hidden lg:hidden bg-teal border-t border-teal-700 pb-4">
-      <a class="block px-4 py-2 hover:bg-teal-700" href="index.html">Home</a>
-      <a class="block px-4 py-2 hover:bg-teal-700" href="browse.html">Books</a>
-      <a class="block px-4 py-2 hover:bg-teal-700" href="categories.html">Categories</a>
-      <a class="block px-4 py-2 hover:bg-teal-700" href="upload.html">Upload</a>
-      <a class="block px-4 py-2 text-gold font-bold" href="login.html">Login / Sign Up</a>
     </div>
   </nav>
 
@@ -175,16 +234,16 @@
 
         <!-- Initial Loader -->
         <div id="initialLoader" class="text-center py-12">
-          <i class="fa-solid fa-circle-notch fa-spin text-teal text-5xl mb-4"></i>
+          <i class="fa-solid fa-circle-notch fa-spin text-teal-700 text-5xl mb-4"></i>
           <h5 class="font-bold text-gray-500">Loading your profile...</h5>
         </div>
 
-        <!-- Main Content (Hidden until loaded) -->
+        <!-- Main Content -->
         <div id="mainProfileContent" class="hidden">
           
           <!-- Header Area -->
           <div class="text-center mb-8">
-            <div class="w-28 h-28 mx-auto mb-4 rounded-full border-4 border-gray-100 shadow-md bg-teal text-white flex items-center justify-center text-5xl overflow-hidden relative">
+            <div class="w-28 h-28 mx-auto mb-4 rounded-full border-4 border-gray-100 shadow-md bg-[#005f73] text-white flex items-center justify-center text-5xl overflow-hidden relative">
               <i class="fa-solid fa-user" id="defaultAvatarIcon"></i>
               <img src="" alt="Profile" class="w-full h-full object-cover hidden" id="profileImageDisplay">
             </div>
@@ -281,7 +340,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="col-span-1 md:col-span-2">
                 <label for="avatarUpload" class="block text-sm font-semibold text-gray-700 mb-1">Update Profile Photo</label>
-                <input class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal focus:border-teal outline-none transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal file:text-white hover:file:bg-teal/80 cursor-pointer text-gray-500" type="file" id="avatarUpload" accept="image/*">
+                <input class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#005f73] file:text-white hover:file:bg-[#004f60] cursor-pointer text-gray-500" type="file" id="avatarUpload" accept="image/*">
                 <p class="text-xs text-gray-500 mt-1">Choose a square image for the best fit (Max 2MB). Image previews automatically.</p>
               </div>
 
@@ -291,7 +350,7 @@
               
               <div>
                 <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
-                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal focus:border-teal outline-none transition" id="fullName" required>
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="fullName" required>
                 <div class="invalid-feedback">Please enter your full name.</div>
               </div>
               <div>
@@ -305,16 +364,16 @@
               
               <div>
                 <label for="organization" class="block text-sm font-semibold text-gray-700 mb-1">Organization / Affiliation</label>
-                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="organization" placeholder="e.g., University, Publishing House">
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="organization" placeholder="e.g., University, Publishing House">
               </div>
               <div>
                 <label for="website" class="block text-sm font-semibold text-gray-700 mb-1">Website / Social Profile</label>
-                <input type="url" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="website" placeholder="https://linkedin.com/in/yourprofile">
+                <input type="url" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="website" placeholder="https://linkedin.com/in/yourprofile">
                 <div class="invalid-feedback">Please enter a valid URL (include http:// or https://).</div>
               </div>
               <div class="col-span-1 md:col-span-2">
                 <label for="bio" class="block text-sm font-semibold text-gray-700 mb-1">Bio / About Me</label>
-                <textarea class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition resize-y" id="bio" rows="3" placeholder="Share a brief overview of your professional background and interests..."></textarea>
+                <textarea class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition resize-y" id="bio" rows="3" placeholder="Share a brief overview of your professional background and interests..."></textarea>
               </div>
 
               <div class="col-span-1 md:col-span-2 mt-2">
@@ -323,11 +382,11 @@
               
               <div>
                 <label for="interests" class="block text-sm font-semibold text-gray-700 mb-1">Reading/Writing Interests</label>
-                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="interests" placeholder="e.g., Santali History, Fiction, Poetry">
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="interests" placeholder="e.g., Santali History, Fiction, Poetry">
               </div>
               <div>
                 <label for="preferredLanguage" class="block text-sm font-semibold text-gray-700 mb-1">Preferred Interface Language</label>
-                <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition bg-white" id="preferredLanguage">
+                <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition bg-white" id="preferredLanguage">
                   <option value="">Select Language</option>
                   <option value="Santali">Santali</option>
                   <option value="English">English</option>
@@ -343,31 +402,31 @@
               
               <div>
                 <label for="contactEmail" class="block text-sm font-semibold text-gray-700 mb-1">Contact Email</label>
-                <input type="email" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="contactEmail" placeholder="your@email.com">
+                <input type="email" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="contactEmail" placeholder="your@email.com">
                 <div class="invalid-feedback">Please enter a valid email address.</div>
               </div>
               <div>
                 <label for="phone" class="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
-                <input type="tel" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="phone" placeholder="10-digit number" pattern="^[0-9]{10}$">
+                <input type="tel" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="phone" placeholder="10-digit number" pattern="^[0-9]{10}$">
                 <div class="invalid-feedback">Please enter a valid 10-digit phone number.</div>
               </div>
               <div class="col-span-1 md:col-span-2">
                 <label for="address" class="block text-sm font-semibold text-gray-700 mb-1">Street Address / Area</label>
-                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="address" placeholder="e.g. Unit 9, Plot 45">
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="address" placeholder="e.g. Unit 9, Plot 45">
               </div>
               
-              <!-- PIN Code Field triggers auto-fetch -->
+              <!-- PIN Code Field -->
               <div>
                 <label for="pinCode" class="block text-sm font-semibold text-gray-700 mb-1">PIN / Postal Code</label>
-                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="pinCode" placeholder="e.g. 751001" pattern="^[1-9][0-9]{5}$">
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="pinCode" placeholder="e.g. 751001" pattern="^[1-9][0-9]{5}$">
                 <div id="pinCodeFeedback" class="text-xs mt-1 font-semibold text-gray-500">Enter PIN to auto-fetch details</div>
                 <div class="invalid-feedback">Please enter a valid 6-digit PIN code.</div>
               </div>
               
-              <!-- City Field mapped to a datalist -->
+              <!-- City Field -->
               <div>
                 <label for="city" class="block text-sm font-semibold text-gray-700 mb-1">City / Village / Town</label>
-                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal outline-none transition" id="city" list="cityOptions" placeholder="Type or select from list...">
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="city" list="cityOptions" placeholder="Type or select from list...">
                 <datalist id="cityOptions"></datalist>
               </div>
 
@@ -387,7 +446,7 @@
               <button type="button" id="cancelEditBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-lg transition">
                 Cancel
               </button>
-              <button type="submit" id="saveProfileBtn" class="flex items-center bg-gold hover:bg-yellow-500 text-black font-bold py-2 px-6 rounded-lg shadow-sm transition">
+              <button type="submit" id="saveProfileBtn" class="flex items-center bg-warning hover:bg-yellow-500 text-black font-bold py-2 px-6 rounded-lg shadow-sm transition">
                 <i class="fa-solid fa-floppy-disk mr-2"></i> Save Changes
               </button>
             </div>
@@ -400,14 +459,12 @@
   <!-- OTP Verification Modal -->
   <div id="otpModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center backdrop-blur-sm px-4">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-[slideIn_0.2s_ease-out]">
-      <!-- Header -->
-      <div class="bg-teal text-white px-6 py-4 flex justify-between items-center">
+      <div class="bg-[#005f73] text-white px-6 py-4 flex justify-between items-center">
         <h5 class="font-bold text-lg"><i class="fa-solid fa-envelope-circle-check mr-2"></i> Verify Your Email</h5>
         <button id="closeModalBtn" class="text-white hover:text-gray-200 focus:outline-none">
           <i class="fa-solid fa-xmark text-xl"></i>
         </button>
       </div>
-      <!-- Body -->
       <div class="p-6 text-center">
         <p class="text-gray-600 mb-6">We've sent a 6-digit security code to <strong id="otpTargetEmail" class="text-gray-900"></strong>. Please enter it below to verify your email address.</p>
         
@@ -415,24 +472,25 @@
         
         <div id="otpErrorMsg" class="text-red-500 text-sm font-bold hidden mb-4">Invalid or expired code. Please try again.</div>
         
-        <button type="button" class="w-full bg-gold hover:bg-yellow-500 text-black font-bold py-3 rounded-lg shadow-sm transition flex justify-center items-center" id="submitOtpBtn">
+        <button type="button" class="w-full bg-warning hover:bg-yellow-500 text-black font-bold py-3 rounded-lg shadow-sm transition flex justify-center items-center" id="submitOtpBtn">
           Confirm Email
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="bg-teal text-center py-5 mt-auto">
-    <div class="container mx-auto px-4">
-      <p class="mb-0 font-bold text-white text-sm">&copy; 2026 Santali Digital Library</p>
+  <!-- Footer Matching Cart & Home Page -->
+  <footer class="footer-teal text-center mt-auto">
+    <div class="container py-3">
+      <p class="mb-2 fw-bold text-white">&copy; 2026 Santali Digital Library</p>
+      <p class="small mb-0 text-white-50">Reader subscriptions • eBook sales • Institutional plans • Author services</p>
     </div>
   </footer>
 
-  <!-- Firebase Auth Script -->
-  <script type="module" src="assets/js/auth.js"></script>
+  <!-- Bootstrap 5 Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Profile Script & UI Logic -->
+  <!-- Supabase & Profile Logic -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -449,17 +507,16 @@
       const saveBtn = document.getElementById("saveProfileBtn");
       const alertBox = document.getElementById("profileAlert");
 
+      const navUserName = document.getElementById('navUserName');
+      const navUserAvatar = document.getElementById('navUserAvatar');
+      const navUserAvatarPlaceholder = document.getElementById('navUserAvatarPlaceholder');
+      const navUserRoleBadge = document.getElementById('navUserRoleBadge');
+      const logoutBtn = document.getElementById('logoutBtn');
+
       let currentUser = null;
       let currentProfileData = null;
 
-      // Mobile Menu Logic
-      const mobileMenuBtn = document.getElementById("mobileMenuBtn");
-      const mobileMenu = document.getElementById("mobileMenu");
-      mobileMenuBtn.addEventListener("click", () => {
-          mobileMenu.classList.toggle("hidden");
-      });
-
-      // Tailwind Toast Logic
+      // Toast Notifications
       let toastTimeout;
       function showAlert(message, type) {
         const toastEl = document.getElementById('systemToast');
@@ -499,6 +556,13 @@
         window.scrollTo(0, 0);
       }
 
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+          await supabase.auth.signOut();
+          window.location.href = 'login.html';
+        });
+      }
+
       async function initProfile() {
         try {
           const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -526,6 +590,32 @@
           
           currentProfileData = profile;
           renderProfile(profile);
+
+          // Update Top Corner Nav User Info
+          const displayName = profile?.full_name || user.user_metadata?.full_name || user.email.split('@')[0];
+          if (navUserName) navUserName.innerText = `Hello, ${displayName}`;
+
+          if (profile?.avatar_url) {
+            navUserAvatar.src = profile.avatar_url;
+            navUserAvatar.classList.remove('d-none');
+            navUserAvatarPlaceholder.classList.add('d-none');
+          } else {
+            navUserAvatar.classList.add('d-none');
+            navUserAvatarPlaceholder.classList.remove('d-none');
+          }
+
+          if (navUserRoleBadge && profile?.role) {
+            if (profile.role === 'author') {
+              navUserRoleBadge.className = 'badge badge-author';
+              navUserRoleBadge.innerText = 'Author';
+            } else if (profile.role === 'admin') {
+              navUserRoleBadge.className = 'badge badge-admin';
+              navUserRoleBadge.innerText = 'Admin';
+            } else {
+              navUserRoleBadge.className = 'badge badge-reader text-white';
+              navUserRoleBadge.innerText = 'Reader';
+            }
+          }
 
           document.getElementById("initialLoader").classList.add('hidden');
           document.getElementById("mainProfileContent").classList.remove('hidden');
@@ -582,7 +672,6 @@
         document.getElementById("viewRole").innerText = roleText;
         document.getElementById("roleDisplay").value = roleText;
 
-        // Populate Form Fields
         document.getElementById("fullName").value = p.full_name || '';
         document.getElementById("contactEmail").value = p.contact_email || '';
         document.getElementById("phone").value = p.phone || '';
@@ -632,7 +721,7 @@
           }
       });
 
-      // --- AUTO-FETCH DISTRICT, STATE & CITY FROM PIN CODE ---
+      // PIN code auto-fill
       const pinCodeInput = document.getElementById("pinCode");
       const districtInput = document.getElementById("district");
       const stateInput = document.getElementById("state");
@@ -654,11 +743,9 @@
                   if (data && data[0].Status === "Success") {
                       const postOffices = data[0].PostOffice;
                       
-                      // Auto-fill District and State (Locked fields)
                       districtInput.value = postOffices[0].District;
                       stateInput.value = postOffices[0].State;
                       
-                      // Populate City/Village/Town Datalist Options
                       cityOptions.innerHTML = ''; 
                       postOffices.forEach(po => {
                           const option = document.createElement('option');
@@ -695,7 +782,7 @@
           }
       });
 
-      // --- VERIFICATION HANDLERS (Tailwind Modal) ---
+      // Verification Handlers
       const otpModalEl = document.getElementById('otpModal');
       const submitOtpBtn = document.getElementById('submitOtpBtn');
       const otpErrorMsg = document.getElementById('otpErrorMsg');
@@ -760,7 +847,7 @@
          }
       });
 
-      // --- STANDARD EDIT HANDLERS ---
+      // Edit Handlers
       editBtn.addEventListener("click", () => {
         viewMode.classList.add("hidden");
         editForm.classList.remove("hidden");
