@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscription & Checkout | Santali Digital Library</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f4f7f6;
+      color: #333;
+    }
+
+    .plan-card {
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #fff;
+    }
+
+    .plan-card:hover, .plan-card.active {
+      border-color: #0b7760;
+      box-shadow: 0 8px 20px rgba(11, 119, 96, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .plan-card.active {
+      background-color: #f0fdf9;
+    }
+
+    .plan-card .form-check-input:checked {
+      background-color: #0b7760;
+      border-color: #0b7760;
+    }
+
+    .checkout-card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      border: 1px solid #e9efed;
+    }
+
+    .payment-tab .nav-link {
+      color: #495057;
+      font-weight: 600;
+      border-radius: 8px !important;
+      padding: 10px 16px;
+    }
+
+    .payment-tab .nav-link.active {
+      background-color: #0b7760 !important;
+      color: #fff !important;
+    }
+
+    .btn-teal {
+      background-color: #0b7760;
+      color: #fff;
+      border: none;
+    }
+
+    .btn-teal:hover {
+      background-color: #075e4d;
+      color: #fff;
+    }
+  </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-teal sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <i class="fa-solid fa-book-open-reader text-warning fs-3"></i>
+        <span>Santali Digital <span class="highlight">Library</span></span>
+      </a>
+      <div class="ms-auto" id="userNavArea">
+        <!-- Managed dynamically by auth.js -->
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <div class="container my-5 flex-grow-1">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold text-teal">Complete Your Reader Membership</h2>
+      <p class="text-muted">Gain unlimited access to Santali literature and empower indigenous authors.</p>
+    </div>
+
+    <div class="row g-4">
+      
+      <!-- LEFT COLUMN: Choose/Confirm Plan -->
+      <div class="col-lg-7">
+        <div class="checkout-card p-4 mb-4">
+          <h4 class="fw-bold mb-3"><i class="fa-solid fa-crown text-warning me-2"></i>1. Select Your Membership Plan</h4>
+          
+          <div class="d-flex flex-column gap-3">
+            
+            <!-- Basic Plan -->
+            <label class="plan-card d-flex align-items-center justify-content-between" id="card-basic">
+              <div class="d-flex align-items-center gap-3">
+                <input class="form-check-input flex-shrink-0" type="radio" name="membershipPlan" id="planBasic" value="basic">
+                <div>
+                  <h6 class="fw-bold mb-1">Basic Reader</h6>
+                  <p class="small text-muted mb-0">Access to selected books on all devices</p>
+                </div>
+              </div>
+              <div class="text-end">
+                <span class="fw-bold fs-5 text-teal">₹49</span>
+                <span class="small text-muted">/ mo</span>
+              </div>
+            </label>
+
+            <!-- Full Library Plan -->
+            <label class="plan-card d-flex align-items-center justify-content-between active" id="card-full">
+              <div class="d-flex align-items-center gap-3">
+                <input class="form-check-input flex-shrink-0" type="radio" name="membershipPlan" id="planFull" value="full" checked>
+                <div>
+                  <div class="d-flex align-items-center gap-2">
+                    <h6 class="fw-bold mb-1">Full Library</h6>
+                    <span class="badge bg-warning text-dark style="font-size: 0.65rem;">POPULAR</span>
+                  </div>
+                  <p class="small text-muted mb-0">Unlimited access to all participating ebooks</p>
+                </div>
+              </div>
+              <div class="text-end">
+                <span class="fw-bold fs-5 text-teal">₹99</span>
+                <span class="small text-muted">/ mo</span>
+              </div>
+            </label>
+
+            <!-- Annual Plan -->
+            <label class="plan-card d-flex align-items-center justify-content-between" id="card-annual">
+              <div class="d-flex align-items-center gap-3">
+                <input class="form-check-input flex-shrink-0" type="radio" name="membershipPlan" id="planAnnual" value="annual">
+                <div>
+                  <h6 class="fw-bold mb-1">Annual Reader Pass</h6>
+                  <p class="small text-muted mb-0">Full year library access (Save ~16%)</p>
+                </div>
+              </div>
+              <div class="text-end">
+                <span class="fw-bold fs-5 text-teal">₹999</span>
+                <span class="small text-muted">/ yr</span>
+              </div>
+            </label>
+
+          </div>
+        </div>
+
+        <!-- Payment Method Options -->
+        <div class="checkout-card p-4">
+          <h4 class="fw-bold mb-3"><i class="fa-solid fa-credit-card text-teal me-2"></i>2. Choose Payment Method</h4>
+          
+          <ul class="nav nav-pills nav-justified payment-tab mb-4" id="paymentTab" role="tablist">
+            <li class="nav-item">
+              <button class="nav-link active" id="upi-tab" data-bs-toggle="tab" data-bs-target="#upi-panel" type="button"><i class="fa-solid fa-qrcode me-1"></i> UPI / GPay</button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link" id="card-tab" data-bs-toggle="tab" data-bs-target="#card-panel" type="button"><i class="fa-solid fa-credit-card me-1"></i> Card</button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link" id="net-tab" data-bs-toggle="tab" data-bs-target="#net-panel" type="button"><i class="fa-solid fa-building-columns me-1"></i> Net Banking</button>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <!-- UPI -->
+            <div class="tab-pane fade show active" id="upi-panel">
+              <div class="mb-3">
+                <label for="upiId" class="form-label fw-semibold">UPI ID / VPA</label>
+                <input type="text" class="form-control" id="upiId" placeholder="username@upi or mobile@paytm">
+              </div>
+              <p class="small text-muted"><i class="fa-solid fa-shield-halved text-success me-1"></i> You will receive a payment request on your UPI app.</p>
+            </div>
+
+            <!-- CARD -->
+            <div class="tab-pane fade" id="card-panel">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Card Number</label>
+                <input type="text" class="form-control" placeholder="1234 5678 9101 1121">
+              </div>
+              <div class="row">
+                <div class="col-6 mb-3">
+                  <label class="form-label fw-semibold">Expiry Date</label>
+                  <input type="text" class="form-control" placeholder="MM/YY">
+                </div>
+                <div class="col-6 mb-3">
+                  <label class="form-label fw-semibold">CVV</label>
+                  <input type="password" class="form-control" placeholder="123">
+                </div>
+              </div>
+            </div>
+
+            <!-- NET BANKING -->
+            <div class="tab-pane fade" id="net-panel">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Select Bank</label>
+                <select class="form-select">
+                  <option selected>State Bank of India (SBI)</option>
+                  <option>HDFC Bank</option>
+                  <option>ICICI Bank</option>
+                  <option>Axis Bank</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: Order Summary -->
+      <div class="col-lg-5">
+        <div class="checkout-card p-4 sticky-top" style="top: 90px;">
+          <h4 class="fw-bold mb-3">Order Summary</h4>
+          
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted" id="summaryPlanName">Full Library Plan</span>
+            <span class="fw-bold" id="summaryPlanPrice">₹99.00</span>
+          </div>
+          
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Taxes & Charges (GST)</span>
+            <span class="fw-bold text-success">₹0.00</span>
+          </div>
+
+          <hr>
+
+          <div class="d-flex justify-content-between mb-4 fs-5 fw-bold">
+            <span>Total Payable</span>
+            <span class="text-teal" id="summaryTotal">₹99.00</span>
+          </div>
+
+          <button id="payNowBtn" class="btn btn-teal btn-lg w-100 fw-bold py-3">
+            <i class="fa-solid fa-lock me-2"></i>Pay <span id="btnPayAmount">₹99.00</span>
+          </button>
+
+          <div class="text-center mt-3">
+            <span class="badge bg-light text-muted fw-normal p-2">
+              <i class="fa-solid fa-arrows-rotate me-1"></i> Cancel anytime from account settings
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer-teal text-center mt-auto py-3">
+    <div class="container">
+      <p class="mb-1 fw-bold">&copy; 2026 Santali Digital Library</p>
+      <p class="small mb-0 text-white-50">Secure Payment • Instant Activation</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Supabase Auth Script -->
+  <script type="module" src="assets/js/auth.js"></script>
+
+  <!-- Interactive Plan Selection Script -->
+  <script>
+    const planDetails = {
+      basic: { name: 'Basic Reader Plan', price: 49, formatted: '₹49.00' },
+      full: { name: 'Full Library Plan', price: 99, formatted: '₹99.00' },
+      annual: { name: 'Annual Reader Pass', price: 999, formatted: '₹999.00' }
+    };
+
+    function updateSummary(planKey) {
+      const selected = planDetails[planKey] || planDetails.full;
+
+      document.getElementById('summaryPlanName').textContent = selected.name;
+      document.getElementById('summaryPlanPrice').textContent = selected.formatted;
+      document.getElementById('summaryTotal').textContent = selected.formatted;
+      document.getElementById('btnPayAmount').textContent = selected.formatted;
+
+      // Update Card Visuals
+      document.querySelectorAll('.plan-card').forEach(card => card.classList.remove('active'));
+      const activeCard = document.getElementById(`card-${planKey}`);
+      if (activeCard) activeCard.classList.add('active');
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // 1. Read URL parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const planParam = urlParams.get('plan') || 'full';
+
+      // 2. Select radio button based on URL
+      const targetRadio = document.querySelector(`input[name="membershipPlan"][value="${planParam}"]`);
+      if (targetRadio) {
+        targetRadio.checked = true;
+        updateSummary(planParam);
+      }
+
+      // 3. Radio Change Listener
+      document.querySelectorAll('input[name="membershipPlan"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          updateSummary(e.target.value);
+        });
+      });
+
+      // 4. Pay Button Simulation
+      document.getElementById('payNowBtn').addEventListener('click', () => {
+        alert('Thank you! Payment successful. Your membership is now ACTIVE.');
+        window.location.href = 'index.html';
+      });
+    });
+  </script>
+</body>
+</html>

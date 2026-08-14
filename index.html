@@ -159,7 +159,6 @@
       padding: 42px;
       box-shadow: 0 16px 40px rgba(7,94,77,.2);
     }
-
   </style>
 </head>
 <body>
@@ -334,7 +333,6 @@
     </div>
   </section>
 
-
   <!-- Reader Subscription & Revenue Model -->
   <section class="sdm-section sdm-section-alt" id="membership">
     <div class="container">
@@ -345,6 +343,7 @@
       </div>
 
       <div class="row g-4 justify-content-center">
+        <!-- Basic Reader -->
         <div class="col-md-6 col-lg-4">
           <div class="sdm-card sdm-price-card">
             <h4 class="fw-bold">Basic Reader</h4>
@@ -353,10 +352,11 @@
             <p><i class="fa-solid fa-check sdm-check"></i>Access to selected books</p>
             <p><i class="fa-solid fa-check sdm-check"></i>Mobile, tablet & desktop reading</p>
             <p><i class="fa-solid fa-check sdm-check"></i>Save favourite books</p>
-            <a href="login.html" class="btn btn-outline-primary w-100 mt-2">Join as Reader</a>
+            <button class="btn btn-outline-primary w-100 mt-2 plan-btn" data-plan="basic">Join as Reader</button>
           </div>
         </div>
 
+        <!-- Full Library -->
         <div class="col-md-6 col-lg-4">
           <div class="sdm-card sdm-price-card featured">
             <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3">POPULAR</span>
@@ -367,10 +367,11 @@
             <p><i class="fa-solid fa-check sdm-check"></i>Premium reading collection</p>
             <p><i class="fa-solid fa-check sdm-check"></i>Reading history & bookmarks</p>
             <p><i class="fa-solid fa-check sdm-check"></i>Support Santali authors</p>
-            <a href="login.html" class="btn btn-warning w-100 mt-2 fw-bold">Start Membership</a>
+            <button class="btn btn-warning w-100 mt-2 fw-bold plan-btn" data-plan="full">Start Membership</button>
           </div>
         </div>
 
+        <!-- Annual Reader -->
         <div class="col-md-6 col-lg-4">
           <div class="sdm-card sdm-price-card">
             <h4 class="fw-bold">Annual Reader</h4>
@@ -379,7 +380,7 @@
             <p><i class="fa-solid fa-check sdm-check"></i>Full participating library access</p>
             <p><i class="fa-solid fa-check sdm-check"></i>Better value for regular readers</p>
             <p><i class="fa-solid fa-check sdm-check"></i>New titles as they are added</p>
-            <a href="login.html" class="btn btn-outline-primary w-100 mt-2">Choose Annual</a>
+            <button class="btn btn-outline-primary w-100 mt-2 plan-btn" data-plan="annual">Choose Annual</button>
           </div>
         </div>
       </div>
@@ -666,7 +667,7 @@
   <!-- Firebase Auth Script -->
   <script type="module" src="assets/js/auth.js"></script>
 
-  <!-- Search & Book Loading Logic -->
+  <!-- Search, Book Loading, and Subscription Plan Logic -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -675,6 +676,23 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     document.addEventListener("DOMContentLoaded", async () => {
+      
+      // Handle Plan Selection Buttons (Login Check)
+      document.querySelectorAll('.plan-btn').forEach(button => {
+        button.addEventListener('click', async (e) => {
+          const plan = e.currentTarget.getAttribute('data-plan');
+          const { data: { user } } = await supabase.auth.getUser();
+
+          if (user) {
+            // Already logged in -> go directly to subscription page
+            window.location.href = `subscription.html?plan=${plan}`;
+          } else {
+            // Not logged in -> go to login/signup page
+            window.location.href = `login.html?redirect=subscription.html&plan=${plan}`;
+          }
+        });
+      });
+
       const searchInput = document.getElementById('searchInput');
       const searchBtn = document.getElementById('searchBtn');
       
@@ -809,7 +827,6 @@
         loadingState.classList.remove('d-none');
         
         try {
-          // MODIFIED: Fetches only books where is_featured is true
           const { data, error } = await supabase
             .from('books')
             .select('*')
