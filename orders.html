@@ -50,7 +50,8 @@
           <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="browse.html">Books</a></li>
           <li class="nav-item"><a class="nav-link" href="categories.html">Categories</a></li>
-          <li class="nav-item"><a class="nav-link" href="upload.html">Upload</a></li>
+          <!-- Upload option hidden by default (matching index.html structure) -->
+          <li class="nav-item d-none" id="uploadNavArea"><a class="nav-link" href="upload.html">Upload</a></li>
           <!-- User Dropdown (Injected by auth.js) -->
           <li class="nav-item ms-lg-3 my-2 my-lg-0" id="userNavArea">
             <a href="login.html" class="btn btn-warning btn-sm fw-bold">Login / Sign Up</a>
@@ -140,7 +141,6 @@
         }
 
         // 2. Fetch Orders for the logged-in user
-        // FIX: Removed the buggy '*, books(*)' join that was crashing the page
         const { data: orders, error: ordersError } = await supabase
           .from('orders')
           .select('*')
