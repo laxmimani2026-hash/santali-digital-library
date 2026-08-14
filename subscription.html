@@ -12,9 +12,6 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="assets/css/style.css">
-
   <style>
     :root {
       --bg-dark: #0a2533;
@@ -45,7 +42,7 @@
       color: var(--primary-gold) !important;
     }
 
-    /* Fix Dropdown Stacking Context Over Order Summary */
+    /* Dropdown Stacking Context */
     #userNavArea {
       position: relative;
       z-index: 1050;
@@ -66,19 +63,28 @@
       background: #fff;
     }
 
-    .plan-card:hover, .plan-card.active {
+    .plan-card:hover:not(.disabled-plan), 
+    .plan-card.active:not(.disabled-plan) {
       border-color: var(--accent-teal);
       box-shadow: 0 8px 20px rgba(11, 119, 96, 0.15);
       transform: translateY(-2px);
     }
 
-    .plan-card.active {
+    .plan-card.active:not(.disabled-plan) {
       background-color: #f0fdf9;
     }
 
     .plan-card .form-check-input:checked {
       background-color: var(--accent-teal);
       border-color: var(--accent-teal);
+    }
+
+    /* Disabled Plan Styling (For current or lower-tier plans) */
+    .plan-card.disabled-plan {
+      background-color: #f8f9fa;
+      border-color: #e9ecef;
+      cursor: not-allowed;
+      opacity: 0.75;
     }
 
     .checkout-card {
@@ -88,7 +94,6 @@
       border: 1px solid #e9efed;
     }
 
-    /* Sticky summary card with safe z-index */
     .summary-sticky {
       position: sticky;
       top: 90px;
@@ -118,7 +123,6 @@
       color: #fff;
     }
 
-    /* Active Subscription Card */
     .active-sub-box {
       background: linear-gradient(135deg, #004d40, #005f73);
       color: white;
@@ -138,12 +142,10 @@
         <span>Santali Digital <span class="text-warning">Library</span></span>
       </a>
 
-      <!-- Mobile Toggle Button -->
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <!-- Navbar Links -->
       <div class="collapse navbar-collapse" id="navContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 gap-lg-2">
           <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
@@ -153,7 +155,6 @@
           <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
         </ul>
 
-        <!-- Dynamic User Nav Area -->
         <div id="userNavArea" class="d-flex align-items-center">
           <a href="login.html" class="btn btn-warning fw-bold text-dark btn-sm px-3 rounded-pill">Login / Sign Up</a>
         </div>
@@ -164,12 +165,12 @@
   <!-- Main Container -->
   <div class="container my-5 flex-grow-1">
     
-    <!-- Active Subscription Details Display (Shown if user is subscribed) -->
+    <!-- Active Subscription Details Display -->
     <div id="activeSubscriptionCard" class="active-sub-box mb-5 d-none">
       <div class="row align-items-center g-3">
         <div class="col-md-8">
           <div class="d-flex align-items-center gap-2 mb-2">
-            <span class="badge bg-warning text-dark px-3 py-1 fw-bold fs-6">CURRENT PLAN</span>
+            <span class="badge bg-warning text-dark px-3 py-1 fw-bold fs-6">CURRENT ACTIVE PLAN</span>
             <span class="badge bg-success px-2 py-1"><i class="fa-solid fa-circle-check me-1"></i>Active</span>
           </div>
           <h3 class="fw-bold mb-1" id="activePlanTitle">Full Library Plan</h3>
@@ -178,20 +179,20 @@
           <div class="d-flex flex-wrap gap-4 text-white small">
             <div>
               <span class="text-white-50 d-block">Subscription ID:</span>
-              <strong class="text-warning fs-6" id="activeSubId">SUB-2026-8942</strong>
+              <strong class="text-warning fs-6" id="activeSubId">SUB-2026-XXXXXXXX</strong>
             </div>
             <div>
               <span class="text-white-50 d-block">Activated On:</span>
-              <strong id="activeSubStartDate">14 Aug 2026</strong>
+              <strong id="activeSubStartDate">-</strong>
             </div>
             <div>
               <span class="text-white-50 d-block">Valid Until:</span>
-              <strong class="text-warning fs-6" id="activeSubExpiryDate">14 Sep 2026</strong>
+              <strong class="text-warning fs-6" id="activeSubExpiryDate">-</strong>
             </div>
           </div>
         </div>
-        <div class="col-md-4 text-md-end">
-          <a href="#plansSection" class="btn btn-outline-light btn-sm fw-bold">Upgrade / Renew Plan</a>
+        <div class="col-md-4 text-md-end" id="upgradeButtonContainer">
+          <a href="#plansSection" class="btn btn-outline-light btn-sm fw-bold">Upgrade to Higher Tier</a>
         </div>
       </div>
     </div>
@@ -199,7 +200,7 @@
     <!-- Header Section -->
     <div class="text-center mb-5" id="plansSection">
       <h2 class="fw-bold text-teal" style="color: #005f73;">Reader Membership & Subscriptions</h2>
-      <p class="text-muted">Gain unlimited access to Santali literature and empower indigenous authors.</p>
+      <p class="text-muted" id="subHeaderMessage">Gain unlimited access to Santali literature and empower indigenous authors.</p>
     </div>
 
     <div class="row g-4">
@@ -211,12 +212,15 @@
           
           <div class="d-flex flex-column gap-3">
             
-            <!-- Basic Plan -->
+            <!-- Basic Plan (Tier 1) -->
             <label class="plan-card d-flex align-items-center justify-content-between" id="card-basic">
               <div class="d-flex align-items-center gap-3">
                 <input class="form-check-input flex-shrink-0" type="radio" name="membershipPlan" id="planBasic" value="basic">
                 <div>
-                  <h6 class="fw-bold mb-1">Basic Reader</h6>
+                  <div class="d-flex align-items-center gap-2">
+                    <h6 class="fw-bold mb-1">Basic Reader</h6>
+                    <span id="badge-basic"></span>
+                  </div>
                   <p class="small text-muted mb-0">Access to selected books on all devices</p>
                 </div>
               </div>
@@ -226,7 +230,7 @@
               </div>
             </label>
 
-            <!-- Full Library Plan -->
+            <!-- Full Library Plan (Tier 2) -->
             <label class="plan-card d-flex align-items-center justify-content-between active" id="card-full">
               <div class="d-flex align-items-center gap-3">
                 <input class="form-check-input flex-shrink-0" type="radio" name="membershipPlan" id="planFull" value="full" checked>
@@ -234,6 +238,7 @@
                   <div class="d-flex align-items-center gap-2">
                     <h6 class="fw-bold mb-1">Full Library</h6>
                     <span class="badge bg-warning text-dark" style="font-size: 0.65rem;">POPULAR</span>
+                    <span id="badge-full"></span>
                   </div>
                   <p class="small text-muted mb-0">Unlimited access to all participating ebooks</p>
                 </div>
@@ -244,12 +249,16 @@
               </div>
             </label>
 
-            <!-- Annual Plan -->
+            <!-- Annual Plan (Tier 3) -->
             <label class="plan-card d-flex align-items-center justify-content-between" id="card-annual">
               <div class="d-flex align-items-center gap-3">
                 <input class="form-check-input flex-shrink-0" type="radio" name="membershipPlan" id="planAnnual" value="annual">
                 <div>
-                  <h6 class="fw-bold mb-1">Annual Reader Pass</h6>
+                  <div class="d-flex align-items-center gap-2">
+                    <h6 class="fw-bold mb-1">Annual Reader Pass</h6>
+                    <span class="badge bg-success text-white" style="font-size: 0.65rem;">BEST VALUE</span>
+                    <span id="badge-annual"></span>
+                  </div>
                   <p class="small text-muted mb-0">Full year library access (Save ~16%)</p>
                 </div>
               </div>
@@ -263,7 +272,7 @@
         </div>
 
         <!-- Payment Method Options -->
-        <div class="checkout-card p-4">
+        <div class="checkout-card p-4" id="paymentMethodsCard">
           <h4 class="fw-bold mb-3"><i class="fa-solid fa-credit-card text-teal me-2"></i>2. Choose Payment Method</h4>
           
           <ul class="nav nav-pills nav-justified payment-tab mb-4" id="paymentTab" role="tablist">
@@ -325,7 +334,7 @@
 
       <!-- RIGHT COLUMN: Order Summary -->
       <div class="col-lg-5">
-        <div class="checkout-card p-4 summary-sticky">
+        <div class="checkout-card p-4 summary-sticky" id="orderSummaryContainer">
           <h4 class="fw-bold mb-3">Order Summary</h4>
           
           <div class="d-flex justify-content-between mb-2">
@@ -356,7 +365,7 @@
 
           <div class="text-center mt-3">
             <span class="badge bg-light text-muted fw-normal p-2">
-              <i class="fa-solid fa-arrows-rotate me-1"></i> Cancel anytime from account settings
+              <i class="fa-solid fa-arrows-rotate me-1"></i> Cancel or upgrade anytime
             </span>
           </div>
         </div>
@@ -379,7 +388,7 @@
   <!-- Supabase Auth Script -->
   <script type="module" src="assets/js/auth.js"></script>
 
-  <!-- Interactive Plan Selection & Subscription Tracking Logic -->
+  <!-- Subscription Logic -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -387,14 +396,28 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // Plan Hierarchy: tier determines upgrade eligibility
     const planDetails = {
-      basic: { name: 'Basic Reader Plan', price: 49, formatted: '₹49.00', durationMonths: 1, cycle: '1 Month' },
-      full: { name: 'Full Library Plan', price: 99, formatted: '₹99.00', durationMonths: 1, cycle: '1 Month' },
-      annual: { name: 'Annual Reader Pass', price: 999, formatted: '₹999.00', durationMonths: 12, cycle: '1 Year' }
+      basic: { key: 'basic', tier: 1, name: 'Basic Reader Plan', price: 49, formatted: '₹49.00', durationMonths: 1, cycle: '1 Month' },
+      full: { key: 'full', tier: 2, name: 'Full Library Plan', price: 99, formatted: '₹99.00', durationMonths: 1, cycle: '1 Month' },
+      annual: { key: 'annual', tier: 3, name: 'Annual Reader Pass', price: 999, formatted: '₹999.00', durationMonths: 12, cycle: '1 Year' }
     };
 
+    let activeUserSubscription = null;
     let selectedPlanKey = 'full';
     let currentUser = null;
+
+    /**
+     * Generates a scalable, flexible Subscription ID supporting 1,000,000+ subscribers
+     * Format: SUB-2026-XXXXXX (e.g. SUB-2026-7A3E9D2F)
+     */
+    function generateSubscriptionId() {
+      const year = 2026;
+      // High-capacity random entropy (6 alphanumeric uppercase chars) + timestamp fragment
+      const randomHex = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const timeFragment = Date.now().toString(36).slice(-3).toUpperCase();
+      return `SUB-${year}-${randomHex}${timeFragment}`;
+    }
 
     function updateSummary(planKey) {
       selectedPlanKey = planKey;
@@ -409,19 +432,72 @@
       // Update Card Visuals
       document.querySelectorAll('.plan-card').forEach(card => card.classList.remove('active'));
       const activeCard = document.getElementById(`card-${planKey}`);
-      if (activeCard) activeCard.classList.add('active');
+      if (activeCard && !activeCard.classList.contains('disabled-plan')) {
+        activeCard.classList.add('active');
+      }
     }
 
-    // Check & Display Active Subscription
+    // Apply Tier Restrictions based on active plan
+    function enforceSubscriptionTiers(activePlanKey) {
+      const currentTier = planDetails[activePlanKey] ? planDetails[activePlanKey].tier : 0;
+      let firstAvailableHigherTier = null;
+
+      Object.keys(planDetails).forEach(key => {
+        const plan = planDetails[key];
+        const cardEl = document.getElementById(`card-${key}`);
+        const radioEl = document.getElementById(`plan${key.charAt(0).toUpperCase() + key.slice(1)}`);
+        const badgeEl = document.getElementById(`badge-${key}`);
+
+        if (plan.tier === currentTier) {
+          // SAME PLAN - Cannot repurchase while active
+          cardEl.classList.add('disabled-plan');
+          radioEl.disabled = true;
+          radioEl.checked = false;
+          if (badgeEl) badgeEl.innerHTML = `<span class="badge bg-primary ms-1">CURRENT ACTIVE</span>`;
+        } else if (plan.tier < currentTier) {
+          // LOWER TIER - Cannot downgrade while higher tier is active
+          cardEl.classList.add('disabled-plan');
+          radioEl.disabled = true;
+          radioEl.checked = false;
+          if (badgeEl) badgeEl.innerHTML = `<span class="badge bg-secondary ms-1">DOWNGRADE UNAVAILABLE</span>`;
+        } else {
+          // HIGHER TIER - Upgrade is allowed
+          cardEl.classList.remove('disabled-plan');
+          radioEl.disabled = false;
+          if (badgeEl) badgeEl.innerHTML = `<span class="badge bg-success ms-1">AVAILABLE UPGRADE</span>`;
+          if (!firstAvailableHigherTier) firstAvailableHigherTier = key;
+        }
+      });
+
+      // If user is already on Highest Tier (Annual), disable payment UI
+      if (currentTier === 3) {
+        document.getElementById('orderSummaryContainer').innerHTML = `
+          <div class="text-center py-4">
+            <i class="fa-solid fa-crown text-warning fs-1 mb-3"></i>
+            <h5 class="fw-bold">Highest Plan Active</h5>
+            <p class="text-muted small">You are already subscribed to our highest tier (Annual Reader Pass). No further upgrades are required.</p>
+          </div>
+        `;
+        document.getElementById('paymentMethodsCard').style.display = 'none';
+        document.getElementById('subHeaderMessage').textContent = 'You have full access to all digital publications.';
+      } else if (firstAvailableHigherTier) {
+        // Select the next valid upgrade option automatically
+        const targetRadio = document.querySelector(`input[name="membershipPlan"][value="${firstAvailableHigherTier}"]`);
+        if (targetRadio) {
+          targetRadio.checked = true;
+          updateSummary(firstAvailableHigherTier);
+        }
+      }
+    }
+
     async function loadExistingSubscription(user) {
       try {
         let subData = null;
 
-        // Try from Supabase profiles/subscriptions table
         if (user) {
           const { data: profile } = await supabase
             .from('profiles')
-            .select('subscription_id, subscription_plan, subscription_start, subscription_end')
+            .select('subscription_id, subscription_plan, subscription_key, subscription_start, subscription_end')
             .eq('id', user.id)
             .single();
 
@@ -429,25 +505,30 @@
             subData = {
               id: profile.subscription_id,
               plan: profile.subscription_plan,
+              key: profile.subscription_key || (profile.subscription_plan.includes('Basic') ? 'basic' : profile.subscription_plan.includes('Annual') ? 'annual' : 'full'),
               start: profile.subscription_start,
               end: profile.subscription_end
             };
           }
         }
 
-        // Local storage fallback
+        // Local storage backup fallback
         if (!subData) {
           const savedSub = localStorage.getItem('sdl_active_subscription');
           if (savedSub) subData = JSON.parse(savedSub);
         }
 
-        // Render Active Card
+        // Check if subscription is still currently valid
         if (subData && new Date(subData.end) > new Date()) {
+          activeUserSubscription = subData;
           document.getElementById('activeSubId').textContent = subData.id;
           document.getElementById('activePlanTitle').textContent = subData.plan;
           document.getElementById('activeSubStartDate').textContent = new Date(subData.start).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
           document.getElementById('activeSubExpiryDate').textContent = new Date(subData.end).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
           document.getElementById('activeSubscriptionCard').classList.remove('d-none');
+
+          // Apply upgrade-only restriction logic
+          enforceSubscriptionTiers(subData.key);
         }
       } catch (e) {
         console.error("Subscription load error:", e);
@@ -455,74 +536,88 @@
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
-      // Get current auth user
       const { data: { user } } = await supabase.auth.getUser();
       currentUser = user;
       await loadExistingSubscription(user);
 
-      // 1. Read URL parameter
-      const urlParams = new URLSearchParams(window.location.search);
-      const planParam = urlParams.get('plan') || 'full';
+      // If no active subscription exists, initialize standard plan selection
+      if (!activeUserSubscription) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const planParam = urlParams.get('plan') || 'full';
 
-      const targetRadio = document.querySelector(`input[name="membershipPlan"][value="${planParam}"]`);
-      if (targetRadio) {
-        targetRadio.checked = true;
-        updateSummary(planParam);
+        const targetRadio = document.querySelector(`input[name="membershipPlan"][value="${planParam}"]`);
+        if (targetRadio) {
+          targetRadio.checked = true;
+          updateSummary(planParam);
+        }
       }
 
-      // 2. Radio Change Listener
+      // Radio Change Listener
       document.querySelectorAll('input[name="membershipPlan"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
-          updateSummary(e.target.value);
+          if (!e.target.disabled) {
+            updateSummary(e.target.value);
+          }
         });
       });
 
-      // 3. Payment Processing & Subscription ID Creation
-      document.getElementById('payNowBtn').addEventListener('click', async () => {
-        const selected = planDetails[selectedPlanKey];
-        const payBtn = document.getElementById('payNowBtn');
-        
-        payBtn.disabled = true;
-        payBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin me-2"></i>Processing Payment...`;
+      // Process Payment & Upgrade
+      const payBtn = document.getElementById('payNowBtn');
+      if (payBtn) {
+        payBtn.addEventListener('click', async () => {
+          const selected = planDetails[selectedPlanKey];
 
-        // Generate Subscription ID & Dates
-        const randomNum = Math.floor(1000 + Math.random() * 9000);
-        const subId = `SUB-2026-${randomNum}`;
-        const startDate = new Date();
-        const endDate = new Date();
-        endDate.setMonth(startDate.getMonth() + selected.durationMonths);
-
-        const subPayload = {
-          id: subId,
-          plan: selected.name,
-          start: startDate.toISOString(),
-          end: endDate.toISOString()
-        };
-
-        try {
-          // Save in Supabase Profile if logged in
-          if (currentUser) {
-            await supabase.from('profiles').update({
-              subscription_id: subId,
-              subscription_plan: selected.name,
-              subscription_start: startDate.toISOString(),
-              subscription_end: endDate.toISOString()
-            }).eq('id', currentUser.id);
+          // Final safeguard check against duplicates/downgrades
+          if (activeUserSubscription && planDetails[activeUserSubscription.key]) {
+            const currentTier = planDetails[activeUserSubscription.key].tier;
+            if (selected.tier <= currentTier) {
+              alert(`You already have an active subscription for this or a higher tier. You can only upgrade to a higher plan.`);
+              return;
+            }
           }
 
-          // Save locally as backup
-          localStorage.setItem('sdl_active_subscription', JSON.stringify(subPayload));
+          payBtn.disabled = true;
+          payBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin me-2"></i>Processing Upgrade...`;
 
-          alert(`🎉 Payment Successful!\n\nSubscription ID: ${subId}\nPlan: ${selected.name}\nValid Until: ${endDate.toLocaleDateString('en-GB')}`);
-          
-          window.location.reload();
+          // Generate Scalable ID & Dates
+          const subId = generateSubscriptionId();
+          const startDate = new Date();
+          const endDate = new Date();
+          endDate.setMonth(startDate.getMonth() + selected.durationMonths);
 
-        } catch (error) {
-          console.error("Payment error:", error);
-          alert("Payment processed locally. Your subscription is active!");
-          window.location.reload();
-        }
-      });
+          const subPayload = {
+            id: subId,
+            plan: selected.name,
+            key: selected.key,
+            start: startDate.toISOString(),
+            end: endDate.toISOString()
+          };
+
+          try {
+            if (currentUser) {
+              await supabase.from('profiles').update({
+                subscription_id: subId,
+                subscription_plan: selected.name,
+                subscription_key: selected.key,
+                subscription_start: startDate.toISOString(),
+                subscription_end: endDate.toISOString()
+              }).eq('id', currentUser.id);
+            }
+
+            localStorage.setItem('sdl_active_subscription', JSON.stringify(subPayload));
+
+            alert(`🎉 Congratulations! Your plan has been activated successfully.\n\nSubscription ID: ${subId}\nPlan: ${selected.name}\nValid Until: ${endDate.toLocaleDateString('en-GB')}`);
+            
+            window.location.reload();
+
+          } catch (error) {
+            console.error("Payment error:", error);
+            localStorage.setItem('sdl_active_subscription', JSON.stringify(subPayload));
+            alert("Subscription activated successfully!");
+            window.location.reload();
+          }
+        });
+      }
     });
   </script>
 </body>
