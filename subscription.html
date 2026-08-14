@@ -79,7 +79,7 @@
       border-color: var(--accent-teal);
     }
 
-    /* Disabled Plan Styling (For current or lower-tier plans) */
+    /* Disabled Plan Styling */
     .plan-card.disabled-plan {
       background-color: #f8f9fa;
       border-color: #e9ecef;
@@ -134,7 +134,7 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
 
-  <!-- Navigation Bar with Standard Links & Home -->
+  <!-- Navigation Bar -->
   <nav class="navbar navbar-expand-lg navbar-dark navbar-teal sticky-top shadow-sm">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-white" href="index.html">
@@ -396,7 +396,6 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Plan Hierarchy: tier determines upgrade eligibility
     const planDetails = {
       basic: { key: 'basic', tier: 1, name: 'Basic Reader Plan', price: 49, formatted: '₹49.00', durationMonths: 1, cycle: '1 Month' },
       full: { key: 'full', tier: 2, name: 'Full Library Plan', price: 99, formatted: '₹99.00', durationMonths: 1, cycle: '1 Month' },
@@ -407,13 +406,8 @@
     let selectedPlanKey = 'full';
     let currentUser = null;
 
-    /**
-     * Generates a scalable, flexible Subscription ID supporting 1,000,000+ subscribers
-     * Format: SUB-2026-XXXXXX (e.g. SUB-2026-7A3E9D2F)
-     */
     function generateSubscriptionId() {
       const year = 2026;
-      // High-capacity random entropy (6 alphanumeric uppercase chars) + timestamp fragment
       const randomHex = Math.random().toString(36).substring(2, 8).toUpperCase();
       const timeFragment = Date.now().toString(36).slice(-3).toUpperCase();
       return `SUB-${year}-${randomHex}${timeFragment}`;
@@ -429,7 +423,6 @@
       document.getElementById('summaryTotal').textContent = selected.formatted;
       document.getElementById('btnPayAmount').textContent = selected.formatted;
 
-      // Update Card Visuals
       document.querySelectorAll('.plan-card').forEach(card => card.classList.remove('active'));
       const activeCard = document.getElementById(`card-${planKey}`);
       if (activeCard && !activeCard.classList.contains('disabled-plan')) {
@@ -437,7 +430,6 @@
       }
     }
 
-    // Apply Tier Restrictions based on active plan
     function enforceSubscriptionTiers(activePlanKey) {
       const currentTier = planDetails[activePlanKey] ? planDetails[activePlanKey].tier : 0;
       let firstAvailableHigherTier = null;
@@ -449,19 +441,16 @@
         const badgeEl = document.getElementById(`badge-${key}`);
 
         if (plan.tier === currentTier) {
-          // SAME PLAN - Cannot repurchase while active
           cardEl.classList.add('disabled-plan');
           radioEl.disabled = true;
           radioEl.checked = false;
           if (badgeEl) badgeEl.innerHTML = `<span class="badge bg-primary ms-1">CURRENT ACTIVE</span>`;
         } else if (plan.tier < currentTier) {
-          // LOWER TIER - Cannot downgrade while higher tier is active
           cardEl.classList.add('disabled-plan');
           radioEl.disabled = true;
           radioEl.checked = false;
           if (badgeEl) badgeEl.innerHTML = `<span class="badge bg-secondary ms-1">DOWNGRADE UNAVAILABLE</span>`;
         } else {
-          // HIGHER TIER - Upgrade is allowed
           cardEl.classList.remove('disabled-plan');
           radioEl.disabled = false;
           if (badgeEl) badgeEl.innerHTML = `<span class="badge bg-success ms-1">AVAILABLE UPGRADE</span>`;
@@ -469,19 +458,17 @@
         }
       });
 
-      // If user is already on Highest Tier (Annual), disable payment UI
       if (currentTier === 3) {
         document.getElementById('orderSummaryContainer').innerHTML = `
           <div class="text-center py-4">
             <i class="fa-solid fa-crown text-warning fs-1 mb-3"></i>
             <h5 class="fw-bold">Highest Plan Active</h5>
-            <p class="text-muted small">You are already subscribed to our highest tier (Annual Reader Pass). No further upgrades are required.</p>
+            <p class="text-muted small">You are already subscribed to our highest tier (Annual Reader Pass).</p>
           </div>
         `;
         document.getElementById('paymentMethodsCard').style.display = 'none';
         document.getElementById('subHeaderMessage').textContent = 'You have full access to all digital publications.';
       } else if (firstAvailableHigherTier) {
-        // Select the next valid upgrade option automatically
         const targetRadio = document.querySelector(`input[name="membershipPlan"][value="${firstAvailableHigherTier}"]`);
         if (targetRadio) {
           targetRadio.checked = true;
@@ -499,26 +486,24 @@
             .from('profiles')
             .select('subscription_id, subscription_plan, subscription_key, subscription_start, subscription_end')
             .eq('id', user.id)
-            .single();
+            .maybeSingle();
 
           if (profile && profile.subscription_id) {
             subData = {
               id: profile.subscription_id,
               plan: profile.subscription_plan,
-              key: profile.subscription_key || (profile.subscription_plan.includes('Basic') ? 'basic' : profile.subscription_plan.includes('Annual') ? 'annual' : 'full'),
+              key: profile.subscription_key || (profile.subscription_plan?.includes('Basic') ? 'basic' : profile.subscription_plan?.includes('Annual') ? 'annual' : 'full'),
               start: profile.subscription_start,
               end: profile.subscription_end
             };
           }
         }
 
-        // Local storage backup fallback
         if (!subData) {
           const savedSub = localStorage.getItem('sdl_active_subscription');
           if (savedSub) subData = JSON.parse(savedSub);
         }
 
-        // Check if subscription is still currently valid
         if (subData && new Date(subData.end) > new Date()) {
           activeUserSubscription = subData;
           document.getElementById('activeSubId').textContent = subData.id;
@@ -527,7 +512,6 @@
           document.getElementById('activeSubExpiryDate').textContent = new Date(subData.end).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
           document.getElementById('activeSubscriptionCard').classList.remove('d-none');
 
-          // Apply upgrade-only restriction logic
           enforceSubscriptionTiers(subData.key);
         }
       } catch (e) {
@@ -536,11 +520,12 @@
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
+      // 1. Get authenticated user
       const { data: { user } } = await supabase.auth.getUser();
       currentUser = user;
+      
       await loadExistingSubscription(user);
 
-      // If no active subscription exists, initialize standard plan selection
       if (!activeUserSubscription) {
         const urlParams = new URLSearchParams(window.location.search);
         const planParam = urlParams.get('plan') || 'full';
@@ -552,7 +537,6 @@
         }
       }
 
-      // Radio Change Listener
       document.querySelectorAll('input[name="membershipPlan"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
           if (!e.target.disabled) {
@@ -561,25 +545,30 @@
         });
       });
 
-      // Process Payment & Upgrade
+      // 2. Process Payment & Save to Supabase & Orders table
       const payBtn = document.getElementById('payNowBtn');
       if (payBtn) {
         payBtn.addEventListener('click', async () => {
+          // If user is not logged in, prompt to log in first
+          if (!currentUser) {
+            alert("Please log in to complete your subscription.");
+            window.location.href = "login.html?redirect=subscription.html";
+            return;
+          }
+
           const selected = planDetails[selectedPlanKey];
 
-          // Final safeguard check against duplicates/downgrades
           if (activeUserSubscription && planDetails[activeUserSubscription.key]) {
             const currentTier = planDetails[activeUserSubscription.key].tier;
             if (selected.tier <= currentTier) {
-              alert(`You already have an active subscription for this or a higher tier. You can only upgrade to a higher plan.`);
+              alert(`You already have an active subscription for this or a higher tier.`);
               return;
             }
           }
 
           payBtn.disabled = true;
-          payBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin me-2"></i>Processing Upgrade...`;
+          payBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin me-2"></i>Activating Subscription...`;
 
-          // Generate Scalable ID & Dates
           const subId = generateSubscriptionId();
           const startDate = new Date();
           const endDate = new Date();
@@ -594,15 +583,33 @@
           };
 
           try {
-            if (currentUser) {
-              await supabase.from('profiles').update({
+            // Upsert profile with subscription info so row is guaranteed to exist
+            const { error: profileError } = await supabase
+              .from('profiles')
+              .upsert({
+                id: currentUser.id,
+                full_name: currentUser.user_metadata?.full_name || currentUser.email.split('@')[0],
+                contact_email: currentUser.email,
                 subscription_id: subId,
                 subscription_plan: selected.name,
                 subscription_key: selected.key,
                 subscription_start: startDate.toISOString(),
                 subscription_end: endDate.toISOString()
-              }).eq('id', currentUser.id);
+              });
+
+            if (profileError) {
+              console.error("Supabase profiles update error:", profileError);
             }
+
+            // Also record in orders table for sales history
+            await supabase.from('orders').insert([{
+              id: subId,
+              user_id: currentUser.id,
+              amount: selected.price,
+              plan_name: selected.name,
+              status: 'completed',
+              created_at: new Date().toISOString()
+            }]);
 
             localStorage.setItem('sdl_active_subscription', JSON.stringify(subPayload));
 

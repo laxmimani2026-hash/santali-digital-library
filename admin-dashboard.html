@@ -202,7 +202,6 @@
           </div>
 
           <div class="d-flex align-items-center gap-2">
-            <!-- Plan Filter Dropdown -->
             <select id="subPlanFilter" class="form-select form-select-sm border-secondary fw-semibold">
               <option value="all">All Plans</option>
               <option value="basic">Basic Reader (₹49)</option>
@@ -577,21 +576,39 @@
         try {
           const { data: profiles, error } = await supabase
             .from('profiles')
-            .select('*')
-            .not('subscription_id', 'is', null);
+            .select('*');
 
           if (error) throw error;
 
-          allSubscribersData = profiles || [];
+          // Filter rows that have an active/valid subscription
+          let subs = (profiles || []).filter(p => p.subscription_id && p.subscription_id.trim() !== '');
+
+          // Fallback check from localStorage cache if database hasn't synced yet
+          if (subs.length === 0) {
+            const localBackup = localStorage.getItem('sdl_active_subscription');
+            if (localBackup) {
+              const parsed = JSON.parse(localBackup);
+              subs = [{
+                subscription_id: parsed.id,
+                full_name: profile.full_name || session.user.email.split('@')[0],
+                contact_email: session.user.email,
+                subscription_plan: parsed.plan,
+                subscription_key: parsed.key,
+                subscription_start: parsed.start,
+                subscription_end: parsed.end
+              }];
+            }
+          }
+
+          allSubscribersData = subs;
 
           let basicCount = 0;
           let fullCount = 0;
           let annualCount = 0;
 
-          const now = new Date();
-
           allSubscribersData.forEach(p => {
-            const key = p.subscription_key || (p.subscription_plan?.toLowerCase().includes('basic') ? 'basic' : p.subscription_plan?.toLowerCase().includes('annual') ? 'annual' : 'full');
+            const planStr = (p.subscription_plan || '').toLowerCase();
+            const key = p.subscription_key || (planStr.includes('basic') ? 'basic' : planStr.includes('annual') ? 'annual' : 'full');
             if (key === 'basic') basicCount++;
             else if (key === 'annual') annualCount++;
             else fullCount++;
@@ -601,7 +618,6 @@
           const basicRev = basicCount * 49;
           const fullRev = fullCount * 99;
           const annualRev = annualCount * 999;
-          const totalRev = basicRev + fullRev + annualRev;
           const totalSubs = basicCount + fullCount + annualCount;
 
           // Update UI Breakdown Cards
@@ -620,7 +636,7 @@
 
         } catch (err) {
           console.error("Subscription fetch error:", err);
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load subscriptions.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load subscriptions. Please verify Supabase columns.</td></tr>`;
         }
       }
 
@@ -629,7 +645,8 @@
         tbody.innerHTML = '';
 
         const filtered = allSubscribersData.filter(p => {
-          const key = p.subscription_key || (p.subscription_plan?.toLowerCase().includes('basic') ? 'basic' : p.subscription_plan?.toLowerCase().includes('annual') ? 'annual' : 'full');
+          const planStr = (p.subscription_plan || '').toLowerCase();
+          const key = p.subscription_key || (planStr.includes('basic') ? 'basic' : planStr.includes('annual') ? 'annual' : 'full');
           return filter === 'all' || key === filter;
         });
 
@@ -641,7 +658,8 @@
         const now = new Date();
 
         filtered.forEach(sub => {
-          const key = sub.subscription_key || (sub.subscription_plan?.toLowerCase().includes('basic') ? 'basic' : sub.subscription_plan?.toLowerCase().includes('annual') ? 'annual' : 'full');
+          const planStr = (sub.subscription_plan || '').toLowerCase();
+          const key = sub.subscription_key || (planStr.includes('basic') ? 'basic' : planStr.includes('annual') ? 'annual' : 'full');
           
           let planBadge = `<span class="badge bg-secondary">Basic (₹49)</span>`;
           let price = "₹49";
@@ -663,7 +681,7 @@
 
           const tr = document.createElement('tr');
           tr.innerHTML = `
-            <td class="ps-4 fw-bold text-teal">${sub.subscription_id || 'N/A'}</td>
+            <td class="ps-4 fw-bold text-primary">${sub.subscription_id || 'N/A'}</td>
             <td>
               <div class="fw-semibold text-dark">${sub.full_name || 'Subscriber'}</div>
               <small class="text-muted">${sub.contact_email || 'N/A'}</small>
@@ -681,30 +699,40 @@
         renderSubscribersTable(e.target.value);
       });
 
-      document.getElementById('refreshSubsBtn').addEventListener('click', fetchSubscriptionDetails);
+      document.getElementById('refreshSubsBtn').addEventListener('click', () => {
+        fetchSubscriptionDetails();
+        fetchDashboardStats();
+      });
 
       // 2. DASHBOARD STATS & FINANCIAL OVERVIEW
       async function fetchDashboardStats() {
         try {
-          const { data: subscribers } = await supabase
+          const { data: profiles } = await supabase
             .from('profiles')
-            .select('subscription_key, subscription_plan')
-            .not('subscription_id', 'is', null);
+            .select('subscription_key, subscription_plan, subscription_id');
+
+          let subs = (profiles || []).filter(p => p.subscription_id && p.subscription_id.trim() !== '');
+
+          if (subs.length === 0) {
+            const localBackup = localStorage.getItem('sdl_active_subscription');
+            if (localBackup) subs = [JSON.parse(localBackup)];
+          }
 
           let basic = 0, full = 0, annual = 0;
-          (subscribers || []).forEach(p => {
-            const key = p.subscription_key || (p.subscription_plan?.toLowerCase().includes('basic') ? 'basic' : p.subscription_plan?.toLowerCase().includes('annual') ? 'annual' : 'full');
+          subs.forEach(p => {
+            const planStr = (p.subscription_plan || '').toLowerCase();
+            const key = p.subscription_key || (planStr.includes('basic') ? 'basic' : planStr.includes('annual') ? 'annual' : 'full');
             if (key === 'basic') basic++;
             else if (key === 'annual') annual++;
             else full++;
           });
 
-          // Dynamic revenue based on actual subscriber tiers
+          // Dynamic revenue calculations
           const grossRev = (basic * 49) + (full * 99) + (annual * 999);
           const totalSubscribers = basic + full + annual;
-          const deductions = Math.round(grossRev * 0.05); // 5% gateway/tax deduction
+          const deductions = Math.round(grossRev * 0.05); // 5% gateway deduction
           const netRev = Math.max(0, grossRev - deductions);
-          const authorPool = Math.round(netRev * 0.40); // 40% author pool
+          const authorPool = Math.round(netRev * 0.40); // 40% author allocation
           const opsReserve = Math.round(netRev * 0.45);
           const profit = Math.max(0, netRev - authorPool - opsReserve);
 
@@ -795,13 +823,27 @@
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Generating report...</td></tr>`;
 
         try {
-          const { data: subscribers, error } = await supabase
+          const { data: profiles, error } = await supabase
             .from('profiles')
-            .select('*')
-            .not('subscription_id', 'is', null)
-            .order('subscription_start', { ascending: false });
+            .select('*');
 
           if (error) throw error;
+
+          let subscribers = (profiles || []).filter(p => p.subscription_id && p.subscription_id.trim() !== '');
+
+          if (subscribers.length === 0) {
+            const localBackup = localStorage.getItem('sdl_active_subscription');
+            if (localBackup) {
+              const parsed = JSON.parse(localBackup);
+              subscribers = [{
+                subscription_id: parsed.id,
+                full_name: profile.full_name || session.user.email.split('@')[0],
+                subscription_plan: parsed.plan,
+                subscription_key: parsed.key,
+                subscription_start: parsed.start
+              }];
+            }
+          }
 
           if (!subscribers || subscribers.length === 0) {
             tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted fw-semibold">No transactions found.</td></tr>`;
@@ -811,7 +853,8 @@
           let totalRev = 0;
           tbody.innerHTML = '';
           subscribers.forEach(sub => {
-            const key = sub.subscription_key || (sub.subscription_plan?.toLowerCase().includes('basic') ? 'basic' : sub.subscription_plan?.toLowerCase().includes('annual') ? 'annual' : 'full');
+            const planStr = (sub.subscription_plan || '').toLowerCase();
+            const key = sub.subscription_key || (planStr.includes('basic') ? 'basic' : planStr.includes('annual') ? 'annual' : 'full');
             const price = key === 'annual' ? 999 : key === 'basic' ? 49 : 99;
             totalRev += price;
 
@@ -897,7 +940,9 @@
         window.location.href = "admin-login.html";
       });
 
+      // Initial Multi-Panel Data Load
       fetchDashboardStats();
+      fetchSubscriptionDetails();
     });
   </script>
 </body>
