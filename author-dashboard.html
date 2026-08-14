@@ -37,14 +37,15 @@
             flex-direction: column;
         }
 
-        /* --- Navbar Styles --- */
+        /* --- Navbar Styles matching index.html --- */
         header {
             background-color: var(--bg-dark);
             padding: 15px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: relative;
+            position: sticky;
+            top: 0;
             z-index: 1000;
         }
 
@@ -63,6 +64,10 @@
             font-size: 1.5rem;
         }
 
+        .logo span span {
+            color: var(--primary-gold);
+        }
+
         .nav-links {
             display: flex;
             list-style: none;
@@ -71,7 +76,7 @@
         }
 
         .nav-links a {
-            color: #ffffff;
+            color: rgba(255, 255, 255, 0.85);
             text-decoration: none;
             font-weight: 500;
             font-size: 0.95rem;
@@ -138,20 +143,20 @@
         }
 
         .user-avatar-img {
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             object-fit: cover;
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            border: 1.5px solid rgba(255, 255, 255, 0.5);
         }
 
         .author-badge {
             background-color: var(--primary-gold);
             color: #000;
-            font-size: 0.7rem;
+            font-size: 0.72rem;
             font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 10px;
+            padding: 2px 8px;
+            border-radius: 12px;
             text-transform: uppercase;
         }
 
@@ -161,7 +166,7 @@
             right: 0;
             width: 220px;
             background-color: #ffffff;
-            border-radius: 8px;
+            border-radius: 10px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
             display: none;
             flex-direction: column;
@@ -229,31 +234,50 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .dashboard-header h1 {
             font-size: 1.8rem;
             color: var(--bg-dark);
+            font-weight: 700;
+        }
+
+        .uid-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #eef2f5;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #075e4d;
+            border: 1px solid #dce4e8;
+            margin-top: 6px;
         }
 
         .btn-primary {
             background-color: var(--primary-gold);
             color: #000;
-            padding: 10px 20px;
+            padding: 11px 22px;
             border: none;
-            border-radius: 6px;
-            font-weight: 600;
+            border-radius: 8px;
+            font-weight: 700;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
             text-decoration: none;
-            transition: background 0.3s ease;
+            box-shadow: 0 4px 12px rgba(243, 156, 18, 0.2);
+            transition: all 0.2s ease;
         }
 
         .btn-primary:hover {
             background-color: var(--primary-hover);
+            transform: translateY(-2px);
         }
 
         /* --- Stats Cards --- */
@@ -266,9 +290,9 @@
 
         .stat-card {
             background: var(--card-bg);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 22px;
+            border-radius: 14px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
             display: flex;
             align-items: center;
             gap: 18px;
@@ -276,9 +300,9 @@
         }
 
         .stat-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
             background-color: #eaf5f2;
             color: var(--bg-dark);
             display: flex;
@@ -288,21 +312,23 @@
         }
 
         .stat-info h3 {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             color: var(--bg-dark);
+            font-weight: 700;
         }
 
         .stat-info p {
             font-size: 0.85rem;
             color: var(--text-muted);
+            margin-top: 2px;
         }
 
         /* --- Content Section --- */
         .content-card {
             background: var(--card-bg);
-            border-radius: 10px;
+            border-radius: 14px;
             padding: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
             border: 1px solid var(--border-color);
         }
 
@@ -314,8 +340,9 @@
         }
 
         .card-header-flex h2 {
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             color: var(--bg-dark);
+            font-weight: 700;
         }
 
         /* --- Table Styling --- */
@@ -345,15 +372,15 @@
 
         .book-id-badge {
             background: #eef2f5;
-            padding: 3px 8px;
+            padding: 4px 8px;
             border-radius: 6px;
             font-family: monospace;
-            font-weight: 600;
+            font-weight: 700;
             color: #075e4d;
-            font-size: 0.8rem;
+            font-size: 0.82rem;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
             border: 1px solid #dce4e8;
         }
 
@@ -405,6 +432,7 @@
             color: var(--text-muted);
             font-size: 0.95rem;
             transition: color 0.2s;
+            padding: 4px 6px;
         }
 
         .action-btn:hover {
@@ -422,9 +450,9 @@
         }
 
         .empty-state i {
-            font-size: 3rem;
+            font-size: 3.5rem;
             margin-bottom: 15px;
-            color: #ccc;
+            color: #d1d5db;
         }
 
         /* Toast notification */
@@ -432,7 +460,7 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: #333;
+            background: #075e4d;
             color: #fff;
             padding: 12px 20px;
             border-radius: 8px;
@@ -440,16 +468,17 @@
             display: none;
             z-index: 2000;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
 
-    <!-- Header / Navbar -->
+    <!-- Header / Navbar matching index.html -->
     <header>
         <a href="index.html" class="logo">
             <i class="fa-solid fa-book-open-reader"></i>
-            Santali Digital Library
+            <span>Santali Digital <span>Library</span></span>
         </a>
 
         <ul class="nav-links">
@@ -470,17 +499,16 @@
                 </select>
             </div>
 
-            <!-- User Menu with Dropdown -->
+            <!-- User Menu with Dropdown (Hello, [First Name] [AUTHOR]) -->
             <div class="user-menu-container" id="userMenuContainer">
-                <button class="user-btn" id="userMenuBtn" type="button" aria-haspopup="true" aria-expanded="false">
+                <button class="user-btn" id="userMenuBtn" type="button">
                     <img src="" alt="" class="user-avatar-img" id="navAvatar" style="display: none;">
-                    <i class="fa-solid fa-circle-user" id="navAvatarPlaceholder" style="font-size: 1.2rem;"></i>
+                    <i class="fa-solid fa-circle-user" id="navAvatarPlaceholder" style="font-size: 1.3rem;"></i>
                     <span id="headerUserName">Hello, Author</span>
                     <span class="author-badge" id="headerUserBadge">Author</span>
                     <i class="fa-solid fa-caret-down"></i>
                 </button>
 
-                <!-- Dropdown -->
                 <div class="dropdown-menu" id="dropdownMenu">
                     <a href="profile.html"><i class="fa-solid fa-user-gear"></i> My Profile</a>
                     <a href="subscription.html"><i class="fa-solid fa-crown" style="color:#f39c12;"></i> My Subscription</a>
@@ -500,6 +528,9 @@
             <div>
                 <h1>Author Dashboard</h1>
                 <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 5px;">Manage your published eBooks, reference IDs, sales, and analytics.</p>
+                <div class="uid-tag">
+                    <i class="fa-solid fa-fingerprint"></i> Author ID: <strong id="authorUidDisplay">Loading...</strong>
+                </div>
             </div>
             <a href="upload.html" class="btn-primary">
                 <i class="fa-solid fa-plus"></i> Publish New Book
@@ -596,14 +627,18 @@
                     return;
                 }
 
-                // 2. Fetch Profile details
+                // 2. Fetch Profile details including Unique User ID (user_uid)
                 const { data: profile } = await supabase
                     .from('profiles')
-                    .select('first_name, full_name, role, avatar_url')
+                    .select('user_uid, first_name, last_name, full_name, role, avatar_url')
                     .eq('id', user.id)
                     .maybeSingle();
 
-                const firstName = profile?.first_name || (profile?.full_name ? profile.full_name.split(' ')[0] : user.email.split('@')[0]);
+                const authorUid = profile?.user_uid || `SDL-${user.id.substring(0, 6).toUpperCase()}`;
+                document.getElementById('authorUidDisplay').textContent = authorUid;
+
+                let firstName = profile?.first_name || (profile?.full_name ? profile.full_name.split(' ')[0] : user.email.split('@')[0]);
+                firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
                 document.getElementById('headerUserName').textContent = `Hello, ${firstName}`;
 
                 if (profile?.role) {
@@ -617,19 +652,37 @@
                     document.getElementById('navAvatarPlaceholder').style.display = 'none';
                 }
 
-                // 3. Fetch Books uploaded by this author
-                // Filters by author_id OR matches author full_name for backward compatibility
-                const { data: books, error: booksError } = await supabase
+                // 3. Fetch books and query by author_id, user_uid, or author name
+                const { data: allBooks, error: booksError } = await supabase
                     .from('books')
                     .select('*')
-                    .or(`author_id.eq.${user.id},author.eq."${profile?.full_name || ''}"`)
                     .order('created_at', { ascending: false });
 
                 if (booksError) throw booksError;
 
+                const fullName = (profile?.full_name || '').trim().toLowerCase();
+                const fName = (profile?.first_name || '').trim().toLowerCase();
+                const userEmail = (user.email || '').trim().toLowerCase();
+
+                // Match by:
+                // a) user_uid (Author Unique ID)
+                // b) author_id (Supabase Auth ID)
+                // c) author full name / first name / email
+                const myBooks = (allBooks || []).filter(b => {
+                    if (b.user_uid && b.user_uid === authorUid) return true;
+                    if (b.author_id && b.author_id === user.id) return true;
+                    if (!b.author) return false;
+                    const bookAuthor = b.author.trim().toLowerCase();
+                    return (
+                        (fullName && bookAuthor.includes(fullName)) ||
+                        (fName && bookAuthor.includes(fName)) ||
+                        (userEmail && bookAuthor.includes(userEmail))
+                    );
+                });
+
                 const tableBody = document.getElementById('booksTableBody');
 
-                if (!books || books.length === 0) {
+                if (myBooks.length === 0) {
                     tableBody.innerHTML = `
                         <tr>
                             <td colspan="7">
@@ -648,16 +701,16 @@
                 }
 
                 // 4. Update Stats
-                document.getElementById('statTotalBooks').textContent = books.length;
+                document.getElementById('statTotalBooks').textContent = myBooks.length;
                 let calculatedRoyalty = 0;
                 
                 tableBody.innerHTML = '';
 
                 // 5. Render Book Rows with Unique Book IDs
-                books.forEach(book => {
+                myBooks.forEach(book => {
                     const bookRefId = book.book_id || `BK-${String(book.id).substring(0, 6).toUpperCase()}`;
                     const price = book.price || 0;
-                    calculatedRoyalty += (price * 0.8); // Illustrative royalty estimation
+                    calculatedRoyalty += (price * 0.8);
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
@@ -669,7 +722,7 @@
                         </td>
                         <td>
                             <div class="book-title-cell">
-                                <img src="${book.cover_url || 'https://via.placeholder.com/40x55?text=Cover'}" alt="Cover" class="book-cover-small">
+                                <img src="${book.cover_url || 'https://via.placeholder.com/40x55?text=Cover'}" alt="Cover" class="book-cover-small" onerror="this.src='https://via.placeholder.com/40x55?text=Cover'">
                                 <span>${book.title}</span>
                             </div>
                         </td>
@@ -692,9 +745,9 @@
                 });
 
                 document.getElementById('statTotalRoyalty').textContent = `₹${Math.round(calculatedRoyalty)}`;
-                document.getElementById('statTotalReads').textContent = books.length * 15; // Example estimate
+                document.getElementById('statTotalReads').textContent = myBooks.length * 15;
 
-                // 6. Setup Copy ID Button Handlers
+                // 6. Setup Copy ID Handlers
                 document.querySelectorAll('.copy-id-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const id = e.target.getAttribute('data-id');
@@ -708,7 +761,7 @@
                 document.querySelectorAll('.delete-book-btn').forEach(btn => {
                     btn.addEventListener('click', async function() {
                         const bookId = this.getAttribute('data-id');
-                        if (confirm("Are you sure you want to remove this book?")) {
+                        if (confirm("Are you sure you want to delete this book?")) {
                             this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
                             const { error } = await supabase.from('books').delete().eq('id', bookId);
                             if (!error) {
