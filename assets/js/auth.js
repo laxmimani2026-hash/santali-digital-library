@@ -99,8 +99,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       const phone = document.getElementById("regPhone").value.trim();
       const address = document.getElementById("regAddress").value.trim();
       const role = document.getElementById("regRole").value;
-      const password = document.getElementById("regPassword").value.trim();
-      const confirmPassword = document.getElementById("regConfirmPassword").value.trim();
+      const password = document.getElementById("regPassword").value;
+      const confirmPassword = document.getElementById("regConfirmPassword").value;
 
       if (!fullName || !email || !phone || !address || !password || !confirmPassword) {
         showAlert("Please fill in all required fields.", "danger");
@@ -138,12 +138,12 @@ document.addEventListener("DOMContentLoaded", async function () {
         showAlert("Account created successfully! Redirecting...", "success");
         registerForm.reset();
 
-        // Automatic redirect on Sign Up based on Role
+        // Redirect based on Role: Author -> Home Page, Reader -> Browse Page
         setTimeout(() => {
           if (role === 'author') {
-            window.location.href = "author-dashboard.html";
+            window.location.href = "index.html"; 
           } else {
-            window.location.href = "browse.html"; // Readers go to browse page
+            window.location.href = "browse.html";
           }
         }, 1500);
 
@@ -164,7 +164,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (!supabase) return;
 
       const email = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPassword").value.trim();
+      const password = document.getElementById("loginPassword").value;
 
       if (!email || !password) {
         showAlert("Please enter both email and password.", "danger");
@@ -188,7 +188,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           .eq('id', data.user.id)
           .single();
 
-        showAlert("Login successful! Opening your dashboard...", "success");
+        showAlert("Login successful! Redirecting...", "success");
 
         // Redirect logic based on query parameter or user role
         const urlParams = new URLSearchParams(window.location.search);
@@ -198,9 +198,11 @@ document.addEventListener("DOMContentLoaded", async function () {
           if (redirectUrl) {
             window.location.href = redirectUrl;
           } else if (profile && profile.role === 'author') {
-            window.location.href = "author-dashboard.html"; // Open Author Page
+            window.location.href = "index.html"; // Opens Author Home Page
+          } else if (profile && profile.role === 'reader') {
+            window.location.href = "browse.html"; // Opens Reader Browse Page
           } else {
-            window.location.href = "browse.html"; // Open Reader Page
+            window.location.href = "index.html"; // Default fallback
           }
         }, 1200);
 
