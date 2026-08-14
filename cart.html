@@ -7,42 +7,134 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    /* Navbar background matching the design */
+    .custom-navbar {
+      background-color: #0b3c49;
+    }
+
+    /* Open dropdown on hover for desktop screens */
+    @media (min-width: 992px) {
+      .nav-item.dropdown:hover .dropdown-menu {
+        display: block;
+        margin-top: 0;
+      }
+    }
+
+    .dropdown-menu {
+      border-radius: 8px;
+      padding: 0.5rem 0;
+    }
+    
+    .dropdown-item {
+      padding: 8px 20px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #495057;
+    }
+
+    .dropdown-item:hover {
+      background-color: #f8f9fa;
+    }
+
+    .user-avatar-img {
+      width: 32px;
+      height: 32px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .badge-reader {
+      background-color: #00b4d8;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 12px;
+    }
+  </style>
 </head>
 <body class="bg-light d-flex flex-column min-vh-100">
 
-  <!-- Navigation Bar -->
-  <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: #005f73;">
-    <div class="container">
-      <!-- Brand / Logo -->
-      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
-        <i class="fa-solid fa-book-open-reader text-warning fs-3"></i>
-        <span>Santali Digital <span class="text-warning fw-bold">Library</span></span>
+  <!-- Full Navigation Bar Matching Homepage -->
+  <nav class="navbar navbar-expand-lg navbar-dark custom-navbar sticky-top">
+    <div class="container-fluid px-lg-4">
+      <!-- Brand Logo -->
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-warning" href="index.html">
+        <i class="fa-solid fa-book-open fs-4"></i>
+        <span class="text-white">Santali Digital <span class="text-warning">Library</span></span>
       </a>
 
-      <!-- Mobile Hamburger Toggle -->
+      <!-- Mobile Toggle Button -->
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <!-- Navigation Links & Profile Dropdown -->
+      <!-- Navbar Links -->
       <div class="collapse navbar-collapse" id="navContent">
-        <ul class="navbar-nav ms-auto align-items-lg-center gap-2">
+        <ul class="navbar-nav mx-auto align-items-lg-center gap-2 gap-lg-3">
           <li class="nav-item">
-            <a class="nav-link" href="index.html"><i class="fa-solid fa-house me-1"></i> Home</a>
+            <a class="nav-link text-warning fw-semibold" href="index.html">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="browse.html"><i class="fa-solid fa-book me-1"></i> Browse</a>
+            <a class="nav-link text-white-50" href="browse.html">Books</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link text-white-50" href="categories.html">Categories</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white-50" href="authors.html">Authors</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white-50" href="contact.html">Contact</a>
+          </li>
+          
+          <!-- Language Selector -->
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="fa-solid fa-circle-user fs-5 text-warning"></i>
-              <span id="navUserEmail">Account</span>
+            <a class="nav-link dropdown-toggle text-white-50 d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown">
+              <i class="fa-solid fa-globe"></i> EN
             </a>
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="profileDropdown">
-              <li><a class="dropdown-item" href="profile.html"><i class="fa-solid fa-user me-2 text-muted"></i>Profile</a></li>
-              <li><a class="dropdown-item" href="orders.html"><i class="fa-solid fa-bag-shopping me-2 text-muted"></i>My Orders</a></li>
+            <ul class="dropdown-menu shadow border-0">
+              <li><a class="dropdown-item" href="#">English (EN)</a></li>
+              <li><a class="dropdown-item" href="#">Santali (OL)</a></li>
+            </ul>
+          </li>
+        </ul>
+
+        <!-- User Profile Area -->
+        <ul class="navbar-nav align-items-lg-center">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-white d-flex align-items-center gap-2 py-1" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Avatar" class="user-avatar-img" id="userAvatar">
+              <span id="navUserName">Hello, User</span>
+              <span class="badge badge-reader text-white">Reader</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2" aria-labelledby="profileDropdown">
+              <li>
+                <a class="dropdown-item d-flex align-items-center gap-2" href="profile.html">
+                  <i class="fa-solid fa-user text-muted" style="width: 20px;"></i> My Profile
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center gap-2" href="subscription.html">
+                  <i class="fa-solid fa-crown text-warning" style="width: 20px;"></i> My Subscription
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center gap-2" href="cart.html">
+                  <i class="fa-solid fa-cart-shopping text-muted" style="width: 20px;"></i> My Cart
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center gap-2" href="orders.html">
+                  <i class="fa-solid fa-box-archive text-muted" style="width: 20px;"></i> My Orders
+                </a>
+              </li>
               <li><hr class="dropdown-divider"></li>
-              <li><button class="dropdown-item text-danger" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Logout</button></li>
+              <li>
+                <button class="dropdown-item d-flex align-items-center gap-2 text-danger" id="logoutBtn">
+                  <i class="fa-solid fa-arrow-right-from-bracket" style="width: 20px;"></i> Logout
+                </button>
+              </li>
             </ul>
           </li>
         </ul>
@@ -51,7 +143,7 @@
   </nav>
 
   <div class="container my-5 flex-grow-1">
-    <h2 class="fw-bold mb-4" style="color: #005f73;">Your Cart</h2>
+    <h2 class="fw-bold mb-4" style="color: #0b3c49;">Your Cart</h2>
     
     <div class="row">
       <!-- Cart Items Section -->
@@ -120,23 +212,24 @@
       const cartSubtotal = document.getElementById('cartSubtotal');
       const cartTotal = document.getElementById('cartTotal');
       const checkoutBtn = document.getElementById('checkoutBtn');
-      const navUserEmail = document.getElementById('navUserEmail');
+      const navUserName = document.getElementById('navUserName');
       const logoutBtn = document.getElementById('logoutBtn');
 
       try {
-        // 1. Get Logged in User
+        // 1. Get Logged-in User
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (!session) {
           window.location.href = "login.html";
           return;
         }
 
-        // Display user email / identifier in Navbar
-        if (navUserEmail && session.user?.email) {
-          navUserEmail.innerText = session.user.email.split('@')[0];
+        // Set username in header
+        if (navUserName && session.user) {
+          const userName = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
+          navUserName.innerText = `Hello, ${userName}`;
         }
 
-        // Setup Logout event listener
+        // Handle Logout
         if (logoutBtn) {
           logoutBtn.addEventListener('click', async () => {
             await supabase.auth.signOut();
@@ -216,7 +309,7 @@
 
             const { error } = await supabase.from('cart_items').delete().eq('id', cartId);
             if (!error) {
-              window.location.reload(); // Reload to refresh totals
+              window.location.reload();
             }
           });
         });
