@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 // =========================================================
-// ⚠️ REPLACE THESE TWO STRINGS WITH YOUR ACTUAL SUPABASE KEYS
+// SUPABASE CONFIGURATION
 // =========================================================
 const SUPABASE_URL = 'https://qdzadypqtctjonnwgxoo.supabase.co'; 
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
@@ -27,24 +27,24 @@ document.addEventListener("DOMContentLoaded", async function () {
       const { data: { user } } = await supabase.auth.getUser();
 
       if (user) {
-        // Fetch the user's full name, role, AND avatar_url from the 'profiles' database table
+        // Fetch full_name, role, AND avatar_url from 'profiles' table
         const { data: profile } = await supabase
           .from('profiles')
           .select('full_name, role, avatar_url')
           .eq('id', user.id)
           .single();
 
-        // Use the profile name, or default to their email if name is missing
+        // Use profile name or default to email prefix
         const userName = profile && profile.full_name ? profile.full_name : user.email.split('@')[0];
         
-        // Add a small badge to show if they are an Author or Reader
+        // Add badge for Author
         const roleBadge = profile && profile.role === 'author' 
           ? '<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65em;">Author</span>' 
           : '';
 
-        // Generate dynamic dropdown items based on role
+        // UPDATED: Dynamic dropdown items for author now points to author-dashboard.html
         const authorMenuItems = profile && profile.role === 'author' 
-          ? `<li><a class="dropdown-item fw-semibold text-secondary py-2" href="upload.html"><i class="fa-solid fa-upload me-2 text-teal"></i> Author Dashboard</a></li>` 
+          ? `<li><a class="dropdown-item fw-semibold text-secondary py-2" href="author-dashboard.html"><i class="fa-solid fa-upload me-2 text-teal"></i> Author Dashboard</a></li>` 
           : '';
 
         // Generate Avatar HTML
@@ -205,11 +205,22 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if (error) throw error;
 
+        // Fetch user profile to handle conditional redirect
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single();
+
         showAlert("Login successful! Redirecting...", "success");
 
-        // Everyone goes to the home page after login now!
+        // Redirect based on role
         setTimeout(() => {
-          window.location.href = "index.html";
+          if (profile && profile.role === 'author') {
+            window.location.href = "author-dashboard.html";
+          } else {
+            window.location.href = "index.html";
+          }
         }, 1200);
 
       } catch (error) {

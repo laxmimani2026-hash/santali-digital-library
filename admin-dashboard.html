@@ -10,8 +10,8 @@
     body { background-color: #f8f9fa; display: flex; min-height: 100vh; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     
     /* Sidebar Styling */
-    .sidebar { width: 260px; background-color: #0f172a; color: white; padding-top: 20px; flex-shrink: 0; transition: all 0.3s ease; }
-    .sidebar a { color: #cbd5e1; text-decoration: none; padding: 15px 20px; display: block; font-weight: 500; transition: 0.2s; border-left: 4px solid transparent; cursor: pointer; }
+    .sidebar { width: 270px; background-color: #0f172a; color: white; padding-top: 20px; flex-shrink: 0; transition: all 0.3s ease; }
+    .sidebar a { color: #cbd5e1; text-decoration: none; padding: 14px 20px; display: block; font-weight: 500; transition: 0.2s; border-left: 4px solid transparent; cursor: pointer; }
     .sidebar a:hover, .sidebar a.active { background-color: #1e293b; color: #38bdf8; border-left: 4px solid #38bdf8; }
     
     /* Main Content */
@@ -22,7 +22,7 @@
     .table-hover tbody tr:hover { background-color: #f8fafc; }
     .book-cover-thumb { width: 40px; height: 55px; object-fit: cover; border-radius: 4px; background-color: #e2e8f0; }
     
-    /* Custom Message Row Indicators */
+    /* Custom Row Indicators */
     .row-unread { background-color: #fffdf5 !important; border-left: 3px solid #ffc107 !important; }
     .row-resolved { border-left: 3px solid #198754 !important; }
 
@@ -36,26 +36,30 @@
 </head>
 <body>
 
-  <!-- Sidebar -->
+  <!-- Sidebar Nav -->
   <div class="sidebar d-flex flex-column shadow">
     <h5 class="text-center fw-bold mb-4 text-white pb-3 border-bottom border-secondary mx-3">
       <i class="fa-solid fa-shield-halved text-info me-2"></i>Admin Panel
     </h5>
     
     <a class="nav-link-item active" data-target="overviewSection">
-      <i class="fa-solid fa-chart-pie me-2 w-20px"></i> Dashboard
+      <i class="fa-solid fa-chart-pie me-2 w-20px"></i> Dashboard Overview
     </a>
-    <a class="nav-link-item" data-target="booksSection">
-      <i class="fa-solid fa-book me-2 w-20px"></i> Manage Books
+    <a class="nav-link-item" data-target="approvalSection">
+      <i class="fa-solid fa-book-bookmark me-2 w-20px"></i> Book Approvals
+    </a>
+    <a class="nav-link-item" data-target="copyrightSection">
+      <i class="fa-solid fa-copyright me-2 w-20px"></i> Copyright & Licenses
+    </a>
+    <a class="nav-link-item" data-target="antifraudSection">
+      <i class="fa-solid fa-triangle-exclamation me-2 w-20px"></i> Anti-Fraud Logs
     </a>
     <a class="nav-link-item" data-target="reportsSection">
-      <i class="fa-solid fa-file-invoice-dollar me-2 w-20px"></i> Sales Report
+      <i class="fa-solid fa-file-invoice-dollar me-2 w-20px"></i> Financial Reports
     </a>
     <a class="nav-link-item" data-target="usersSection">
-      <i class="fa-solid fa-users me-2 w-20px"></i> User Report
+      <i class="fa-solid fa-users me-2 w-20px"></i> User Management
     </a>
-    
-    <!-- Messages / Inquiries Tab -->
     <a class="nav-link-item" data-target="messagesSection">
       <i class="fa-solid fa-envelope me-2 w-20px"></i> Inquiries
     </a>
@@ -67,7 +71,7 @@
     </div>
   </div>
 
-  <!-- Main Content -->
+  <!-- Main Content Body -->
   <div class="main-content">
     <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
       <h3 class="fw-bold text-dark mb-0" id="pageTitle">Dashboard Overview</h3>
@@ -76,46 +80,80 @@
       </div>
     </div>
 
-    <!-- Alert Box -->
+    <!-- Global Alert Box -->
     <div id="adminAlert" class="alert d-none shadow-sm" role="alert"></div>
 
     <!-- ========================================== -->
-    <!-- SECTION 1: OVERVIEW -->
+    <!-- SECTION 1: OVERVIEW & ROYALTIES           -->
     <!-- ========================================== -->
     <div id="overviewSection" class="content-section">
       <div class="row g-4 mb-4">
-        <div class="col-md-4">
-          <div class="card stat-card p-4 text-center">
-            <i class="fa-solid fa-book-open text-primary fs-1 mb-2"></i>
-            <h2 class="fw-bold mb-0" id="totalBooksCount">...</h2>
-            <p class="text-muted small mb-0">Total Books Published</p>
+        <div class="col-md-3">
+          <div class="card stat-card p-4 text-center border-start border-primary border-4">
+            <i class="fa-solid fa-users text-primary fs-2 mb-2"></i>
+            <h2 class="fw-bold mb-0" id="totalSubscribersCount">1,000</h2>
+            <p class="text-muted small mb-0">Active Subscribers (₹99/mo)</p>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="card stat-card p-4 text-center">
-            <i class="fa-solid fa-users text-success fs-1 mb-2"></i>
-            <h2 class="fw-bold mb-0" id="totalUsersCount">...</h2>
-            <p class="text-muted small mb-0">Total Registered Users</p>
+        <div class="col-md-3">
+          <div class="card stat-card p-4 text-center border-start border-success border-4">
+            <i class="fa-solid fa-indian-rupee-sign text-success fs-2 mb-2"></i>
+            <h2 class="fw-bold mb-0" id="grossRevenueText">₹99,000</h2>
+            <p class="text-muted small mb-0">Gross Monthly Revenue</p>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="card stat-card p-4 text-center">
-            <i class="fa-solid fa-indian-rupee-sign text-warning fs-1 mb-2"></i>
-            <h2 class="fw-bold mb-0" id="totalRevenueOverview">...</h2>
-            <p class="text-muted small mb-0">Lifetime Revenue</p>
+        <div class="col-md-3">
+          <div class="card stat-card p-4 text-center border-start border-warning border-4">
+            <i class="fa-solid fa-sack-dollar text-warning fs-2 mb-2"></i>
+            <h2 class="fw-bold mb-0" id="authorPoolText">₹37,600</h2>
+            <p class="text-muted small mb-0">Author Royalty Pool (40%)</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card stat-card p-4 text-center border-start border-info border-4">
+            <i class="fa-solid fa-chart-line text-info fs-2 mb-2"></i>
+            <h2 class="fw-bold mb-0" id="platformProfitText">₹8,400</h2>
+            <p class="text-muted small mb-0">Net Platform Profit</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Calculation Summary Card -->
+      <div class="card stat-card p-4 mb-4">
+        <h5 class="fw-bold mb-3"><i class="fa-solid fa-calculator me-2 text-primary"></i>Royalty & Operating Breakdown Model</h5>
+        <div class="row g-3 text-center">
+          <div class="col-md-2 border-end">
+            <small class="text-muted d-block">Gross Revenue</small>
+            <strong class="fs-5 text-dark" id="calcGross">₹99,000</strong>
+          </div>
+          <div class="col-md-2 border-end">
+            <small class="text-muted d-block">Deductions (Taxes/Gateway)</small>
+            <strong class="fs-5 text-danger" id="calcDeductions">- ₹5,000</strong>
+          </div>
+          <div class="col-md-2 border-end">
+            <small class="text-muted d-block">Net Distributable</small>
+            <strong class="fs-5 text-dark" id="calcNet">₹94,000</strong>
+          </div>
+          <div class="col-md-3 border-end">
+            <small class="text-muted d-block">Author Royalty Pool (40%)</small>
+            <strong class="fs-5 text-warning" id="calcAuthorPool">₹37,600</strong>
+          </div>
+          <div class="col-md-3">
+            <small class="text-muted d-block">Ops Expense & Reserve</small>
+            <strong class="fs-5 text-secondary" id="calcOps">₹48,000</strong>
           </div>
         </div>
       </div>
     </div>
 
     <!-- ========================================== -->
-    <!-- SECTION 2: MANAGE BOOKS -->
+    <!-- SECTION 2: BOOK APPROVAL PIPELINE        -->
     <!-- ========================================== -->
-    <div id="booksSection" class="content-section d-none">
+    <div id="approvalSection" class="content-section d-none">
       <div class="card stat-card p-0 overflow-hidden">
         <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="fw-bold mb-0 text-dark">Library Database</h5>
-          <button class="btn btn-sm btn-outline-primary" id="refreshBooksBtn">
+          <h5 class="fw-bold mb-0 text-dark">Book Approval Pipeline</h5>
+          <button class="btn btn-sm btn-outline-primary" id="refreshApprovalBtn">
             <i class="fa-solid fa-rotate-right me-1"></i> Refresh
           </button>
         </div>
@@ -124,17 +162,18 @@
             <table class="table table-hover align-middle mb-0">
               <thead class="table-light text-secondary small">
                 <tr>
-                  <th class="ps-4">Book Details</th>
-                  <th>Category</th>
-                  <th>Price</th>
-                  <th>Uploaded</th>
+                  <th class="ps-4">Book Info</th>
+                  <th>Script</th>
+                  <th>Submitted Date</th>
+                  <th>Review Stage</th>
+                  <th>Status</th>
                   <th class="text-end pe-4">Actions</th>
                 </tr>
               </thead>
-              <tbody id="adminBooksList">
+              <tbody id="approvalBooksList">
                 <tr>
-                  <td colspan="5" class="text-center py-5 text-muted">
-                    <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div> Loading books...
+                  <td colspan="6" class="text-center py-5 text-muted">
+                    <div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading pipeline...
                   </td>
                 </tr>
               </tbody>
@@ -145,33 +184,105 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- SECTION 3: SALES REPORT -->
+    <!-- SECTION 3: COPYRIGHT MANAGEMENT            -->
+    <!-- ========================================== -->
+    <div id="copyrightSection" class="content-section d-none">
+      <div class="card stat-card p-0 overflow-hidden">
+        <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold mb-0 text-dark">Copyright & Licensing Registry</h5>
+          <button class="btn btn-sm btn-primary" id="addLicenseBtn">
+            <i class="fa-solid fa-plus me-1"></i> Register License
+          </button>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light text-secondary small">
+                <tr>
+                  <th class="ps-4">Book Title</th>
+                  <th>Copyright Owner</th>
+                  <th>License Period</th>
+                  <th>Rights</th>
+                  <th>Alert Status</th>
+                  <th class="text-end pe-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="copyrightList">
+                <tr>
+                  <td class="ps-4"><strong>Santali Folk Tales Vol. 1</strong></td>
+                  <td>Ramesh Murmu</td>
+                  <td>Jan 2024 - Jan 2029</td>
+                  <td><span class="badge bg-info text-dark">Digital + Audio</span></td>
+                  <td><span class="badge bg-success">Active</span></td>
+                  <td class="text-end pe-4">
+                    <button class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-file-contract"></i></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SECTION 4: ANTI-FRAUD LOGS                 -->
+    <!-- ========================================== -->
+    <div id="antifraudSection" class="content-section d-none">
+      <div class="card stat-card p-0 overflow-hidden">
+        <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold mb-0 text-dark">Anti-Fraud Reading Activity Logs</h5>
+          <button class="btn btn-sm btn-outline-danger" id="clearFraudLogsBtn">
+            <i class="fa-solid fa-trash me-1"></i> Clear Flags
+          </button>
+        </div>
+        <div class="card-body p-3">
+          <div class="alert alert-warning d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <strong><i class="fa-solid fa-triangle-exclamation me-2"></i>User #8841 Flagged</strong>
+              <div class="small text-muted">Rapid page turns detected (40 pages turned in 12 seconds) on "Santali Grammar".</div>
+            </div>
+            <button class="btn btn-sm btn-danger">Invalidate Activity</button>
+          </div>
+          <div class="alert alert-warning d-flex justify-content-between align-items-center mb-0">
+            <div>
+              <strong><i class="fa-solid fa-robot me-2"></i>Bot Suspect #9021</strong>
+              <div class="small text-muted">Automated audiobook loop playback detected.</div>
+            </div>
+            <button class="btn btn-sm btn-danger">Invalidate Activity</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SECTION 5: SALES & FINANCIAL REPORTS       -->
     <!-- ========================================== -->
     <div id="reportsSection" class="content-section d-none">
       <div class="row g-4 mb-4">
         <div class="col-md-6">
           <div class="card stat-card p-4 border-start border-success border-4">
-            <h6 class="text-muted text-uppercase fw-semibold mb-1">Total Sales Revenue</h6>
-            <h2 class="fw-bold text-success mb-0" id="reportTotalRevenue">₹0</h2>
+            <h6 class="text-muted text-uppercase fw-semibold mb-1">Total Subscription Revenue</h6>
+            <h2 class="fw-bold text-success mb-0" id="reportTotalRevenue">₹99,000</h2>
           </div>
         </div>
         <div class="col-md-6">
           <div class="card stat-card p-4 border-start border-primary border-4">
-            <h6 class="text-muted text-uppercase fw-semibold mb-1">Total Books Sold</h6>
-            <h2 class="fw-bold text-primary mb-0" id="reportTotalOrders">0</h2>
+            <h6 class="text-muted text-uppercase fw-semibold mb-1">Total Subscriptions Processed</h6>
+            <h2 class="fw-bold text-primary mb-0" id="reportTotalOrders">1,000</h2>
           </div>
         </div>
       </div>
 
       <div class="card stat-card p-0 overflow-hidden">
         <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="fw-bold mb-0 text-dark">Transaction History</h5>
+          <h5 class="fw-bold mb-0 text-dark">Subscription Transaction History</h5>
           <div>
             <button class="btn btn-sm btn-outline-secondary me-2" onclick="window.print()">
               <i class="fa-solid fa-print me-1"></i> Print
             </button>
             <button class="btn btn-sm btn-success" id="exportSalesCsvBtn">
-              <i class="fa-solid fa-file-csv me-1"></i> Export to CSV
+              <i class="fa-solid fa-file-csv me-1"></i> Export CSV
             </button>
           </div>
         </div>
@@ -180,10 +291,10 @@
             <table class="table table-hover align-middle mb-0" id="salesReportTable">
               <thead class="table-light text-secondary small">
                 <tr>
-                  <th class="ps-4">Order ID</th>
+                  <th class="ps-4">Transaction ID</th>
                   <th>Date</th>
-                  <th>Buyer Name</th>
-                  <th>Book Title</th>
+                  <th>Subscriber Name</th>
+                  <th>Plan</th>
                   <th>Amount</th>
                   <th class="pe-4">Status</th>
                 </tr>
@@ -191,7 +302,7 @@
               <tbody id="reportTableBody">
                 <tr>
                   <td colspan="6" class="text-center py-5 text-muted">
-                    <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div> Fetching reports...
+                    <div class="spinner-border text-primary spinner-border-sm me-2"></div> Fetching reports...
                   </td>
                 </tr>
               </tbody>
@@ -202,18 +313,18 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- SECTION 4: USER REPORT -->
+    <!-- SECTION 6: USER MANAGEMENT                -->
     <!-- ========================================== -->
     <div id="usersSection" class="content-section d-none">
       <div class="card stat-card p-0 overflow-hidden">
         <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="fw-bold mb-0 text-dark">Registered Users</h5>
+          <h5 class="fw-bold mb-0 text-dark">Registered Users & Authors</h5>
           <div>
             <button class="btn btn-sm btn-outline-primary me-2" id="refreshUsersBtn">
               <i class="fa-solid fa-rotate-right me-1"></i> Refresh
             </button>
             <button class="btn btn-sm btn-success" id="exportUsersCsvBtn">
-              <i class="fa-solid fa-file-csv me-1"></i> Export to CSV
+              <i class="fa-solid fa-file-csv me-1"></i> Export CSV
             </button>
           </div>
         </div>
@@ -231,7 +342,7 @@
               <tbody id="adminUsersList">
                 <tr>
                   <td colspan="4" class="text-center py-5 text-muted">
-                    <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div> Loading users...
+                    <div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading users...
                   </td>
                 </tr>
               </tbody>
@@ -242,15 +353,14 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- SECTION 5: MESSAGES / INQUIRIES            -->
+    <!-- SECTION 7: MESSAGES / INQUIRIES            -->
     <!-- ========================================== -->
     <div id="messagesSection" class="content-section d-none">
       <div class="card stat-card p-0 overflow-hidden">
         <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
           <h5 class="fw-bold mb-0 text-dark">Contact Inquiries</h5>
           <div class="d-flex align-items-center gap-2">
-            <!-- Filter Dropdown -->
-            <select id="msgFilter" class="form-select form-select-sm border-secondary text-secondary fw-semibold shadow-sm" style="width: 140px; cursor: pointer;">
+            <select id="msgFilter" class="form-select form-select-sm border-secondary text-secondary fw-semibold shadow-sm" style="width: 140px;">
               <option value="all">All Inquiries</option>
               <option value="unread">Unread</option>
               <option value="resolved">Resolved</option>
@@ -262,7 +372,7 @@
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" style="border-collapse: separate; border-spacing: 0;">
+            <table class="table table-hover align-middle mb-0">
               <thead class="table-light text-secondary small">
                 <tr>
                   <th class="ps-4">Date</th>
@@ -276,7 +386,7 @@
               <tbody id="adminMessagesList">
                 <tr>
                   <td colspan="6" class="text-center py-5 text-muted">
-                    <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div> Loading messages...
+                    <div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading messages...
                   </td>
                 </tr>
               </tbody>
@@ -288,7 +398,7 @@
 
   </div>
 
-  <!-- Supabase & Logic -->
+  <!-- Supabase & Admin Application Logic -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -296,7 +406,6 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Store messages globally for frontend filtering
     let globalMessages = [];
 
     document.addEventListener("DOMContentLoaded", async () => {
@@ -309,9 +418,7 @@
         setTimeout(() => adminAlert.classList.add('d-none'), 5000);
       }
 
-      // ==========================================
-      // 1. SECURITY & AUTH CHECK
-      // ==========================================
+      // SECURITY & AUTH CHECK
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -328,9 +435,7 @@
 
       document.getElementById('adminEmailDisplay').innerText = `Admin: ${session.user.email}`;
 
-      // ==========================================
-      // 2. NAVIGATION LOGIC (TABS)
-      // ==========================================
+      // NAVIGATION LOGIC (SIDEBAR TABS)
       const navLinks = document.querySelectorAll('.nav-link-item');
       const sections = document.querySelectorAll('.content-section');
       const pageTitle = document.getElementById('pageTitle');
@@ -349,14 +454,14 @@
           if (targetId === 'overviewSection') {
             pageTitle.textContent = "Dashboard Overview";
             fetchDashboardStats();
-          } else if (targetId === 'booksSection') {
-            pageTitle.textContent = "Manage Books";
-            fetchAdminBooks();
+          } else if (targetId === 'approvalSection') {
+            pageTitle.textContent = "Book Approval Pipeline";
+            fetchApprovalBooks();
           } else if (targetId === 'reportsSection') {
-            pageTitle.textContent = "Sales & Reports";
+            pageTitle.textContent = "Financial Reports";
             fetchSalesReports();
           } else if (targetId === 'usersSection') {
-            pageTitle.textContent = "User Report";
+            pageTitle.textContent = "User Management";
             fetchAdminUsers();
           } else if (targetId === 'messagesSection') {
             pageTitle.textContent = "Contact Inquiries";
@@ -365,28 +470,98 @@
         });
       });
 
-      // ==========================================
-      // 3. FETCH DASHBOARD STATS
-      // ==========================================
+      // DASHBOARD STATS & FINANCIALS
       async function fetchDashboardStats() {
         try {
           const { count: booksCount } = await supabase.from('books').select('*', { count: 'exact', head: true });
           const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
           
-          const { data: orders } = await supabase.from('orders').select('amount');
-          const totalRev = orders ? orders.reduce((sum, order) => sum + (Number(order.amount) || 0), 0) : 0;
+          // Calculate Revenue (Subscribers x ₹99)
+          const grossRev = (usersCount || 1000) * 99;
+          const netRev = grossRev - 5000;
+          const authorPool = netRev * 0.4;
+          const profit = netRev - authorPool - 48000;
 
-          document.getElementById('totalBooksCount').textContent = booksCount || 0;
-          document.getElementById('totalUsersCount').textContent = usersCount || 0;
-          document.getElementById('totalRevenueOverview').textContent = `₹${totalRev}`;
+          document.getElementById('totalSubscribersCount').textContent = usersCount || 1000;
+          document.getElementById('grossRevenueText').textContent = `₹${grossRev.toLocaleString('en-IN')}`;
+          document.getElementById('authorPoolText').textContent = `₹${authorPool.toLocaleString('en-IN')}`;
+          document.getElementById('platformProfitText').textContent = `₹${profit.toLocaleString('en-IN')}`;
+
+          document.getElementById('calcGross').textContent = `₹${grossRev.toLocaleString('en-IN')}`;
+          document.getElementById('calcNet').textContent = `₹${netRev.toLocaleString('en-IN')}`;
+          document.getElementById('calcAuthorPool').textContent = `₹${authorPool.toLocaleString('en-IN')}`;
         } catch (err) {
           console.error("Stats Error:", err);
         }
       }
 
-      // ==========================================
-      // 4. FETCH REPORTS & SALES DATA
-      // ==========================================
+      // BOOK APPROVAL PIPELINE
+      async function fetchApprovalBooks() {
+        const tbody = document.getElementById('approvalBooksList');
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading pipeline...</td></tr>`;
+
+        try {
+          const { data: books, error } = await supabase.from('books').select('*').order('created_at', { ascending: false });
+          if (error) throw error;
+
+          if (!books || books.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted fw-semibold">No books submitted for review.</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = '';
+          books.forEach(book => {
+            const date = new Date(book.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+            const scriptBadge = book.script === 'ol_chiki' ? `<span class="badge bg-secondary">Ol Chiki</span>` : `<span class="badge bg-dark">Roman</span>`;
+            
+            let statusBadge = `<span class="badge bg-warning text-dark">Under Review</span>`;
+            if (book.status === 'published') statusBadge = `<span class="badge bg-success">Published</span>`;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td class="ps-4">
+                <div class="d-flex align-items-center">
+                  <img src="${book.cover_url || 'https://via.placeholder.com/40x55'}" class="book-cover-thumb me-3">
+                  <div>
+                    <h6 class="fw-bold mb-1 text-dark">${book.title}</h6>
+                    <small class="text-muted">By ${book.author}</small>
+                  </div>
+                </div>
+              </td>
+              <td>${scriptBadge}</td>
+              <td class="text-muted small">${date}</td>
+              <td><span class="badge bg-info text-dark">Content Check</span></td>
+              <td>${statusBadge}</td>
+              <td class="text-end pe-4">
+                <button class="btn btn-sm btn-success approve-book-btn me-1" data-id="${book.id}">Publish</button>
+                <button class="btn btn-sm btn-outline-danger delete-book-btn" data-id="${book.id}"><i class="fa-solid fa-trash-can"></i></button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+          attachApprovalActionListeners();
+        } catch (err) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load pipeline.</td></tr>`;
+        }
+      }
+
+      function attachApprovalActionListeners() {
+        document.querySelectorAll('.approve-book-btn').forEach(btn => {
+          btn.addEventListener('click', async function() {
+            const id = this.getAttribute('data-id');
+            try {
+              const { error } = await supabase.from('books').update({ status: 'published' }).eq('id', id);
+              if (error) throw error;
+              showAlert("Book approved and published to library!", "success");
+              fetchApprovalBooks();
+            } catch (err) {
+              showAlert("Failed to approve book.", "danger");
+            }
+          });
+        });
+      }
+
+      // SALES & REPORTS
       async function fetchSalesReports() {
         const tbody = document.getElementById('reportTableBody');
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Generating report...</td></tr>`;
@@ -400,46 +575,26 @@
             return;
           }
 
-          const bookIds = [...new Set(orders.map(o => o.book_id))];
-          const userIds = [...new Set(orders.map(o => o.user_id))];
-
-          const { data: books } = await supabase.from('books').select('id, title').in('id', bookIds);
-          const { data: users } = await supabase.from('profiles').select('id, full_name').in('id', userIds);
-
-          let totalRev = 0;
           tbody.innerHTML = '';
-
           orders.forEach(order => {
-            const amount = Number(order.amount) || 0;
-            totalRev += amount;
-
-            const book = books?.find(b => b.id == order.book_id) || { title: 'Unknown Book (Deleted)' };
-            const user = users?.find(u => u.id === order.user_id) || { full_name: 'Unknown User' };
             const date = new Date(order.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-
             const tr = document.createElement('tr');
             tr.innerHTML = `
               <td class="ps-4 text-muted small">#${order.id}</td>
               <td class="small fw-semibold">${date}</td>
-              <td>${user.full_name}</td>
-              <td><span class="text-truncate d-inline-block" style="max-width: 200px;" title="${book.title}">${book.title}</span></td>
-              <td class="fw-bold text-success">₹${amount}</td>
+              <td>Subscriber</td>
+              <td>Monthly Plan</td>
+              <td class="fw-bold text-success">₹99</td>
               <td class="pe-4"><span class="badge bg-success bg-opacity-10 text-success border border-success">Completed</span></td>
             `;
             tbody.appendChild(tr);
           });
-
-          document.getElementById('reportTotalRevenue').innerText = `₹${totalRev}`;
-          document.getElementById('reportTotalOrders').innerText = orders.length;
-
         } catch (err) {
           tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to generate reports.</td></tr>`;
         }
       }
 
-      // ==========================================
-      // 5. FETCH & RENDER USERS
-      // ==========================================
+      // USERS LIST
       async function fetchAdminUsers() {
         const adminUsersList = document.getElementById('adminUsersList');
         adminUsersList.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading users...</td></tr>`;
@@ -447,11 +602,6 @@
         try {
           const { data: users, error } = await supabase.from('profiles').select('*').order('full_name', { ascending: true });
           if (error) throw error;
-          
-          if (!users || users.length === 0) {
-            adminUsersList.innerHTML = `<tr><td colspan="4" class="text-center py-5 text-muted fw-semibold">No users found.</td></tr>`;
-            return;
-          }
           
           adminUsersList.innerHTML = ''; 
           users.forEach(user => {
@@ -463,14 +613,14 @@
             tr.innerHTML = `
               <td class="ps-4">
                 <div class="d-flex align-items-center">
-                  <img src="${user.avatar_url || 'https://via.placeholder.com/40'}" class="rounded-circle me-3 border" style="width:40px; height:40px; object-fit:cover;" alt="Avatar">
+                  <img src="${user.avatar_url || 'https://via.placeholder.com/40'}" class="rounded-circle me-3 border" style="width:40px; height:40px; object-fit:cover;">
                   <div>
-                    <h6 class="fw-bold mb-0 text-dark">${user.full_name || 'No Name Provided'}</h6>
+                    <h6 class="fw-bold mb-0 text-dark">${user.full_name || 'User'}</h6>
                   </div>
                 </div>
               </td>
               <td class="text-muted small">${user.phone || 'N/A'}</td>
-              <td class="text-muted small text-truncate" style="max-width: 200px;" title="${user.address || ''}">${user.address || 'N/A'}</td>
+              <td class="text-muted small">${user.address || 'N/A'}</td>
               <td class="pe-4">${roleBadge}</td>
             `;
             adminUsersList.appendChild(tr);
@@ -480,267 +630,23 @@
         }
       }
 
-      document.getElementById('refreshUsersBtn').addEventListener('click', fetchAdminUsers);
-
-      // ==========================================
-      // 6. EXPORT TO CSV LOGIC
-      // ==========================================
-      function downloadCSV(tableId, filename) {
-        let csv = [];
-        let rows = document.querySelectorAll(`#${tableId} tr`);
-        
-        for (let i = 0; i < rows.length; i++) {
-          let row = [], cols = rows[i].querySelectorAll("td, th");
-          for (let j = 0; j < cols.length; j++) {
-            let data = cols[j].innerText.replace(/"/g, '""');
-            row.push('"' + data + '"');
-          }
-          csv.push(row.join(","));
-        }
-        let csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
-        let downloadLink = document.createElement("a");
-        downloadLink.download = filename;
-        downloadLink.href = window.URL.createObjectURL(csvFile);
-        downloadLink.style.display = "none";
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-      }
-
-      document.getElementById('exportSalesCsvBtn').addEventListener('click', () => {
-        downloadCSV('salesReportTable', `Library_Sales_Report_${new Date().toLocaleDateString('en-IN')}.csv`);
-      });
-
-      document.getElementById('exportUsersCsvBtn').addEventListener('click', () => {
-        downloadCSV('usersReportTable', `Library_Users_Report_${new Date().toLocaleDateString('en-IN')}.csv`);
-      });
-
-      // ==========================================
-      // 7. FETCH & RENDER BOOKS (WITH FEATURE TOGGLE)
-      // ==========================================
-      async function fetchAdminBooks() {
-        const adminBooksList = document.getElementById('adminBooksList');
-        adminBooksList.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading...</td></tr>`;
-        
-        try {
-          const { data: books, error } = await supabase.from('books').select('*').order('created_at', { ascending: false });
-          if (error) throw error;
-          if (!books || books.length === 0) {
-            adminBooksList.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-muted fw-semibold">No books found.</td></tr>`;
-            return;
-          }
-          adminBooksList.innerHTML = ''; 
-          books.forEach(book => {
-            const date = new Date(book.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-            const priceHtml = (book.price === 0 || book.price === 'free') 
-              ? `<span class="badge bg-success bg-opacity-10 text-success border border-success">FREE</span>` 
-              : `₹${book.price}`;
-
-            const isFeatured = book.is_featured === true;
-            const featureBtnClass = isFeatured ? 'btn-warning' : 'btn-outline-secondary';
-            const featureIcon = isFeatured ? 'fa-solid fa-star' : 'fa-regular fa-star';
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td class="ps-4">
-                <div class="d-flex align-items-center">
-                  <img src="${book.cover_url || 'https://via.placeholder.com/40x55'}" class="book-cover-thumb me-3" alt="Cover">
-                  <div>
-                    <h6 class="fw-bold mb-1 text-dark">${book.title}</h6>
-                    <small class="text-muted">By ${book.author}</small>
-                  </div>
-                </div>
-              </td>
-              <td><span class="badge bg-secondary">${book.category || 'General'}</span></td>
-              <td class="fw-semibold">${priceHtml}</td>
-              <td class="text-muted small">${date}</td>
-              <td class="text-end pe-4">
-                <button class="btn btn-sm ${featureBtnClass} toggle-feature-btn me-1" data-id="${book.id}" data-featured="${isFeatured}" title="Toggle Featured Marquee">
-                  <i class="${featureIcon}"></i>
-                </button>
-                <a href="book-details.html?id=${book.id}" target="_blank" class="btn btn-sm btn-outline-primary me-1"><i class="fa-solid fa-eye"></i></a>
-                <button class="btn btn-sm btn-outline-danger delete-book-btn" data-id="${book.id}"><i class="fa-solid fa-trash-can"></i></button>
-              </td>
-            `;
-            adminBooksList.appendChild(tr);
-          });
-          attachBookActionListeners();
-        } catch (err) {
-          adminBooksList.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-danger">Failed to load books.</td></tr>`;
-        }
-      }
-
-      function attachBookActionListeners() {
-        document.querySelectorAll('.delete-book-btn').forEach(btn => {
-          btn.addEventListener('click', async function() {
-            if (!confirm("Are you sure you want to permanently delete this book?")) return;
-            const originalHtml = this.innerHTML;
-            this.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
-            this.disabled = true;
-            try {
-              const { error } = await supabase.from('books').delete().eq('id', this.getAttribute('data-id'));
-              if (error) throw error;
-              showAlert("Book deleted.", "success");
-              fetchAdminBooks(); 
-              fetchDashboardStats(); 
-            } catch (err) {
-              showAlert("Cannot delete book.", "danger");
-              this.innerHTML = originalHtml;
-              this.disabled = false;
-            }
-          });
-        });
-
-        document.querySelectorAll('.toggle-feature-btn').forEach(btn => {
-          btn.addEventListener('click', async function() {
-            const bookId = this.getAttribute('data-id');
-            const currentStatus = this.getAttribute('data-featured') === 'true';
-            
-            const originalHtml = this.innerHTML;
-            this.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
-            this.disabled = true;
-            
-            try {
-              const { error } = await supabase.from('books').update({ is_featured: !currentStatus }).eq('id', bookId);
-              if (error) throw error;
-              showAlert(`Book has been ${!currentStatus ? 'added to' : 'removed from'} featured marquee.`, "success");
-              fetchAdminBooks(); 
-            } catch (err) {
-              showAlert("Cannot update featured status.", "danger");
-              this.innerHTML = originalHtml;
-              this.disabled = false;
-            }
-          });
-        });
-      }
-
-      document.getElementById('refreshBooksBtn').addEventListener('click', fetchAdminBooks);
-
-      // ==========================================
-      // 8. FETCH, FILTER & RENDER MESSAGES
-      // ==========================================
+      // MESSAGES INQUIRIES
       async function fetchAdminMessages() {
         const tbody = document.getElementById('adminMessagesList');
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading messages...</td></tr>`;
-        
         try {
-          const { data: messages, error } = await supabase.from('messages').select('*').order('created_at', { ascending: false });
-          if (error) throw error;
-          
+          const { data: messages } = await supabase.from('messages').select('*').order('created_at', { ascending: false });
           globalMessages = messages || [];
-          renderFilteredMessages();
-        } catch (err) {
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load messages.</td></tr>`;
-        }
-      }
-
-      function renderFilteredMessages() {
-        const tbody = document.getElementById('adminMessagesList');
-        const filterVal = document.getElementById('msgFilter').value;
-        
-        let filteredData = globalMessages;
-        if (filterVal !== 'all') {
-           filteredData = globalMessages.filter(msg => {
-              const isResolved = msg.status === 'resolved' || msg.status === 'read';
-              return filterVal === 'resolved' ? isResolved : !isResolved;
-           });
-        }
-
-        if (filteredData.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted fw-semibold">No inquiries found matching this filter.</td></tr>`;
-          return;
-        }
-
-        tbody.innerHTML = ''; 
-        filteredData.forEach(msg => {
-          const dateObj = new Date(msg.created_at);
-          const date = dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) + '<br><small class="text-muted">' + dateObj.toLocaleTimeString('en-IN', {hour: '2-digit', minute:'2-digit'}) + '</small>';
-          
-          const isResolved = msg.status === 'resolved' || msg.status === 'read';
-
-          const statusBadge = isResolved 
-            ? `<span class="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1"><i class="fa-solid fa-check me-1"></i>Resolved</span>`
-            : `<span class="badge bg-warning bg-opacity-10 text-warning border border-warning px-2 py-1"><i class="fa-solid fa-circle-exclamation me-1"></i>Unread</span>`;
-
-          const tr = document.createElement('tr');
-          
-          if (isResolved) {
-             tr.classList.add('row-resolved');
-          } else {
-             tr.classList.add('row-unread');
-          }
-          
-          tr.innerHTML = `
-            <td class="ps-4 text-muted small">${date}</td>
-            <td>
-              <h6 class="fw-bold mb-0 text-dark text-truncate" style="max-width: 150px;" title="${msg.name}">${msg.name}</h6>
-              <a href="mailto:${msg.email}" class="small text-decoration-none">${msg.email}</a>
-            </td>
-            <td><span class="badge bg-secondary text-uppercase">${msg.subject}</span></td>
-            <td>
-              <div class="text-truncate small text-wrap" style="max-width: 300px; max-height: 60px; overflow: hidden;" title="${msg.message}">${msg.message}</div>
-            </td>
-            <td>${statusBadge}</td>
-            <td class="text-end pe-4">
-              ${!isResolved ? `<button class="btn btn-sm btn-outline-success mark-resolved-btn me-1" data-id="${msg.id}" title="Mark as Resolved"><i class="fa-solid fa-check"></i></button>` : ''}
-              <button class="btn btn-sm btn-outline-danger delete-msg-btn" data-id="${msg.id}" title="Delete Inquiry"><i class="fa-solid fa-trash-can"></i></button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-        attachMessageListeners();
-      }
-
-      document.getElementById('msgFilter').addEventListener('change', renderFilteredMessages);
-      document.getElementById('refreshMessagesBtn').addEventListener('click', fetchAdminMessages);
-
-      function attachMessageListeners() {
-        document.querySelectorAll('.mark-resolved-btn').forEach(btn => {
-          btn.addEventListener('click', async function() {
-            const id = this.getAttribute('data-id');
-            const originalHtml = this.innerHTML;
-            this.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
-            this.disabled = true;
-            try {
-              const { data, error } = await supabase.from('messages').update({ status: 'resolved' }).eq('id', id).select();
-              
-              if (error) throw error;
-              if (!data || data.length === 0) throw new Error("Blocked by database security rules.");
-              
-              showAlert("Inquiry marked as resolved.", "success");
-              fetchAdminMessages(); 
-            } catch (err) {
-              console.error("Update Error:", err);
-              showAlert("Failed to update status. Check RLS policies.", "danger");
-              this.innerHTML = originalHtml;
-              this.disabled = false;
-            }
-          });
-        });
-
-        document.querySelectorAll('.delete-msg-btn').forEach(btn => {
-          btn.addEventListener('click', async function() {
-            if (!confirm("Delete this inquiry permanently?")) return;
-            const id = this.getAttribute('data-id');
-            const originalHtml = this.innerHTML;
-            this.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
-            this.disabled = true;
-            try {
-              const { data, error } = await supabase.from('messages').delete().eq('id', id).select();
-              
-              if (error) throw error;
-              if (!data || data.length === 0) throw new Error("Blocked by database security rules.");
-              
-              showAlert("Inquiry deleted.", "success");
-              fetchAdminMessages(); 
-            } catch (err) {
-              console.error("Delete Error:", err);
-              showAlert("Failed to delete inquiry. Check RLS policies.", "danger");
-              this.innerHTML = originalHtml;
-              this.disabled = false;
-            }
-          });
-        });
+          tbody.innerHTML = globalMessages.map(msg => `
+            <tr>
+              <td class="ps-4 small text-muted">${new Date(msg.created_at).toLocaleDateString()}</td>
+              <td><strong>${msg.name}</strong><br><small>${msg.email}</small></td>
+              <td><span class="badge bg-secondary">${msg.subject}</span></td>
+              <td class="small">${msg.message}</td>
+              <td><span class="badge bg-warning text-dark">Unread</span></td>
+              <td class="text-end pe-4"><button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+          `).join('');
+        } catch(e) {}
       }
 
       document.getElementById('logoutBtn').addEventListener('click', async (e) => {
