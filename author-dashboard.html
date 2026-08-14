@@ -107,6 +107,7 @@
         /* User Menu & Dropdown */
         .user-menu-container {
             position: relative;
+            padding: 8px 0; /* Creates an invisible hit area */
         }
 
         .user-btn {
@@ -121,6 +122,11 @@
             font-weight: 500;
             padding: 5px 10px;
             border-radius: 5px;
+            transition: background-color 0.2s ease;
+        }
+
+        .user-menu-container:hover .user-btn {
+            background-color: rgba(255, 255, 255, 0.08);
         }
 
         .author-badge {
@@ -133,11 +139,12 @@
             text-transform: uppercase;
         }
 
+        /* Dropdown Menu */
         .dropdown-menu {
             position: absolute;
-            top: 120%;
+            top: 100%;
             right: 0;
-            width: 200px;
+            width: 210px;
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
@@ -145,8 +152,21 @@
             flex-direction: column;
             overflow: hidden;
             z-index: 100;
+            margin-top: 4px;
         }
 
+        /* Invisible bridge to prevent cursor disconnect when moving */
+        .dropdown-menu::before {
+            content: "";
+            position: absolute;
+            top: -10px;
+            left: 0;
+            width: 100%;
+            height: 10px;
+        }
+
+        /* Open on hover & on active class (for touch/click) */
+        .user-menu-container:hover .dropdown-menu,
         .dropdown-menu.active {
             display: flex;
         }
@@ -372,10 +392,10 @@
 
         <ul class="nav-links">
             <li><a href="index.html">Home</a></li>
-            <li><a href="#">Books</a></li>
-            <li><a href="#">Categories</a></li>
-            <li><a href="#">Authors</a></li>
-            <li><a href="#">Contact</a></li>
+            <li><a href="browse.html">Books</a></li>
+            <li><a href="categories.html">Categories</a></li>
+            <li><a href="authors.html">Authors</a></li>
+            <li><a href="contact.html">Contact</a></li>
         </ul>
 
         <div class="nav-right">
@@ -388,22 +408,23 @@
             </div>
 
             <!-- User Menu with Dropdown -->
-            <div class="user-menu-container">
-                <button class="user-btn" id="userMenuBtn">
+            <div class="user-menu-container" id="userMenuContainer">
+                <button class="user-btn" id="userMenuBtn" type="button" aria-haspopup="true" aria-expanded="false">
                     <i class="fa-solid fa-circle-user" style="font-size: 1.2rem;"></i>
-                    Hello, Nabin
+                    <span id="headerUserName">Hello, Nabin</span>
                     <span class="author-badge">Author</span>
                     <i class="fa-solid fa-caret-down"></i>
                 </button>
 
                 <!-- Dropdown -->
                 <div class="dropdown-menu" id="dropdownMenu">
-                    <a href="#"><i class="fa-solid fa-user-gear"></i> My Profile</a>
-                    <a href="#"><i class="fa-solid fa-cart-shopping"></i> My Cart</a>
-                    <a href="#"><i class="fa-solid fa-glasses"></i> My Orders</a>
+                    <a href="profile.html"><i class="fa-solid fa-user-gear"></i> My Profile</a>
+                    <a href="subscription.html"><i class="fa-solid fa-crown text-warning"></i> My Subscription</a>
+                    <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> My Cart</a>
+                    <a href="orders.html"><i class="fa-solid fa-glasses"></i> My Orders</a>
                     <a href="author-dashboard.html"><i class="fa-solid fa-upload"></i> Author Dashboard</a>
                     <hr>
-                    <a href="#" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                    <a href="login.html" id="logoutLink" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
                 </div>
             </div>
         </div>
@@ -416,7 +437,7 @@
                 <h1>Author Dashboard</h1>
                 <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 5px;">Manage your published eBooks, sales, and analytics.</p>
             </div>
-            <a href="#" class="btn-primary">
+            <a href="upload.html" class="btn-primary">
                 <i class="fa-solid fa-plus"></i> Publish New Book
             </a>
         </div>
@@ -538,8 +559,44 @@
         </div>
     </main>
 
-    <script>
-        // Toggle User Dropdown Menu
+    <!-- Supabase Session Sync for Profile & Logout -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+        const SUPABASE_URL = 'https://qdzadypqtctjonnwgxoo.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Fetch User and display real name
+        async function loadUserData() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('full_name')
+                        .eq('id', user.id)
+                        .single();
+                    
+                    if (profile && profile.full_name) {
+                        document.getElementById('headerUserName').textContent = `Hello, ${profile.full_name}`;
+                    }
+                }
+            } catch (err) {
+                console.error("Error loading user:", err);
+            }
+        }
+
+        // Logout handler
+        document.getElementById('logoutLink').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+        });
+
+        loadUserData();
+
+        // Mobile touch & click support
         const userMenuBtn = document.getElementById('userMenuBtn');
         const dropdownMenu = document.getElementById('dropdownMenu');
 
@@ -548,7 +605,6 @@
             dropdownMenu.classList.toggle('active');
         });
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', (e) => {
             if (!dropdownMenu.contains(e.target) && !userMenuBtn.contains(e.target)) {
                 dropdownMenu.classList.remove('active');
