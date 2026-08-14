@@ -18,8 +18,8 @@
         }
 
         :root {
-            --bg-dark: #0a2533;
-            --primary-gold: #f39c12;
+            --bg-dark: #075e4d;
+            --primary-gold: #ffb703;
             --primary-hover: #e08e0b;
             --text-light: #ffffff;
             --text-dark: #333333;
@@ -99,6 +99,14 @@
             gap: 5px;
         }
 
+        .lang-select select {
+            background: transparent;
+            border: none;
+            color: #fff;
+            outline: none;
+            cursor: pointer;
+        }
+
         .lang-select option {
             background-color: var(--bg-dark);
             color: #fff;
@@ -107,7 +115,7 @@
         /* User Menu & Dropdown */
         .user-menu-container {
             position: relative;
-            padding: 8px 0; /* Creates an invisible hit area */
+            padding: 8px 0;
         }
 
         .user-btn {
@@ -129,6 +137,14 @@
             background-color: rgba(255, 255, 255, 0.08);
         }
 
+        .user-avatar-img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
         .author-badge {
             background-color: var(--primary-gold);
             color: #000;
@@ -139,12 +155,11 @@
             text-transform: uppercase;
         }
 
-        /* Dropdown Menu */
         .dropdown-menu {
             position: absolute;
             top: 100%;
             right: 0;
-            width: 210px;
+            width: 220px;
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
@@ -155,7 +170,6 @@
             margin-top: 4px;
         }
 
-        /* Invisible bridge to prevent cursor disconnect when moving */
         .dropdown-menu::before {
             content: "";
             position: absolute;
@@ -165,7 +179,6 @@
             height: 10px;
         }
 
-        /* Open on hover & on active class (for touch/click) */
         .user-menu-container:hover .dropdown-menu,
         .dropdown-menu.active {
             display: flex;
@@ -203,16 +216,13 @@
             font-weight: 600;
         }
 
-        .dropdown-menu a.logout i {
-            color: #e74c3c;
-        }
-
         /* --- Dashboard Container --- */
         .dashboard-container {
             max-width: 1200px;
             margin: 30px auto;
             padding: 0 20px;
             width: 100%;
+            flex-grow: 1;
         }
 
         .dashboard-header {
@@ -269,8 +279,8 @@
             width: 50px;
             height: 50px;
             border-radius: 10px;
-            background-color: #fef5e7;
-            color: var(--primary-gold);
+            background-color: #eaf5f2;
+            color: var(--bg-dark);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -324,12 +334,35 @@
             padding: 14px 16px;
             border-bottom: 1px solid var(--border-color);
             font-size: 0.9rem;
+            vertical-align: middle;
         }
 
         th {
             background-color: #f8f9fa;
             color: var(--text-muted);
             font-weight: 600;
+        }
+
+        .book-id-badge {
+            background: #eef2f5;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-weight: 600;
+            color: #075e4d;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            border: 1px solid #dce4e8;
+        }
+
+        .book-id-badge i {
+            cursor: pointer;
+            color: #888;
+        }
+        .book-id-badge i:hover {
+            color: #333;
         }
 
         .book-title-cell {
@@ -340,11 +373,13 @@
         }
 
         .book-cover-small {
-            width: 35px;
-            height: 50px;
-            background-color: #ddd;
+            width: 38px;
+            height: 52px;
+            background-color: #eee;
             border-radius: 4px;
             object-fit: cover;
+            flex-shrink: 0;
+            border: 1px solid #ddd;
         }
 
         .badge {
@@ -379,6 +414,33 @@
         .action-btn.delete:hover {
             color: #e74c3c;
         }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #ccc;
+        }
+
+        /* Toast notification */
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            display: none;
+            z-index: 2000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
     </style>
 </head>
 <body>
@@ -386,7 +448,7 @@
     <!-- Header / Navbar -->
     <header>
         <a href="index.html" class="logo">
-            <i class="fa-solid fa-book-open"></i>
+            <i class="fa-solid fa-book-open-reader"></i>
             Santali Digital Library
         </a>
 
@@ -401,30 +463,32 @@
         <div class="nav-right">
             <div class="lang-select">
                 <i class="fa-solid fa-globe"></i>
-                <select style="background:none; border:none; color:white;">
+                <select>
                     <option>EN</option>
-                    <option>OL CHIKI</option>
+                    <option>ᱥᱟᱱᱛᱟᱲᱤ</option>
+                    <option>हिन्दी</option>
                 </select>
             </div>
 
             <!-- User Menu with Dropdown -->
             <div class="user-menu-container" id="userMenuContainer">
                 <button class="user-btn" id="userMenuBtn" type="button" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa-solid fa-circle-user" style="font-size: 1.2rem;"></i>
-                    <span id="headerUserName">Hello, Nabin</span>
-                    <span class="author-badge">Author</span>
+                    <img src="" alt="" class="user-avatar-img" id="navAvatar" style="display: none;">
+                    <i class="fa-solid fa-circle-user" id="navAvatarPlaceholder" style="font-size: 1.2rem;"></i>
+                    <span id="headerUserName">Hello, Author</span>
+                    <span class="author-badge" id="headerUserBadge">Author</span>
                     <i class="fa-solid fa-caret-down"></i>
                 </button>
 
                 <!-- Dropdown -->
                 <div class="dropdown-menu" id="dropdownMenu">
                     <a href="profile.html"><i class="fa-solid fa-user-gear"></i> My Profile</a>
-                    <a href="subscription.html"><i class="fa-solid fa-crown text-warning"></i> My Subscription</a>
+                    <a href="subscription.html"><i class="fa-solid fa-crown" style="color:#f39c12;"></i> My Subscription</a>
                     <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> My Cart</a>
-                    <a href="orders.html"><i class="fa-solid fa-glasses"></i> My Orders</a>
+                    <a href="orders.html"><i class="fa-solid fa-box-archive"></i> My Orders</a>
                     <a href="author-dashboard.html"><i class="fa-solid fa-upload"></i> Author Dashboard</a>
                     <hr>
-                    <a href="login.html" id="logoutLink" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                    <a href="#" id="logoutLink" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
                 </div>
             </div>
         </div>
@@ -435,7 +499,7 @@
         <div class="dashboard-header">
             <div>
                 <h1>Author Dashboard</h1>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 5px;">Manage your published eBooks, sales, and analytics.</p>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 5px;">Manage your published eBooks, reference IDs, sales, and analytics.</p>
             </div>
             <a href="upload.html" class="btn-primary">
                 <i class="fa-solid fa-plus"></i> Publish New Book
@@ -447,28 +511,28 @@
             <div class="stat-card">
                 <div class="stat-icon"><i class="fa-solid fa-book"></i></div>
                 <div class="stat-info">
-                    <h3>12</h3>
+                    <h3 id="statTotalBooks">0</h3>
                     <p>Published Books</p>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
                 <div class="stat-info">
-                    <h3>₹14,250</h3>
-                    <p>Total Royalty</p>
+                    <h3 id="statTotalRoyalty">₹0</h3>
+                    <p>Total Estimated Royalty</p>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon"><i class="fa-solid fa-download"></i></div>
+                <div class="stat-icon"><i class="fa-solid fa-book-open-reader"></i></div>
                 <div class="stat-info">
-                    <h3>1,840</h3>
-                    <p>Total Downloads</p>
+                    <h3 id="statTotalReads">0</h3>
+                    <p>Total Reads / Sales</p>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon"><i class="fa-solid fa-star"></i></div>
                 <div class="stat-info">
-                    <h3>4.8 / 5</h3>
+                    <h3>5.0 / 5</h3>
                     <p>Avg Reader Rating</p>
                 </div>
             </div>
@@ -477,80 +541,27 @@
         <!-- Publications Management Table -->
         <div class="content-card">
             <div class="card-header-flex">
-                <h2>Your Managed Publications</h2>
+                <h2>Your Published Books</h2>
             </div>
 
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
+                            <th>Book ID</th>
                             <th>Book Title</th>
+                            <th>Category</th>
                             <th>Language</th>
                             <th>Price</th>
                             <th>Status</th>
-                            <th>Sales/Reads</th>
-                            <th>Earnings</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="booksTableBody">
                         <tr>
-                            <td>
-                                <div class="book-title-cell">
-                                    <div class="book-cover-small" style="background: #113f48;"></div>
-                                    <span>Kherwal Bansa</span>
-                                </div>
-                            </td>
-                            <td>Ol Chiki</td>
-                            <td>₹150</td>
-                            <td><span class="badge badge-published">Published</span></td>
-                            <td>420</td>
-                            <td>₹4,200</td>
-                            <td>
-                                <div class="action-btns">
-                                    <button class="action-btn" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
-                                    <button class="action-btn" title="Analytics"><i class="fa-solid fa-chart-line"></i></button>
-                                    <button class="action-btn delete" title="Delete"><i class="fa-solid fa-trash"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="book-title-cell">
-                                    <div class="book-cover-small" style="background: #7a3211;"></div>
-                                    <span>Santali Grammar & Lore</span>
-                                </div>
-                            </td>
-                            <td>English</td>
-                            <td>₹299</td>
-                            <td><span class="badge badge-published">Published</span></td>
-                            <td>310</td>
-                            <td>₹6,200</td>
-                            <td>
-                                <div class="action-btns">
-                                    <button class="action-btn" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
-                                    <button class="action-btn" title="Analytics"><i class="fa-solid fa-chart-line"></i></button>
-                                    <button class="action-btn delete" title="Delete"><i class="fa-solid fa-trash"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="book-title-cell">
-                                    <div class="book-cover-small" style="background: #2a5235;"></div>
-                                    <span>Haramba Vani</span>
-                                </div>
-                            </td>
-                            <td>Ol Chiki</td>
-                            <td>₹99</td>
-                            <td><span class="badge badge-pending">Under Review</span></td>
-                            <td>0</td>
-                            <td>₹0</td>
-                            <td>
-                                <div class="action-btns">
-                                    <button class="action-btn" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
-                                    <button class="action-btn delete" title="Delete"><i class="fa-solid fa-trash"></i></button>
-                                </div>
+                            <td colspan="7" style="text-align: center; padding: 40px;">
+                                <i class="fa-solid fa-spinner fa-spin" style="font-size: 1.5rem; color: var(--bg-dark);"></i>
+                                <p style="margin-top: 10px; color: #888;">Loading your publications...</p>
                             </td>
                         </tr>
                     </tbody>
@@ -559,7 +570,9 @@
         </div>
     </main>
 
-    <!-- Supabase Session Sync for Profile & Logout -->
+    <div id="toast">Copied to clipboard!</div>
+
+    <!-- Supabase Logic -->
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -567,36 +580,160 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Fetch User and display real name
-        async function loadUserData() {
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        async function initAuthorDashboard() {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (user) {
-                    const { data: profile } = await supabase
-                        .from('profiles')
-                        .select('full_name')
-                        .eq('id', user.id)
-                        .single();
-                    
-                    if (profile && profile.full_name) {
-                        document.getElementById('headerUserName').textContent = `Hello, ${profile.full_name}`;
-                    }
+                // 1. Authenticate user
+                const { data: { user }, error: authError } = await supabase.auth.getUser();
+                if (authError || !user) {
+                    window.location.href = "login.html?redirect=author-dashboard.html";
+                    return;
                 }
+
+                // 2. Fetch Profile details
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('first_name, full_name, role, avatar_url')
+                    .eq('id', user.id)
+                    .maybeSingle();
+
+                const firstName = profile?.first_name || (profile?.full_name ? profile.full_name.split(' ')[0] : user.email.split('@')[0]);
+                document.getElementById('headerUserName').textContent = `Hello, ${firstName}`;
+
+                if (profile?.role) {
+                    document.getElementById('headerUserBadge').textContent = profile.role.toUpperCase();
+                }
+
+                if (profile?.avatar_url) {
+                    const navAvatar = document.getElementById('navAvatar');
+                    navAvatar.src = profile.avatar_url;
+                    navAvatar.style.display = 'inline-block';
+                    document.getElementById('navAvatarPlaceholder').style.display = 'none';
+                }
+
+                // 3. Fetch Books uploaded by this author
+                // Filters by author_id OR matches author full_name for backward compatibility
+                const { data: books, error: booksError } = await supabase
+                    .from('books')
+                    .select('*')
+                    .or(`author_id.eq.${user.id},author.eq."${profile?.full_name || ''}"`)
+                    .order('created_at', { ascending: false });
+
+                if (booksError) throw booksError;
+
+                const tableBody = document.getElementById('booksTableBody');
+
+                if (!books || books.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <i class="fa-solid fa-book-bookmark"></i>
+                                    <h3>No books uploaded yet</h3>
+                                    <p>Click "Publish New Book" to upload your first eBook and generate its unique Book ID.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    document.getElementById('statTotalBooks').textContent = '0';
+                    document.getElementById('statTotalRoyalty').textContent = '₹0';
+                    document.getElementById('statTotalReads').textContent = '0';
+                    return;
+                }
+
+                // 4. Update Stats
+                document.getElementById('statTotalBooks').textContent = books.length;
+                let calculatedRoyalty = 0;
+                
+                tableBody.innerHTML = '';
+
+                // 5. Render Book Rows with Unique Book IDs
+                books.forEach(book => {
+                    const bookRefId = book.book_id || `BK-${String(book.id).substring(0, 6).toUpperCase()}`;
+                    const price = book.price || 0;
+                    calculatedRoyalty += (price * 0.8); // Illustrative royalty estimation
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>
+                            <span class="book-id-badge" title="Click to copy Book ID">
+                                <span class="id-text">${bookRefId}</span>
+                                <i class="fa-regular fa-copy copy-id-btn" data-id="${bookRefId}"></i>
+                            </span>
+                        </td>
+                        <td>
+                            <div class="book-title-cell">
+                                <img src="${book.cover_url || 'https://via.placeholder.com/40x55?text=Cover'}" alt="Cover" class="book-cover-small">
+                                <span>${book.title}</span>
+                            </div>
+                        </td>
+                        <td>${book.category ? book.category.toUpperCase() : 'GENERAL'}</td>
+                        <td>${book.language || 'Santali (Ol Chiki)'}</td>
+                        <td style="font-weight: 600;">₹${price}</td>
+                        <td>
+                            <span class="badge ${book.status === 'Under Review' ? 'badge-pending' : 'badge-published'}">
+                                ${book.status || 'Published'}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-btns">
+                                <a href="book-details.html?id=${book.id}" class="action-btn" title="View in Store"><i class="fa-solid fa-eye"></i></a>
+                                <button class="action-btn delete delete-book-btn" data-id="${book.id}" title="Delete Book"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+
+                document.getElementById('statTotalRoyalty').textContent = `₹${Math.round(calculatedRoyalty)}`;
+                document.getElementById('statTotalReads').textContent = books.length * 15; // Example estimate
+
+                // 6. Setup Copy ID Button Handlers
+                document.querySelectorAll('.copy-id-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = e.target.getAttribute('data-id');
+                        navigator.clipboard.writeText(id).then(() => {
+                            showToast(`Book ID ${id} copied!`);
+                        });
+                    });
+                });
+
+                // 7. Setup Delete Handlers
+                document.querySelectorAll('.delete-book-btn').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const bookId = this.getAttribute('data-id');
+                        if (confirm("Are you sure you want to remove this book?")) {
+                            this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+                            const { error } = await supabase.from('books').delete().eq('id', bookId);
+                            if (!error) {
+                                showToast("Book deleted successfully.");
+                                initAuthorDashboard();
+                            } else {
+                                alert("Failed to delete book: " + error.message);
+                            }
+                        }
+                    });
+                });
+
             } catch (err) {
-                console.error("Error loading user:", err);
+                console.error("Dashboard Error:", err);
+                document.getElementById('booksTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align:center; color:#e74c3c; padding:30px;">
+                            Failed to load publications. Please check your connection.
+                        </td>
+                    </tr>
+                `;
             }
         }
 
-        // Logout handler
-        document.getElementById('logoutLink').addEventListener('click', async (e) => {
-            e.preventDefault();
-            await supabase.auth.signOut();
-            window.location.href = 'login.html';
-        });
-
-        loadUserData();
-
-        // Mobile touch & click support
+        // Dropdown toggle
         const userMenuBtn = document.getElementById('userMenuBtn');
         const dropdownMenu = document.getElementById('dropdownMenu');
 
@@ -610,6 +747,15 @@
                 dropdownMenu.classList.remove('active');
             }
         });
+
+        // Logout
+        document.getElementById('logoutLink').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+        });
+
+        initAuthorDashboard();
     </script>
 </body>
 </html>
