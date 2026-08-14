@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Profile | Santali Digital Library</title>
   
-  <!-- Bootstrap 5 CSS (Matching Cart Page) -->
+  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -30,7 +30,35 @@
   </script>
 
   <style>
-    /* Open dropdowns on mouse hover for desktop screens */
+    /* 1. FORCE BOOTSTRAP NAVBAR DISPLAY (Fixes Tailwind Preflight Collision) */
+    .navbar {
+      background-color: #075e4d !important;
+      position: sticky;
+      top: 0;
+      z-index: 1030;
+    }
+    
+    @media (min-width: 992px) {
+      .navbar-expand-lg .navbar-collapse {
+        display: flex !important;
+        flex-basis: auto !important;
+      }
+      .navbar-expand-lg .navbar-nav {
+        display: flex !important;
+        flex-direction: row !important;
+      }
+    }
+
+    .navbar-nav .nav-link {
+      color: rgba(255, 255, 255, 0.85) !important;
+      font-weight: 500;
+      padding: 0.5rem 0.8rem;
+    }
+    .navbar-nav .nav-link:hover {
+      color: #ffb703 !important;
+    }
+
+    /* 2. OPEN DROPDOWNS ON MOUSE HOVER */
     @media (min-width: 992px) {
       .navbar-nav .dropdown:hover > .dropdown-menu,
       #userNavArea:hover > .dropdown-menu {
@@ -45,18 +73,18 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Profile Avatar & Badge Styles matching the site theme */
+    /* 3. PROFILE AVATAR & BADGE STYLES (Identical to Cart Page) */
     .user-avatar-img {
-      width: 32px;
-      height: 32px;
+      width: 32px !important;
+      height: 32px !important;
       object-fit: cover;
       border-radius: 50%;
       border: 1px solid rgba(255, 255, 255, 0.4);
     }
 
     .default-avatar-placeholder {
-      width: 32px;
-      height: 32px;
+      width: 32px !important;
+      height: 32px !important;
       border-radius: 50%;
       background-color: rgba(255, 255, 255, 0.2);
       border: 1px solid rgba(255, 255, 255, 0.4);
@@ -68,16 +96,17 @@
     }
 
     .badge-reader {
-      background-color: #00b4d8;
+      background-color: #00b4d8 !important;
       font-size: 0.72rem;
       font-weight: 600;
       padding: 3px 8px;
       border-radius: 12px;
+      color: #ffffff !important;
     }
 
     .badge-author {
-      background-color: #ffb703;
-      color: #000;
+      background-color: #ffb703 !important;
+      color: #000 !important;
       font-size: 0.72rem;
       font-weight: 600;
       padding: 3px 8px;
@@ -85,8 +114,8 @@
     }
 
     .badge-admin {
-      background-color: #ef4444;
-      color: #fff;
+      background-color: #ef4444 !important;
+      color: #fff !important;
       font-size: 0.72rem;
       font-weight: 600;
       padding: 3px 8px;
@@ -134,23 +163,23 @@
 </head>
 <body class="bg-light flex flex-col min-h-screen text-gray-800">
 
-  <!-- Navigation Bar (Identical structure to Cart Page) -->
+  <!-- Navigation Bar (Fully Styled & Hover Enabled) -->
   <nav class="navbar navbar-expand-lg navbar-dark navbar-teal sticky-top">
     <div class="container">
       <!-- Brand Logo -->
       <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
         <i class="fa-solid fa-book-open-reader text-warning fs-3"></i>
-        <span>Santali Digital <span class="highlight">Library</span></span>
+        <span>Santali Digital <span class="text-warning fw-bold">Library</span></span>
       </a>
 
       <!-- Mobile Hamburger Toggle Button -->
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
 
       <!-- Navbar Links -->
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto align-items-center">
+        <ul class="navbar-nav ms-auto align-items-center mb-2 mb-lg-0">
           <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="browse.html">Books</a></li>
           <li class="nav-item"><a class="nav-link" href="categories.html">Categories</a></li>
@@ -176,7 +205,7 @@
               <div class="default-avatar-placeholder" id="navUserAvatarPlaceholder">
                 <i class="fa-solid fa-user"></i>
               </div>
-              <span id="navUserName">Hello, User</span>
+              <span id="navUserName" class="text-white">Hello, User</span>
               <span class="badge badge-reader text-white" id="navUserRoleBadge">Reader</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 profile-dropdown-menu" aria-labelledby="profileDropdown">
@@ -273,7 +302,6 @@
               <h5 class="text-lg font-bold mb-4 border-b border-gray-200 pb-2 text-gray-800">Personal & Account Information</h5>
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <!-- First Name & Last Name -->
                 <div>
                   <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-regular fa-user mr-1"></i> First Name</span>
                   <h6 id="viewFirstName" class="font-semibold text-gray-900">-</h6>
@@ -374,7 +402,6 @@
                   <h6 class="font-bold text-gray-500">Basic Details</h6>
                 </div>
                 
-                <!-- Separate First Name & Last Name Input Fields -->
                 <div>
                   <label for="firstName" class="block text-sm font-semibold text-gray-700 mb-1">First Name</label>
                   <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="firstName" placeholder="e.g. Nabin" required>
@@ -538,7 +565,6 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Helper: Generate a fallback Unique ID (e.g. SDL-A3F9B2)
     function generateFallbackUID() {
       const chars = '0123456789ABCDEF';
       let uid = 'SDL-';
@@ -640,7 +666,6 @@
             .eq('id', user.id)
             .maybeSingle();
 
-          // If no profile exists, create a new profile with a generated unique ID
           if (!profile) {
             const initialFirstName = user.user_metadata?.first_name || user.email.split('@')[0];
             const initialLastName = user.user_metadata?.last_name || '';
@@ -661,7 +686,6 @@
               
             if (newProfile) profile = newProfile;
           } else if (!profile.user_uid) {
-            // Profile exists but has no user_uid yet: generate and update one
             const generatedUid = generateFallbackUID();
             const { data: updated } = await supabase
               .from('profiles')
@@ -715,7 +739,6 @@
       }
 
       function renderProfile(p) {
-        // Derive First Name and Last Name with fallback to full_name if not separated
         let firstName = p.first_name || '';
         let lastName = p.last_name || '';
 
