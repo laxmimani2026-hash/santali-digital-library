@@ -10,7 +10,7 @@
   <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Custom CSS matching index & cart -->
+  <!-- Custom CSS matching index.html & style.css -->
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/style.css">
 
@@ -30,7 +30,7 @@
   </script>
 
   <style>
-    /* 1. FORCE BOOTSTRAP NAVBAR DISPLAY (Fixes Tailwind Preflight Collision) */
+    /* 1. FORCE BOOTSTRAP NAVBAR DISPLAY (Fixes Tailwind Preflight Conflict) */
     .navbar {
       background-color: #075e4d !important;
       position: sticky;
@@ -54,14 +54,16 @@
       font-weight: 500;
       padding: 0.5rem 0.8rem;
     }
-    .navbar-nav .nav-link:hover {
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link.active {
       color: #ffb703 !important;
     }
 
-    /* 2. OPEN DROPDOWNS ON MOUSE HOVER */
+    /* 2. OPEN DROPDOWNS ON MOUSE HOVER (Desktop) */
     @media (min-width: 992px) {
       .navbar-nav .dropdown:hover > .dropdown-menu,
-      #userNavArea:hover > .dropdown-menu {
+      #userNavArea:hover > .dropdown-menu,
+      .custom-hover-dropdown:hover > .dropdown-menu {
         display: block !important;
         margin-top: 0;
         animation: fadeIn 0.2s ease-in-out;
@@ -73,13 +75,13 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* 3. PROFILE AVATAR & BADGE STYLES (Identical to Cart Page) */
+    /* 3. PROFILE AVATAR & DROPDOWN MENU */
     .user-avatar-img {
       width: 32px !important;
       height: 32px !important;
       object-fit: cover;
       border-radius: 50%;
-      border: 1px solid rgba(255, 255, 255, 0.4);
+      border: 1.5px solid rgba(255, 255, 255, 0.6);
     }
 
     .default-avatar-placeholder {
@@ -97,11 +99,11 @@
 
     .badge-reader {
       background-color: #00b4d8 !important;
+      color: #fff !important;
       font-size: 0.72rem;
       font-weight: 600;
-      padding: 3px 8px;
+      padding: 4px 9px;
       border-radius: 12px;
-      color: #ffffff !important;
     }
 
     .badge-author {
@@ -109,7 +111,7 @@
       color: #000 !important;
       font-size: 0.72rem;
       font-weight: 600;
-      padding: 3px 8px;
+      padding: 4px 9px;
       border-radius: 12px;
     }
 
@@ -118,7 +120,7 @@
       color: #fff !important;
       font-size: 0.72rem;
       font-weight: 600;
-      padding: 3px 8px;
+      padding: 4px 9px;
       border-radius: 12px;
     }
 
@@ -134,11 +136,7 @@
       color: #0b7760;
     }
 
-    .profile-dropdown-menu .dropdown-item i {
-      width: 22px;
-    }
-
-    /* Validation styles */
+    /* Validation & animation utilities */
     .was-validated :invalid {
       border-color: #ef4444; 
     }
@@ -163,28 +161,27 @@
 </head>
 <body class="bg-light flex flex-col min-h-screen text-gray-800">
 
-  <!-- Navigation Bar (Fully Styled & Hover Enabled) -->
+  <!-- Navigation Bar (Identical structure to index.html) -->
   <nav class="navbar navbar-expand-lg navbar-dark navbar-teal sticky-top">
     <div class="container">
-      <!-- Brand Logo -->
       <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
         <i class="fa-solid fa-book-open-reader text-warning fs-3"></i>
-        <span>Santali Digital <span class="text-warning fw-bold">Library</span></span>
+        <span>Santali Digital <span class="highlight">Library</span></span>
       </a>
 
-      <!-- Mobile Hamburger Toggle Button -->
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <!-- Navbar Links -->
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto align-items-center mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="browse.html">Books</a></li>
-          <li class="nav-item"><a class="nav-link" href="categories.html">Categories</a></li>
-          <li class="nav-item"><a class="nav-link" href="authors.html">Authors</a></li>
-          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+        <ul class="navbar-nav ms-auto align-items-center">
+          <li class="nav-item"><a class="nav-link" href="index.html" data-i18n="navHome">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="browse.html" data-i18n="navBooks">Books</a></li>
+          <li class="nav-item"><a class="nav-link" href="categories.html" data-i18n="navCategories">Categories</a></li>
+          <li class="nav-item"><a class="nav-link" href="authors.html" data-i18n="navAuthors">Authors</a></li>
+          
+          <li class="nav-item d-none" id="uploadNavArea"><a class="nav-link" href="upload.html" data-i18n="navUpload">Upload</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html" data-i18n="navContact">Contact</a></li>
 
           <!-- Language Selector Dropdown -->
           <li class="nav-item dropdown ms-lg-2">
@@ -192,47 +189,52 @@
               <i class="fa-solid fa-globe"></i> <span id="langLabelText">EN</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="languageDropdown">
-              <li><a class="dropdown-item" href="#">English</a></li>
-              <li><a class="dropdown-item" href="#">ᱥᱟᱱᱛᱟᱲᱤ (Santali)</a></li>
-              <li><a class="dropdown-item" href="#">हिन्दी (Hindi)</a></li>
+              <li><a class="dropdown-item lang-select" href="#" data-lang="en">English</a></li>
+              <li><a class="dropdown-item lang-select" href="#" data-lang="sat">ᱥᱟᱱᱛᱟᱲᱤ (Santali)</a></li>
+              <li><a class="dropdown-item lang-select" href="#" data-lang="hi">हिन्दी (Hindi)</a></li>
             </ul>
           </li>
-
-          <!-- User Profile Dropdown (Hover Enabled) -->
+          
+          <!-- Dynamic User Account Area (Hello, [First Name] [account type]) -->
           <li class="nav-item dropdown ms-lg-3 my-2 my-lg-0" id="userNavArea">
             <a class="nav-link dropdown-toggle text-white d-flex align-items-center gap-2 py-1" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               <img src="" alt="Avatar" class="user-avatar-img d-none" id="navUserAvatar">
               <div class="default-avatar-placeholder" id="navUserAvatarPlaceholder">
                 <i class="fa-solid fa-user"></i>
               </div>
-              <span id="navUserName" class="text-white">Hello, User</span>
-              <span class="badge badge-reader text-white" id="navUserRoleBadge">Reader</span>
+              <span id="navUserName">Hello, User</span>
+              <span class="badge badge-reader" id="navUserRoleBadge">Reader</span>
             </a>
-            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 profile-dropdown-menu" aria-labelledby="profileDropdown">
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 profile-dropdown-menu" aria-labelledby="profileDropdown" style="min-width: 210px; border-radius: 10px;">
               <li>
                 <a class="dropdown-item d-flex align-items-center active" href="profile.html">
-                  <i class="fa-solid fa-user text-muted"></i> My Profile
+                  <i class="fa-solid fa-user text-muted me-2" style="width: 20px;"></i> My Profile
                 </a>
               </li>
               <li>
                 <a class="dropdown-item d-flex align-items-center" href="subscription.html">
-                  <i class="fa-solid fa-crown text-warning"></i> My Subscription
+                  <i class="fa-solid fa-crown text-warning me-2" style="width: 20px;"></i> My Subscription
                 </a>
               </li>
               <li>
                 <a class="dropdown-item d-flex align-items-center" href="cart.html">
-                  <i class="fa-solid fa-cart-shopping text-muted"></i> My Cart
+                  <i class="fa-solid fa-cart-shopping text-muted me-2" style="width: 20px;"></i> My Cart
                 </a>
               </li>
               <li>
                 <a class="dropdown-item d-flex align-items-center" href="orders.html">
-                  <i class="fa-solid fa-box-archive text-muted"></i> My Orders
+                  <i class="fa-solid fa-box-archive text-muted me-2" style="width: 20px;"></i> My Orders
                 </a>
               </li>
-              <li><hr class="dropdown-divider"></li>
+              <li id="navAuthorDashboardItem" class="d-none">
+                <a class="dropdown-item d-flex align-items-center" href="author-dashboard.html">
+                  <i class="fa-solid fa-upload text-muted me-2" style="width: 20px;"></i> Author Dashboard
+                </a>
+              </li>
+              <li><hr class="dropdown-divider my-1"></li>
               <li>
-                <button class="dropdown-item d-flex align-items-center text-danger" id="logoutBtn">
-                  <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                <button class="dropdown-item d-flex align-items-center text-danger fw-semibold" id="logoutBtn">
+                  <i class="fa-solid fa-arrow-right-from-bracket me-2" style="width: 20px;"></i> Logout
                 </button>
               </li>
             </ul>
@@ -546,7 +548,7 @@
     </div>
   </div>
 
-  <!-- Footer -->
+  <!-- Footer Matching index.html -->
   <footer class="footer-teal text-center mt-auto">
     <div class="container py-3">
       <p class="mb-2 fw-bold text-white">&copy; 2026 Santali Digital Library</p>
@@ -587,6 +589,8 @@
       const navUserAvatar = document.getElementById('navUserAvatar');
       const navUserAvatarPlaceholder = document.getElementById('navUserAvatarPlaceholder');
       const navUserRoleBadge = document.getElementById('navUserRoleBadge');
+      const navAuthorDashboardItem = document.getElementById('navAuthorDashboardItem');
+      const uploadNavArea = document.getElementById('uploadNavArea');
       const logoutBtn = document.getElementById('logoutBtn');
       const copyUidBtn = document.getElementById('copyUidBtn');
 
@@ -699,10 +703,24 @@
           currentProfileData = profile;
           renderProfile(profile);
 
-          // Update Top Corner Nav User Info
-          const firstName = profile?.first_name || (profile?.full_name ? profile.full_name.split(' ')[0] : user.email.split('@')[0]);
-          if (navUserName) navUserName.innerText = `Hello, ${firstName}`;
+          // 1. Determine First Name Strictly
+          let firstName = '';
+          if (profile?.first_name) {
+            firstName = profile.first_name.trim();
+          } else if (profile?.full_name) {
+            firstName = profile.full_name.trim().split(/\s+/)[0];
+          } else if (user.user_metadata?.first_name) {
+            firstName = user.user_metadata.first_name.trim();
+          } else {
+            firstName = user.email.split('@')[0];
+          }
+          firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
 
+          if (navUserName) {
+            navUserName.innerText = `Hello, ${firstName}`;
+          }
+
+          // 2. Set Avatar
           if (profile?.avatar_url) {
             navUserAvatar.src = profile.avatar_url;
             navUserAvatar.classList.remove('d-none');
@@ -712,17 +730,25 @@
             navUserAvatarPlaceholder.classList.remove('d-none');
           }
 
-          if (navUserRoleBadge && profile?.role) {
-            if (profile.role === 'author') {
-              navUserRoleBadge.className = 'badge badge-author';
-              navUserRoleBadge.innerText = 'Author';
-            } else if (profile.role === 'admin') {
+          // 3. Format Navbar Role Badge
+          const userRole = (profile?.role || 'reader').toLowerCase();
+          if (navUserRoleBadge) {
+            if (userRole === 'admin') {
               navUserRoleBadge.className = 'badge badge-admin';
               navUserRoleBadge.innerText = 'Admin';
+            } else if (userRole === 'author') {
+              navUserRoleBadge.className = 'badge badge-author';
+              navUserRoleBadge.innerText = 'Author';
             } else {
               navUserRoleBadge.className = 'badge badge-reader text-white';
               navUserRoleBadge.innerText = 'Reader';
             }
+          }
+
+          // Show author specific items if Author
+          if (userRole === 'author') {
+            if (uploadNavArea) uploadNavArea.classList.remove('d-none');
+            if (navAuthorDashboardItem) navAuthorDashboardItem.classList.remove('d-none');
           }
 
           document.getElementById("initialLoader").classList.add('hidden');
