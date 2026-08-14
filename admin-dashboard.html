@@ -45,6 +45,9 @@
     <a class="nav-link-item active" data-target="overviewSection">
       <i class="fa-solid fa-chart-pie me-2 w-20px"></i> Dashboard Overview
     </a>
+    <a class="nav-link-item" data-target="subscriptionsSection">
+      <i class="fa-solid fa-crown me-2 w-20px text-warning"></i> Subscriptions & Plans
+    </a>
     <a class="nav-link-item" data-target="approvalSection">
       <i class="fa-solid fa-book-bookmark me-2 w-20px"></i> Book Approvals
     </a>
@@ -91,28 +94,28 @@
         <div class="col-md-3">
           <div class="card stat-card p-4 text-center border-start border-primary border-4">
             <i class="fa-solid fa-users text-primary fs-2 mb-2"></i>
-            <h2 class="fw-bold mb-0" id="totalSubscribersCount">1,000</h2>
-            <p class="text-muted small mb-0">Active Subscribers (₹99/mo)</p>
+            <h2 class="fw-bold mb-0" id="totalSubscribersCount">0</h2>
+            <p class="text-muted small mb-0">Total Active Subscribers</p>
           </div>
         </div>
         <div class="col-md-3">
           <div class="card stat-card p-4 text-center border-start border-success border-4">
             <i class="fa-solid fa-indian-rupee-sign text-success fs-2 mb-2"></i>
-            <h2 class="fw-bold mb-0" id="grossRevenueText">₹99,000</h2>
-            <p class="text-muted small mb-0">Gross Monthly Revenue</p>
+            <h2 class="fw-bold mb-0" id="grossRevenueText">₹0</h2>
+            <p class="text-muted small mb-0">Gross Subscription Revenue</p>
           </div>
         </div>
         <div class="col-md-3">
           <div class="card stat-card p-4 text-center border-start border-warning border-4">
             <i class="fa-solid fa-sack-dollar text-warning fs-2 mb-2"></i>
-            <h2 class="fw-bold mb-0" id="authorPoolText">₹37,600</h2>
+            <h2 class="fw-bold mb-0" id="authorPoolText">₹0</h2>
             <p class="text-muted small mb-0">Author Royalty Pool (40%)</p>
           </div>
         </div>
         <div class="col-md-3">
           <div class="card stat-card p-4 text-center border-start border-info border-4">
             <i class="fa-solid fa-chart-line text-info fs-2 mb-2"></i>
-            <h2 class="fw-bold mb-0" id="platformProfitText">₹8,400</h2>
+            <h2 class="fw-bold mb-0" id="platformProfitText">₹0</h2>
             <p class="text-muted small mb-0">Net Platform Profit</p>
           </div>
         </div>
@@ -124,30 +127,122 @@
         <div class="row g-3 text-center">
           <div class="col-md-2 border-end">
             <small class="text-muted d-block">Gross Revenue</small>
-            <strong class="fs-5 text-dark" id="calcGross">₹99,000</strong>
+            <strong class="fs-5 text-dark" id="calcGross">₹0</strong>
           </div>
           <div class="col-md-2 border-end">
             <small class="text-muted d-block">Deductions (Taxes/Gateway)</small>
-            <strong class="fs-5 text-danger" id="calcDeductions">- ₹5,000</strong>
+            <strong class="fs-5 text-danger" id="calcDeductions">- ₹0</strong>
           </div>
           <div class="col-md-2 border-end">
             <small class="text-muted d-block">Net Distributable</small>
-            <strong class="fs-5 text-dark" id="calcNet">₹94,000</strong>
+            <strong class="fs-5 text-dark" id="calcNet">₹0</strong>
           </div>
           <div class="col-md-3 border-end">
             <small class="text-muted d-block">Author Royalty Pool (40%)</small>
-            <strong class="fs-5 text-warning" id="calcAuthorPool">₹37,600</strong>
+            <strong class="fs-5 text-warning" id="calcAuthorPool">₹0</strong>
           </div>
           <div class="col-md-3">
             <small class="text-muted d-block">Ops Expense & Reserve</small>
-            <strong class="fs-5 text-secondary" id="calcOps">₹48,000</strong>
+            <strong class="fs-5 text-secondary" id="calcOps">₹0</strong>
           </div>
         </div>
       </div>
     </div>
 
     <!-- ========================================== -->
-    <!-- SECTION 2: BOOK APPROVAL PIPELINE        -->
+    <!-- SECTION 2: SUBSCRIPTIONS & PLANS BREAKDOWN -->
+    <!-- ========================================== -->
+    <div id="subscriptionsSection" class="content-section d-none">
+      
+      <!-- Tier Overview Cards -->
+      <div class="row g-4 mb-4">
+        <!-- Basic Plan Card -->
+        <div class="col-md-4">
+          <div class="card stat-card p-4 border-start border-secondary border-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="text-muted text-uppercase fw-bold mb-0">Basic Reader (₹49/mo)</h6>
+              <span class="badge bg-secondary">Tier 1</span>
+            </div>
+            <h3 class="fw-bold text-dark mb-1" id="subCountBasic">0 Subscribers</h3>
+            <p class="text-success fw-semibold small mb-0">Revenue: <span id="subRevenueBasic">₹0</span></p>
+          </div>
+        </div>
+
+        <!-- Full Library Plan Card -->
+        <div class="col-md-4">
+          <div class="card stat-card p-4 border-start border-warning border-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="text-warning text-uppercase fw-bold mb-0">Full Library (₹99/mo)</h6>
+              <span class="badge bg-warning text-dark">POPULAR</span>
+            </div>
+            <h3 class="fw-bold text-dark mb-1" id="subCountFull">0 Subscribers</h3>
+            <p class="text-success fw-semibold small mb-0">Revenue: <span id="subRevenueFull">₹0</span></p>
+          </div>
+        </div>
+
+        <!-- Annual Pass Card -->
+        <div class="col-md-4">
+          <div class="card stat-card p-4 border-start border-success border-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="text-success text-uppercase fw-bold mb-0">Annual Pass (₹999/yr)</h6>
+              <span class="badge bg-success">Tier 3</span>
+            </div>
+            <h3 class="fw-bold text-dark mb-1" id="subCountAnnual">0 Subscribers</h3>
+            <p class="text-success fw-semibold small mb-0">Revenue: <span id="subRevenueAnnual">₹0</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subscribers Detailed Table -->
+      <div class="card stat-card p-0 overflow-hidden">
+        <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <h5 class="fw-bold mb-0 text-dark">Subscriber Directory</h5>
+            <span class="badge bg-primary rounded-pill ms-2" id="filteredSubscribersCount">0 Total</span>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            <!-- Plan Filter Dropdown -->
+            <select id="subPlanFilter" class="form-select form-select-sm border-secondary fw-semibold">
+              <option value="all">All Plans</option>
+              <option value="basic">Basic Reader (₹49)</option>
+              <option value="full">Full Library (₹99)</option>
+              <option value="annual">Annual Reader Pass (₹999)</option>
+            </select>
+            <button class="btn btn-sm btn-outline-primary" id="refreshSubsBtn">
+              <i class="fa-solid fa-rotate-right me-1"></i> Refresh
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light text-secondary small">
+                <tr>
+                  <th class="ps-4">Subscription ID</th>
+                  <th>Subscriber Name</th>
+                  <th>Plan Tier</th>
+                  <th>Subscription Period</th>
+                  <th>Amount</th>
+                  <th class="pe-4">Validity</th>
+                </tr>
+              </thead>
+              <tbody id="subscribersTableBody">
+                <tr>
+                  <td colspan="6" class="text-center py-5 text-muted">
+                    <div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading subscription records...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SECTION 3: BOOK APPROVAL PIPELINE        -->
     <!-- ========================================== -->
     <div id="approvalSection" class="content-section d-none">
       <div class="card stat-card p-0 overflow-hidden">
@@ -184,7 +279,7 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- SECTION 3: COPYRIGHT MANAGEMENT            -->
+    <!-- SECTION 4: COPYRIGHT MANAGEMENT            -->
     <!-- ========================================== -->
     <div id="copyrightSection" class="content-section d-none">
       <div class="card stat-card p-0 overflow-hidden">
@@ -226,7 +321,7 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- SECTION 4: ANTI-FRAUD LOGS                 -->
+    <!-- SECTION 5: ANTI-FRAUD LOGS                 -->
     <!-- ========================================== -->
     <div id="antifraudSection" class="content-section d-none">
       <div class="card stat-card p-0 overflow-hidden">
@@ -256,20 +351,20 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- SECTION 5: SALES & FINANCIAL REPORTS       -->
+    <!-- SECTION 6: SALES & FINANCIAL REPORTS       -->
     <!-- ========================================== -->
     <div id="reportsSection" class="content-section d-none">
       <div class="row g-4 mb-4">
         <div class="col-md-6">
           <div class="card stat-card p-4 border-start border-success border-4">
             <h6 class="text-muted text-uppercase fw-semibold mb-1">Total Subscription Revenue</h6>
-            <h2 class="fw-bold text-success mb-0" id="reportTotalRevenue">₹99,000</h2>
+            <h2 class="fw-bold text-success mb-0" id="reportTotalRevenue">₹0</h2>
           </div>
         </div>
         <div class="col-md-6">
           <div class="card stat-card p-4 border-start border-primary border-4">
             <h6 class="text-muted text-uppercase fw-semibold mb-1">Total Subscriptions Processed</h6>
-            <h2 class="fw-bold text-primary mb-0" id="reportTotalOrders">1,000</h2>
+            <h2 class="fw-bold text-primary mb-0" id="reportTotalOrders">0</h2>
           </div>
         </div>
       </div>
@@ -291,7 +386,7 @@
             <table class="table table-hover align-middle mb-0" id="salesReportTable">
               <thead class="table-light text-secondary small">
                 <tr>
-                  <th class="ps-4">Transaction ID</th>
+                  <th class="ps-4">Subscription ID</th>
                   <th>Date</th>
                   <th>Subscriber Name</th>
                   <th>Plan</th>
@@ -313,7 +408,7 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- SECTION 6: USER MANAGEMENT                -->
+    <!-- SECTION 7: USER MANAGEMENT                -->
     <!-- ========================================== -->
     <div id="usersSection" class="content-section d-none">
       <div class="card stat-card p-0 overflow-hidden">
@@ -353,7 +448,7 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- SECTION 7: MESSAGES / INQUIRIES            -->
+    <!-- SECTION 8: MESSAGES / INQUIRIES            -->
     <!-- ========================================== -->
     <div id="messagesSection" class="content-section d-none">
       <div class="card stat-card p-0 overflow-hidden">
@@ -406,6 +501,7 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    let allSubscribersData = [];
     let globalMessages = [];
 
     document.addEventListener("DOMContentLoaded", async () => {
@@ -454,6 +550,9 @@
           if (targetId === 'overviewSection') {
             pageTitle.textContent = "Dashboard Overview";
             fetchDashboardStats();
+          } else if (targetId === 'subscriptionsSection') {
+            pageTitle.textContent = "Subscriptions & Plan Breakdown";
+            fetchSubscriptionDetails();
           } else if (targetId === 'approvalSection') {
             pageTitle.textContent = "Book Approval Pipeline";
             fetchApprovalBooks();
@@ -470,32 +569,161 @@
         });
       });
 
-      // DASHBOARD STATS & FINANCIALS
+      // 1. DYNAMIC SUBSCRIPTION BREAKDOWN & REVENUE
+      async function fetchSubscriptionDetails() {
+        const tbody = document.getElementById('subscribersTableBody');
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading subscriptions...</td></tr>`;
+
+        try {
+          const { data: profiles, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .not('subscription_id', 'is', null);
+
+          if (error) throw error;
+
+          allSubscribersData = profiles || [];
+
+          let basicCount = 0;
+          let fullCount = 0;
+          let annualCount = 0;
+
+          const now = new Date();
+
+          allSubscribersData.forEach(p => {
+            const key = p.subscription_key || (p.subscription_plan?.toLowerCase().includes('basic') ? 'basic' : p.subscription_plan?.toLowerCase().includes('annual') ? 'annual' : 'full');
+            if (key === 'basic') basicCount++;
+            else if (key === 'annual') annualCount++;
+            else fullCount++;
+          });
+
+          // Calculations
+          const basicRev = basicCount * 49;
+          const fullRev = fullCount * 99;
+          const annualRev = annualCount * 999;
+          const totalRev = basicRev + fullRev + annualRev;
+          const totalSubs = basicCount + fullCount + annualCount;
+
+          // Update UI Breakdown Cards
+          document.getElementById('subCountBasic').textContent = `${basicCount} Subscribers`;
+          document.getElementById('subRevenueBasic').textContent = `₹${basicRev.toLocaleString('en-IN')}`;
+
+          document.getElementById('subCountFull').textContent = `${fullCount} Subscribers`;
+          document.getElementById('subRevenueFull').textContent = `₹${fullRev.toLocaleString('en-IN')}`;
+
+          document.getElementById('subCountAnnual').textContent = `${annualCount} Subscribers`;
+          document.getElementById('subRevenueAnnual').textContent = `₹${annualRev.toLocaleString('en-IN')}`;
+
+          document.getElementById('filteredSubscribersCount').textContent = `${totalSubs} Total`;
+
+          renderSubscribersTable('all');
+
+        } catch (err) {
+          console.error("Subscription fetch error:", err);
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load subscriptions.</td></tr>`;
+        }
+      }
+
+      function renderSubscribersTable(filter) {
+        const tbody = document.getElementById('subscribersTableBody');
+        tbody.innerHTML = '';
+
+        const filtered = allSubscribersData.filter(p => {
+          const key = p.subscription_key || (p.subscription_plan?.toLowerCase().includes('basic') ? 'basic' : p.subscription_plan?.toLowerCase().includes('annual') ? 'annual' : 'full');
+          return filter === 'all' || key === filter;
+        });
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted fw-semibold">No subscribers found for this plan filter.</td></tr>`;
+          return;
+        }
+
+        const now = new Date();
+
+        filtered.forEach(sub => {
+          const key = sub.subscription_key || (sub.subscription_plan?.toLowerCase().includes('basic') ? 'basic' : sub.subscription_plan?.toLowerCase().includes('annual') ? 'annual' : 'full');
+          
+          let planBadge = `<span class="badge bg-secondary">Basic (₹49)</span>`;
+          let price = "₹49";
+          if (key === 'full') {
+            planBadge = `<span class="badge bg-warning text-dark">Full Library (₹99)</span>`;
+            price = "₹99";
+          } else if (key === 'annual') {
+            planBadge = `<span class="badge bg-success">Annual Pass (₹999)</span>`;
+            price = "₹999";
+          }
+
+          const start = sub.subscription_start ? new Date(sub.subscription_start).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
+          const end = sub.subscription_end ? new Date(sub.subscription_end).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
+          
+          const isExpired = sub.subscription_end && new Date(sub.subscription_end) < now;
+          const statusBadge = isExpired 
+            ? `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger">Expired</span>`
+            : `<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="fa-solid fa-circle-check me-1"></i>Active</span>`;
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="ps-4 fw-bold text-teal">${sub.subscription_id || 'N/A'}</td>
+            <td>
+              <div class="fw-semibold text-dark">${sub.full_name || 'Subscriber'}</div>
+              <small class="text-muted">${sub.contact_email || 'N/A'}</small>
+            </td>
+            <td>${planBadge}</td>
+            <td class="small text-muted">${start} to <strong class="text-dark">${end}</strong></td>
+            <td class="fw-bold text-success">${price}</td>
+            <td class="pe-4">${statusBadge}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById('subPlanFilter').addEventListener('change', (e) => {
+        renderSubscribersTable(e.target.value);
+      });
+
+      document.getElementById('refreshSubsBtn').addEventListener('click', fetchSubscriptionDetails);
+
+      // 2. DASHBOARD STATS & FINANCIAL OVERVIEW
       async function fetchDashboardStats() {
         try {
-          const { count: booksCount } = await supabase.from('books').select('*', { count: 'exact', head: true });
-          const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-          
-          // Calculate Revenue (Subscribers x ₹99)
-          const grossRev = (usersCount || 1000) * 99;
-          const netRev = grossRev - 5000;
-          const authorPool = netRev * 0.4;
-          const profit = netRev - authorPool - 48000;
+          const { data: subscribers } = await supabase
+            .from('profiles')
+            .select('subscription_key, subscription_plan')
+            .not('subscription_id', 'is', null);
 
-          document.getElementById('totalSubscribersCount').textContent = usersCount || 1000;
+          let basic = 0, full = 0, annual = 0;
+          (subscribers || []).forEach(p => {
+            const key = p.subscription_key || (p.subscription_plan?.toLowerCase().includes('basic') ? 'basic' : p.subscription_plan?.toLowerCase().includes('annual') ? 'annual' : 'full');
+            if (key === 'basic') basic++;
+            else if (key === 'annual') annual++;
+            else full++;
+          });
+
+          // Dynamic revenue based on actual subscriber tiers
+          const grossRev = (basic * 49) + (full * 99) + (annual * 999);
+          const totalSubscribers = basic + full + annual;
+          const deductions = Math.round(grossRev * 0.05); // 5% gateway/tax deduction
+          const netRev = Math.max(0, grossRev - deductions);
+          const authorPool = Math.round(netRev * 0.40); // 40% author pool
+          const opsReserve = Math.round(netRev * 0.45);
+          const profit = Math.max(0, netRev - authorPool - opsReserve);
+
+          document.getElementById('totalSubscribersCount').textContent = totalSubscribers.toLocaleString('en-IN');
           document.getElementById('grossRevenueText').textContent = `₹${grossRev.toLocaleString('en-IN')}`;
           document.getElementById('authorPoolText').textContent = `₹${authorPool.toLocaleString('en-IN')}`;
           document.getElementById('platformProfitText').textContent = `₹${profit.toLocaleString('en-IN')}`;
 
           document.getElementById('calcGross').textContent = `₹${grossRev.toLocaleString('en-IN')}`;
+          document.getElementById('calcDeductions').textContent = `- ₹${deductions.toLocaleString('en-IN')}`;
           document.getElementById('calcNet').textContent = `₹${netRev.toLocaleString('en-IN')}`;
           document.getElementById('calcAuthorPool').textContent = `₹${authorPool.toLocaleString('en-IN')}`;
+          document.getElementById('calcOps').textContent = `₹${opsReserve.toLocaleString('en-IN')}`;
         } catch (err) {
           console.error("Stats Error:", err);
         }
       }
 
-      // BOOK APPROVAL PIPELINE
+      // 3. BOOK APPROVAL PIPELINE
       async function fetchApprovalBooks() {
         const tbody = document.getElementById('approvalBooksList');
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading pipeline...</td></tr>`;
@@ -561,40 +789,54 @@
         });
       }
 
-      // SALES & REPORTS
+      // 4. FINANCIAL REPORTS
       async function fetchSalesReports() {
         const tbody = document.getElementById('reportTableBody');
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Generating report...</td></tr>`;
 
         try {
-          const { data: orders, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+          const { data: subscribers, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .not('subscription_id', 'is', null)
+            .order('subscription_start', { ascending: false });
+
           if (error) throw error;
 
-          if (!orders || orders.length === 0) {
+          if (!subscribers || subscribers.length === 0) {
             tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted fw-semibold">No transactions found.</td></tr>`;
             return;
           }
 
+          let totalRev = 0;
           tbody.innerHTML = '';
-          orders.forEach(order => {
-            const date = new Date(order.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+          subscribers.forEach(sub => {
+            const key = sub.subscription_key || (sub.subscription_plan?.toLowerCase().includes('basic') ? 'basic' : sub.subscription_plan?.toLowerCase().includes('annual') ? 'annual' : 'full');
+            const price = key === 'annual' ? 999 : key === 'basic' ? 49 : 99;
+            totalRev += price;
+
+            const date = sub.subscription_start ? new Date(sub.subscription_start).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
             const tr = document.createElement('tr');
             tr.innerHTML = `
-              <td class="ps-4 text-muted small">#${order.id}</td>
+              <td class="ps-4 text-muted small">${sub.subscription_id || 'N/A'}</td>
               <td class="small fw-semibold">${date}</td>
-              <td>Subscriber</td>
-              <td>Monthly Plan</td>
-              <td class="fw-bold text-success">₹99</td>
+              <td>${sub.full_name || 'Subscriber'}</td>
+              <td><span class="badge bg-light text-dark border">${sub.subscription_plan || 'Membership'}</span></td>
+              <td class="fw-bold text-success">₹${price}</td>
               <td class="pe-4"><span class="badge bg-success bg-opacity-10 text-success border border-success">Completed</span></td>
             `;
             tbody.appendChild(tr);
           });
+
+          document.getElementById('reportTotalRevenue').textContent = `₹${totalRev.toLocaleString('en-IN')}`;
+          document.getElementById('reportTotalOrders').textContent = subscribers.length.toLocaleString('en-IN');
+
         } catch (err) {
           tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to generate reports.</td></tr>`;
         }
       }
 
-      // USERS LIST
+      // 5. USERS LIST
       async function fetchAdminUsers() {
         const adminUsersList = document.getElementById('adminUsersList');
         adminUsersList.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading users...</td></tr>`;
@@ -630,7 +872,7 @@
         }
       }
 
-      // MESSAGES INQUIRIES
+      // 6. MESSAGES INQUIRIES
       async function fetchAdminMessages() {
         const tbody = document.getElementById('adminMessagesList');
         try {
