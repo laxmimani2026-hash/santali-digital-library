@@ -4,135 +4,134 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your Cart | Santali Digital Library</title>
+  
+  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom CSS matching index.html -->
   <link rel="stylesheet" href="assets/css/style.css">
-  <style>
-    /* Navbar background matching the design */
-    .custom-navbar {
-      background-color: #0b3c49;
-    }
+  <link rel="stylesheet" href="../assets/css/style.css">
 
-    /* Open dropdown on hover for desktop screens */
+  <style>
+    /* Open dropdowns on mouse hover for desktop screens */
     @media (min-width: 992px) {
-      .nav-item.dropdown:hover .dropdown-menu {
+      .navbar-nav .dropdown:hover .dropdown-menu {
         display: block;
         margin-top: 0;
+        animation: fadeIn 0.2s ease-in-out;
       }
     }
 
-    .dropdown-menu {
-      border-radius: 8px;
-      padding: 0.5rem 0;
-    }
-    
-    .dropdown-item {
-      padding: 8px 20px;
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: #495057;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .dropdown-item:hover {
-      background-color: #f8f9fa;
-    }
-
+    /* Profile Avatar & Badge Styles matching the site theme */
     .user-avatar-img {
       width: 32px;
       height: 32px;
       object-fit: cover;
       border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.4);
     }
 
     .badge-reader {
       background-color: #00b4d8;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 600;
       padding: 3px 8px;
       border-radius: 12px;
+    }
+
+    .profile-dropdown-menu .dropdown-item {
+      padding: 9px 20px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: #333;
+    }
+
+    .profile-dropdown-menu .dropdown-item:hover {
+      background-color: #f4f6f8;
+      color: #0b7760;
+    }
+
+    .profile-dropdown-menu .dropdown-item i {
+      width: 22px;
     }
   </style>
 </head>
 <body class="bg-light d-flex flex-column min-vh-100">
 
-  <!-- Full Navigation Bar Matching Homepage -->
-  <nav class="navbar navbar-expand-lg navbar-dark custom-navbar sticky-top">
-    <div class="container-fluid px-lg-4">
+  <!-- Navigation Bar (Identical structure and classes to index.html) -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-teal sticky-top">
+    <div class="container">
       <!-- Brand Logo -->
-      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-warning" href="index.html">
-        <i class="fa-solid fa-book-open fs-4"></i>
-        <span class="text-white">Santali Digital <span class="text-warning">Library</span></span>
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <i class="fa-solid fa-book-open-reader text-warning fs-3"></i>
+        <span>Santali Digital <span class="highlight">Library</span></span>
       </a>
 
-      <!-- Mobile Toggle Button -->
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+      <!-- Mobile Hamburger Toggle Button -->
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
 
       <!-- Navbar Links -->
-      <div class="collapse navbar-collapse" id="navContent">
-        <ul class="navbar-nav mx-auto align-items-lg-center gap-2 gap-lg-3">
-          <li class="nav-item">
-            <a class="nav-link text-warning fw-semibold" href="index.html">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-white-50" href="browse.html">Books</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-white-50" href="categories.html">Categories</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-white-50" href="authors.html">Authors</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-white-50" href="contact.html">Contact</a>
-          </li>
-          
-          <!-- Language Selector -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle text-white-50 d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown">
-              <i class="fa-solid fa-globe"></i> EN
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto align-items-center">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="browse.html">Books</a></li>
+          <li class="nav-item"><a class="nav-link" href="categories.html">Categories</a></li>
+          <li class="nav-item"><a class="nav-link" href="authors.html">Authors</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+
+          <!-- Language Selector Dropdown -->
+          <li class="nav-item dropdown ms-lg-2">
+            <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fa-solid fa-globe"></i> <span id="langLabelText">EN</span>
             </a>
-            <ul class="dropdown-menu shadow border-0">
-              <li><a class="dropdown-item" href="#">English (EN)</a></li>
-              <li><a class="dropdown-item" href="#">Santali (OL)</a></li>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="languageDropdown">
+              <li><a class="dropdown-item" href="#">English</a></li>
+              <li><a class="dropdown-item" href="#">ᱥᱟᱱᱛᱟᱲᱤ (Santali)</a></li>
+              <li><a class="dropdown-item" href="#">हिन्दी (Hindi)</a></li>
             </ul>
           </li>
-        </ul>
 
-        <!-- User Profile Area -->
-        <ul class="navbar-nav align-items-lg-center">
-          <li class="nav-item dropdown">
+          <!-- User Profile Dropdown (Hover Enabled) -->
+          <li class="nav-item dropdown ms-lg-3 my-2 my-lg-0" id="userNavArea">
             <a class="nav-link dropdown-toggle text-white d-flex align-items-center gap-2 py-1" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Avatar" class="user-avatar-img" id="userAvatar">
               <span id="navUserName">Hello, User</span>
               <span class="badge badge-reader text-white">Reader</span>
             </a>
-            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2" aria-labelledby="profileDropdown">
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 profile-dropdown-menu" aria-labelledby="profileDropdown">
               <li>
-                <a class="dropdown-item d-flex align-items-center gap-2" href="profile.html">
-                  <i class="fa-solid fa-user text-muted" style="width: 20px;"></i> My Profile
+                <a class="dropdown-item d-flex align-items-center" href="profile.html">
+                  <i class="fa-solid fa-user text-muted"></i> My Profile
                 </a>
               </li>
               <li>
-                <a class="dropdown-item d-flex align-items-center gap-2" href="subscription.html">
-                  <i class="fa-solid fa-crown text-warning" style="width: 20px;"></i> My Subscription
+                <a class="dropdown-item d-flex align-items-center" href="subscription.html">
+                  <i class="fa-solid fa-crown text-warning"></i> My Subscription
                 </a>
               </li>
               <li>
-                <a class="dropdown-item d-flex align-items-center gap-2" href="cart.html">
-                  <i class="fa-solid fa-cart-shopping text-muted" style="width: 20px;"></i> My Cart
+                <a class="dropdown-item d-flex align-items-center active" href="cart.html">
+                  <i class="fa-solid fa-cart-shopping text-muted"></i> My Cart
                 </a>
               </li>
               <li>
-                <a class="dropdown-item d-flex align-items-center gap-2" href="orders.html">
-                  <i class="fa-solid fa-box-archive text-muted" style="width: 20px;"></i> My Orders
+                <a class="dropdown-item d-flex align-items-center" href="orders.html">
+                  <i class="fa-solid fa-box-archive text-muted"></i> My Orders
                 </a>
               </li>
               <li><hr class="dropdown-divider"></li>
               <li>
-                <button class="dropdown-item d-flex align-items-center gap-2 text-danger" id="logoutBtn">
-                  <i class="fa-solid fa-arrow-right-from-bracket" style="width: 20px;"></i> Logout
+                <button class="dropdown-item d-flex align-items-center text-danger" id="logoutBtn">
+                  <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
                 </button>
               </li>
             </ul>
@@ -142,8 +141,9 @@
     </div>
   </nav>
 
+  <!-- Cart Content Area -->
   <div class="container my-5 flex-grow-1">
-    <h2 class="fw-bold mb-4" style="color: #0b3c49;">Your Cart</h2>
+    <h2 class="fw-bold mb-4" style="color: #075e4d;">Your Cart</h2>
     
     <div class="row">
       <!-- Cart Items Section -->
@@ -188,7 +188,7 @@
               <span class="fw-bold fs-5">Total</span>
               <span class="fw-bold fs-5 text-primary" id="cartTotal">₹0</span>
             </div>
-            <button class="btn btn-success w-100 fw-bold py-2 shadow-sm" id="checkoutBtn" disabled>
+            <button class="btn btn-warning w-100 fw-bold py-2 shadow-sm text-dark" id="checkoutBtn" disabled>
               Proceed to Checkout <i class="fa-solid fa-arrow-right ms-2"></i>
             </button>
           </div>
@@ -197,7 +197,18 @@
     </div>
   </div>
 
+  <!-- Footer Matching index.html -->
+  <footer class="footer-teal text-center mt-auto">
+    <div class="container py-3">
+      <p class="mb-2 fw-bold text-white">&copy; 2026 Santali Digital Library</p>
+      <p class="small mb-0 text-white-50">Reader subscriptions • eBook sales • Institutional plans • Author services</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Supabase & Cart Logic -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -216,20 +227,20 @@
       const logoutBtn = document.getElementById('logoutBtn');
 
       try {
-        // 1. Get Logged-in User
+        // 1. Check Session & Update Profile UI
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (!session) {
           window.location.href = "login.html";
           return;
         }
 
-        // Set username in header
+        // Display user's name or fallback to email handle
         if (navUserName && session.user) {
           const userName = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
           navUserName.innerText = `Hello, ${userName}`;
         }
 
-        // Handle Logout
+        // Logout Event
         if (logoutBtn) {
           logoutBtn.addEventListener('click', async () => {
             await supabase.auth.signOut();
@@ -237,7 +248,7 @@
           });
         }
 
-        // 2. Fetch Cart Items for this user
+        // 2. Fetch Cart Items for Current User
         const { data: cartData, error: cartError } = await supabase
           .from('cart_items')
           .select('*')
@@ -251,7 +262,7 @@
           return;
         }
 
-        // 3. Extract Book IDs and Fetch Book Details
+        // 3. Fetch Book Details
         const bookIds = cartData.map(item => item.book_id);
         const { data: booksData, error: booksError } = await supabase
           .from('books')
@@ -265,7 +276,7 @@
 
         let totalPrice = 0;
 
-        // 4. Render Items
+        // 4. Render Cart Items
         cartData.forEach(cartItem => {
           const book = booksData.find(b => b.id == cartItem.book_id);
           if (!book) return;
@@ -277,10 +288,10 @@
           listItem.className = "list-group-item p-3 p-md-4";
           listItem.innerHTML = `
             <div class="d-flex align-items-center">
-              <img src="${book.cover_url}" alt="Cover" class="rounded shadow-sm" style="width: 60px; height: 80px; object-fit: cover; background:#f1f1f1;">
+              <img src="${book.cover_url || 'https://via.placeholder.com/60x80?text=No+Cover'}" alt="Cover" class="rounded shadow-sm" style="width: 60px; height: 80px; object-fit: cover; background:#f1f1f1;">
               <div class="ms-3 flex-grow-1">
                 <h6 class="fw-bold mb-1">${book.title}</h6>
-                <p class="text-muted small mb-0">By ${book.author}</p>
+                <p class="text-muted small mb-0">By ${book.author || 'Unknown'}</p>
                 <div class="fw-bold text-primary mt-1">₹${price}</div>
               </div>
               <button class="btn btn-outline-danger btn-sm delete-cart-item" data-cart-id="${cartItem.id}">
@@ -291,7 +302,7 @@
           cartList.appendChild(listItem);
         });
 
-        // 5. Update Totals & Enable Checkout
+        // 5. Update Totals
         cartSubtotal.innerText = `₹${totalPrice}`;
         cartTotal.innerText = `₹${totalPrice}`;
         checkoutBtn.disabled = false;
@@ -300,7 +311,7 @@
            window.location.href = "checkout.html";
         });
 
-        // 6. Handle Delete
+        // 6. Delete Handlers
         document.querySelectorAll('.delete-cart-item').forEach(btn => {
           btn.addEventListener('click', async function() {
             const cartId = this.getAttribute('data-cart-id');
