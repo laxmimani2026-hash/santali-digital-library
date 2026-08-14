@@ -108,7 +108,7 @@
       width: 22px;
     }
 
-    /* Validation & animation utilities */
+    /* Validation styles */
     .was-validated :invalid {
       border-color: #ef4444; 
     }
@@ -223,234 +223,252 @@
   </div>
 
   <!-- Profile Content Container -->
-  <div class="container mx-auto px-4 py-10 flex-grow flex justify-center">
-    <div class="w-full max-w-4xl">
-      
-      <!-- Main Card -->
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-10 relative">
+  <div class="container my-5 flex-grow-1">
+    <h2 class="fw-bold mb-4" style="color: #075e4d;">My Profile</h2>
+
+    <div class="row justify-content-center">
+      <div class="col-12 col-xl-10">
         
-        <!-- Alert Box -->
-        <div id="profileAlert" class="hidden p-4 mb-6 text-center rounded-lg font-semibold border"></div>
-
-        <!-- Initial Loader -->
-        <div id="initialLoader" class="text-center py-12">
-          <i class="fa-solid fa-circle-notch fa-spin text-teal-700 text-5xl mb-4"></i>
-          <h5 class="font-bold text-gray-500">Loading your profile...</h5>
-        </div>
-
-        <!-- Main Content -->
-        <div id="mainProfileContent" class="hidden">
+        <!-- Main Card -->
+        <div class="card shadow-sm border-0 bg-white p-4 p-md-5">
           
-          <!-- Header Area -->
-          <div class="text-center mb-8">
-            <div class="w-28 h-28 mx-auto mb-4 rounded-full border-4 border-gray-100 shadow-md bg-[#005f73] text-white flex items-center justify-center text-5xl overflow-hidden relative">
-              <i class="fa-solid fa-user" id="defaultAvatarIcon"></i>
-              <img src="" alt="Profile" class="w-full h-full object-cover hidden" id="profileImageDisplay">
-            </div>
+          <!-- Alert Box -->
+          <div id="profileAlert" class="hidden p-4 mb-4 text-center rounded-lg font-semibold border"></div>
 
-            <h3 id="userDisplayName" class="text-2xl font-bold mb-1 text-gray-900">User Name</h3>
-            <p id="userEmailDisplay" class="text-gray-500 mb-3 text-sm"></p> 
-            <span id="userRoleBadge" class="inline-block px-3 py-1 text-xs font-bold rounded-full"></span>
+          <!-- Initial Loader -->
+          <div id="initialLoader" class="text-center py-5">
+            <div class="spinner-border text-teal" role="status" style="color: #075e4d;"></div>
+            <p class="mt-3 text-muted fw-semibold">Loading your profile...</p>
           </div>
 
-          <!-- VIEW MODE SECTION -->
-          <div id="profileViewMode">
-            <h5 class="text-lg font-bold mb-6 border-b border-gray-200 pb-2 text-gray-800">Professional & Personal Information</h5>
+          <!-- Main Content -->
+          <div id="mainProfileContent" class="hidden">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div>
-                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-regular fa-id-card mr-1"></i> Full Name</span>
-                <h6 id="viewFullName" class="font-semibold text-gray-900">-</h6>
+            <!-- Avatar & Header Area -->
+            <div class="text-center mb-5">
+              <div class="w-28 h-28 mx-auto mb-3 rounded-full border-4 border-gray-100 shadow bg-[#005f73] text-white flex items-center justify-center text-5xl overflow-hidden relative">
+                <i class="fa-solid fa-user" id="defaultAvatarIcon"></i>
+                <img src="" alt="Profile" class="w-full h-full object-cover hidden" id="profileImageDisplay">
               </div>
-              <div>
-                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-user-shield mr-1"></i> Account Type</span>
-                <h6 id="viewRole" class="font-semibold text-gray-900">-</h6>
-              </div>
-              <div>
-                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-building mr-1"></i> Organization/Affiliation</span>
-                <h6 id="viewOrganization" class="font-semibold text-gray-900"></h6>
-              </div>
-              <div>
-                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-link mr-1"></i> Website / Social Link</span>
-                <h6 id="viewWebsite" class="font-semibold text-gray-900 break-all"></h6>
-              </div>
+
+              <h3 id="userDisplayName" class="text-2xl font-bold mb-1 text-gray-900">User Name</h3>
+              <p id="userEmailDisplay" class="text-gray-500 mb-2 text-sm"></p> 
+              <span id="userRoleBadge" class="inline-block px-3 py-1 text-xs font-bold rounded-full"></span>
+            </div>
+
+            <!-- VIEW MODE SECTION -->
+            <div id="profileViewMode">
+              <h5 class="text-lg font-bold mb-4 border-b border-gray-200 pb-2 text-gray-800">Personal & Account Information</h5>
               
-              <div class="col-span-1 md:col-span-2">
-                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-circle-info mr-1"></i> Bio / About Me</span>
-                <p id="viewBio" class="font-semibold text-gray-900"></p>
-              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <!-- First Name & Last Name -->
+                <div>
+                  <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-regular fa-user mr-1"></i> First Name</span>
+                  <h6 id="viewFirstName" class="font-semibold text-gray-900">-</h6>
+                </div>
+                <div>
+                  <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-regular fa-user mr-1"></i> Last Name</span>
+                  <h6 id="viewLastName" class="font-semibold text-gray-900">-</h6>
+                </div>
 
-              <div>
-                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-book-bookmark mr-1"></i> Reading/Writing Interests</span>
-                <h6 id="viewInterests" class="font-semibold text-gray-900"></h6>
-              </div>
-              <div>
-                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-language mr-1"></i> Preferred Language</span>
-                <h6 id="viewLanguage" class="font-semibold text-gray-900"></h6>
-              </div>
+                <div>
+                  <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-user-shield mr-1"></i> Account Type</span>
+                  <h6 id="viewRole" class="font-semibold text-gray-900">-</h6>
+                </div>
+                <div>
+                  <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-building mr-1"></i> Organization / Affiliation</span>
+                  <h6 id="viewOrganization" class="font-semibold text-gray-900"></h6>
+                </div>
+                <div class="col-span-1 md:col-span-2">
+                  <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-link mr-1"></i> Website / Social Link</span>
+                  <h6 id="viewWebsite" class="font-semibold text-gray-900 break-all"></h6>
+                </div>
+                
+                <div class="col-span-1 md:col-span-2">
+                  <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-circle-info mr-1"></i> Bio / About Me</span>
+                  <p id="viewBio" class="font-semibold text-gray-900"></p>
+                </div>
 
-              <div class="col-span-1 md:col-span-2 mt-4 border-t border-gray-100 pt-4">
-                 <h6 class="font-bold text-gray-600 mb-4">Contact & Location Details</h6>
-              </div>
+                <div>
+                  <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-book-bookmark mr-1"></i> Reading/Writing Interests</span>
+                  <h6 id="viewInterests" class="font-semibold text-gray-900"></h6>
+                </div>
+                <div>
+                  <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-language mr-1"></i> Preferred Language</span>
+                  <h6 id="viewLanguage" class="font-semibold text-gray-900"></h6>
+                </div>
 
-              <div>
-                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-regular fa-envelope mr-1"></i> Contact Email</span>
-                <div class="flex flex-wrap items-center gap-2">
-                  <h6 id="viewContactEmail" class="font-semibold text-gray-900 break-all"></h6>
-                  <span id="emailVerificationArea"></span>
+                <div class="col-span-1 md:col-span-2 mt-3 border-t border-gray-100 pt-3">
+                   <h6 class="font-bold text-gray-600 mb-3">Contact & Location Details</h6>
+                </div>
+
+                <div>
+                  <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-regular fa-envelope mr-1"></i> Contact Email</span>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h6 id="viewContactEmail" class="font-semibold text-gray-900 break-all"></h6>
+                    <span id="emailVerificationArea"></span>
+                  </div>
+                </div>
+                <div>
+                  <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-phone mr-1"></i> Phone Number</span>
+                  <h6 id="viewPhone" class="font-semibold text-gray-900 break-all"></h6>
+                </div>
+                <div class="col-span-1 md:col-span-2">
+                  <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-location-dot mr-1"></i> Street Address / Area</span>
+                  <h6 id="viewAddress" class="font-semibold text-gray-900"></h6>
+                </div>
+                <div>
+                  <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-tree-city mr-1"></i> City / Village / Town</span>
+                  <h6 id="viewCity" class="font-semibold text-gray-900"></h6>
+                </div>
+                <div>
+                  <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-map mr-1"></i> District</span>
+                  <h6 id="viewDistrict" class="font-semibold text-gray-900"></h6>
+                </div>
+                <div>
+                  <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-building-flag mr-1"></i> State</span>
+                  <h6 id="viewState" class="font-semibold text-gray-900"></h6>
+                </div>
+                <div>
+                  <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-map-pin mr-1"></i> PIN / Postal Code</span>
+                  <h6 id="viewPinCode" class="font-semibold text-gray-900"></h6>
                 </div>
               </div>
-              <div>
-                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-phone mr-1"></i> Phone Number</span>
-                <h6 id="viewPhone" class="font-semibold text-gray-900 break-all"></h6>
-              </div>
-              <div>
-                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-location-dot mr-1"></i> Street Address / Area</span>
-                <h6 id="viewAddress" class="font-semibold text-gray-900"></h6>
-              </div>
-              <div>
-                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-tree-city mr-1"></i> City / Village / Town</span>
-                <h6 id="viewCity" class="font-semibold text-gray-900"></h6>
-              </div>
-              <div>
-                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-map mr-1"></i> District</span>
-                <h6 id="viewDistrict" class="font-semibold text-gray-900"></h6>
-              </div>
-              <div>
-                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-building-flag mr-1"></i> State</span>
-                <h6 id="viewState" class="font-semibold text-gray-900"></h6>
-              </div>
-              <div>
-                <span class="block text-sm font-medium text-gray-500 mb-1"><i class="fa-solid fa-map-pin mr-1"></i> PIN / Postal Code</span>
-                <h6 id="viewPinCode" class="font-semibold text-gray-900"></h6>
+
+              <div class="flex justify-end border-t border-gray-200 pt-4">
+                <button id="editBtn" class="btn btn-outline-dark px-4 fw-bold">
+                  <i class="fa-solid fa-pen-to-square me-2"></i> Edit Profile
+                </button>
               </div>
             </div>
 
-            <div class="flex justify-end border-t border-gray-200 pt-6">
-              <button id="editBtn" class="flex items-center border-2 border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white font-bold py-2 px-6 rounded-lg transition">
-                <i class="fa-solid fa-pen-to-square mr-2"></i> Edit Profile
-              </button>
-            </div>
+            <!-- EDIT MODE SECTION -->
+            <form id="profileEditForm" class="hidden" novalidate>
+              <h5 class="text-lg font-bold mb-4 border-b border-gray-200 pb-2 text-gray-800">Edit Information</h5>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="col-span-1 md:col-span-2">
+                  <label for="avatarUpload" class="block text-sm font-semibold text-gray-700 mb-1">Update Profile Photo</label>
+                  <input class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#005f73] file:text-white hover:file:bg-[#004f60] cursor-pointer text-gray-500" type="file" id="avatarUpload" accept="image/*">
+                  <p class="text-xs text-gray-500 mt-1">Choose a square image for best fit (Max 2MB).</p>
+                </div>
+
+                <div class="col-span-1 md:col-span-2 mt-2">
+                  <h6 class="font-bold text-gray-500">Basic Details</h6>
+                </div>
+                
+                <!-- Separate First Name & Last Name -->
+                <div>
+                  <label for="firstName" class="block text-sm font-semibold text-gray-700 mb-1">First Name</label>
+                  <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="firstName" placeholder="e.g. John" required>
+                  <div class="invalid-feedback">Please enter your first name.</div>
+                </div>
+
+                <div>
+                  <label for="lastName" class="block text-sm font-semibold text-gray-700 mb-1">Last Name</label>
+                  <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="lastName" placeholder="e.g. Doe" required>
+                  <div class="invalid-feedback">Please enter your last name.</div>
+                </div>
+
+                <div class="col-span-1 md:col-span-2">
+                  <label class="block text-sm font-semibold text-gray-700 mb-1">Account Type</label>
+                  <input type="text" class="w-full border border-gray-200 bg-gray-100 text-gray-500 rounded-lg px-4 py-2 cursor-not-allowed outline-none" id="roleDisplay" readonly disabled>
+                </div>
+
+                <div class="col-span-1 md:col-span-2 mt-2">
+                  <h6 class="font-bold text-gray-500">Professional Identity</h6>
+                </div>
+                
+                <div>
+                  <label for="organization" class="block text-sm font-semibold text-gray-700 mb-1">Organization / Affiliation</label>
+                  <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="organization" placeholder="e.g., University, Publishing House">
+                </div>
+                <div>
+                  <label for="website" class="block text-sm font-semibold text-gray-700 mb-1">Website / Social Profile</label>
+                  <input type="url" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="website" placeholder="https://linkedin.com/in/yourprofile">
+                  <div class="invalid-feedback">Please enter a valid URL.</div>
+                </div>
+                <div class="col-span-1 md:col-span-2">
+                  <label for="bio" class="block text-sm font-semibold text-gray-700 mb-1">Bio / About Me</label>
+                  <textarea class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition resize-y" id="bio" rows="3" placeholder="Share a brief overview of yourself..."></textarea>
+                </div>
+
+                <div class="col-span-1 md:col-span-2 mt-2">
+                  <h6 class="font-bold text-gray-500">Platform Preferences</h6>
+                </div>
+                
+                <div>
+                  <label for="interests" class="block text-sm font-semibold text-gray-700 mb-1">Reading/Writing Interests</label>
+                  <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="interests" placeholder="e.g., Santali History, Fiction, Poetry">
+                </div>
+                <div>
+                  <label for="preferredLanguage" class="block text-sm font-semibold text-gray-700 mb-1">Preferred Interface Language</label>
+                  <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition bg-white" id="preferredLanguage">
+                    <option value="">Select Language</option>
+                    <option value="Santali">Santali</option>
+                    <option value="English">English</option>
+                    <option value="Odia">Odia</option>
+                    <option value="Hindi">Hindi</option>
+                    <option value="Bengali">Bengali</option>
+                  </select>
+                </div>
+
+                <div class="col-span-1 md:col-span-2 mt-2">
+                  <h6 class="font-bold text-gray-500">Contact & Location Information</h6>
+                </div>
+                
+                <div>
+                  <label for="contactEmail" class="block text-sm font-semibold text-gray-700 mb-1">Contact Email</label>
+                  <input type="email" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="contactEmail" placeholder="your@email.com">
+                  <div class="invalid-feedback">Please enter a valid email address.</div>
+                </div>
+                <div>
+                  <label for="phone" class="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
+                  <input type="tel" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="phone" placeholder="10-digit number" pattern="^[0-9]{10}$">
+                  <div class="invalid-feedback">Please enter a valid 10-digit phone number.</div>
+                </div>
+                <div class="col-span-1 md:col-span-2">
+                  <label for="address" class="block text-sm font-semibold text-gray-700 mb-1">Street Address / Area</label>
+                  <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="address" placeholder="e.g. Unit 9, Plot 45">
+                </div>
+                
+                <!-- PIN Code Field -->
+                <div>
+                  <label for="pinCode" class="block text-sm font-semibold text-gray-700 mb-1">PIN / Postal Code</label>
+                  <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="pinCode" placeholder="e.g. 751001" pattern="^[1-9][0-9]{5}$">
+                  <div id="pinCodeFeedback" class="text-xs mt-1 font-semibold text-gray-500">Enter PIN to auto-fetch details</div>
+                  <div class="invalid-feedback">Please enter a valid 6-digit PIN code.</div>
+                </div>
+                
+                <!-- City Field -->
+                <div>
+                  <label for="city" class="block text-sm font-semibold text-gray-700 mb-1">City / Village / Town</label>
+                  <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="city" list="cityOptions" placeholder="Type or select from list...">
+                  <datalist id="cityOptions"></datalist>
+                </div>
+
+                <!-- Locked District & State Fields -->
+                <div>
+                  <label for="district" class="block text-sm font-semibold text-gray-700 mb-1">District</label>
+                  <input type="text" class="w-full border border-gray-200 rounded-lg px-4 py-2 bg-gray-100 text-gray-500 cursor-not-allowed outline-none" id="district" placeholder="Auto-filled from PIN" readonly>
+                </div>
+                <div>
+                  <label for="state" class="block text-sm font-semibold text-gray-700 mb-1">State</label>
+                  <input type="text" class="w-full border border-gray-200 rounded-lg px-4 py-2 bg-gray-100 text-gray-500 cursor-not-allowed outline-none" id="state" placeholder="Auto-filled from PIN" readonly>
+                </div>
+              </div>
+
+              <!-- Form Actions -->
+              <div class="flex justify-end gap-3 border-t border-gray-200 mt-6 pt-4">
+                <button type="button" id="cancelEditBtn" class="btn btn-outline-secondary px-4 fw-semibold">
+                  Cancel
+                </button>
+                <button type="submit" id="saveProfileBtn" class="btn btn-warning px-4 fw-bold shadow-sm text-dark">
+                  <i class="fa-solid fa-floppy-disk me-2"></i> Save Changes
+                </button>
+              </div>
+            </form>
           </div>
-
-          <!-- EDIT MODE SECTION -->
-          <form id="profileEditForm" class="hidden" novalidate>
-            <h5 class="text-lg font-bold mb-6 border-b border-gray-200 pb-2 text-gray-800">Edit Information</h5>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="col-span-1 md:col-span-2">
-                <label for="avatarUpload" class="block text-sm font-semibold text-gray-700 mb-1">Update Profile Photo</label>
-                <input class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#005f73] file:text-white hover:file:bg-[#004f60] cursor-pointer text-gray-500" type="file" id="avatarUpload" accept="image/*">
-                <p class="text-xs text-gray-500 mt-1">Choose a square image for the best fit (Max 2MB). Image previews automatically.</p>
-              </div>
-
-              <div class="col-span-1 md:col-span-2 mt-2">
-                <h6 class="font-bold text-gray-500">Basic Details</h6>
-              </div>
-              
-              <div>
-                <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
-                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="fullName" required>
-                <div class="invalid-feedback">Please enter your full name.</div>
-              </div>
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Account Type</label>
-                <input type="text" class="w-full border border-gray-200 bg-gray-100 text-gray-500 rounded-lg px-4 py-2 cursor-not-allowed outline-none" id="roleDisplay" readonly disabled>
-              </div>
-
-              <div class="col-span-1 md:col-span-2 mt-2">
-                <h6 class="font-bold text-gray-500">Professional Identity</h6>
-              </div>
-              
-              <div>
-                <label for="organization" class="block text-sm font-semibold text-gray-700 mb-1">Organization / Affiliation</label>
-                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="organization" placeholder="e.g., University, Publishing House">
-              </div>
-              <div>
-                <label for="website" class="block text-sm font-semibold text-gray-700 mb-1">Website / Social Profile</label>
-                <input type="url" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="website" placeholder="https://linkedin.com/in/yourprofile">
-                <div class="invalid-feedback">Please enter a valid URL (include http:// or https://).</div>
-              </div>
-              <div class="col-span-1 md:col-span-2">
-                <label for="bio" class="block text-sm font-semibold text-gray-700 mb-1">Bio / About Me</label>
-                <textarea class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition resize-y" id="bio" rows="3" placeholder="Share a brief overview of your professional background and interests..."></textarea>
-              </div>
-
-              <div class="col-span-1 md:col-span-2 mt-2">
-                <h6 class="font-bold text-gray-500">Platform Preferences</h6>
-              </div>
-              
-              <div>
-                <label for="interests" class="block text-sm font-semibold text-gray-700 mb-1">Reading/Writing Interests</label>
-                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="interests" placeholder="e.g., Santali History, Fiction, Poetry">
-              </div>
-              <div>
-                <label for="preferredLanguage" class="block text-sm font-semibold text-gray-700 mb-1">Preferred Interface Language</label>
-                <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition bg-white" id="preferredLanguage">
-                  <option value="">Select Language</option>
-                  <option value="Santali">Santali</option>
-                  <option value="English">English</option>
-                  <option value="Odia">Odia</option>
-                  <option value="Hindi">Hindi</option>
-                  <option value="Bengali">Bengali</option>
-                </select>
-              </div>
-
-              <div class="col-span-1 md:col-span-2 mt-2">
-                <h6 class="font-bold text-gray-500">Contact & Location Information</h6>
-              </div>
-              
-              <div>
-                <label for="contactEmail" class="block text-sm font-semibold text-gray-700 mb-1">Contact Email</label>
-                <input type="email" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="contactEmail" placeholder="your@email.com">
-                <div class="invalid-feedback">Please enter a valid email address.</div>
-              </div>
-              <div>
-                <label for="phone" class="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
-                <input type="tel" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="phone" placeholder="10-digit number" pattern="^[0-9]{10}$">
-                <div class="invalid-feedback">Please enter a valid 10-digit phone number.</div>
-              </div>
-              <div class="col-span-1 md:col-span-2">
-                <label for="address" class="block text-sm font-semibold text-gray-700 mb-1">Street Address / Area</label>
-                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="address" placeholder="e.g. Unit 9, Plot 45">
-              </div>
-              
-              <!-- PIN Code Field -->
-              <div>
-                <label for="pinCode" class="block text-sm font-semibold text-gray-700 mb-1">PIN / Postal Code</label>
-                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="pinCode" placeholder="e.g. 751001" pattern="^[1-9][0-9]{5}$">
-                <div id="pinCodeFeedback" class="text-xs mt-1 font-semibold text-gray-500">Enter PIN to auto-fetch details</div>
-                <div class="invalid-feedback">Please enter a valid 6-digit PIN code.</div>
-              </div>
-              
-              <!-- City Field -->
-              <div>
-                <label for="city" class="block text-sm font-semibold text-gray-700 mb-1">City / Village / Town</label>
-                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-teal-700 outline-none transition" id="city" list="cityOptions" placeholder="Type or select from list...">
-                <datalist id="cityOptions"></datalist>
-              </div>
-
-              <!-- Locked District & State Fields -->
-              <div>
-                <label for="district" class="block text-sm font-semibold text-gray-700 mb-1">District</label>
-                <input type="text" class="w-full border border-gray-200 rounded-lg px-4 py-2 bg-gray-100 text-gray-500 cursor-not-allowed outline-none" id="district" placeholder="Auto-filled from PIN" readonly>
-              </div>
-              <div>
-                <label for="state" class="block text-sm font-semibold text-gray-700 mb-1">State</label>
-                <input type="text" class="w-full border border-gray-200 rounded-lg px-4 py-2 bg-gray-100 text-gray-500 cursor-not-allowed outline-none" id="state" placeholder="Auto-filled from PIN" readonly>
-              </div>
-            </div>
-
-            <!-- Form Actions -->
-            <div class="flex justify-end gap-3 border-t border-gray-200 mt-8 pt-6">
-              <button type="button" id="cancelEditBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-lg transition">
-                Cancel
-              </button>
-              <button type="submit" id="saveProfileBtn" class="flex items-center bg-warning hover:bg-yellow-500 text-black font-bold py-2 px-6 rounded-lg shadow-sm transition">
-                <i class="fa-solid fa-floppy-disk mr-2"></i> Save Changes
-              </button>
-            </div>
-          </form>
         </div>
       </div>
     </div>
@@ -472,7 +490,7 @@
         
         <div id="otpErrorMsg" class="text-red-500 text-sm font-bold hidden mb-4">Invalid or expired code. Please try again.</div>
         
-        <button type="button" class="w-full bg-warning hover:bg-yellow-500 text-black font-bold py-3 rounded-lg shadow-sm transition flex justify-center items-center" id="submitOtpBtn">
+        <button type="button" class="btn btn-warning w-100 fw-bold py-2 shadow-sm text-dark" id="submitOtpBtn">
           Confirm Email
         </button>
       </div>
@@ -548,7 +566,7 @@
       });
 
       function showInlineAlert(message, type) {
-        alertBox.className = `p-4 mb-6 text-center rounded-lg font-semibold border ${
+        alertBox.className = `p-4 mb-4 text-center rounded-lg font-semibold border ${
           type === 'danger' ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'
         }`;
         alertBox.textContent = message;
@@ -592,8 +610,8 @@
           renderProfile(profile);
 
           // Update Top Corner Nav User Info
-          const displayName = profile?.full_name || user.user_metadata?.full_name || user.email.split('@')[0];
-          if (navUserName) navUserName.innerText = `Hello, ${displayName}`;
+          const firstName = profile?.first_name || (profile?.full_name ? profile.full_name.split(' ')[0] : user.email.split('@')[0]);
+          if (navUserName) navUserName.innerText = `Hello, ${firstName}`;
 
           if (profile?.avatar_url) {
             navUserAvatar.src = profile.avatar_url;
@@ -631,8 +649,21 @@
       }
 
       function renderProfile(p) {
-        document.getElementById("userDisplayName").innerText = p.full_name || 'My Profile';
-        document.getElementById("viewFullName").innerHTML = p.full_name || getEmptyStateHtml();
+        // Derive First Name and Last Name
+        let firstName = p.first_name || '';
+        let lastName = p.last_name || '';
+
+        if (!firstName && !lastName && p.full_name) {
+          const parts = p.full_name.trim().split(/\s+/);
+          firstName = parts[0] || '';
+          lastName = parts.slice(1).join(' ') || '';
+        }
+
+        const fullNameCombined = `${firstName} ${lastName}`.trim() || 'My Profile';
+        document.getElementById("userDisplayName").innerText = fullNameCombined;
+        
+        document.getElementById("viewFirstName").innerHTML = firstName || getEmptyStateHtml();
+        document.getElementById("viewLastName").innerHTML = lastName || getEmptyStateHtml();
         
         const verifyArea = document.getElementById("emailVerificationArea");
         
@@ -672,7 +703,9 @@
         document.getElementById("viewRole").innerText = roleText;
         document.getElementById("roleDisplay").value = roleText;
 
-        document.getElementById("fullName").value = p.full_name || '';
+        // Populate Form Inputs
+        document.getElementById("firstName").value = firstName;
+        document.getElementById("lastName").value = lastName;
         document.getElementById("contactEmail").value = p.contact_email || '';
         document.getElementById("phone").value = p.phone || '';
         document.getElementById("address").value = p.address || '';
@@ -703,7 +736,7 @@
           roleBadge.className += "bg-red-100 text-red-800 border border-red-300";
           roleBadge.innerText = "Admin Account";
         } else {
-          roleBadge.className += "bg-gray-200 text-gray-700 border border-gray-300";
+          roleBadge.className += "badge badge-reader text-white";
           roleBadge.innerText = "Reader Account";
         }
       }
@@ -877,9 +910,12 @@
         }
 
         saveBtn.disabled = true;
-        saveBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Saving...`;
+        saveBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin me-2"></i> Saving...`;
 
-        const updatedName = document.getElementById("fullName").value.trim();
+        const updatedFirstName = document.getElementById("firstName").value.trim();
+        const updatedLastName = document.getElementById("lastName").value.trim();
+        const combinedFullName = `${updatedFirstName} ${updatedLastName}`.trim();
+
         const updatedContactEmail = document.getElementById("contactEmail").value.trim();
         const updatedPhone = document.getElementById("phone").value.trim();
         const updatedAddress = document.getElementById("address").value.trim();
@@ -910,24 +946,28 @@
             currentAvatarUrl = publicUrlData.publicUrl;
           }
 
+          const updatePayload = {
+            full_name: combinedFullName,
+            first_name: updatedFirstName,
+            last_name: updatedLastName,
+            contact_email: updatedContactEmail,
+            phone: updatedPhone,
+            address: updatedAddress,
+            city: updatedCity,
+            district: updatedDistrict,
+            state: updatedState,
+            pin_code: updatedPinCode,
+            avatar_url: currentAvatarUrl,
+            organization: updatedOrg,
+            website: updatedWebsite,
+            bio: updatedBio,
+            interests: updatedInterests,
+            preferred_language: updatedLang
+          };
+
           const { error: updateError } = await supabase
             .from('profiles')
-            .update({
-              full_name: updatedName,
-              contact_email: updatedContactEmail,
-              phone: updatedPhone,
-              address: updatedAddress,
-              city: updatedCity,
-              district: updatedDistrict,
-              state: updatedState,
-              pin_code: updatedPinCode,
-              avatar_url: currentAvatarUrl,
-              organization: updatedOrg,
-              website: updatedWebsite,
-              bio: updatedBio,
-              interests: updatedInterests,
-              preferred_language: updatedLang
-            })
+            .update(updatePayload)
             .eq('id', currentUser.id);
 
           if (updateError) throw new Error("Database Error: " + updateError.message);
@@ -943,7 +983,7 @@
           showAlert(err.message || "Failed to update profile details.", "danger");
         } finally {
           saveBtn.disabled = false;
-          saveBtn.innerHTML = `<i class="fa-solid fa-floppy-disk mr-2"></i> Save Changes`;
+          saveBtn.innerHTML = `<i class="fa-solid fa-floppy-disk me-2"></i> Save Changes`;
         }
       });
 
