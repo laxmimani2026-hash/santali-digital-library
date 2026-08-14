@@ -38,8 +38,39 @@
       border: 1px solid rgba(255, 255, 255, 0.4);
     }
 
+    .default-avatar-placeholder {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 0.9rem;
+    }
+
     .badge-reader {
       background-color: #00b4d8;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 12px;
+    }
+
+    .badge-author {
+      background-color: #ffb703;
+      color: #000;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 12px;
+    }
+
+    .badge-admin {
+      background-color: #ef4444;
+      color: #fff;
       font-size: 0.72rem;
       font-weight: 600;
       padding: 3px 8px;
@@ -103,9 +134,12 @@
           <!-- User Profile Dropdown (Hover Enabled) -->
           <li class="nav-item dropdown ms-lg-3 my-2 my-lg-0" id="userNavArea">
             <a class="nav-link dropdown-toggle text-white d-flex align-items-center gap-2 py-1" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Avatar" class="user-avatar-img" id="userAvatar">
+              <img src="" alt="Avatar" class="user-avatar-img d-none" id="userAvatar">
+              <div class="default-avatar-placeholder" id="userAvatarPlaceholder">
+                <i class="fa-solid fa-user"></i>
+              </div>
               <span id="navUserName">Hello, User</span>
-              <span class="badge badge-reader text-white">Reader</span>
+              <span class="badge badge-reader text-white" id="userRoleBadge">Reader</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 profile-dropdown-menu" aria-labelledby="profileDropdown">
               <li>
@@ -224,23 +258,58 @@
       const cartTotal = document.getElementById('cartTotal');
       const checkoutBtn = document.getElementById('checkoutBtn');
       const navUserName = document.getElementById('navUserName');
+      const userAvatar = document.getElementById('userAvatar');
+      const userAvatarPlaceholder = document.getElementById('userAvatarPlaceholder');
+      const userRoleBadge = document.getElementById('userRoleBadge');
       const logoutBtn = document.getElementById('logoutBtn');
 
       try {
-        // 1. Check Session & Update Profile UI
+        // 1. Check Session & Fetch Profile Info from Supabase
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (!session) {
           window.location.href = "login.html";
           return;
         }
 
-        // Display user's name or fallback to email handle
-        if (navUserName && session.user) {
-          const userName = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
-          navUserName.innerText = `Hello, ${userName}`;
+        const user = session.user;
+
+        // Fetch User Profile from the database
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, avatar_url, role')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        // 2. Populate Avatar & Name Dynamically
+        const displayName = profile?.full_name || user.user_metadata?.full_name || user.email.split('@')[0];
+        if (navUserName) {
+          navUserName.innerText = `Hello, ${displayName}`;
         }
 
-        // Logout Event
+        if (profile?.avatar_url) {
+          userAvatar.src = profile.avatar_url;
+          userAvatar.classList.remove('d-none');
+          userAvatarPlaceholder.classList.add('d-none');
+        } else {
+          userAvatar.classList.add('d-none');
+          userAvatarPlaceholder.classList.remove('d-none');
+        }
+
+        // Update Role Badge
+        if (userRoleBadge && profile?.role) {
+          if (profile.role === 'author') {
+            userRoleBadge.className = 'badge badge-author';
+            userRoleBadge.innerText = 'Author';
+          } else if (profile.role === 'admin') {
+            userRoleBadge.className = 'badge badge-admin';
+            userRoleBadge.innerText = 'Admin';
+          } else {
+            userRoleBadge.className = 'badge badge-reader text-white';
+            userRoleBadge.innerText = 'Reader';
+          }
+        }
+
+        // Logout Event Listener
         if (logoutBtn) {
           logoutBtn.addEventListener('click', async () => {
             await supabase.auth.signOut();
@@ -248,11 +317,11 @@
           });
         }
 
-        // 2. Fetch Cart Items for Current User
+        // 3. Fetch Cart Items for Current User
         const { data: cartData, error: cartError } = await supabase
           .from('cart_items')
           .select('*')
-          .eq('user_id', session.user.id);
+          .eq('user_id', user.id);
 
         if (cartError) throw cartError;
 
@@ -262,7 +331,7 @@
           return;
         }
 
-        // 3. Fetch Book Details
+        // 4. Fetch Book Details
         const bookIds = cartData.map(item => item.book_id);
         const { data: booksData, error: booksError } = await supabase
           .from('books')
@@ -276,7 +345,7 @@
 
         let totalPrice = 0;
 
-        // 4. Render Cart Items
+        // 5. Render Cart Items
         cartData.forEach(cartItem => {
           const book = booksData.find(b => b.id == cartItem.book_id);
           if (!book) return;
@@ -302,7 +371,7 @@
           cartList.appendChild(listItem);
         });
 
-        // 5. Update Totals
+        // 6. Update Totals
         cartSubtotal.innerText = `₹${totalPrice}`;
         cartTotal.innerText = `₹${totalPrice}`;
         checkoutBtn.disabled = false;
@@ -311,7 +380,7 @@
            window.location.href = "checkout.html";
         });
 
-        // 6. Delete Handlers
+        // 7. Delete Handlers
         document.querySelectorAll('.delete-cart-item').forEach(btn => {
           btn.addEventListener('click', async function() {
             const cartId = this.getAttribute('data-cart-id');
