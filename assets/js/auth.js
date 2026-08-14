@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const userNavArea = document.getElementById("userNavArea");
 
   // =========================================================
-  // CHECK USER SESSION & UPDATE NAVBAR (WITH HOVER & SUBSCRIPTION)
+  // CHECK USER SESSION & UPDATE NAVBAR (PROFESSIONAL DISPLAY)
   // =========================================================
   if (supabase && userNavArea) {
     try {
@@ -27,42 +27,85 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('full_name, role, avatar_url')
+          .select('first_name, full_name, role, avatar_url')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
-        const userName = profile && profile.full_name ? profile.full_name : user.email.split('@')[0];
-        const isAuthor = profile && profile.role === 'author';
+        // 1. Determine First Name strictly
+        let firstName = '';
+        if (profile?.first_name) {
+          firstName = profile.first_name.trim();
+        } else if (profile?.full_name) {
+          firstName = profile.full_name.trim().split(/\s+/)[0];
+        } else if (user.user_metadata?.first_name) {
+          firstName = user.user_metadata.first_name.trim();
+        } else if (user.user_metadata?.full_name) {
+          firstName = user.user_metadata.full_name.trim().split(/\s+/)[0];
+        } else {
+          firstName = user.email.split('@')[0];
+        }
 
-        // Badge display
-        const roleBadge = isAuthor 
-          ? '<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65em;">Author</span>' 
-          : '<span class="badge bg-info text-dark ms-1" style="font-size: 0.65em;">Reader</span>';
+        // Capitalize First Letter
+        firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+
+        // 2. Format Role Badge Professionally
+        const userRole = (profile?.role || 'reader').toLowerCase();
+        let roleBadge = '';
+
+        if (userRole === 'admin') {
+          roleBadge = `<span class="badge" style="background-color: #ef4444; color: #fff; font-size: 0.72rem; font-weight: 600; padding: 4px 9px; border-radius: 12px; letter-spacing: 0.3px;">Admin</span>`;
+        } else if (userRole === 'author') {
+          roleBadge = `<span class="badge" style="background-color: #ffb703; color: #000; font-size: 0.72rem; font-weight: 600; padding: 4px 9px; border-radius: 12px; letter-spacing: 0.3px;">Author</span>`;
+        } else {
+          roleBadge = `<span class="badge" style="background-color: #00b4d8; color: #fff; font-size: 0.72rem; font-weight: 600; padding: 4px 9px; border-radius: 12px; letter-spacing: 0.3px;">Reader</span>`;
+        }
 
         // Author Dashboard link for Authors
-        const authorMenuItems = isAuthor 
-          ? `<li><a class="dropdown-item fw-semibold text-secondary py-2" href="author-dashboard.html"><i class="fa-solid fa-upload me-2 text-teal"></i> Author Dashboard</a></li>` 
+        const authorMenuItems = userRole === 'author' 
+          ? `<li><a class="dropdown-item d-flex align-items-center py-2" href="author-dashboard.html"><i class="fa-solid fa-upload text-muted me-2" style="width: 20px;"></i> Author Dashboard</a></li>` 
           : '';
 
-        // Avatar HTML
+        // Avatar HTML with fallback
         const avatarHtml = profile && profile.avatar_url
-          ? `<img src="${profile.avatar_url}" alt="Profile" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 2px solid #ffc107;" class="me-2 shadow-sm">`
-          : `<i class="fa-solid fa-circle-user text-warning fs-5 me-2"></i>`;
+          ? `<img src="${profile.avatar_url}" alt="Avatar" style="width: 32px; height: 32px; object-fit: cover; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.6);" class="shadow-sm">`
+          : `<div style="width: 32px; height: 32px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); display: inline-flex; align-items: center; justify-content: center; color: #ffffff; font-size: 0.9rem;"><i class="fa-solid fa-user"></i></div>`;
 
-        // Inject Dropdown with Subscription Option
+        // Inject Dropdown
         userNavArea.innerHTML = `
           <div class="nav-item dropdown custom-hover-dropdown">
-            <a class="nav-link dropdown-toggle text-white fw-semibold d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              ${avatarHtml} Hello, ${userName} ${roleBadge}
+            <a class="nav-link dropdown-toggle text-white d-flex align-items-center gap-2 py-1" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-weight: 500;">
+              ${avatarHtml}
+              <span>Hello, ${firstName}</span>
+              ${roleBadge}
             </a>
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-1" aria-labelledby="userDropdown" style="min-width: 220px; border-radius: 8px;">
-              <li><a class="dropdown-item fw-semibold text-secondary py-2" href="profile.html"><i class="fa-solid fa-user-pen me-2 text-teal"></i> My Profile</a></li>
-              <li><a class="dropdown-item fw-semibold text-secondary py-2" href="subscription.html"><i class="fa-solid fa-crown me-2 text-warning"></i> My Subscription</a></li>
-              <li><a class="dropdown-item fw-semibold text-secondary py-2" href="cart.html"><i class="fa-solid fa-cart-shopping me-2 text-teal"></i> My Cart</a></li>
-              <li><a class="dropdown-item fw-semibold text-secondary py-2" href="orders.html"><i class="fa-solid fa-box-open me-2 text-teal"></i> My Orders</a></li>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 profile-dropdown-menu" aria-labelledby="profileDropdown" style="min-width: 210px; border-radius: 10px;">
+              <li>
+                <a class="dropdown-item d-flex align-items-center py-2" href="profile.html">
+                  <i class="fa-solid fa-user text-muted me-2" style="width: 20px;"></i> My Profile
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center py-2" href="subscription.html">
+                  <i class="fa-solid fa-crown text-warning me-2" style="width: 20px;"></i> My Subscription
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center py-2" href="cart.html">
+                  <i class="fa-solid fa-cart-shopping text-muted me-2" style="width: 20px;"></i> My Cart
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center py-2" href="orders.html">
+                  <i class="fa-solid fa-box-archive text-muted me-2" style="width: 20px;"></i> My Orders
+                </a>
+              </li>
               ${authorMenuItems}
               <li><hr class="dropdown-divider my-1"></li>
-              <li><button id="logoutBtn" class="dropdown-item fw-bold text-danger py-2"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</button></li>
+              <li>
+                <button id="logoutBtn" class="dropdown-item d-flex align-items-center text-danger py-2 fw-semibold">
+                  <i class="fa-solid fa-arrow-right-from-bracket me-2" style="width: 20px;"></i> Logout
+                </button>
+              </li>
             </ul>
           </div>
         `;
@@ -94,15 +137,17 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       if (!supabase) return;
 
-      const fullName = document.getElementById("regFullName").value.trim();
+      const fullName = document.getElementById("regFullName")?.value.trim() || "";
+      const firstName = document.getElementById("regFirstName")?.value.trim() || fullName.split(' ')[0];
+      const lastName = document.getElementById("regLastName")?.value.trim() || fullName.split(' ').slice(1).join(' ');
       const email = document.getElementById("regEmail").value.trim();
-      const phone = document.getElementById("regPhone").value.trim();
-      const address = document.getElementById("regAddress").value.trim();
-      const role = document.getElementById("regRole").value;
+      const phone = document.getElementById("regPhone")?.value.trim() || "";
+      const address = document.getElementById("regAddress")?.value.trim() || "";
+      const role = document.getElementById("regRole")?.value || "reader";
       const password = document.getElementById("regPassword").value;
       const confirmPassword = document.getElementById("regConfirmPassword").value;
 
-      if (!fullName || !email || !phone || !address || !password || !confirmPassword) {
+      if (!email || !password || !confirmPassword) {
         showAlert("Please fill in all required fields.", "danger");
         return;
       }
@@ -115,11 +160,21 @@ document.addEventListener("DOMContentLoaded", async function () {
       showAlert("Creating account...", "info");
 
       try {
+        const combinedName = fullName || `${firstName} ${lastName}`.trim();
+        const userUid = 'SDL-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email: email,
           password: password,
           options: {
-            data: { full_name: fullName, phone: phone, address: address, role: role }
+            data: { 
+              first_name: firstName,
+              last_name: lastName,
+              full_name: combinedName, 
+              phone: phone, 
+              address: address, 
+              role: role 
+            }
           }
         });
 
@@ -128,7 +183,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (authData.user) {
           await supabase.from('profiles').upsert({
             id: authData.user.id,
-            full_name: fullName,
+            first_name: firstName,
+            last_name: lastName,
+            full_name: combinedName,
+            user_uid: userUid,
             phone: phone,
             address: address,
             role: role
@@ -138,7 +196,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         showAlert("Account created successfully! Redirecting...", "success");
         registerForm.reset();
 
-        // Redirect based on Role: Author -> Home Page, Reader -> Browse Page
         setTimeout(() => {
           if (role === 'author') {
             window.location.href = "index.html"; 
@@ -155,7 +212,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   // =========================================================
-  // 2. LOGIN FORM SUBMISSION (ROLE-BASED REDIRECT)
+  // 2. LOGIN FORM SUBMISSION
   // =========================================================
   if (loginForm) {
     loginForm.addEventListener("submit", async function (e) {
@@ -186,11 +243,10 @@ document.addEventListener("DOMContentLoaded", async function () {
           .from('profiles')
           .select('role')
           .eq('id', data.user.id)
-          .single();
+          .maybeSingle();
 
         showAlert("Login successful! Redirecting...", "success");
 
-        // Redirect logic based on query parameter or user role
         const urlParams = new URLSearchParams(window.location.search);
         const redirectUrl = urlParams.get('redirect');
 
@@ -198,11 +254,11 @@ document.addEventListener("DOMContentLoaded", async function () {
           if (redirectUrl) {
             window.location.href = redirectUrl;
           } else if (profile && profile.role === 'author') {
-            window.location.href = "index.html"; // Opens Author Home Page
+            window.location.href = "index.html";
           } else if (profile && profile.role === 'reader') {
-            window.location.href = "browse.html"; // Opens Reader Browse Page
+            window.location.href = "browse.html";
           } else {
-            window.location.href = "index.html"; // Default fallback
+            window.location.href = "index.html";
           }
         }, 1200);
 
