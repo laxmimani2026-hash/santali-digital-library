@@ -439,21 +439,24 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- SECTION 7: USER MANAGEMENT & ROLE CONTROL  -->
+    <!-- SECTION 7: USER MANAGEMENT (SL NO, PINCODE, DELETE) -->
     <!-- ========================================== -->
     <div id="usersSection" class="content-section d-none">
       <div class="card stat-card p-0 overflow-hidden">
         <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
           <div>
-            <h5 class="fw-bold mb-1 text-dark">Registered Users & Accounts</h5>
-            <p class="small text-muted mb-0">Search users by Name/UID and modify authorization roles in real time.</p>
+            <div class="d-flex align-items-center gap-2">
+              <h5 class="fw-bold mb-0 text-dark">Registered Users & Accounts</h5>
+              <span class="badge bg-primary rounded-pill px-3 py-2 fw-semibold" id="totalUsersCountBadge">0 Total</span>
+            </div>
+            <p class="small text-muted mb-0 mt-1">Manage platform members, search by Name/UID/PIN, edit roles, and delete accounts.</p>
           </div>
           
-          <!-- Search & Filter Bar with Distributor Option Included -->
+          <!-- Search & Filter Bar -->
           <div class="d-flex flex-wrap align-items-center gap-2">
             <div class="input-group input-group-sm" style="width: 280px;">
               <span class="input-group-text bg-light"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-              <input type="text" id="userSearchInput" class="form-control" placeholder="Search by Name or User ID...">
+              <input type="text" id="userSearchInput" class="form-control" placeholder="Search Name, UID, PIN...">
             </div>
 
             <select id="userRoleFilter" class="form-select form-select-sm border-secondary fw-semibold" style="width: 170px;">
@@ -478,16 +481,19 @@
             <table class="table table-hover align-middle mb-0" id="usersReportTable">
               <thead class="table-light text-secondary small">
                 <tr>
-                  <th class="ps-4">User ID</th>
+                  <th class="ps-3 text-center" style="width: 50px;">Sl. No.</th>
+                  <th>User ID</th>
                   <th>Full Name</th>
                   <th>Email</th>
-                  <th>Phone Number</th>
-                  <th class="pe-4">Role Authorization</th>
+                  <th>Phone</th>
+                  <th>PIN Code</th>
+                  <th>Role Authorization</th>
+                  <th class="text-end pe-3" style="width: 80px;">Action</th>
                 </tr>
               </thead>
               <tbody id="adminUsersList">
                 <tr>
-                  <td colspan="5" class="text-center py-5 text-muted">
+                  <td colspan="8" class="text-center py-5 text-muted">
                     <div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading users...
                   </td>
                 </tr>
@@ -925,11 +931,11 @@
       }
 
       // =========================================================================
-      // 6. USER MANAGEMENT: SEARCH (BY ID/NAME) & MULTI-ROLE AUTHORIZATION
+      // 6. USER MANAGEMENT: SERIAL NO, SEARCH, PIN CODE, ROLE CONTROL & DELETE
       // =========================================================================
       async function fetchAdminUsers() {
         const adminUsersList = document.getElementById('adminUsersList');
-        adminUsersList.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading users...</td></tr>`;
+        adminUsersList.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading users...</td></tr>`;
         
         try {
           const { data: users, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
@@ -939,7 +945,7 @@
           renderUsersTable();
 
         } catch (err) {
-          adminUsersList.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-danger">Failed to load users.</td></tr>`;
+          adminUsersList.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger">Failed to load users.</td></tr>`;
         }
       }
 
@@ -947,6 +953,7 @@
         const adminUsersList = document.getElementById('adminUsersList');
         const searchVal = document.getElementById('userSearchInput').value.trim().toLowerCase();
         const roleFilter = document.getElementById('userRoleFilter').value;
+        const totalBadge = document.getElementById('totalUsersCountBadge');
 
         adminUsersList.innerHTML = '';
 
@@ -956,6 +963,7 @@
           const lName = (user.last_name || '').toLowerCase();
           const fullName = (user.full_name || `${fName} ${lName}`).toLowerCase();
           const email = (user.email || user.contact_email || '').toLowerCase();
+          const pincode = (user.pincode || user.postal_code || user.pin || '').toLowerCase();
           
           let role = (user.role || 'reader').toLowerCase();
           if (role.includes('distributor') || role.includes('vendor')) {
@@ -964,13 +972,14 @@
             role = 'author';
           }
 
-          // Search Match (UID, Full Name, Email)
+          // Search Match: UID, Name, Email, or PIN Code
           const matchesSearch = !searchVal || 
             uid.includes(searchVal) || 
             fullName.includes(searchVal) || 
             fName.includes(searchVal) || 
             lName.includes(searchVal) || 
-            email.includes(searchVal);
+            email.includes(searchVal) ||
+            pincode.includes(searchVal);
 
           // Role Filter Match
           const matchesRole = roleFilter === 'all' || role === roleFilter;
@@ -978,12 +987,18 @@
           return matchesSearch && matchesRole;
         });
 
+        // Update Total Count Badge
+        if (totalBadge) {
+          totalBadge.textContent = `${filteredUsers.length} of ${allUsersData.length} Users`;
+        }
+
         if (filteredUsers.length === 0) {
-          adminUsersList.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-muted fw-semibold">No users matching search or filter criteria.</td></tr>`;
+          adminUsersList.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted fw-semibold">No users matching search or filter criteria.</td></tr>`;
           return;
         }
 
-        filteredUsers.forEach(user => {
+        filteredUsers.forEach((user, index) => {
+          const serialNo = index + 1;
           const userUid = user.user_uid || `SDL-${user.id.substring(0, 6).toUpperCase()}`;
           
           let currentRole = (user.role || 'reader').toLowerCase();
@@ -996,10 +1011,13 @@
           const fName = user.first_name || (user.full_name ? user.full_name.split(' ')[0] : 'N/A');
           const lName = user.last_name || (user.full_name ? user.full_name.split(' ').slice(1).join(' ') : '—');
           const fullNameDisplay = `${fName} ${lName !== '—' ? lName : ''}`.trim();
+          
+          const pincodeDisplay = user.pincode || user.postal_code || user.pin || '—';
 
           const tr = document.createElement('tr');
           tr.innerHTML = `
-            <td class="ps-4">
+            <td class="ps-3 text-center fw-bold text-muted">${serialNo}</td>
+            <td>
               <span class="uid-badge" title="Click to copy User ID">
                 <span>${userUid}</span>
                 <i class="fa-regular fa-copy copy-uid-btn" data-uid="${userUid}"></i>
@@ -1010,7 +1028,10 @@
             </td>
             <td class="text-muted small">${user.email || user.contact_email || 'N/A'}</td>
             <td class="text-muted small">${user.phone || 'N/A'}</td>
-            <td class="pe-4">
+            <td>
+              <span class="badge bg-light text-dark border px-2 py-1">${pincodeDisplay}</span>
+            </td>
+            <td>
               <select class="form-select form-select-sm role-select role-${currentRole}" data-userid="${user.id}">
                 <option value="reader" ${currentRole === 'reader' ? 'selected' : ''}>Reader</option>
                 <option value="author" ${currentRole === 'author' ? 'selected' : ''}>Author / Publisher</option>
@@ -1018,11 +1039,16 @@
                 <option value="admin" ${currentRole === 'admin' ? 'selected' : ''}>Admin</option>
               </select>
             </td>
+            <td class="text-end pe-3">
+              <button class="btn btn-sm btn-outline-danger delete-user-btn" data-userid="${user.id}" data-name="${fullNameDisplay}" title="Delete User">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </td>
           `;
           adminUsersList.appendChild(tr);
         });
 
-        // Copy UID Handler
+        // 1. Copy UID Handler
         document.querySelectorAll('.copy-uid-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
             const uid = e.target.getAttribute('data-uid');
@@ -1032,7 +1058,7 @@
           });
         });
 
-        // Interactive Role Modification
+        // 2. Interactive Role Modification
         document.querySelectorAll('.role-select').forEach(selectEl => {
           selectEl.addEventListener('change', async function() {
             const userId = this.getAttribute('data-userid');
@@ -1068,8 +1094,46 @@
             }
           });
         });
+
+        // 3. User Deletion Handler
+        document.querySelectorAll('.delete-user-btn').forEach(btn => {
+          btn.addEventListener('click', async function() {
+            const userId = this.getAttribute('data-userid');
+            const userName = this.getAttribute('data-name') || 'this user';
+
+            if (!confirm(`Are you sure you want to permanently delete account: "${userName}"? This cannot be undone.`)) {
+              return;
+            }
+
+            const buttonEl = this;
+            buttonEl.disabled = true;
+            buttonEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+
+            try {
+              // Delete profile row from database
+              const { error } = await supabase
+                .from('profiles')
+                .delete()
+                .eq('id', userId);
+
+              if (error) throw error;
+
+              // Remove from local array & re-render
+              allUsersData = allUsersData.filter(u => u.id !== userId);
+              renderUsersTable();
+              showToast(`User "${userName}" deleted successfully.`);
+
+            } catch (delErr) {
+              console.error("Delete Error:", delErr);
+              alert("Failed to delete user: " + delErr.message);
+              buttonEl.disabled = false;
+              buttonEl.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
+            }
+          });
+        });
       }
 
+      // Live search and filter event listeners
       document.getElementById('userSearchInput')?.addEventListener('input', renderUsersTable);
       document.getElementById('userRoleFilter')?.addEventListener('change', renderUsersTable);
       document.getElementById('refreshUsersBtn')?.addEventListener('click', fetchAdminUsers);
@@ -1082,17 +1146,18 @@
         }
 
         let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "User ID,First Name,Last Name,Email,Phone,Role\n";
+        csvContent += "Sl No,User ID,First Name,Last Name,Email,Phone,PIN Code,Role\n";
 
-        allUsersData.forEach(u => {
+        allUsersData.forEach((u, i) => {
           const uid = u.user_uid || `SDL-${u.id.substring(0, 6).toUpperCase()}`;
           const fName = (u.first_name || (u.full_name ? u.full_name.split(' ')[0] : '')).replace(/,/g, '');
           const lName = (u.last_name || (u.full_name ? u.full_name.split(' ').slice(1).join(' ') : '')).replace(/,/g, '');
           const email = (u.email || u.contact_email || '').replace(/,/g, '');
           const phone = (u.phone || '').replace(/,/g, '');
+          const pin = (u.pincode || u.postal_code || u.pin || '').replace(/,/g, '');
           const role = u.role || 'reader';
 
-          csvContent += `"${uid}","${fName}","${lName}","${email}","${phone}","${role}"\n`;
+          csvContent += `"${i + 1}","${uid}","${fName}","${lName}","${email}","${phone}","${pin}","${role}"\n`;
         });
 
         const encodedUri = encodeURI(csvContent);
