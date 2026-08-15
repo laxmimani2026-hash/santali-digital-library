@@ -32,6 +32,19 @@
       transition: background-color 0.3s, color 0.3s;
     }
 
+    /* Emergency Top Banner */
+    #emergencyTopBanner {
+      background: #b91c1c;
+      color: #ffffff;
+      padding: 12px 20px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      z-index: 1000000;
+      position: relative;
+    }
+
     /* Maintenance Mode Fullscreen Lockdown Screen */
     #maintenanceOverlay {
       position: fixed;
@@ -140,6 +153,12 @@
   </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
+
+  <!-- Emergency Top Banner -->
+  <div id="emergencyTopBanner" class="d-none">
+    <i class="fa-solid fa-triangle-exclamation me-2"></i>
+    <span id="emergencyBannerMessage">System update in progress.</span>
+  </div>
 
   <!-- Maintenance Mode Screen (Locked if enabled in admin) -->
   <div id="maintenanceOverlay" class="d-none">
@@ -333,24 +352,41 @@
     let allPublishedBooks = [];
     let siteSettings = {};
 
-    // 1. Fetch Dynamic Visuals & Verify Maintenance Lockdown
+    function parseValue(val) {
+      if (typeof val === 'string') {
+        try { return JSON.parse(val); } catch(e) { return val; }
+      }
+      return val || {};
+    }
+
     async function loadDynamicVisualsAndCheckMaintenance() {
       try {
         const { data } = await supabase.from('site_settings').select('*');
-        (data || []).forEach(row => { siteSettings[row.key] = row.value; });
+        (data || []).forEach(row => { siteSettings[row.key] = parseValue(row.value); });
 
-        // Maintenance Mode Full Lockdown
-        if (siteSettings.maintenance_mode && siteSettings.maintenance_mode.enabled === true) {
-          const overlay = document.getElementById('maintenanceOverlay');
-          overlay.classList.remove('d-none');
-          if (siteSettings.maintenance_mode.message) {
-            document.getElementById('maintenanceNoticeText').textContent = siteSettings.maintenance_mode.message;
+        // Maintenance & Emergency Banner Handlers
+        if (siteSettings.maintenance_mode) {
+          const isMaint = siteSettings.maintenance_mode.enabled === true || siteSettings.maintenance_mode.enabled === 'true';
+          const msg = siteSettings.maintenance_mode.message || 'System update: Platform is under maintenance. Logins are paused.';
+
+          if (isMaint) {
+            const banner = document.getElementById('emergencyTopBanner');
+            if (banner) {
+              document.getElementById('emergencyBannerMessage').textContent = msg;
+              banner.classList.remove('d-none');
+            }
+
+            const overlay = document.getElementById('maintenanceOverlay');
+            if (overlay) {
+              document.getElementById('maintenanceNoticeText').textContent = msg;
+              overlay.classList.remove('d-none');
+            }
+            document.body.style.overflow = 'hidden';
+            return true;
           }
-          document.body.style.overflow = 'hidden';
-          return true; // Stop all further book loading
         }
 
-        // Apply Theme & Brand Palette Variables
+        // Apply Theme Colors
         if (siteSettings.theme_colors) {
           const root = document.documentElement;
           if (siteSettings.theme_colors.primary) root.style.setProperty('--bg-dark', siteSettings.theme_colors.primary);
@@ -359,35 +395,26 @@
           if (siteSettings.theme_colors.footer_bg) root.style.setProperty('--footer-bg', siteSettings.theme_colors.footer_bg);
         }
 
-        // Apply Dynamic Typography
+        // Apply Typography
         if (siteSettings.typography) {
           if (siteSettings.typography.font_family) document.body.style.fontFamily = siteSettings.typography.font_family;
           if (siteSettings.typography.font_scale) document.documentElement.style.setProperty('--font-scale', siteSettings.typography.font_scale);
         }
 
         // Promotional Announcement Bar
-        if (siteSettings.announcement_bar && siteSettings.announcement_bar.enabled) {
+        if (siteSettings.announcement_bar && (siteSettings.announcement_bar.enabled === true || siteSettings.announcement_bar.enabled === 'true')) {
           const bar = document.getElementById('globalAnnouncementBar');
           bar.textContent = siteSettings.announcement_bar.text || '';
           bar.style.backgroundColor = siteSettings.announcement_bar.bg_color || '#ffb703';
           bar.style.color = siteSettings.announcement_bar.text_color || '#000000';
           bar.classList.remove('d-none');
         }
-
-        // Footer Support & Branding Info
-        if (siteSettings.hero_content) {
-          if (siteSettings.hero_content.support_email) document.getElementById('footerEmailDisplay').textContent = siteSettings.hero_content.support_email;
-          if (siteSettings.hero_content.support_phone) document.getElementById('footerPhoneDisplay').textContent = siteSettings.hero_content.support_phone;
-          if (siteSettings.hero_content.footer_tagline) document.getElementById('footerTaglineDisplay').textContent = siteSettings.hero_content.footer_tagline;
-        }
-
-      } catch (err) {
-        console.warn("Could not load dynamic settings. Using defaults:", err);
+      } catch (e) {
+        console.warn("Could not load dynamic settings:", e);
       }
       return false;
     }
 
-    // 2. Fetch & Render Published Books
     async function fetchPublishedBooks() {
       const booksGrid = document.getElementById("booksGrid");
       const loadingIndicator = document.getElementById("loadingIndicator");
@@ -399,7 +426,6 @@
       const resetFiltersBtn = document.getElementById("resetFiltersBtn");
 
       try {
-        // Enforces that ONLY books approved & published by admin are fetched
         const { data: books, error } = await supabase
           .from('books')
           .select('*')
@@ -420,7 +446,6 @@
         const searchTerm = searchInput.value.trim().toLowerCase();
         const selectedFilter = priceFilter.value;
 
-        // 1. Search Query Filter (Title, Author, or Book ID)
         let filtered = allPublishedBooks.filter(book => {
           const title = (book.title || '').toLowerCase();
           const author = (book.author || '').toLowerCase();
@@ -428,7 +453,6 @@
           return title.includes(searchTerm) || author.includes(searchTerm) || bookId.includes(searchTerm);
         });
 
-        // 2. Price Filter & Sorting Logic
         if (selectedFilter === 'free') {
           filtered = filtered.filter(b => b.pricing === 'free' || Number(b.price) === 0);
         } else if (selectedFilter === 'paid') {
@@ -447,7 +471,6 @@
           });
         }
 
-        // Apply admin configured browse limit
         const maxLimit = siteSettings.page_limits ? parseInt(siteSettings.page_limits.browse_limit) || 12 : 12;
         const displayList = filtered.slice(0, maxLimit);
 

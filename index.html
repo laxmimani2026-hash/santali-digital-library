@@ -31,6 +31,19 @@
       transition: background-color 0.3s, color 0.3s;
     }
 
+    /* Emergency Top Banner */
+    #emergencyTopBanner {
+      background: #b91c1c;
+      color: #ffffff;
+      padding: 12px 20px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      z-index: 1000000;
+      position: relative;
+    }
+
     /* Maintenance Mode Fullscreen Lockdown Screen */
     #maintenanceOverlay {
       position: fixed;
@@ -199,7 +212,13 @@
 </head>
 <body>
 
-  <!-- Maintenance Mode Screen (Locked if enabled) -->
+  <!-- Emergency Top Banner -->
+  <div id="emergencyTopBanner" class="d-none">
+    <i class="fa-solid fa-triangle-exclamation me-2"></i>
+    <span id="emergencyBannerMessage">System update in progress.</span>
+  </div>
+
+  <!-- Maintenance Mode Fullscreen Lockdown Screen -->
   <div id="maintenanceOverlay" class="d-none">
     <div class="maintenance-card">
       <i class="fa-solid fa-wrench"></i>
@@ -230,8 +249,6 @@
           <li class="nav-item"><a class="nav-link" href="browse.html" data-i18n="navBooks">Books</a></li>
           <li class="nav-item"><a class="nav-link" href="categories.html" data-i18n="navCategories">Categories</a></li>
           <li class="nav-item"><a class="nav-link" href="authors.html" data-i18n="navAuthors">Authors</a></li>
-          
-          <li class="nav-item d-none" id="uploadNavArea"><a class="nav-link" href="upload.html" data-i18n="navUpload">Upload</a></li>
           <li class="nav-item"><a class="nav-link" href="contact.html" data-i18n="navContact">Contact</a></li>
 
           <!-- Language Selector Dropdown -->
@@ -260,7 +277,7 @@
   <header class="hero-teal">
     <div class="container">
       <h1 class="hero-title" id="heroTitleDisplay" data-i18n="heroTitle">Discover Thousands of Digital Books</h1>
-      <p class="hero-subtitle" id="heroSubtitleDisplay" data-i18n="heroSub">Read anywhere, anytime. Publish your own eBooks in Ol Chiki and multiple languages to reach readers worldwide.</p>
+      <p class="hero-subtitle" id="heroSubtitleDisplay" data-i18n="heroSub">Read anywhere, anytime. Publish your own eBooks in Ol Chiki and multiple languages to reach readers worldwide[cite: 3].</p>
       
       <!-- Search Component -->
       <div class="search-box-wrapper">
@@ -625,7 +642,7 @@
   <footer class="footer-teal text-center mt-auto py-4">
     <div class="container">
       <p class="mb-1 fw-bold">&copy; 2026 Santali Digital Library</p>
-      <p class="small text-white-50 mb-2" id="footerTaglineDisplay" data-i18n="footerText">Made with ❤️ for Authors & Readers</p>
+      <p class="small text-white-50 mb-2" id="footerTaglineDisplay" data-i18n="footerText">Made with ❤️ for Authors & Readers[cite: 3]</p>
       <p class="small text-white-50 mb-0">
         Support: <span id="footerEmailDisplay">support@santalidigitallibrary.in</span> | Helpline: <span id="footerPhoneDisplay">+91 98765 43210</span>
       </p>
@@ -641,7 +658,7 @@
       en: {
         navHome: "Home", navBooks: "Books", navCategories: "Categories", navAuthors: "Authors", navUpload: "Upload", navContact: "Contact", navLogin: "Login / Sign Up",
         heroTitle: "Discover Thousands of Digital Books",
-        heroSub: "Read anywhere, anytime. Publish your own eBooks in Ol Chiki and multiple languages to reach readers worldwide.",
+        heroSub: "Read anywhere, anytime. Publish your own eBooks in Ol Chiki and multiple languages to reach readers worldwide[cite: 3].",
         searchPlaceholder: "Search books, authors, or categories...", searchBtnText: "Search",
         sectionFeatured: "Featured Books", sectionFeaturedSub: "Handpicked eBooks from top Santali authors and scholars",
         catTitle: "Categories", catSub: "Browse books across popular genres and learning material",
@@ -650,7 +667,7 @@
         feat1Title: "Easy Upload", feat1Desc: "Authors can upload books within minutes.",
         feat2Title: "Earn Money", feat2Desc: "Sell books directly to readers worldwide.",
         feat3Title: "Read Anywhere", feat3Desc: "Mobile, Tablet & Desktop support.",
-        footerText: "Made with ❤️ for Authors & Readers", memberTitle: "Read More with Membership", memberSub: "Affordable access to Santali books while helping authors earn from their work.",
+        footerText: "Made with ❤️ for Authors & Readers[cite: 3]", memberTitle: "Read More with Membership", memberSub: "Affordable access to Santali books while helping authors earn from their work.",
         langLabel: "EN"
       },
       sat: {
@@ -730,24 +747,41 @@
 
     let siteSettings = {};
 
-    // 1. Dynamic Visuals & Maintenance Lockdown
+    function parseValue(val) {
+      if (typeof val === 'string') {
+        try { return JSON.parse(val); } catch(e) { return val; }
+      }
+      return val || {};
+    }
+
     async function loadDynamicVisualsAndCheckMaintenance() {
       try {
         const { data } = await supabase.from('site_settings').select('*');
-        (data || []).forEach(row => { siteSettings[row.key] = row.value; });
+        (data || []).forEach(row => { siteSettings[row.key] = parseValue(row.value); });
 
-        // Maintenance Mode Full Lockdown
-        if (siteSettings.maintenance_mode && siteSettings.maintenance_mode.enabled === true) {
-          const overlay = document.getElementById('maintenanceOverlay');
-          overlay.classList.remove('d-none');
-          if (siteSettings.maintenance_mode.message) {
-            document.getElementById('maintenanceNoticeText').textContent = siteSettings.maintenance_mode.message;
+        // Maintenance & Emergency Banner Check
+        if (siteSettings.maintenance_mode) {
+          const isMaint = siteSettings.maintenance_mode.enabled === true || siteSettings.maintenance_mode.enabled === 'true';
+          const msg = siteSettings.maintenance_mode.message || 'System update: Platform is under maintenance. Logins are paused.';
+
+          if (isMaint) {
+            const banner = document.getElementById('emergencyTopBanner');
+            if (banner) {
+              document.getElementById('emergencyBannerMessage').textContent = msg;
+              banner.classList.remove('d-none');
+            }
+
+            const overlay = document.getElementById('maintenanceOverlay');
+            if (overlay) {
+              document.getElementById('maintenanceNoticeText').textContent = msg;
+              overlay.classList.remove('d-none');
+            }
+            document.body.style.overflow = 'hidden';
+            return true;
           }
-          document.body.style.overflow = 'hidden';
-          return true; // Stop all further execution
         }
 
-        // Apply Theme & Brand Colors
+        // Apply Theme Colors
         if (siteSettings.theme_colors) {
           const root = document.documentElement;
           if (siteSettings.theme_colors.primary) root.style.setProperty('--bg-dark', siteSettings.theme_colors.primary);
@@ -763,7 +797,7 @@
         }
 
         // Promotional Announcement Bar
-        if (siteSettings.announcement_bar && siteSettings.announcement_bar.enabled) {
+        if (siteSettings.announcement_bar && (siteSettings.announcement_bar.enabled === true || siteSettings.announcement_bar.enabled === 'true')) {
           const bar = document.getElementById('globalAnnouncementBar');
           bar.textContent = siteSettings.announcement_bar.text || '';
           bar.style.backgroundColor = siteSettings.announcement_bar.bg_color || '#ffb703';
@@ -771,7 +805,7 @@
           bar.classList.remove('d-none');
         }
 
-        // Hero Content & Contact Info
+        // Hero Content
         if (siteSettings.hero_content) {
           if (siteSettings.hero_content.title) document.getElementById('heroTitleDisplay').textContent = siteSettings.hero_content.title;
           if (siteSettings.hero_content.subtitle) document.getElementById('heroSubtitleDisplay').textContent = siteSettings.hero_content.subtitle;
@@ -797,7 +831,6 @@
       return false;
     }
 
-    // 2. Search & Book Rendering
     document.addEventListener("DOMContentLoaded", async () => {
       const isLocked = await loadDynamicVisualsAndCheckMaintenance();
       if (isLocked) return;
@@ -897,21 +930,16 @@
         } else {
             gridBooksContainer.classList.add('d-none');
             marqueeWrapper.classList.remove('d-none');
-            
             let infiniteLoopHtml = cardsHtml;
             if (books.length < 5) infiniteLoopHtml += cardsHtml;
             infiniteLoopHtml += infiniteLoopHtml; 
-            
             marqueeBooksContainer.innerHTML = infiniteLoopHtml;
         }
       }
 
       async function handleSearch() {
         const query = searchInput.value.trim();
-        if (!query) {
-           loadInitialBooks(); 
-           return;
-        }
+        if (!query) { loadInitialBooks(); return; }
 
         marqueeWrapper.classList.add('d-none');
         gridBooksContainer.classList.add('d-none');
@@ -948,7 +976,6 @@
         loadingState.classList.remove('d-none');
         
         try {
-          // Fetch only Admin-approved published books featured for homepage slider
           const { data, error } = await supabase
             .from('books')
             .select('*')
