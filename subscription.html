@@ -521,8 +521,8 @@
 
     async function loadSubscriptionState() {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
+        const { data: { user }, error: authErr } = await supabase.auth.getUser();
+        if (authErr || !user) {
           window.location.href = "login.html?redirect=subscription.html";
           return;
         }
@@ -544,8 +544,15 @@
           document.getElementById('headerUserBadge').textContent = profile.role.toUpperCase();
         }
 
+        if (profile?.avatar_url) {
+          const navAvatar = document.getElementById('navAvatar');
+          navAvatar.src = profile.avatar_url;
+          navAvatar.style.display = 'inline-block';
+          document.getElementById('navAvatarPlaceholder').style.display = 'none';
+        }
+
         // Fetch latest active subscription
-        const { data: sub } = await supabase
+        const { data: sub, error: subError } = await supabase
           .from('subscriptions')
           .select('*')
           .eq('user_id', user.id)
@@ -553,9 +560,7 @@
           .limit(1)
           .maybeSingle();
 
-        const banner = document.getElementById('subscriptionBanner');
-
-        if (sub && new Date(sub.valid_until) > new Date()) {
+        if (!subError && sub && new Date(sub.valid_until) > new Date()) {
           // Has Active Plan
           document.getElementById('bannerPlanTitle').textContent = sub.plan_name || 'Annual Reader Pass';
           document.getElementById('bannerSubId').textContent = sub.subscription_id || `SUB-2026-${sub.id.substring(0,6).toUpperCase()}`;
@@ -563,6 +568,8 @@
           document.getElementById('bannerEndDate').textContent = formatDate(new Date(sub.valid_until));
           document.getElementById('bannerBadge').innerHTML = '<i class="fa-solid fa-crown"></i> CURRENT ACTIVE PLAN';
           document.getElementById('bannerActiveTag').innerHTML = '<i class="fa-solid fa-circle-check"></i> Active';
+          document.getElementById('bannerMetaRow').style.display = 'flex';
+          document.getElementById('upgradeBtn').textContent = 'Upgrade to Higher Tier';
         } else {
           // No Active Subscription
           document.getElementById('bannerPlanTitle').textContent = 'No Active Subscription';
@@ -577,7 +584,7 @@
         }
 
       } catch (err) {
-        console.error("Subscription load error:", err);
+        console.warn("Subscription load notice:", err);
       }
     }
 
@@ -620,11 +627,11 @@
           if (error) throw error;
 
           alert(`🎉 Successfully subscribed to ${planName}!\n\nSubscription ID: ${subId}`);
-          window.location.reload();
+          window.location.href = "subscription.html";
 
         } catch (err) {
           console.error("Activation error:", err);
-          alert("Failed to activate plan: " + err.message);
+          alert("Failed to activate plan: " + (err.message || "Please run the database table setup first."));
         } finally {
           this.innerHTML = originalText;
           this.disabled = false;
