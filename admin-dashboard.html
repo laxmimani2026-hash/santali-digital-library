@@ -154,7 +154,7 @@
     <!-- ========================================== -->
     <div id="subscriptionsSection" class="content-section d-none">
       
-      <!-- Tier Overview Cards (Updated to ₹99 / ₹249 / ₹899) -->
+      <!-- Tier Overview Cards -->
       <div class="row g-4 mb-4">
         <!-- Monthly Plan Card -->
         <div class="col-md-4">
@@ -495,7 +495,7 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let allSubscribersData = [];
-    let globalMessages = [];
+    let usersProfileMap = {};
 
     document.addEventListener("DOMContentLoaded", async () => {
       const adminAlert = document.getElementById('adminAlert');
@@ -507,7 +507,7 @@
         setTimeout(() => adminAlert.classList.add('d-none'), 5000);
       }
 
-      // 1. Auth & Admin Role Check
+      // 1. Auth & Admin Role Verification
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -561,23 +561,27 @@
         });
       });
 
-      // 2. Fetch Subscription Details from `subscriptions` table
+      // Helper: Preload profiles into a lookup dictionary
+      async function preloadProfiles() {
+        const { data: profiles } = await supabase.from('profiles').select('*');
+        usersProfileMap = {};
+        (profiles || []).forEach(p => {
+          usersProfileMap[p.id] = p;
+        });
+      }
+
+      // 2. Fetch Subscription Details
       async function fetchSubscriptionDetails() {
         const tbody = document.getElementById('subscribersTableBody');
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading subscriptions...</td></tr>`;
 
         try {
+          await preloadProfiles();
+
+          // Query subscriptions directly
           const { data: subs, error } = await supabase
             .from('subscriptions')
-            .select(`
-              *,
-              profiles (
-                first_name,
-                last_name,
-                full_name,
-                email
-              )
-            `)
+            .select('*')
             .order('created_at', { ascending: false });
 
           if (error) throw error;
@@ -623,7 +627,7 @@
 
         } catch (err) {
           console.error("Subscription fetch error:", err);
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load subscriptions. Please verify Supabase 'subscriptions' table.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load subscriptions. Please verify that you ran the SQL policy setup.</td></tr>`;
         }
       }
 
@@ -666,15 +670,15 @@
             ? `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger">Expired</span>`
             : `<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="fa-solid fa-circle-check me-1"></i>Active</span>`;
 
-          const userObj = sub.profiles || {};
-          let subscriberName = userObj.full_name || `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || 'Subscriber';
+          const userObj = usersProfileMap[sub.user_id] || {};
+          let subscriberName = userObj.full_name || `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || 'Reader';
 
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td class="ps-4 fw-bold text-primary">${sub.subscription_id || 'N/A'}</td>
             <td>
               <div class="fw-semibold text-dark">${subscriberName}</div>
-              <small class="text-muted">${userObj.email || ''}</small>
+              <small class="text-muted">${userObj.email || userObj.contact_email || ''}</small>
             </td>
             <td>${planBadge}</td>
             <td class="small text-muted">${start} to <strong class="text-dark">${end}</strong></td>
@@ -802,23 +806,17 @@
         });
       }
 
-      // 5. Financial Reports & Export
+      // 5. Financial Reports
       async function fetchSalesReports() {
         const tbody = document.getElementById('reportTableBody');
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Generating report...</td></tr>`;
 
         try {
+          await preloadProfiles();
+
           const { data: subs, error } = await supabase
             .from('subscriptions')
-            .select(`
-              *,
-              profiles (
-                first_name,
-                last_name,
-                full_name,
-                email
-              )
-            `)
+            .select('*')
             .order('created_at', { ascending: false });
 
           if (error) throw error;
@@ -835,8 +833,8 @@
             totalRev += price;
 
             const date = sub.activated_on ? new Date(sub.activated_on).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
-            const userObj = sub.profiles || {};
-            let subscriberName = userObj.full_name || `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || 'Subscriber';
+            const userObj = usersProfileMap[sub.user_id] || {};
+            let subscriberName = userObj.full_name || `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || 'Reader';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -858,7 +856,7 @@
         }
       }
 
-      // 6. User Management (First Name, Last Name, Phone, Role)
+      // 6. User Management
       async function fetchAdminUsers() {
         const adminUsersList = document.getElementById('adminUsersList');
         adminUsersList.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading users...</td></tr>`;
