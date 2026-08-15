@@ -85,7 +85,7 @@
       <i class="fa-solid fa-wrench"></i>
       <h2 class="text-2xl font-bold mb-2">Under Scheduled Maintenance</h2>
       <p id="maintenanceNoticeText" class="text-gray-300 opacity-75 mb-4 text-sm">
-        Our platform is undergoing scheduled visual and database upgrades. Reading, borrowing, and logins are temporarily offline.
+        Our platform is undergoing scheduled visual and database upgrades. Inquiries and messages are temporarily offline.
       </p>
       <span class="inline-block bg-amber-400 text-gray-900 px-3 py-1.5 rounded font-bold text-xs">Admin Maintenance Active</span>
     </div>
@@ -210,7 +210,6 @@
           </button>
         </form>
       </div>
-
     </div>
   </main>
 
@@ -237,6 +236,9 @@
     }
 
     async function checkMaintenanceMode() {
+      const banner = document.getElementById('emergencyTopBanner');
+      const overlay = document.getElementById('maintenanceOverlay');
+
       try {
         const { data } = await supabase.from('site_settings').select('*').eq('key', 'maintenance_mode').single();
         if (data) {
@@ -245,13 +247,10 @@
           const msg = maintenance.message || 'System update: Platform is under maintenance.';
 
           if (isMaint) {
-            const banner = document.getElementById('emergencyTopBanner');
             if (banner) {
               document.getElementById('emergencyBannerMessage').textContent = msg;
               banner.classList.remove('hidden');
             }
-
-            const overlay = document.getElementById('maintenanceOverlay');
             if (overlay) {
               document.getElementById('maintenanceNoticeText').textContent = msg;
               overlay.classList.remove('hidden');
@@ -263,6 +262,11 @@
       } catch (e) {
         console.warn("Could not check maintenance status:", e);
       }
+
+      // Explicitly ensure lockdown overlay is dismissed when maintenance mode is OFF
+      if (banner) banner.classList.add('hidden');
+      if (overlay) overlay.classList.add('hidden');
+      document.body.style.overflow = '';
       return false;
     }
 
@@ -315,10 +319,8 @@
             ]);
 
           if (error) throw error;
-
           showFormMessage("Your message has been sent successfully! We will get back to you shortly.", true);
           contactForm.reset();
-
         } catch (error) {
           console.error("Contact Form Error:", error);
           showFormMessage("Failed to send message: " + error.message, false);
