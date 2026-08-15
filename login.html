@@ -31,6 +31,12 @@
       color: #ffffff !important;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
+    .country-code-select {
+      max-width: 140px;
+      font-weight: 600;
+      background-color: #f8fafc;
+      border-right: none;
+    }
   </style>
 </head>
 <body class="bg-light d-flex flex-column min-vh-100">
@@ -149,21 +155,41 @@
                     </div>
                   </div>
 
+                  <!-- Mobile Number with +91 Default & Country Dropdown -->
                   <div class="mb-3">
                     <label for="regPhone" class="form-label fw-semibold">Mobile Number</label>
                     <div class="input-group">
-                      <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
-                      <input type="tel" class="form-control" id="regPhone" placeholder="+91 9876543210" required>
+                      <select class="form-select country-code-select" id="regCountryCode">
+                        <option value="+91" selected>🇮🇳 +91 (IN)</option>
+                        <option value="+880">🇧🇩 +880 (BD)</option>
+                        <option value="+977">🇳🇵 +977 (NP)</option>
+                        <option value="+1">🇺🇸 +1 (US/CA)</option>
+                        <option value="+44">🇬🇧 +44 (UK)</option>
+                        <option value="+971">🇦🇪 +971 (UAE)</option>
+                        <option value="+61">🇦🇺 +61 (AU)</option>
+                        <option value="+65">🇸🇬 +65 (SG)</option>
+                        <option value="+60">🇲🇾 +60 (MY)</option>
+                        <option value="+49">🇩🇪 +49 (DE)</option>
+                        <option value="+33">🇫🇷 +33 (FR)</option>
+                        <option value="other">🌐 Other...</option>
+                      </select>
+                      <input type="tel" class="form-control" id="regPhone" placeholder="9876543210" required>
+                    </div>
+                    <div id="customCountryCodeWrapper" class="mt-2 d-none">
+                      <input type="text" class="form-control form-control-sm" id="customCountryCode" placeholder="Enter custom country code (e.g. +81)">
                     </div>
                   </div>
 
+                  <!-- Role Selection: Reader / Author / Publisher / Distributor -->
                   <div class="mb-3">
                     <label for="regRole" class="form-label fw-semibold">I want to join as</label>
                     <div class="input-group">
                       <span class="input-group-text"><i class="fa-solid fa-user-tag"></i></span>
-                      <select class="form-select" id="regRole">
+                      <select class="form-select" id="regRole" required>
                         <option value="reader" selected>Reader</option>
-                        <option value="author">Author / Publisher</option>
+                        <option value="author">Author</option>
+                        <option value="publisher">Publisher</option>
+                        <option value="distributor">Distributor / Vendor</option>
                       </select>
                     </div>
                   </div>
@@ -207,13 +233,27 @@
   <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Auto Tab Hash Listener -->
+  <!-- Interactive Mobile Prefix & Auto Tab Handler -->
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       if (window.location.hash === "#register") {
         const registerTab = new bootstrap.Tab(document.querySelector('#register-tab'));
         registerTab.show();
       }
+
+      // Handle custom country code dropdown toggle
+      const countrySelect = document.getElementById('regCountryCode');
+      const customWrapper = document.getElementById('customCountryCodeWrapper');
+      const customInput = document.getElementById('customCountryCode');
+
+      countrySelect?.addEventListener('change', function() {
+        if (this.value === 'other') {
+          customWrapper.classList.remove('d-none');
+          customInput.focus();
+        } else {
+          customWrapper.classList.add('d-none');
+        }
+      });
     });
   </script>
 
