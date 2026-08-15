@@ -27,11 +27,11 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('first_name, full_name, role, avatar_url')
+          .select('first_name, last_name, full_name, role, avatar_url')
           .eq('id', user.id)
           .maybeSingle();
 
-        // 1. Determine First Name strictly
+        // 1. Determine Display Name
         let firstName = '';
         if (profile?.first_name) {
           firstName = profile.first_name.trim();
@@ -45,25 +45,25 @@ document.addEventListener("DOMContentLoaded", async function () {
           firstName = user.email.split('@')[0];
         }
 
-        // Capitalize First Letter
         firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
 
-        // 2. Format Role Badge Professionally
-        const userRole = (profile?.role || 'reader').toLowerCase();
+        // 2. Format Role Badge & Role Dashboard Links
+        const rawRole = (profile?.role || user.user_metadata?.role || 'reader').toLowerCase();
         let roleBadge = '';
+        let roleDashboardItem = '';
 
-        if (userRole === 'admin') {
-          roleBadge = `<span class="badge" style="background-color: #ef4444; color: #fff; font-size: 0.72rem; font-weight: 600; padding: 4px 9px; border-radius: 12px; letter-spacing: 0.3px;">Admin</span>`;
-        } else if (userRole === 'author') {
-          roleBadge = `<span class="badge" style="background-color: #ffb703; color: #000; font-size: 0.72rem; font-weight: 600; padding: 4px 9px; border-radius: 12px; letter-spacing: 0.3px;">Author</span>`;
+        if (rawRole === 'admin') {
+          roleBadge = `<span class="badge" style="background-color: #ef4444; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; letter-spacing: 0.3px;">ADMIN</span>`;
+          roleDashboardItem = `<li><a class="dropdown-item d-flex align-items-center py-2 text-danger fw-semibold" href="admin-dashboard.html"><i class="fa-solid fa-shield-halved text-danger me-2" style="width: 20px;"></i> Admin Dashboard</a></li>`;
+        } else if (rawRole.includes('distributor') || rawRole.includes('vendor')) {
+          roleBadge = `<span class="badge" style="background-color: #2563eb; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; letter-spacing: 0.3px;">DISTRIBUTOR</span>`;
+          roleDashboardItem = `<li><a class="dropdown-item d-flex align-items-center py-2 text-primary fw-semibold" href="distributor-dashboard.html"><i class="fa-solid fa-truck-ramp-box text-primary me-2" style="width: 20px;"></i> Distributor Dashboard</a></li>`;
+        } else if (rawRole.includes('author') || rawRole.includes('publisher')) {
+          roleBadge = `<span class="badge" style="background-color: #ffb703; color: #000; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; letter-spacing: 0.3px;">AUTHOR</span>`;
+          roleDashboardItem = `<li><a class="dropdown-item d-flex align-items-center py-2 text-warning fw-semibold" href="author-dashboard.html"><i class="fa-solid fa-gauge text-warning me-2" style="width: 20px;"></i> Author Dashboard</a></li>`;
         } else {
-          roleBadge = `<span class="badge" style="background-color: #00b4d8; color: #fff; font-size: 0.72rem; font-weight: 600; padding: 4px 9px; border-radius: 12px; letter-spacing: 0.3px;">Reader</span>`;
+          roleBadge = `<span class="badge" style="background-color: #00b4d8; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; letter-spacing: 0.3px;">READER</span>`;
         }
-
-        // Author Dashboard link for Authors
-        const authorMenuItems = userRole === 'author' 
-          ? `<li><a class="dropdown-item d-flex align-items-center py-2" href="author-dashboard.html"><i class="fa-solid fa-upload text-muted me-2" style="width: 20px;"></i> Author Dashboard</a></li>` 
-          : '';
 
         // Avatar HTML with fallback
         const avatarHtml = profile && profile.avatar_url
@@ -78,10 +78,10 @@ document.addEventListener("DOMContentLoaded", async function () {
               <span>Hello, ${firstName}</span>
               ${roleBadge}
             </a>
-            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 profile-dropdown-menu" aria-labelledby="profileDropdown" style="min-width: 210px; border-radius: 10px;">
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 profile-dropdown-menu" aria-labelledby="profileDropdown" style="min-width: 220px; border-radius: 12px;">
               <li>
                 <a class="dropdown-item d-flex align-items-center py-2" href="profile.html">
-                  <i class="fa-solid fa-user text-muted me-2" style="width: 20px;"></i> My Profile
+                  <i class="fa-solid fa-user-gear text-muted me-2" style="width: 20px;"></i> My Profile
                 </a>
               </li>
               <li>
@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                   <i class="fa-solid fa-box-archive text-muted me-2" style="width: 20px;"></i> My Orders
                 </a>
               </li>
-              ${authorMenuItems}
+              ${roleDashboardItem ? `<li><hr class="dropdown-divider my-1"></li>${roleDashboardItem}` : ''}
               <li><hr class="dropdown-divider my-1"></li>
               <li>
                 <button id="logoutBtn" class="dropdown-item d-flex align-items-center text-danger py-2 fw-semibold">
@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         `;
 
         // Handle Logout
-        document.getElementById("logoutBtn").addEventListener("click", async () => {
+        document.getElementById("logoutBtn")?.addEventListener("click", async () => {
           await supabase.auth.signOut();
           window.location.href = "login.html"; 
         });
@@ -137,17 +137,29 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       if (!supabase) return;
 
-      const fullName = document.getElementById("regFullName")?.value.trim() || "";
-      const firstName = document.getElementById("regFirstName")?.value.trim() || fullName.split(' ')[0];
-      const lastName = document.getElementById("regLastName")?.value.trim() || fullName.split(' ').slice(1).join(' ');
+      const firstName = document.getElementById("regFirstName")?.value.trim() || "";
+      const lastName = document.getElementById("regLastName")?.value.trim() || "";
       const email = document.getElementById("regEmail").value.trim();
-      const phone = document.getElementById("regPhone")?.value.trim() || "";
-      const address = document.getElementById("regAddress")?.value.trim() || "";
-      const role = document.getElementById("regRole")?.value || "reader";
+      
+      // Calculate Country Code + Phone
+      const countryCodeSelect = document.getElementById("regCountryCode")?.value || "+91";
+      const customCode = document.getElementById("customCountryCode")?.value.trim() || "";
+      const rawPhone = document.getElementById("regPhone")?.value.trim() || "";
+      
+      const dialCode = countryCodeSelect === 'other' ? (customCode.startsWith('+') ? customCode : `+${customCode}`) : countryCodeSelect;
+      const fullPhone = rawPhone ? `${dialCode} ${rawPhone}`.trim() : "";
+
+      let role = document.getElementById("regRole")?.value || "reader";
+      if (role.includes("distributor") || role.includes("vendor")) {
+        role = "distributor";
+      } else if (role.includes("author") || role.includes("publisher")) {
+        role = "author";
+      }
+
       const password = document.getElementById("regPassword").value;
       const confirmPassword = document.getElementById("regConfirmPassword").value;
 
-      if (!email || !password || !confirmPassword) {
+      if (!email || !password || !confirmPassword || !firstName) {
         showAlert("Please fill in all required fields.", "danger");
         return;
       }
@@ -160,7 +172,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       showAlert("Creating account...", "info");
 
       try {
-        const combinedName = fullName || `${firstName} ${lastName}`.trim();
+        const combinedName = `${firstName} ${lastName}`.trim();
         const userUid = 'SDL-' + Math.random().toString(36).substring(2, 8).toUpperCase();
 
         const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -171,9 +183,9 @@ document.addEventListener("DOMContentLoaded", async function () {
               first_name: firstName,
               last_name: lastName,
               full_name: combinedName, 
-              phone: phone, 
-              address: address, 
-              role: role 
+              phone: fullPhone, 
+              role: role,
+              user_uid: userUid
             }
           }
         });
@@ -187,8 +199,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             last_name: lastName,
             full_name: combinedName,
             user_uid: userUid,
-            phone: phone,
-            address: address,
+            phone: fullPhone,
             role: role
           });
         }
@@ -197,8 +208,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         registerForm.reset();
 
         setTimeout(() => {
-          if (role === 'author') {
-            window.location.href = "index.html"; 
+          if (role === 'distributor') {
+            window.location.href = "distributor-dashboard.html";
+          } else if (role === 'author') {
+            window.location.href = "author-dashboard.html"; 
           } else {
             window.location.href = "browse.html";
           }
@@ -245,6 +258,8 @@ document.addEventListener("DOMContentLoaded", async function () {
           .eq('id', data.user.id)
           .maybeSingle();
 
+        const userRole = (profile?.role || data.user.user_metadata?.role || 'reader').toLowerCase();
+
         showAlert("Login successful! Redirecting...", "success");
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -253,12 +268,14 @@ document.addEventListener("DOMContentLoaded", async function () {
         setTimeout(() => {
           if (redirectUrl) {
             window.location.href = redirectUrl;
-          } else if (profile && profile.role === 'author') {
-            window.location.href = "index.html";
-          } else if (profile && profile.role === 'reader') {
-            window.location.href = "browse.html";
+          } else if (userRole === 'distributor' || userRole === 'vendor') {
+            window.location.href = "distributor-dashboard.html";
+          } else if (userRole === 'author' || userRole === 'publisher') {
+            window.location.href = "author-dashboard.html";
+          } else if (userRole === 'admin') {
+            window.location.href = "admin-dashboard.html";
           } else {
-            window.location.href = "index.html";
+            window.location.href = "browse.html";
           }
         }, 1200);
 
