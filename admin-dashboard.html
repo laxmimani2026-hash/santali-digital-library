@@ -312,7 +312,7 @@
         <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
           <div>
             <h5 class="fw-bold mb-0 text-dark">Book Approval & Catalog Pipeline</h5>
-            <p class="small text-muted mb-0">Search titles/IDs, filter by submission month, control publishing rights, and toggle home slider visibility.</p>
+            <p class="small text-muted mb-0">Search titles/IDs, filter by submission month, control publishing rights, and toggle home slider visibility[cite: 14].</p>
           </div>
 
           <div class="d-flex flex-wrap align-items-center gap-2">
@@ -366,19 +366,23 @@
     <div id="settingsSection" class="content-section d-none">
       <form id="siteSettingsForm">
         
-        <!-- Emergency Maintenance Alert -->
+        <!-- Emergency Maintenance Alert Box -->
         <div class="card stat-card p-4 mb-4 border-start border-danger border-4">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h5 class="fw-bold mb-1 text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Maintenance Mode & Emergency Banner</h5>
-              <p class="small text-muted mb-0">Display an emergency top alert or take the library offline for scheduled maintenance.</p>
+              <div class="d-flex align-items-center gap-2">
+                <h5 class="fw-bold mb-1 text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i>Maintenance Mode & Emergency Banner[cite: 14]</h5>
+                <span class="badge bg-secondary" id="maintenanceStatusBadge">SYSTEM LIVE</span>
+              </div>
+              <p class="small text-muted mb-0">When turned ON, an emergency alert bar will appear across the library and lock non-admin browsing/logins[cite: 14].</p>
             </div>
             <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="settingMaintenanceEnable" style="width: 2.8em; height: 1.4em;">
+              <input class="form-check-input" type="checkbox" id="settingMaintenanceEnable" style="width: 3.2em; height: 1.6em; cursor: pointer;">
             </div>
           </div>
           <div class="mt-3">
-            <input type="text" class="form-control form-control-sm" id="settingMaintenanceMsg" placeholder="e.g. 🛠️ Scheduled System Update: Library downloads are temporarily paused from 2:00 AM - 4:00 AM IST.">
+            <label class="form-label small fw-semibold text-danger">Emergency Message Displayed on Index & Browse</label>
+            <input type="text" class="form-control" id="settingMaintenanceMsg" placeholder="e.g. 🛠️ Scheduled System Update: Platform is currently undergoing maintenance. Logins are paused.">
           </div>
         </div>
 
@@ -387,7 +391,7 @@
           <!-- 1. Theme, Palette & Branding -->
           <div class="col-lg-6">
             <div class="card stat-card p-4 h-100">
-              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-palette text-primary me-2"></i>Theme & Brand Colors</h5>
+              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-palette text-primary me-2"></i>Theme & Brand Colors[cite: 14]</h5>
               
               <div class="mb-3">
                 <label class="form-label fw-semibold small">Primary Brand / Dark Theme</label>
@@ -426,7 +430,7 @@
           <!-- 2. Typography & Fonts -->
           <div class="col-lg-6">
             <div class="card stat-card p-4 h-100">
-              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-font text-success me-2"></i>Typography & Sizing</h5>
+              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-font text-success me-2"></i>Typography & Sizing[cite: 14]</h5>
               
               <div class="mb-3">
                 <label class="form-label fw-semibold small">Primary Site Font Family</label>
@@ -462,7 +466,7 @@
           <div class="col-lg-6">
             <div class="card stat-card p-4 h-100">
               <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-bullhorn text-warning me-2"></i>Promotional Announcement Bar</h5>
+                <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-bullhorn text-warning me-2"></i>Promotional Announcement Bar[cite: 14]</h5>
                 <div class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" id="settingAnnouncementEnable">
                 </div>
@@ -489,7 +493,7 @@
           <!-- 4. Marquee Slider & Catalog Settings -->
           <div class="col-lg-6">
             <div class="card stat-card p-4 h-100">
-              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-sliders text-info me-2"></i>Slider & Browse Behavior</h5>
+              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-sliders text-info me-2"></i>Slider & Browse Behavior[cite: 14]</h5>
               
               <div class="row g-3 mb-3">
                 <div class="col-6">
@@ -513,12 +517,12 @@
 
               <div class="form-check form-switch mb-2">
                 <input class="form-check-input" type="checkbox" id="settingPauseOnHover" checked>
-                <label class="form-check-label small fw-semibold" for="settingPauseOnHover">Pause Marquee Slider on Mouse Hover</label>
+                <label class="form-check-label small fw-semibold" for="settingPauseOnHover">Pause Marquee Slider on Mouse Hover[cite: 14]</label>
               </div>
 
               <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="settingShowPriceBadge" checked>
-                <label class="form-check-label small fw-semibold" for="settingShowPriceBadge">Show Floating Price Badges on Book Covers</label>
+                <label class="form-check-label small fw-semibold" for="settingShowPriceBadge">Show Floating Price Badges on Book Covers[cite: 14]</label>
               </div>
             </div>
           </div>
@@ -526,7 +530,7 @@
           <!-- 5. Homepage Hero & Text Content -->
           <div class="col-12">
             <div class="card stat-card p-4">
-              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-heading text-primary me-2"></i>Homepage Hero Content & Contact Info</h5>
+              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-heading text-primary me-2"></i>Homepage Hero Content & Contact Info[cite: 14]</h5>
               <div class="row g-3 mb-3">
                 <div class="col-md-6">
                   <label class="form-label fw-semibold small">Main Hero Headline</label>
@@ -538,7 +542,7 @@
                 </div>
                 <div class="col-12">
                   <label class="form-label fw-semibold small">Hero Subtitle / Description</label>
-                  <textarea class="form-control" id="settingHeroSubtitle" rows="2">Read anywhere, anytime. Publish your own eBooks in Ol Chiki and multiple languages to reach readers worldwide.</textarea>
+                  <textarea class="form-control" id="settingHeroSubtitle" rows="2">Read anywhere, anytime. Publish your own eBooks in Ol Chiki and multiple languages to reach readers worldwide[cite: 14].</textarea>
                 </div>
               </div>
 
@@ -818,16 +822,14 @@
       setTimeout(() => { toast.style.display = 'none'; }, 3000);
     }
 
-    document.addEventListener("DOMContentLoaded", async () => {
-      const adminAlert = document.getElementById('adminAlert');
-      
-      function showAlert(msg, type) {
-        adminAlert.className = `alert alert-${type} shadow-sm`;
-        adminAlert.textContent = msg;
-        adminAlert.classList.remove('d-none');
-        setTimeout(() => adminAlert.classList.add('d-none'), 5000);
+    function parseValue(val) {
+      if (typeof val === 'string') {
+        try { return JSON.parse(val); } catch(e) { return val; }
       }
+      return val || {};
+    }
 
+    document.addEventListener("DOMContentLoaded", async () => {
       // 1. Auth & Admin Verification
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -883,13 +885,10 @@
         });
       });
 
-      // Helper: Preload profiles
       async function preloadProfiles() {
         const { data: profiles } = await supabase.from('profiles').select('*');
         usersProfileMap = {};
-        (profiles || []).forEach(p => {
-          usersProfileMap[p.id] = p;
-        });
+        (profiles || []).forEach(p => { usersProfileMap[p.id] = p; });
       }
 
       // 2. Fetch Subscription Details
@@ -899,37 +898,19 @@
 
         try {
           await preloadProfiles();
-
-          const { data: subs, error } = await supabase
-            .from('subscriptions')
-            .select('*')
-            .order('created_at', { ascending: false });
-
+          const { data: subs, error } = await supabase.from('subscriptions').select('*').order('created_at', { ascending: false });
           if (error) throw error;
 
           allSubscribersData = subs || [];
-
-          let monthlyCount = 0;
-          let quarterlyCount = 0;
-          let annualCount = 0;
-          let monthlyRev = 0;
-          let quarterlyRev = 0;
-          let annualRev = 0;
+          let monthlyCount = 0, quarterlyCount = 0, annualCount = 0;
+          let monthlyRev = 0, quarterlyRev = 0, annualRev = 0;
 
           allSubscribersData.forEach(sub => {
             const plan = (sub.plan_name || '').toLowerCase();
             const price = parseFloat(sub.price) || 0;
-
-            if (plan.includes('annual') || plan.includes('year')) {
-              annualCount++;
-              annualRev += price || 899;
-            } else if (plan.includes('quarter')) {
-              quarterlyCount++;
-              quarterlyRev += price || 249;
-            } else {
-              monthlyCount++;
-              monthlyRev += price || 99;
-            }
+            if (plan.includes('annual') || plan.includes('year')) { annualCount++; annualRev += price || 899; }
+            else if (plan.includes('quarter')) { quarterlyCount++; quarterlyRev += price || 249; }
+            else { monthlyCount++; monthlyRev += price || 99; }
           });
 
           document.getElementById('subCountMonthly').textContent = `${monthlyCount} Subscribers`;
@@ -962,20 +943,13 @@
         }
 
         const now = new Date();
-
         filtered.forEach(sub => {
           const plan = (sub.plan_name || '').toLowerCase();
           const key = (plan.includes('annual') || plan.includes('year')) ? 'annual' : plan.includes('quarter') ? 'quarterly' : 'monthly';
           
-          let planBadge = `<span class="badge bg-secondary">Monthly (₹99)</span>`;
-          let price = "₹99";
-          if (key === 'quarterly') {
-            planBadge = `<span class="badge bg-info text-dark">Quarterly (₹249)</span>`;
-            price = "₹249";
-          } else if (key === 'annual') {
-            planBadge = `<span class="badge bg-warning text-dark">Annual Pass (₹899)</span>`;
-            price = "₹899";
-          }
+          let planBadge = `<span class="badge bg-secondary">Monthly (₹99)</span>`, price = "₹99";
+          if (key === 'quarterly') { planBadge = `<span class="badge bg-info text-dark">Quarterly (₹249)</span>`; price = "₹249"; }
+          else if (key === 'annual') { planBadge = `<span class="badge bg-warning text-dark">Annual Pass (₹899)</span>`; price = "₹899"; }
 
           const start = sub.activated_on ? new Date(sub.activated_on).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
           const end = sub.valid_until ? new Date(sub.valid_until).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
@@ -1013,8 +987,7 @@
       async function fetchDashboardStats() {
         try {
           const { data: subs } = await supabase.from('subscriptions').select('price, plan_name, valid_until');
-          let grossRev = 0;
-          let activeCount = 0;
+          let grossRev = 0, activeCount = 0;
           const now = new Date();
 
           (subs || []).forEach(s => {
@@ -1044,7 +1017,7 @@
         }
       }
 
-      // 4. Book Pipeline (With Search, Month Upload Count, Publish, Marquee, Delete)
+      // 4. Book Pipeline
       async function fetchApprovalBooks() {
         const tbody = document.getElementById('approvalBooksList');
         tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading books...</td></tr>`;
@@ -1064,7 +1037,6 @@
       function populateMonthDropdown(books) {
         const monthSelect = document.getElementById('bookMonthFilter');
         if (!monthSelect) return;
-
         const currentVal = monthSelect.value;
         monthSelect.innerHTML = `<option value="all">All Months</option>`;
 
@@ -1098,9 +1070,7 @@
         const statusFilter = document.getElementById('bookStatusFilter')?.value || 'all';
 
         document.getElementById('totalBooksCount').textContent = allBooksData.length;
-        
-        let pendingCount = 0;
-        let selectedMonthUploads = 0;
+        let pendingCount = 0, selectedMonthUploads = 0;
 
         const targetMonthKey = monthFilter !== 'all' 
           ? monthFilter 
@@ -1109,7 +1079,6 @@
         allBooksData.forEach(b => {
           const status = (b.status || 'under review').toLowerCase();
           if (status !== 'published') pendingCount++;
-
           if (b.created_at) {
             const d = new Date(b.created_at);
             const bKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
@@ -1133,7 +1102,6 @@
           const isPublished = (book.status || '').toLowerCase() === 'published';
 
           const matchesSearch = !searchVal || bookRefId.includes(searchVal) || title.includes(searchVal) || author.includes(searchVal);
-
           let matchesMonth = true;
           if (monthFilter !== 'all' && book.created_at) {
             const d = new Date(book.created_at);
@@ -1209,7 +1177,6 @@
           tbody.appendChild(tr);
         });
 
-        // Copy Book ID
         document.querySelectorAll('.copy-bookid-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
             const id = e.target.getAttribute('data-id');
@@ -1217,7 +1184,6 @@
           });
         });
 
-        // Approve / Publish
         document.querySelectorAll('.approve-book-btn').forEach(btn => {
           btn.addEventListener('click', async function() {
             const id = this.getAttribute('data-id');
@@ -1227,7 +1193,6 @@
           });
         });
 
-        // Unpublish
         document.querySelectorAll('.unpublish-book-btn').forEach(btn => {
           btn.addEventListener('click', async function() {
             const id = this.getAttribute('data-id');
@@ -1237,7 +1202,6 @@
           });
         });
 
-        // Marquee Switch
         document.querySelectorAll('.toggle-featured-switch').forEach(switchEl => {
           switchEl.addEventListener('change', async function() {
             const id = this.getAttribute('data-id');
@@ -1246,7 +1210,6 @@
           });
         });
 
-        // Permanent Delete
         document.querySelectorAll('.delete-book-btn').forEach(btn => {
           btn.addEventListener('click', async function() {
             const id = this.getAttribute('data-id');
@@ -1264,14 +1227,38 @@
       document.getElementById('bookStatusFilter')?.addEventListener('change', renderBooksTable);
       document.getElementById('refreshApprovalBtn')?.addEventListener('click', fetchApprovalBooks);
 
-      // 5. Advanced Visual & Page Settings
+      // Maintenance live switch badge feedback
+      const maintSwitch = document.getElementById('settingMaintenanceEnable');
+      const maintBadge = document.getElementById('maintenanceStatusBadge');
+      
+      function updateMaintBadge(isActive) {
+        if (isActive) {
+          maintBadge.className = 'badge bg-danger fw-bold';
+          maintBadge.textContent = 'MAINTENANCE ACTIVE (LOCKDOWN)';
+        } else {
+          maintBadge.className = 'badge bg-success fw-bold';
+          maintBadge.textContent = 'SYSTEM LIVE';
+        }
+      }
+
+      maintSwitch?.addEventListener('change', (e) => updateMaintBadge(e.target.checked));
+
+      // 5. Load Settings from Supabase
       async function loadSiteSettings() {
         try {
           const { data, error } = await supabase.from('site_settings').select('*');
           if (error) throw error;
 
           const map = {};
-          (data || []).forEach(row => { map[row.key] = row.value; });
+          (data || []).forEach(row => { map[row.key] = parseValue(row.value); });
+
+          // Maintenance Mode & Emergency Banner[cite: 14]
+          if (map.maintenance_mode) {
+            const isMaint = map.maintenance_mode.enabled === true || map.maintenance_mode.enabled === 'true';
+            document.getElementById('settingMaintenanceEnable').checked = isMaint;
+            document.getElementById('settingMaintenanceMsg').value = map.maintenance_mode.message || '';
+            updateMaintBadge(isMaint);
+          }
 
           if (map.theme_colors) {
             document.getElementById('settingPrimaryColor').value = map.theme_colors.primary || '#075e4d';
@@ -1291,7 +1278,7 @@
           }
 
           if (map.announcement_bar) {
-            document.getElementById('settingAnnouncementEnable').checked = map.announcement_bar.enabled === true;
+            document.getElementById('settingAnnouncementEnable').checked = map.announcement_bar.enabled === true || map.announcement_bar.enabled === 'true';
             document.getElementById('settingAnnouncementText').value = map.announcement_bar.text || '';
             document.getElementById('settingAnnouncementBg').value = map.announcement_bar.bg_color || '#ffb703';
             document.getElementById('settingAnnouncementTextColor').value = map.announcement_bar.text_color || '#000000';
@@ -1312,16 +1299,12 @@
             document.getElementById('settingSupportPhone').value = map.hero_content.support_phone || '+91 98765 43210';
             document.getElementById('settingFooterTagline').value = map.hero_content.footer_tagline || 'Made with ❤️ for Santali Authors & Digital Readers Worldwide';
           }
-
-          if (map.maintenance_mode) {
-            document.getElementById('settingMaintenanceEnable').checked = map.maintenance_mode.enabled === true;
-            document.getElementById('settingMaintenanceMsg').value = map.maintenance_mode.message || '';
-          }
         } catch (e) {
           console.warn("Could not load dynamic settings:", e);
         }
       }
 
+      // Save Settings to Supabase[cite: 14]
       document.getElementById('siteSettingsForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('saveSettingsBtn');
@@ -1366,7 +1349,7 @@
 
         const maintenance = {
           enabled: document.getElementById('settingMaintenanceEnable').checked,
-          message: document.getElementById('settingMaintenanceMsg').value.trim()
+          message: document.getElementById('settingMaintenanceMsg').value.trim() || 'System Update: Platform is currently undergoing maintenance. Logins are paused.'
         };
 
         try {
@@ -1380,6 +1363,7 @@
           ]);
 
           if (error) throw error;
+          updateMaintBadge(maintenance.enabled);
           showToast("All Visual & Page Settings Saved Successfully!");
         } catch (err) {
           alert("Error saving settings: " + err.message);
@@ -1406,6 +1390,7 @@
         document.getElementById('settingMaintenanceEnable').checked = false;
         document.getElementById('settingMarqueeSpeed').value = '35s';
         document.getElementById('settingBrowseLimit').value = '12';
+        updateMaintBadge(false);
         showToast("Form restored to default values. Click 'Save' to apply.");
       });
 
@@ -1428,7 +1413,6 @@
 
         try {
           await preloadProfiles();
-
           const { data: subs, error } = await supabase.from('subscriptions').select('*').order('created_at', { ascending: false });
           if (error) throw error;
 
@@ -1442,7 +1426,6 @@
           subs.forEach(sub => {
             const price = parseFloat(sub.price) || 0;
             totalRev += price;
-
             const date = sub.activated_on ? new Date(sub.activated_on).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
             const userObj = usersProfileMap[sub.user_id] || {};
             let subscriberName = userObj.full_name || `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || 'Reader';
@@ -1466,7 +1449,6 @@
         }
       }
 
-      // Export Sales CSV
       document.getElementById('exportSalesCsvBtn')?.addEventListener('click', () => {
         if (!allSubscribersData.length) return alert("No subscription records to export.");
         let csvContent = "data:text/csv;charset=utf-8,Subscription ID,Subscriber,Plan,Amount,Validity\n";
@@ -1606,7 +1588,6 @@
       document.getElementById('userRoleFilter')?.addEventListener('change', renderUsersTable);
       document.getElementById('refreshUsersBtn')?.addEventListener('click', fetchAdminUsers);
 
-      // Export Users CSV
       document.getElementById('exportUsersCsvBtn')?.addEventListener('click', () => {
         if (!allUsersData.length) return alert("No users to export.");
         let csvContent = "data:text/csv;charset=utf-8,Sl No,User ID,Name,Email,Phone,PIN Code,Role\n";
