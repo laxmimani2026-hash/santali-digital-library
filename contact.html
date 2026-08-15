@@ -22,8 +22,11 @@
   
   <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <style>
+    /* Emergency Top Banner */
     #emergencyTopBanner {
+      display: none;
       background: #b91c1c;
       color: #ffffff;
       padding: 12px 20px;
@@ -34,23 +37,28 @@
       z-index: 1000000;
       position: relative;
     }
+
+    /* Maintenance Mode Fullscreen Overlay: Hidden by default */
     #maintenanceOverlay {
+      display: none;
       position: fixed;
-      top: 0;
-      left: 0;
+      inset: 0;
       width: 100vw;
       height: 100vh;
       background: rgba(15, 23, 42, 0.98);
       backdrop-filter: blur(14px);
       z-index: 9999999;
-      display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
       color: #ffffff;
       text-align: center;
       padding: 24px;
     }
+    
+    #maintenanceOverlay.is-active {
+      display: flex !important;
+    }
+
     #maintenanceOverlay .maintenance-card {
       background: #1e293b;
       border: 1px solid #334155;
@@ -74,18 +82,18 @@
 <body class="bg-gray-50 flex flex-col min-h-screen text-gray-800">
 
   <!-- Emergency Top Banner -->
-  <div id="emergencyTopBanner" class="hidden">
+  <div id="emergencyTopBanner">
     <i class="fa-solid fa-triangle-exclamation mr-2"></i>
     <span id="emergencyBannerMessage">System update in progress.</span>
   </div>
 
-  <!-- Maintenance Mode Fullscreen Lockdown Screen -->
-  <div id="maintenanceOverlay" class="hidden">
+  <!-- Maintenance Mode Fullscreen Lockdown Screen (Hidden by default) -->
+  <div id="maintenanceOverlay">
     <div class="maintenance-card">
       <i class="fa-solid fa-wrench"></i>
       <h2 class="text-2xl font-bold mb-2">Under Scheduled Maintenance</h2>
       <p id="maintenanceNoticeText" class="text-gray-300 opacity-75 mb-4 text-sm">
-        Our platform is undergoing scheduled visual and database upgrades. Inquiries and messages are temporarily offline.
+        Our platform is undergoing scheduled upgrades. Inquiries are temporarily offline.
       </p>
       <span class="inline-block bg-amber-400 text-gray-900 px-3 py-1.5 rounded font-bold text-xs">Admin Maintenance Active</span>
     </div>
@@ -210,6 +218,7 @@
           </button>
         </form>
       </div>
+
     </div>
   </main>
 
@@ -220,7 +229,7 @@
     </div>
   </footer>
 
-  <!-- Supabase Connection, Maintenance Check & Form Logic -->
+  <!-- Supabase Connection & Form Logic -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -240,8 +249,9 @@
       const overlay = document.getElementById('maintenanceOverlay');
 
       try {
-        const { data } = await supabase.from('site_settings').select('*').eq('key', 'maintenance_mode').single();
-        if (data) {
+        const { data, error } = await supabase.from('site_settings').select('*').eq('key', 'maintenance_mode').maybeSingle();
+        
+        if (data && data.value) {
           const maintenance = parseValue(data.value);
           const isMaint = maintenance.enabled === true || maintenance.enabled === 'true';
           const msg = maintenance.message || 'System update: Platform is under maintenance.';
@@ -249,11 +259,11 @@
           if (isMaint) {
             if (banner) {
               document.getElementById('emergencyBannerMessage').textContent = msg;
-              banner.classList.remove('hidden');
+              banner.style.display = 'block';
             }
             if (overlay) {
               document.getElementById('maintenanceNoticeText').textContent = msg;
-              overlay.classList.remove('hidden');
+              overlay.classList.add('is-active');
             }
             document.body.style.overflow = 'hidden';
             return true;
@@ -263,9 +273,9 @@
         console.warn("Could not check maintenance status:", e);
       }
 
-      // Explicitly ensure lockdown overlay is dismissed when maintenance mode is OFF
-      if (banner) banner.classList.add('hidden');
-      if (overlay) overlay.classList.add('hidden');
+      // Explicitly ensure overlay and banner stay hidden when maintenance is off
+      if (banner) banner.style.display = 'none';
+      if (overlay) overlay.classList.remove('is-active');
       document.body.style.overflow = '';
       return false;
     }
