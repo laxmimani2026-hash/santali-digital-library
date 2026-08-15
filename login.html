@@ -123,11 +123,21 @@
                 
                 <!-- REGISTRATION FIELDS -->
                 <div id="signupFields">
-                  <div class="mb-3">
-                    <label for="regFullName" class="form-label fw-semibold">Full Name</label>
-                    <div class="input-group">
-                      <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
-                      <input type="text" class="form-control" id="regFullName" placeholder="John Doe">
+                  <!-- First Name & Last Name Fields -->
+                  <div class="row g-2 mb-3">
+                    <div class="col-sm-6">
+                      <label for="regFirstName" class="form-label fw-semibold">First Name</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" class="form-control" id="regFirstName" placeholder="First Name" required>
+                      </div>
+                    </div>
+                    <div class="col-sm-6">
+                      <label for="regLastName" class="form-label fw-semibold">Last Name</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" class="form-control" id="regLastName" placeholder="Last Name" required>
+                      </div>
                     </div>
                   </div>
 
@@ -144,14 +154,6 @@
                     <div class="input-group">
                       <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
                       <input type="tel" class="form-control" id="regPhone" placeholder="+91 9876543210" required>
-                    </div>
-                  </div>
-
-                  <div class="mb-3">
-                    <label for="regAddress" class="form-label fw-semibold">Address</label>
-                    <div class="input-group">
-                      <span class="input-group-text"><i class="fa-solid fa-location-dot"></i></span>
-                      <textarea class="form-control" id="regAddress" rows="2" placeholder="Street, City, State, Pincode"></textarea>
                     </div>
                   </div>
 
@@ -215,7 +217,7 @@
     });
   </script>
 
-  <!-- Supabase Auth Integration (Handles the actual logic) -->
+  <!-- Supabase Auth Integration -->
   <script type="module" src="assets/js/auth.js"></script>
 </body>
 </html>
