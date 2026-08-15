@@ -214,7 +214,7 @@
       const bookFileInput = document.getElementById('bookFile');
       const bookFileName = document.getElementById('bookFileName');
 
-      // 1. Format Switcher
+      // Format Switcher
       if (fileFormatSelect) {
         fileFormatSelect.addEventListener('change', function() {
           bookFileInput.value = "";
@@ -293,9 +293,21 @@
 
         try {
           let userId = 'anonymous_user';
+          let userUid = null;
+          
           try {
             const { data: { user } } = await supabase.auth.getUser();
-            if (user) userId = user.id;
+            if (user) {
+              userId = user.id;
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('user_uid')
+                .eq('id', user.id)
+                .maybeSingle();
+              if (profile?.user_uid) {
+                userUid = profile.user_uid;
+              }
+            }
           } catch (e) {
             console.warn("Auth check bypassed:", e);
           }
@@ -328,9 +340,16 @@
           const targetBuckets = fileType === 'epub' ? ['book_epubs', 'books', 'book_pdfs'] : ['book_pdfs', 'books', 'book_epubs'];
           const bookResult = await uploadWithFallback(cleanBookName, mainBookFile, targetBuckets);
 
+          // Generate Book ID: BK-XXXXXX
+          const randomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+          const generatedBookId = `BK-${randomId}`;
+
           const { error: dbError } = await supabase
             .from('books')
             .insert([{
+                book_id: generatedBookId,
+                author_id: userId,
+                user_uid: userUid,
                 uploader_id: userId,
                 title: title,
                 author: author,
@@ -341,16 +360,20 @@
                 price: price,
                 description: description,
                 cover_url: coverResult.publicUrl,
-                pdf_url: bookResult.publicUrl
+                pdf_url: bookResult.publicUrl,
+                status: 'Published'
             }]);
 
           if (dbError) throw dbError;
 
-          alert(`🎉 ${fileType.toUpperCase()} book published successfully!`);
+          alert(`🎉 Book published successfully!\n\nGenerated Book ID: ${generatedBookId}`);
           uploadForm.reset();
           document.getElementById('coverFileName').innerText = "";
           bookFileName.innerText = "";
           if (priceDiv) priceDiv.classList.add('d-none');
+
+          // Redirect to author dashboard to view publication
+          window.location.href = "author-dashboard.html";
 
         } catch (error) {
           console.error("Upload Error:", error);
