@@ -3,77 +3,330 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Author Dashboard | Santali Digital Library</title>
+  <title>Publish eBook | Santali Digital Library</title>
   
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
-    .upload-card {
-      border-radius: 12px;
-      border: none;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
     }
+
+    :root {
+      --bg-dark: #075e4d;
+      --primary-gold: #ffb703;
+      --primary-hover: #e08e0b;
+      --text-light: #ffffff;
+      --text-dark: #333333;
+      --text-muted: #666666;
+      --card-bg: #ffffff;
+      --bg-light: #f4f7f6;
+      --border-color: #e0e0e0;
+    }
+
+    body {
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* --- Standard Header & Nav Styles --- */
+    header {
+      background-color: var(--bg-dark);
+      padding: 15px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .logo i {
+      color: var(--primary-gold);
+      font-size: 1.5rem;
+    }
+
+    .logo span span {
+      color: var(--primary-gold);
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 25px;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-links a {
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--primary-gold);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .lang-select {
+      background: transparent;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .lang-select select {
+      background: transparent;
+      border: none;
+      color: #fff;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .lang-select option {
+      background-color: var(--bg-dark);
+      color: #fff;
+    }
+
+    /* User Menu Dropdown */
+    .user-menu-container {
+      position: relative;
+      padding: 8px 0;
+    }
+
+    .user-btn {
+      background: transparent;
+      border: none;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: background-color 0.2s ease;
+    }
+
+    .user-menu-container:hover .user-btn {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .user-avatar-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .author-badge {
+      background-color: var(--primary-gold);
+      color: #000;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+
+    .dropdown-menu-custom {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      width: 220px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 100;
+      margin-top: 4px;
+    }
+
+    .user-menu-container:hover .dropdown-menu-custom,
+    .dropdown-menu-custom.active {
+      display: flex;
+    }
+
+    .dropdown-menu-custom a {
+      padding: 12px 18px;
+      text-decoration: none;
+      color: var(--text-dark);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: background 0.2s;
+    }
+
+    .dropdown-menu-custom a:hover {
+      background-color: #f0f4f8;
+      color: var(--bg-dark);
+    }
+
+    .dropdown-menu-custom a i {
+      color: #777;
+      width: 16px;
+    }
+
+    .dropdown-menu-custom hr {
+      border: none;
+      border-top: 1px solid #eee;
+      margin: 0;
+    }
+
+    .dropdown-menu-custom a.logout {
+      color: #e74c3c;
+      font-weight: 600;
+    }
+
+    /* --- Form & Upload Card Styles --- */
+    .upload-card {
+      border-radius: 14px;
+      border: 1px solid var(--border-color);
+      background-color: #ffffff;
+    }
+
     .file-drop-area {
-      border: 2px dashed #0d6efd;
+      border: 2px dashed #075e4d;
       border-radius: 8px;
       padding: 2rem;
       text-align: center;
-      background-color: #f8f9fa;
+      background-color: #f8fbfb;
       transition: all 0.3s ease;
       cursor: pointer;
     }
+
     .file-drop-area:hover {
-      background-color: #e9ecef;
-      border-color: #0b5ed7;
+      background-color: #eaf5f2;
+      border-color: #054639;
+    }
+
+    .btn-gold {
+      background-color: var(--primary-gold);
+      color: #000;
+      font-weight: 700;
+      border: none;
+      padding: 10px 28px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-gold:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
     }
   </style>
 </head>
-<body class="bg-light d-flex flex-column min-vh-100">
+<body>
 
-  <!-- Navigation Bar -->
-  <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: #005f73;">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
-        <i class="fa-solid fa-book-open-reader text-warning fs-3"></i>
-        <span>Santali Digital <span class="text-warning fw-bold">Library</span></span>
-      </a>
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto align-items-center">
-          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="browse.html">Books</a></li>
-          <li class="nav-item"><a class="nav-link" href="categories.html">Categories</a></li>
-          <li class="nav-item"><a class="nav-link active fw-bold" href="upload.html">Upload</a></li>
-          <li class="nav-item ms-lg-3 my-2 my-lg-0" id="userNavArea">
-            <a href="login.html" class="btn btn-warning btn-sm fw-bold">Login / Sign Up</a>
-          </li>
-        </ul>
+  <!-- Unified Header / Navbar -->
+  <header>
+    <a href="index.html" class="logo">
+      <i class="fa-solid fa-book-open-reader"></i>
+      <span>Santali Digital <span>Library</span></span>
+    </a>
+
+    <ul class="nav-links d-none d-md-flex">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="browse.html">Books</a></li>
+      <li><a href="categories.html">Categories</a></li>
+      <li><a href="author-dashboard.html">Dashboard</a></li>
+      <li><a href="upload.html" class="active">Publish</a></li>
+    </ul>
+
+    <div class="nav-right">
+      <div class="lang-select">
+        <i class="fa-solid fa-globe"></i>
+        <select>
+          <option>EN</option>
+          <option>ᱥᱟᱱᱛᱟᱲᱤ</option>
+          <option>हिन्दी</option>
+        </select>
+      </div>
+
+      <!-- User Menu -->
+      <div class="user-menu-container" id="userMenuContainer">
+        <button class="user-btn" id="userMenuBtn" type="button">
+          <img src="" alt="" class="user-avatar-img" id="navAvatar" style="display: none;">
+          <i class="fa-solid fa-circle-user" id="navAvatarPlaceholder" style="font-size: 1.3rem;"></i>
+          <span id="headerUserName">Hello, Author</span>
+          <span class="author-badge" id="headerUserBadge">Author</span>
+          <i class="fa-solid fa-caret-down"></i>
+        </button>
+
+        <div class="dropdown-menu-custom" id="dropdownMenu">
+          <a href="author-dashboard.html"><i class="fa-solid fa-gauge"></i> Author Dashboard</a>
+          <a href="upload.html"><i class="fa-solid fa-cloud-arrow-up"></i> Publish New Book</a>
+          <a href="profile.html"><i class="fa-solid fa-user-gear"></i> My Profile</a>
+          <hr>
+          <a href="#" id="logoutLink" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        </div>
       </div>
     </div>
-  </nav>
+  </header>
 
   <!-- Main Content -->
-  <div class="container my-5 flex-grow-1">
+  <main class="container my-5 flex-grow-1">
     <div class="row mb-4">
-      <div class="col-12">
-        <h2 class="fw-bold" style="color: #005f73;">
-          <i class="fa-solid fa-cloud-arrow-up me-2 text-warning"></i> Author Dashboard
-        </h2>
-        <p class="text-muted">Upload and publish a new book (EPUB or PDF) to the Santali Digital Library.</p>
+      <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <h2 class="fw-bold" style="color: var(--bg-dark);">
+            <i class="fa-solid fa-cloud-arrow-up me-2 text-warning"></i> Publish New Book
+          </h2>
+          <p class="text-muted mb-0">Fill in the book details to generate a unique Book ID and publish to the library catalog.</p>
+        </div>
+        <a href="author-dashboard.html" class="btn btn-outline-secondary btn-sm fw-semibold">
+          <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+        </a>
       </div>
     </div>
 
     <div class="row justify-content-center">
-      <div class="col-lg-10">
+      <div class="col-lg-11">
         <div class="card shadow-sm upload-card">
           <div class="card-body p-4 p-md-5">
             
             <form id="uploadBookForm">
-              <h5 class="fw-bold mb-4 border-bottom pb-2">Book Details</h5>
+              <h5 class="fw-bold mb-4 border-bottom pb-2" style="color: var(--bg-dark);">Book Information</h5>
               
               <div class="row g-3 mb-4">
                 <div class="col-md-6">
@@ -83,7 +336,7 @@
                 
                 <div class="col-md-6">
                   <label for="bookAuthor" class="form-label fw-semibold">Author Name <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="bookAuthor" placeholder="Who wrote this book?" required>
+                  <input type="text" class="form-control" id="bookAuthor" placeholder="Enter author name" required>
                 </div>
 
                 <div class="col-md-4">
@@ -119,7 +372,7 @@
                 </div>
               </div>
 
-              <h5 class="fw-bold mb-4 border-bottom pb-2 mt-5">Files & Media</h5>
+              <h5 class="fw-bold mb-4 border-bottom pb-2 mt-5" style="color: var(--bg-dark);">Files & Cover Media</h5>
 
               <div class="row g-4 mb-4">
                 <!-- Cover Upload -->
@@ -138,7 +391,7 @@
                 <div class="col-md-6">
                   <span class="form-label fw-semibold d-block mb-2" id="fileUploadLabel">Book File (EPUB) <span class="text-danger">*</span></span>
                   <label class="file-drop-area d-block w-100" for="bookFile">
-                    <i class="fa-solid fa-book-open fs-1 text-primary mb-2" id="fileTypeIcon"></i>
+                    <i class="fa-solid fa-book-open fs-1 text-success mb-2" id="fileTypeIcon"></i>
                     <p class="mb-1 fw-bold" id="fileTypePrompt">Click to upload EPUB</p>
                     <p class="small text-muted mb-0" id="fileTypeHelper">EPUB only (Max 20MB)</p>
                     <input type="file" id="bookFile" class="d-none" accept=".epub, application/epub+zip" required>
@@ -147,11 +400,11 @@
                 </div>
               </div>
 
-              <h5 class="fw-bold mb-4 border-bottom pb-2 mt-5">Pricing & Description</h5>
+              <h5 class="fw-bold mb-4 border-bottom pb-2 mt-5" style="color: var(--bg-dark);">Pricing & Description</h5>
 
               <div class="row g-3 mb-4">
                 <div class="col-md-6">
-                  <label for="bookPricing" class="form-label fw-semibold">Pricing <span class="text-danger">*</span></label>
+                  <label for="bookPricing" class="form-label fw-semibold">Pricing Option <span class="text-danger">*</span></label>
                   <select class="form-select" id="bookPricing" required>
                     <option value="free" selected>Free to Read</option>
                     <option value="paid">Paid</option>
@@ -164,14 +417,14 @@
                 </div>
 
                 <div class="col-12 mt-3">
-                  <label for="bookDescription" class="form-label fw-semibold">Book Description / Summary <span class="text-danger">*</span></label>
-                  <textarea class="form-control" id="bookDescription" rows="4" placeholder="Write a brief summary of the book..." required></textarea>
+                  <label for="bookDescription" class="form-label fw-semibold">Book Summary / Description <span class="text-danger">*</span></label>
+                  <textarea class="form-control" id="bookDescription" rows="4" placeholder="Write a summary of the book..." required></textarea>
                 </div>
               </div>
 
               <div class="text-end mt-4">
-                <button type="submit" class="btn btn-warning fw-bold px-5 py-2 text-dark shadow-sm">
-                  <i class="fa-solid fa-upload me-2"></i> Publish Book
+                <button type="submit" class="btn btn-gold shadow-sm">
+                  <i class="fa-solid fa-upload me-2"></i> Publish Book & Create ID
                 </button>
               </div>
             </form>
@@ -180,11 +433,11 @@
         </div>
       </div>
     </div>
-  </div>
+  </main>
 
-  <footer class="text-center mt-auto py-3" style="background-color: #005f73;">
+  <footer class="text-center mt-auto py-3" style="background-color: var(--bg-dark);">
     <div class="container">
-      <p class="mb-0 fw-bold text-white">&copy; 2026 Santali Digital Library</p>
+      <p class="mb-0 text-white" style="font-size: 0.9rem;">&copy; 2026 Santali Digital Library. All rights reserved.</p>
     </div>
   </footer>
 
@@ -205,7 +458,65 @@
       console.error("Supabase Init Error:", err);
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
+      // 1. Check Authentication & Setup User Header Info
+      let currentUserId = 'anonymous_user';
+      let currentUserUid = null;
+
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          currentUserId = user.id;
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('user_uid, first_name, full_name, role, avatar_url')
+            .eq('id', user.id)
+            .maybeSingle();
+
+          if (profile) {
+            currentUserUid = profile.user_uid || `SDL-${user.id.substring(0, 6).toUpperCase()}`;
+            let firstName = profile.first_name || (profile.full_name ? profile.full_name.split(' ')[0] : user.email.split('@')[0]);
+            document.getElementById('headerUserName').textContent = `Hello, ${firstName}`;
+            
+            if (profile.role) {
+              document.getElementById('headerUserBadge').textContent = profile.role.toUpperCase();
+            }
+
+            if (profile.avatar_url) {
+              const navAvatar = document.getElementById('navAvatar');
+              navAvatar.src = profile.avatar_url;
+              navAvatar.style.display = 'inline-block';
+              document.getElementById('navAvatarPlaceholder').style.display = 'none';
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("User profile fetch skipped:", err);
+      }
+
+      // Dropdown toggle
+      const userMenuBtn = document.getElementById('userMenuBtn');
+      const dropdownMenu = document.getElementById('dropdownMenu');
+
+      userMenuBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('active');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!dropdownMenu.contains(e.target) && !userMenuBtn.contains(e.target)) {
+          dropdownMenu.classList.remove('active');
+        }
+      });
+
+      // Logout handler
+      document.getElementById('logoutLink')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await supabase.auth.signOut();
+        window.location.href = 'login.html';
+      });
+
+      // 2. Format Switcher
       const fileFormatSelect = document.getElementById('fileFormatSelect');
       const fileUploadLabel = document.getElementById('fileUploadLabel');
       const fileTypeIcon = document.getElementById('fileTypeIcon');
@@ -214,7 +525,6 @@
       const bookFileInput = document.getElementById('bookFile');
       const bookFileName = document.getElementById('bookFileName');
 
-      // Format Switcher
       if (fileFormatSelect) {
         fileFormatSelect.addEventListener('change', function() {
           bookFileInput.value = "";
@@ -228,7 +538,7 @@
             bookFileInput.setAttribute('accept', 'application/pdf');
           } else {
             fileUploadLabel.innerHTML = 'Book File (EPUB) <span class="text-danger">*</span>';
-            fileTypeIcon.className = 'fa-solid fa-book-open fs-1 text-primary mb-2';
+            fileTypeIcon.className = 'fa-solid fa-book-open fs-1 text-success mb-2';
             fileTypePrompt.innerText = 'Click to upload EPUB';
             fileTypeHelper.innerText = 'EPUB only (Max 20MB)';
             bookFileInput.setAttribute('accept', '.epub, application/epub+zip');
@@ -280,7 +590,7 @@
         throw lastError || new Error("Storage upload failed.");
       }
 
-      // Form Handler
+      // 3. Form Submit & Book ID Creation
       const uploadForm = document.getElementById("uploadBookForm");
       
       uploadForm?.addEventListener("submit", async (e) => {
@@ -288,30 +598,10 @@
 
         const submitBtn = uploadForm.querySelector("button[type='submit']");
         const originalBtnText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Uploading... Please wait';
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Uploading & Publishing...';
         submitBtn.disabled = true;
 
         try {
-          let userId = 'anonymous_user';
-          let userUid = null;
-          
-          try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-              userId = user.id;
-              const { data: profile } = await supabase
-                .from('profiles')
-                .select('user_uid')
-                .eq('id', user.id)
-                .maybeSingle();
-              if (profile?.user_uid) {
-                userUid = profile.user_uid;
-              }
-            }
-          } catch (e) {
-            console.warn("Auth check bypassed:", e);
-          }
-
           const title = document.getElementById("bookTitle").value.trim();
           const author = document.getElementById("bookAuthor").value.trim();
           const category = document.getElementById("bookCategory").value;
@@ -333,8 +623,8 @@
           }
 
           const timeStamp = Date.now();
-          const cleanCoverName = `${userId}-${timeStamp}-${coverFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-          const cleanBookName = `${userId}-${timeStamp}-${mainBookFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+          const cleanCoverName = `${currentUserId}-${timeStamp}-${coverFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+          const cleanBookName = `${currentUserId}-${timeStamp}-${mainBookFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 
           const coverResult = await uploadWithFallback(cleanCoverName, coverFile, ['book_covers', 'books']);
           const targetBuckets = fileType === 'epub' ? ['book_epubs', 'books', 'book_pdfs'] : ['book_pdfs', 'books', 'book_epubs'];
@@ -348,9 +638,9 @@
             .from('books')
             .insert([{
                 book_id: generatedBookId,
-                author_id: userId,
-                user_uid: userUid,
-                uploader_id: userId,
+                author_id: currentUserId,
+                user_uid: currentUserUid,
+                uploader_id: currentUserId,
                 title: title,
                 author: author,
                 category: category,
@@ -367,17 +657,11 @@
           if (dbError) throw dbError;
 
           alert(`🎉 Book published successfully!\n\nGenerated Book ID: ${generatedBookId}`);
-          uploadForm.reset();
-          document.getElementById('coverFileName').innerText = "";
-          bookFileName.innerText = "";
-          if (priceDiv) priceDiv.classList.add('d-none');
-
-          // Redirect to author dashboard to view publication
           window.location.href = "author-dashboard.html";
 
         } catch (error) {
           console.error("Upload Error:", error);
-          alert("Upload Error: " + (error.message || "Failed to upload file. Check Supabase storage settings."));
+          alert("Upload Error: " + (error.message || "Failed to publish book."));
         } finally {
           submitBtn.innerHTML = originalBtnText;
           submitBtn.disabled = false;
