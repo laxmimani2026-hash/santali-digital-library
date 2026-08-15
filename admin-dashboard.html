@@ -154,38 +154,38 @@
     <!-- ========================================== -->
     <div id="subscriptionsSection" class="content-section d-none">
       
-      <!-- Tier Overview Cards -->
+      <!-- Tier Overview Cards (Updated to ₹99 / ₹249 / ₹899) -->
       <div class="row g-4 mb-4">
-        <!-- Basic Plan Card -->
+        <!-- Monthly Plan Card -->
         <div class="col-md-4">
           <div class="card stat-card p-4 border-start border-secondary border-4">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="text-muted text-uppercase fw-bold mb-0">Basic Reader (₹49/mo)</h6>
+              <h6 class="text-muted text-uppercase fw-bold mb-0">Monthly Pass (₹99)</h6>
               <span class="badge bg-secondary">Tier 1</span>
             </div>
-            <h3 class="fw-bold text-dark mb-1" id="subCountBasic">0 Subscribers</h3>
-            <p class="text-success fw-semibold small mb-0">Revenue: <span id="subRevenueBasic">₹0</span></p>
+            <h3 class="fw-bold text-dark mb-1" id="subCountMonthly">0 Subscribers</h3>
+            <p class="text-success fw-semibold small mb-0">Revenue: <span id="subRevenueMonthly">₹0</span></p>
           </div>
         </div>
 
-        <!-- Full Library Plan Card -->
+        <!-- Quarterly Plan Card -->
         <div class="col-md-4">
-          <div class="card stat-card p-4 border-start border-warning border-4">
+          <div class="card stat-card p-4 border-start border-info border-4">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="text-warning text-uppercase fw-bold mb-0">Full Library (₹99/mo)</h6>
-              <span class="badge bg-warning text-dark">POPULAR</span>
+              <h6 class="text-info text-uppercase fw-bold mb-0">Quarterly Pass (₹249)</h6>
+              <span class="badge bg-info text-dark">Tier 2</span>
             </div>
-            <h3 class="fw-bold text-dark mb-1" id="subCountFull">0 Subscribers</h3>
-            <p class="text-success fw-semibold small mb-0">Revenue: <span id="subRevenueFull">₹0</span></p>
+            <h3 class="fw-bold text-dark mb-1" id="subCountQuarterly">0 Subscribers</h3>
+            <p class="text-success fw-semibold small mb-0">Revenue: <span id="subRevenueQuarterly">₹0</span></p>
           </div>
         </div>
 
         <!-- Annual Pass Card -->
         <div class="col-md-4">
-          <div class="card stat-card p-4 border-start border-success border-4">
+          <div class="card stat-card p-4 border-start border-warning border-4">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="text-success text-uppercase fw-bold mb-0">Annual Pass (₹999/yr)</h6>
-              <span class="badge bg-success">Tier 3</span>
+              <h6 class="text-warning text-uppercase fw-bold mb-0">Annual Pass (₹899)</h6>
+              <span class="badge bg-warning text-dark">BEST VALUE</span>
             </div>
             <h3 class="fw-bold text-dark mb-1" id="subCountAnnual">0 Subscribers</h3>
             <p class="text-success fw-semibold small mb-0">Revenue: <span id="subRevenueAnnual">₹0</span></p>
@@ -204,9 +204,9 @@
           <div class="d-flex align-items-center gap-2">
             <select id="subPlanFilter" class="form-select form-select-sm border-secondary fw-semibold">
               <option value="all">All Plans</option>
-              <option value="basic">Basic Reader (₹49)</option>
-              <option value="full">Full Library (₹99)</option>
-              <option value="annual">Annual Reader Pass (₹999)</option>
+              <option value="monthly">Monthly Pass (₹99)</option>
+              <option value="quarterly">Quarterly Pass (₹249)</option>
+              <option value="annual">Annual Reader Pass (₹899)</option>
             </select>
             <button class="btn btn-sm btn-outline-primary" id="refreshSubsBtn">
               <i class="fa-solid fa-rotate-right me-1"></i> Refresh
@@ -333,15 +333,8 @@
         <div class="card-body p-3">
           <div class="alert alert-warning d-flex justify-content-between align-items-center mb-3">
             <div>
-              <strong><i class="fa-solid fa-triangle-exclamation me-2"></i>User #8841 Flagged</strong>
-              <div class="small text-muted">Rapid page turns detected (40 pages turned in 12 seconds) on "Santali Grammar".</div>
-            </div>
-            <button class="btn btn-sm btn-danger">Invalidate Activity</button>
-          </div>
-          <div class="alert alert-warning d-flex justify-content-between align-items-center mb-0">
-            <div>
-              <strong><i class="fa-solid fa-robot me-2"></i>Bot Suspect #9021</strong>
-              <div class="small text-muted">Automated audiobook loop playback detected.</div>
+              <strong><i class="fa-solid fa-triangle-exclamation me-2"></i>User Flagged</strong>
+              <div class="small text-muted">Rapid page turns detected on Ol Chiki Grammar.</div>
             </div>
             <button class="btn btn-sm btn-danger">Invalidate Activity</button>
           </div>
@@ -387,7 +380,7 @@
                 <tr>
                   <th class="ps-4">Subscription ID</th>
                   <th>Date</th>
-                  <th>Subscriber Name</th>
+                  <th>Subscriber</th>
                   <th>Plan</th>
                   <th>Amount</th>
                   <th class="pe-4">Status</th>
@@ -427,15 +420,16 @@
             <table class="table table-hover align-middle mb-0" id="usersReportTable">
               <thead class="table-light text-secondary small">
                 <tr>
-                  <th class="ps-4">Profile</th>
+                  <th class="ps-4">First Name</th>
+                  <th>Last Name</th>
+                  <th>Email</th>
                   <th>Phone Number</th>
-                  <th>Address</th>
                   <th class="pe-4">Role</th>
                 </tr>
               </thead>
               <tbody id="adminUsersList">
                 <tr>
-                  <td colspan="4" class="text-center py-5 text-muted">
+                  <td colspan="5" class="text-center py-5 text-muted">
                     <div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading users...
                   </td>
                 </tr>
@@ -492,7 +486,7 @@
 
   </div>
 
-  <!-- Supabase & Admin Application Logic -->
+  <!-- Supabase Logic -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -513,7 +507,7 @@
         setTimeout(() => adminAlert.classList.add('d-none'), 5000);
       }
 
-      // SECURITY & AUTH CHECK
+      // 1. Auth & Admin Role Check
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -530,7 +524,7 @@
 
       document.getElementById('adminEmailDisplay').innerText = `Admin: ${session.user.email}`;
 
-      // NAVIGATION LOGIC (SIDEBAR TABS)
+      // Navigation Logic
       const navLinks = document.querySelectorAll('.nav-link-item');
       const sections = document.querySelectorAll('.content-section');
       const pageTitle = document.getElementById('pageTitle');
@@ -538,7 +532,6 @@
       navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
           e.preventDefault();
-          
           navLinks.forEach(l => l.classList.remove('active'));
           link.classList.add('active');
 
@@ -568,75 +561,69 @@
         });
       });
 
-      // 1. DYNAMIC SUBSCRIPTION BREAKDOWN & REVENUE
+      // 2. Fetch Subscription Details from `subscriptions` table
       async function fetchSubscriptionDetails() {
         const tbody = document.getElementById('subscribersTableBody');
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading subscriptions...</td></tr>`;
 
         try {
-          const { data: profiles, error } = await supabase
-            .from('profiles')
-            .select('*');
+          const { data: subs, error } = await supabase
+            .from('subscriptions')
+            .select(`
+              *,
+              profiles (
+                first_name,
+                last_name,
+                full_name,
+                email
+              )
+            `)
+            .order('created_at', { ascending: false });
 
           if (error) throw error;
 
-          // Filter rows that have an active/valid subscription
-          let subs = (profiles || []).filter(p => p.subscription_id && p.subscription_id.trim() !== '');
+          allSubscribersData = subs || [];
 
-          // Fallback check from localStorage cache if database hasn't synced yet
-          if (subs.length === 0) {
-            const localBackup = localStorage.getItem('sdl_active_subscription');
-            if (localBackup) {
-              const parsed = JSON.parse(localBackup);
-              subs = [{
-                subscription_id: parsed.id,
-                full_name: profile.full_name || session.user.email.split('@')[0],
-                contact_email: session.user.email,
-                subscription_plan: parsed.plan,
-                subscription_key: parsed.key,
-                subscription_start: parsed.start,
-                subscription_end: parsed.end
-              }];
-            }
-          }
-
-          allSubscribersData = subs;
-
-          let basicCount = 0;
-          let fullCount = 0;
+          let monthlyCount = 0;
+          let quarterlyCount = 0;
           let annualCount = 0;
 
-          allSubscribersData.forEach(p => {
-            const planStr = (p.subscription_plan || '').toLowerCase();
-            const key = p.subscription_key || (planStr.includes('basic') ? 'basic' : planStr.includes('annual') ? 'annual' : 'full');
-            if (key === 'basic') basicCount++;
-            else if (key === 'annual') annualCount++;
-            else fullCount++;
+          let monthlyRev = 0;
+          let quarterlyRev = 0;
+          let annualRev = 0;
+
+          allSubscribersData.forEach(sub => {
+            const plan = (sub.plan_name || '').toLowerCase();
+            const price = parseFloat(sub.price) || 0;
+
+            if (plan.includes('annual') || plan.includes('year')) {
+              annualCount++;
+              annualRev += price || 899;
+            } else if (plan.includes('quarter')) {
+              quarterlyCount++;
+              quarterlyRev += price || 249;
+            } else {
+              monthlyCount++;
+              monthlyRev += price || 99;
+            }
           });
 
-          // Calculations
-          const basicRev = basicCount * 49;
-          const fullRev = fullCount * 99;
-          const annualRev = annualCount * 999;
-          const totalSubs = basicCount + fullCount + annualCount;
+          document.getElementById('subCountMonthly').textContent = `${monthlyCount} Subscribers`;
+          document.getElementById('subRevenueMonthly').textContent = `₹${monthlyRev.toLocaleString('en-IN')}`;
 
-          // Update UI Breakdown Cards
-          document.getElementById('subCountBasic').textContent = `${basicCount} Subscribers`;
-          document.getElementById('subRevenueBasic').textContent = `₹${basicRev.toLocaleString('en-IN')}`;
-
-          document.getElementById('subCountFull').textContent = `${fullCount} Subscribers`;
-          document.getElementById('subRevenueFull').textContent = `₹${fullRev.toLocaleString('en-IN')}`;
+          document.getElementById('subCountQuarterly').textContent = `${quarterlyCount} Subscribers`;
+          document.getElementById('subRevenueQuarterly').textContent = `₹${quarterlyRev.toLocaleString('en-IN')}`;
 
           document.getElementById('subCountAnnual').textContent = `${annualCount} Subscribers`;
           document.getElementById('subRevenueAnnual').textContent = `₹${annualRev.toLocaleString('en-IN')}`;
 
-          document.getElementById('filteredSubscribersCount').textContent = `${totalSubs} Total`;
+          document.getElementById('filteredSubscribersCount').textContent = `${allSubscribersData.length} Total`;
 
           renderSubscribersTable('all');
 
         } catch (err) {
           console.error("Subscription fetch error:", err);
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load subscriptions. Please verify Supabase columns.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load subscriptions. Please verify Supabase 'subscriptions' table.</td></tr>`;
         }
       }
 
@@ -644,9 +631,9 @@
         const tbody = document.getElementById('subscribersTableBody');
         tbody.innerHTML = '';
 
-        const filtered = allSubscribersData.filter(p => {
-          const planStr = (p.subscription_plan || '').toLowerCase();
-          const key = p.subscription_key || (planStr.includes('basic') ? 'basic' : planStr.includes('annual') ? 'annual' : 'full');
+        const filtered = allSubscribersData.filter(sub => {
+          const plan = (sub.plan_name || '').toLowerCase();
+          const key = (plan.includes('annual') || plan.includes('year')) ? 'annual' : plan.includes('quarter') ? 'quarterly' : 'monthly';
           return filter === 'all' || key === filter;
         });
 
@@ -658,33 +645,36 @@
         const now = new Date();
 
         filtered.forEach(sub => {
-          const planStr = (sub.subscription_plan || '').toLowerCase();
-          const key = sub.subscription_key || (planStr.includes('basic') ? 'basic' : planStr.includes('annual') ? 'annual' : 'full');
+          const plan = (sub.plan_name || '').toLowerCase();
+          const key = (plan.includes('annual') || plan.includes('year')) ? 'annual' : plan.includes('quarter') ? 'quarterly' : 'monthly';
           
-          let planBadge = `<span class="badge bg-secondary">Basic (₹49)</span>`;
-          let price = "₹49";
-          if (key === 'full') {
-            planBadge = `<span class="badge bg-warning text-dark">Full Library (₹99)</span>`;
-            price = "₹99";
+          let planBadge = `<span class="badge bg-secondary">Monthly (₹99)</span>`;
+          let price = "₹99";
+          if (key === 'quarterly') {
+            planBadge = `<span class="badge bg-info text-dark">Quarterly (₹249)</span>`;
+            price = "₹249";
           } else if (key === 'annual') {
-            planBadge = `<span class="badge bg-success">Annual Pass (₹999)</span>`;
-            price = "₹999";
+            planBadge = `<span class="badge bg-warning text-dark">Annual Pass (₹899)</span>`;
+            price = "₹899";
           }
 
-          const start = sub.subscription_start ? new Date(sub.subscription_start).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
-          const end = sub.subscription_end ? new Date(sub.subscription_end).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
+          const start = sub.activated_on ? new Date(sub.activated_on).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
+          const end = sub.valid_until ? new Date(sub.valid_until).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
           
-          const isExpired = sub.subscription_end && new Date(sub.subscription_end) < now;
+          const isExpired = sub.valid_until && new Date(sub.valid_until) < now;
           const statusBadge = isExpired 
             ? `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger">Expired</span>`
             : `<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="fa-solid fa-circle-check me-1"></i>Active</span>`;
+
+          const userObj = sub.profiles || {};
+          let subscriberName = userObj.full_name || `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || 'Subscriber';
 
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td class="ps-4 fw-bold text-primary">${sub.subscription_id || 'N/A'}</td>
             <td>
-              <div class="fw-semibold text-dark">${sub.full_name || 'Subscriber'}</div>
-              <small class="text-muted">${sub.contact_email || 'N/A'}</small>
+              <div class="fw-semibold text-dark">${subscriberName}</div>
+              <small class="text-muted">${userObj.email || ''}</small>
             </td>
             <td>${planBadge}</td>
             <td class="small text-muted">${start} to <strong class="text-dark">${end}</strong></td>
@@ -704,39 +694,32 @@
         fetchDashboardStats();
       });
 
-      // 2. DASHBOARD STATS & FINANCIAL OVERVIEW
+      // 3. Dashboard Metrics & Calculations
       async function fetchDashboardStats() {
         try {
-          const { data: profiles } = await supabase
-            .from('profiles')
-            .select('subscription_key, subscription_plan, subscription_id');
+          const { data: subs } = await supabase
+            .from('subscriptions')
+            .select('price, plan_name, valid_until');
 
-          let subs = (profiles || []).filter(p => p.subscription_id && p.subscription_id.trim() !== '');
+          let grossRev = 0;
+          let activeCount = 0;
+          const now = new Date();
 
-          if (subs.length === 0) {
-            const localBackup = localStorage.getItem('sdl_active_subscription');
-            if (localBackup) subs = [JSON.parse(localBackup)];
-          }
-
-          let basic = 0, full = 0, annual = 0;
-          subs.forEach(p => {
-            const planStr = (p.subscription_plan || '').toLowerCase();
-            const key = p.subscription_key || (planStr.includes('basic') ? 'basic' : planStr.includes('annual') ? 'annual' : 'full');
-            if (key === 'basic') basic++;
-            else if (key === 'annual') annual++;
-            else full++;
+          (subs || []).forEach(s => {
+            const p = parseFloat(s.price) || 0;
+            grossRev += p;
+            if (s.valid_until && new Date(s.valid_until) >= now) {
+              activeCount++;
+            }
           });
 
-          // Dynamic revenue calculations
-          const grossRev = (basic * 49) + (full * 99) + (annual * 999);
-          const totalSubscribers = basic + full + annual;
-          const deductions = Math.round(grossRev * 0.05); // 5% gateway deduction
+          const deductions = Math.round(grossRev * 0.05); // 5% Gateway & Ops
           const netRev = Math.max(0, grossRev - deductions);
-          const authorPool = Math.round(netRev * 0.40); // 40% author allocation
+          const authorPool = Math.round(netRev * 0.40); // 40% Author Royalty Pool
           const opsReserve = Math.round(netRev * 0.45);
           const profit = Math.max(0, netRev - authorPool - opsReserve);
 
-          document.getElementById('totalSubscribersCount').textContent = totalSubscribers.toLocaleString('en-IN');
+          document.getElementById('totalSubscribersCount').textContent = activeCount.toLocaleString('en-IN');
           document.getElementById('grossRevenueText').textContent = `₹${grossRev.toLocaleString('en-IN')}`;
           document.getElementById('authorPoolText').textContent = `₹${authorPool.toLocaleString('en-IN')}`;
           document.getElementById('platformProfitText').textContent = `₹${profit.toLocaleString('en-IN')}`;
@@ -751,7 +734,7 @@
         }
       }
 
-      // 3. BOOK APPROVAL PIPELINE
+      // 4. Book Approval Pipeline
       async function fetchApprovalBooks() {
         const tbody = document.getElementById('approvalBooksList');
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading pipeline...</td></tr>`;
@@ -768,10 +751,12 @@
           tbody.innerHTML = '';
           books.forEach(book => {
             const date = new Date(book.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-            const scriptBadge = book.script === 'ol_chiki' ? `<span class="badge bg-secondary">Ol Chiki</span>` : `<span class="badge bg-dark">Roman</span>`;
+            const scriptBadge = book.language && book.language.includes('santali') 
+              ? `<span class="badge bg-secondary">Santali (Ol Chiki)</span>` 
+              : `<span class="badge bg-dark">${book.language || 'English'}</span>`;
             
             let statusBadge = `<span class="badge bg-warning text-dark">Under Review</span>`;
-            if (book.status === 'published') statusBadge = `<span class="badge bg-success">Published</span>`;
+            if (book.status === 'Published') statusBadge = `<span class="badge bg-success">Published</span>`;
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -786,10 +771,10 @@
               </td>
               <td>${scriptBadge}</td>
               <td class="text-muted small">${date}</td>
-              <td><span class="badge bg-info text-dark">Content Check</span></td>
+              <td><span class="badge bg-info text-dark">Verified</span></td>
               <td>${statusBadge}</td>
               <td class="text-end pe-4">
-                <button class="btn btn-sm btn-success approve-book-btn me-1" data-id="${book.id}">Publish</button>
+                <button class="btn btn-sm btn-success approve-book-btn me-1" data-id="${book.id}">Approve</button>
                 <button class="btn btn-sm btn-outline-danger delete-book-btn" data-id="${book.id}"><i class="fa-solid fa-trash-can"></i></button>
               </td>
             `;
@@ -806,9 +791,9 @@
           btn.addEventListener('click', async function() {
             const id = this.getAttribute('data-id');
             try {
-              const { error } = await supabase.from('books').update({ status: 'published' }).eq('id', id);
+              const { error } = await supabase.from('books').update({ status: 'Published' }).eq('id', id);
               if (error) throw error;
-              showAlert("Book approved and published to library!", "success");
+              showAlert("Book approved and published to catalog!", "success");
               fetchApprovalBooks();
             } catch (err) {
               showAlert("Failed to approve book.", "danger");
@@ -817,54 +802,48 @@
         });
       }
 
-      // 4. FINANCIAL REPORTS
+      // 5. Financial Reports & Export
       async function fetchSalesReports() {
         const tbody = document.getElementById('reportTableBody');
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Generating report...</td></tr>`;
 
         try {
-          const { data: profiles, error } = await supabase
-            .from('profiles')
-            .select('*');
+          const { data: subs, error } = await supabase
+            .from('subscriptions')
+            .select(`
+              *,
+              profiles (
+                first_name,
+                last_name,
+                full_name,
+                email
+              )
+            `)
+            .order('created_at', { ascending: false });
 
           if (error) throw error;
 
-          let subscribers = (profiles || []).filter(p => p.subscription_id && p.subscription_id.trim() !== '');
-
-          if (subscribers.length === 0) {
-            const localBackup = localStorage.getItem('sdl_active_subscription');
-            if (localBackup) {
-              const parsed = JSON.parse(localBackup);
-              subscribers = [{
-                subscription_id: parsed.id,
-                full_name: profile.full_name || session.user.email.split('@')[0],
-                subscription_plan: parsed.plan,
-                subscription_key: parsed.key,
-                subscription_start: parsed.start
-              }];
-            }
-          }
-
-          if (!subscribers || subscribers.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted fw-semibold">No transactions found.</td></tr>`;
+          if (!subs || subs.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted fw-semibold">No subscription transactions found.</td></tr>`;
             return;
           }
 
           let totalRev = 0;
           tbody.innerHTML = '';
-          subscribers.forEach(sub => {
-            const planStr = (sub.subscription_plan || '').toLowerCase();
-            const key = sub.subscription_key || (planStr.includes('basic') ? 'basic' : planStr.includes('annual') ? 'annual' : 'full');
-            const price = key === 'annual' ? 999 : key === 'basic' ? 49 : 99;
+          subs.forEach(sub => {
+            const price = parseFloat(sub.price) || 0;
             totalRev += price;
 
-            const date = sub.subscription_start ? new Date(sub.subscription_start).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
+            const date = sub.activated_on ? new Date(sub.activated_on).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
+            const userObj = sub.profiles || {};
+            let subscriberName = userObj.full_name || `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || 'Subscriber';
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
               <td class="ps-4 text-muted small">${sub.subscription_id || 'N/A'}</td>
               <td class="small fw-semibold">${date}</td>
-              <td>${sub.full_name || 'Subscriber'}</td>
-              <td><span class="badge bg-light text-dark border">${sub.subscription_plan || 'Membership'}</span></td>
+              <td>${subscriberName}</td>
+              <td><span class="badge bg-light text-dark border">${sub.plan_name || 'Pass'}</span></td>
               <td class="fw-bold text-success">₹${price}</td>
               <td class="pe-4"><span class="badge bg-success bg-opacity-10 text-success border border-success">Completed</span></td>
             `;
@@ -872,20 +851,20 @@
           });
 
           document.getElementById('reportTotalRevenue').textContent = `₹${totalRev.toLocaleString('en-IN')}`;
-          document.getElementById('reportTotalOrders').textContent = subscribers.length.toLocaleString('en-IN');
+          document.getElementById('reportTotalOrders').textContent = subs.length.toLocaleString('en-IN');
 
         } catch (err) {
           tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to generate reports.</td></tr>`;
         }
       }
 
-      // 5. USERS LIST
+      // 6. User Management (First Name, Last Name, Phone, Role)
       async function fetchAdminUsers() {
         const adminUsersList = document.getElementById('adminUsersList');
-        adminUsersList.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading users...</td></tr>`;
+        adminUsersList.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading users...</td></tr>`;
         
         try {
-          const { data: users, error } = await supabase.from('profiles').select('*').order('full_name', { ascending: true });
+          const { data: users, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
           if (error) throw error;
           
           adminUsersList.innerHTML = ''; 
@@ -894,28 +873,25 @@
             if (user.role === 'author') roleBadge = `<span class="badge bg-warning text-dark">Author</span>`;
             if (user.role === 'admin') roleBadge = `<span class="badge bg-danger">Admin</span>`;
 
+            const fName = user.first_name || (user.full_name ? user.full_name.split(' ')[0] : 'N/A');
+            const lName = user.last_name || (user.full_name ? user.full_name.split(' ').slice(1).join(' ') : '—');
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
-              <td class="ps-4">
-                <div class="d-flex align-items-center">
-                  <img src="${user.avatar_url || 'https://via.placeholder.com/40'}" class="rounded-circle me-3 border" style="width:40px; height:40px; object-fit:cover;">
-                  <div>
-                    <h6 class="fw-bold mb-0 text-dark">${user.full_name || 'User'}</h6>
-                  </div>
-                </div>
-              </td>
+              <td class="ps-4 fw-semibold text-dark">${fName}</td>
+              <td class="text-dark">${lName}</td>
+              <td class="text-muted small">${user.email || user.contact_email || 'N/A'}</td>
               <td class="text-muted small">${user.phone || 'N/A'}</td>
-              <td class="text-muted small">${user.address || 'N/A'}</td>
               <td class="pe-4">${roleBadge}</td>
             `;
             adminUsersList.appendChild(tr);
           });
         } catch (err) {
-          adminUsersList.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-danger">Failed to load users.</td></tr>`;
+          adminUsersList.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-danger">Failed to load users.</td></tr>`;
         }
       }
 
-      // 6. MESSAGES INQUIRIES
+      // 7. Messages Inquiries
       async function fetchAdminMessages() {
         const tbody = document.getElementById('adminMessagesList');
         try {
