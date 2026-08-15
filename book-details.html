@@ -114,7 +114,7 @@
       transition: all 0.2s ease;
     }
 
-    .user-btn:hover {
+    .user-menu-container:hover .user-btn {
       background: rgba(255, 255, 255, 0.18);
     }
 
@@ -139,7 +139,7 @@
       position: absolute;
       top: 110%;
       right: 0;
-      width: 210px;
+      width: 215px;
       background-color: #ffffff;
       border-radius: 12px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.12);
@@ -170,6 +170,11 @@
     .dropdown-menu-custom a:hover {
       background-color: #f1f5f9;
       color: var(--bg-dark);
+    }
+
+    .dropdown-menu-custom a i {
+      color: #64748b;
+      width: 16px;
     }
 
     /* --- Breadcrumb Bar --- */
@@ -426,9 +431,12 @@
           <i class="fa-solid fa-caret-down text-white-50"></i>
         </button>
 
+        <!-- User Dropdown with My Cart and My Orders included -->
         <div class="dropdown-menu-custom" id="dropdownMenu">
           <a href="profile.html"><i class="fa-solid fa-user-gear"></i> My Profile</a>
           <a href="subscription.html"><i class="fa-solid fa-crown" style="color:var(--primary-gold);"></i> My Subscription</a>
+          <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> My Cart</a>
+          <a href="orders.html"><i class="fa-solid fa-box-archive"></i> My Orders</a>
           <a href="author-dashboard.html"><i class="fa-solid fa-gauge"></i> Author Dashboard</a>
           <hr style="margin: 0; border-top: 1px solid #e2e8f0;">
           <a href="#" id="logoutLink" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
