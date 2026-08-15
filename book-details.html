@@ -9,127 +9,617 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Custom CSS -->
   <link rel="stylesheet" href="assets/css/style.css">
 
   <style>
-    body {
-      background-color: #f8f9fa;
-    }
-    .badge-teal { background-color: #005f73; color: white; }
-    
-    /* Professional Cover Styling */
-    .book-cover-large {
-      width: 100%;
-      max-width: 320px;
-      border-radius: 8px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-      object-fit: cover;
-      border: 1px solid #e0e0e0;
-      min-height: 450px;
-      background-color: #f1f1f1;
-    }
-    
-    .price-display {
-      font-size: 2rem;
-      color: #0d6efd;
-      font-weight: 800;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
     }
 
-    /* Skeleton Loading Animation */
-    .skeleton {
-      background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
-      background-size: 200% 100%;
-      animation: loading 1.5s infinite;
-      border-radius: 4px;
-      color: transparent !important;
+    :root {
+      --bg-dark: #005f73;
+      --brand-teal: #0a9396;
+      --primary-gold: #ffb703;
+      --primary-hover: #e08e0b;
+      --text-dark: #1e293b;
+      --text-muted: #64748b;
+      --bg-light: #f8fafc;
+      --border-color: #e2e8f0;
     }
-    @keyframes loading {
+
+    body {
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* --- Navbar Styles --- */
+    header {
+      background-color: var(--bg-dark);
+      padding: 14px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .logo i {
+      color: var(--primary-gold);
+      font-size: 1.5rem;
+    }
+
+    .logo span span {
+      color: var(--primary-gold);
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 25px;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-links a {
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary-gold);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* User Menu Dropdown */
+    .user-menu-container {
+      position: relative;
+      padding: 6px 0;
+    }
+
+    .user-btn {
+      background: transparent;
+      border: none;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .user-menu-container:hover .user-btn {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .user-avatar-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid rgba(255, 255, 255, 0.6);
+    }
+
+    .role-badge {
+      background-color: var(--primary-gold);
+      color: #000;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+
+    .dropdown-menu-custom {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      width: 220px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 100;
+      margin-top: 4px;
+    }
+
+    .user-menu-container:hover .dropdown-menu-custom,
+    .dropdown-menu-custom.active {
+      display: flex;
+    }
+
+    .dropdown-menu-custom a {
+      padding: 12px 18px;
+      text-decoration: none;
+      color: var(--text-dark);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: background 0.2s;
+    }
+
+    .dropdown-menu-custom a:hover {
+      background-color: #f1f5f9;
+      color: var(--bg-dark);
+    }
+
+    .dropdown-menu-custom a i {
+      color: #64748b;
+      width: 16px;
+    }
+
+    .dropdown-menu-custom hr {
+      border: none;
+      border-top: 1px solid #e2e8f0;
+      margin: 0;
+    }
+
+    .dropdown-menu-custom a.logout {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    /* --- Breadcrumb Hero --- */
+    .detail-hero-banner {
+      background: linear-gradient(135deg, #005f73 0%, #0a9396 100%);
+      color: white;
+      padding: 24px 0 80px 0;
+      position: relative;
+    }
+
+    .breadcrumb-item a {
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
+    .breadcrumb-item.active {
+      color: var(--primary-gold);
+      font-size: 0.85rem;
+    }
+    .breadcrumb-item + .breadcrumb-item::before {
+      color: rgba(255,255,255,0.4);
+    }
+
+    /* --- Main Book Showcase Card --- */
+    .book-showcase-wrapper {
+      margin-top: -60px;
+      margin-bottom: 50px;
+    }
+
+    .main-detail-card {
+      background: #ffffff;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+    }
+
+    /* 3D Realistic Book Cover Showcase */
+    .book-cover-stage {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 35px 20px;
+      background: radial-gradient(circle, #f8fafc 0%, #edf2f7 100%);
+      height: 100%;
+      border-right: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    .book-3d {
+      position: relative;
+      width: 250px;
+      height: 360px;
+      transform: perspective(1000px) rotateY(-8deg) rotateX(2deg);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 18px 20px 30px rgba(0, 0, 0, 0.22),
+                  4px 4px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 4px 12px 12px 4px;
+      background-color: #cbd5e1;
+    }
+
+    .book-3d:hover {
+      transform: perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1.03);
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.25);
+    }
+
+    .book-3d img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 4px 12px 12px 4px;
+      display: block;
+    }
+
+    /* Spine effect on 3D book */
+    .book-3d::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 18px;
+      height: 100%;
+      background: linear-gradient(90deg, rgba(255,255,255,0.4) 0%, rgba(0,0,0,0.1) 40%, rgba(255,255,255,0.2) 60%, rgba(0,0,0,0.25) 100%);
+      z-index: 2;
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px;
+      pointer-events: none;
+    }
+
+    /* Dynamic Pricing & Badges */
+    .category-badge {
+      background-color: #e0f2fe;
+      color: #0369a1;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      display: inline-block;
+    }
+
+    .language-badge {
+      background-color: #fef3c7;
+      color: #b45309;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 20px;
+      display: inline-block;
+    }
+
+    .price-box {
+      background-color: #f8fafc;
+      border: 1.5px dashed var(--border-color);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 20px 0;
+    }
+
+    .price-number {
+      font-size: 2.3rem;
+      font-weight: 800;
+      color: var(--bg-dark);
+      line-height: 1;
+    }
+
+    /* Meta Info Grid */
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin: 20px 0 25px 0;
+    }
+
+    .spec-item {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .spec-item i {
+      font-size: 1.25rem;
+      color: var(--brand-teal);
+    }
+
+    .spec-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .spec-value {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-top: -2px;
+    }
+
+    /* Buttons */
+    .btn-buy-primary {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      font-weight: 700;
+      border: none;
+      padding: 13px 28px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-buy-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+      color: white;
+    }
+
+    .btn-cart-secondary {
+      background: #ffffff;
+      color: var(--bg-dark);
+      font-weight: 700;
+      border: 2px solid var(--bg-dark);
+      padding: 11px 24px;
+      border-radius: 10px;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-cart-secondary:hover:not(:disabled) {
+      background: var(--bg-dark);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .btn-read-gold {
+      background: linear-gradient(135deg, #ffb703 0%, #fb8500 100%);
+      color: #000000;
+      font-weight: 700;
+      border: none;
+      padding: 13px 26px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(255, 183, 3, 0.25);
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-read-gold:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 183, 3, 0.35);
+      color: #000;
+    }
+
+    /* Skeleton Loading State */
+    .skeleton {
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 200% 100%;
+      animation: skeletonLoading 1.5s infinite;
+      border-radius: 6px;
+      color: transparent !important;
+      border-color: transparent !important;
+    }
+    @keyframes skeletonLoading {
       0% { background-position: 200% 0; }
       100% { background-position: -200% 0; }
     }
   </style>
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body>
 
-  <!-- Navigation Bar -->
-  <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: #005f73;">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
-        <i class="fa-solid fa-book-open-reader text-warning fs-3"></i>
-        <span>Santali Digital <span class="text-warning fw-bold">Library</span></span>
-      </a>
+  <!-- Unified Navigation Bar -->
+  <header>
+    <a href="index.html" class="logo">
+      <i class="fa-solid fa-book-open-reader"></i>
+      <span>Santali Digital <span>Library</span></span>
+    </a>
+
+    <ul class="nav-links d-none d-md-flex">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="browse.html">Books</a></li>
+      <li><a href="categories.html">Categories</a></li>
+      <li><a href="subscription.html">Subscriptions</a></li>
+      <li><a href="author-dashboard.html">Authors</a></li>
+    </ul>
+
+    <div class="nav-right">
+      <!-- User Menu -->
+      <div class="user-menu-container" id="userMenuContainer">
+        <button class="user-btn" id="userMenuBtn" type="button">
+          <img src="" alt="" class="user-avatar-img" id="navAvatar" style="display: none;">
+          <i class="fa-solid fa-circle-user" id="navAvatarPlaceholder" style="font-size: 1.3rem;"></i>
+          <span id="headerUserName">Hello, Reader</span>
+          <span class="role-badge" id="headerUserBadge">Reader</span>
+          <i class="fa-solid fa-caret-down"></i>
+        </button>
+
+        <div class="dropdown-menu-custom" id="dropdownMenu">
+          <a href="profile.html"><i class="fa-solid fa-user-gear"></i> My Profile</a>
+          <a href="subscription.html"><i class="fa-solid fa-crown" style="color:var(--primary-gold);"></i> My Subscription</a>
+          <a href="author-dashboard.html"><i class="fa-solid fa-gauge"></i> Author Dashboard</a>
+          <hr>
+          <a href="#" id="logoutLink" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        </div>
+      </div>
     </div>
-  </nav>
+  </header>
 
-  <!-- Book Details Container -->
-  <div class="container my-5 flex-grow-1">
-    
-    <!-- Alert Box for Cart/Errors -->
-    <div id="pageAlert" class="alert d-none shadow-sm mb-4" role="alert"></div>
-
-    <div class="row align-items-start bg-white p-4 p-md-5 rounded-4 shadow-sm border">
-      
-      <!-- Left Column: Book Cover -->
-      <div class="col-md-4 col-lg-4 text-center text-md-start mb-4 mb-md-0">
-        <img src="" class="book-cover-large skeleton" alt="Book Cover" id="detailCover" 
-             onerror="this.src='https://via.placeholder.com/320x450?text=Cover+Not+Available'; this.classList.remove('skeleton');">
-      </div>
-      
-      <!-- Right Column: Details & Actions -->
-      <div class="col-md-8 col-lg-8 ps-md-4">
-        
-        <!-- Badges -->
-        <div class="mb-3" id="badgeContainer">
-          <span class="badge badge-teal me-1 px-3 py-2 skeleton" id="detailCategory">CATEGORY</span>
-          <span class="badge bg-secondary px-3 py-2">SANTALI</span>
-        </div>
-        
-        <!-- Title & Author -->
-        <h1 class="fw-bold text-dark mt-2 display-6 skeleton" id="detailTitle">Loading Book Title...</h1>
-        <p class="text-muted fs-5 mb-4">By <span id="detailAuthor" class="fw-semibold text-dark skeleton">Author Name</span></p>
-        
-        <!-- Pricing -->
-        <div class="price-display mb-4 skeleton" id="detailPrice">₹0</div>
-        
-        <!-- Description -->
-        <h5 class="fw-bold text-dark border-bottom pb-2">Description</h5>
-        <p class="text-secondary skeleton" id="detailDescription" style="line-height: 1.7; min-height: 80px;">
-          Loading description...
-        </p>
-
-        <!-- Professional Action Buttons -->
-        <div class="d-flex flex-wrap gap-3 mt-5">
-          <!-- Buy Now -->
-          <button class="btn btn-success fw-bold px-4 py-2 shadow-sm" id="buyNowBtn" disabled>
-            <i class="fa-solid fa-bolt me-2"></i>Buy Now
-          </button>
-          
-          <!-- Add to Cart (Dynamically changes to View Cart) -->
-          <button class="btn btn-primary fw-bold px-4 py-2 shadow-sm" id="addToCartBtn" disabled>
-            <i class="fa-solid fa-cart-plus me-2"></i>Add to Cart
-          </button>
-          
-          <!-- Read Book -->
-          <button class="btn btn-warning fw-bold px-4 py-2 shadow-sm text-dark" id="readBookBtn" disabled>
-            <i class="fa-solid fa-book-open me-2"></i>Read Book
-          </button>
-          
-          <!-- Back Button (Replaces Close Tab) -->
-          <button class="btn btn-outline-secondary px-4 py-2 fw-semibold" id="backBtn">
-            <i class="fa-solid fa-arrow-left me-2"></i>Back to Library
-          </button>
-        </div>
-
-      </div>
+  <!-- Hero Top Nav Breadcrumb -->
+  <div class="detail-hero-banner">
+    <div class="container">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="index.html"><i class="fa-solid fa-house me-1"></i>Home</a></li>
+          <li class="breadcrumb-item"><a href="browse.html">Catalog</a></li>
+          <li class="breadcrumb-item active" id="breadcrumbTitle">Loading...</li>
+        </ol>
+      </nav>
     </div>
   </div>
+
+  <!-- Book Showcase Container -->
+  <main class="container book-showcase-wrapper flex-grow-1">
+    
+    <!-- Notification Alert -->
+    <div id="pageAlert" class="alert d-none shadow-sm mb-4" role="alert"></div>
+
+    <div class="main-detail-card">
+      <div class="row g-0">
+        
+        <!-- Left Column: 3D Book Visual Showcase -->
+        <div class="col-lg-5 col-md-5">
+          <div class="book-cover-stage">
+            <div class="book-3d" id="coverWrapper">
+              <img src="" alt="Book Cover" id="detailCover" class="skeleton"
+                   onerror="this.src='https://via.placeholder.com/300x420?text=Cover+Not+Available'; this.classList.remove('skeleton');">
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Interactive Details & Purchase CTAs -->
+        <div class="col-lg-7 col-md-7 p-4 p-md-5 d-flex flex-column justify-content-between">
+          <div>
+            
+            <!-- Badges & Rating Header -->
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+              <div class="d-flex align-items-center gap-2">
+                <span class="category-badge skeleton" id="detailCategory">FICTION</span>
+                <span class="language-badge skeleton" id="detailLanguage">Santali (Ol Chiki)</span>
+              </div>
+              <div class="text-warning small fw-bold d-flex align-items-center gap-1">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star-half-stroke"></i>
+                <span class="text-muted ms-1">(4.8 / 5.0)</span>
+              </div>
+            </div>
+
+            <!-- Title & Author -->
+            <h1 class="fw-bold display-6 mb-2 skeleton" id="detailTitle">Loading Book Title...</h1>
+            <p class="fs-5 text-muted mb-3">
+              Authored by <span id="detailAuthor" class="fw-bold text-dark skeleton">Author Name</span>
+            </p>
+
+            <!-- Quick Specs Row -->
+            <div class="spec-grid">
+              <div class="spec-item">
+                <i class="fa-solid fa-book-bookmark"></i>
+                <div>
+                  <div class="spec-label">Format</div>
+                  <div class="spec-value" id="specFormat">EPUB / PDF</div>
+                </div>
+              </div>
+              <div class="spec-item">
+                <i class="fa-solid fa-shield-halved"></i>
+                <div>
+                  <div class="spec-label">Access</div>
+                  <div class="spec-value">Verified</div>
+                </div>
+              </div>
+              <div class="spec-item">
+                <i class="fa-solid fa-cloud-arrow-down"></i>
+                <div>
+                  <div class="spec-label">Delivery</div>
+                  <div class="spec-value">Instant Read</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Price Container -->
+            <div class="price-box">
+              <div>
+                <span class="small text-muted text-uppercase fw-semibold d-block">Reading License</span>
+                <span class="price-number skeleton" id="detailPrice">₹0</span>
+              </div>
+              <div class="text-end">
+                <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 fw-semibold">
+                  <i class="fa-solid fa-circle-check me-1"></i> DRM Protected
+                </span>
+              </div>
+            </div>
+
+            <!-- Synopsis / Description -->
+            <div class="mb-4">
+              <h6 class="fw-bold text-uppercase text-secondary small mb-2">Book Synopsis</h6>
+              <p class="text-secondary skeleton" id="detailDescription" style="line-height: 1.8; font-size: 0.95rem;">
+                Loading full description and editorial summary...
+              </p>
+            </div>
+
+          </div>
+
+          <!-- Interactive Action Buttons -->
+          <div class="pt-3 border-top mt-4">
+            <div class="d-flex flex-wrap align-items-center gap-3">
+              <!-- Buy Now -->
+              <button class="btn btn-buy-primary" id="buyNowBtn" disabled>
+                <i class="fa-solid fa-bolt"></i> Buy Now
+              </button>
+
+              <!-- Add to Cart -->
+              <button class="btn btn-cart-secondary" id="addToCartBtn" disabled>
+                <i class="fa-solid fa-cart-plus"></i> Add to Cart
+              </button>
+
+              <!-- Read Book -->
+              <button class="btn btn-read-gold" id="readBookBtn" disabled>
+                <i class="fa-solid fa-book-open-reader"></i> Read Now
+              </button>
+
+              <!-- Back to Catalog -->
+              <a href="browse.html" class="btn btn-link text-muted text-decoration-none ms-auto fw-semibold">
+                <i class="fa-solid fa-arrow-left me-1"></i> Browse Catalog
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center mt-auto py-3" style="background-color: var(--bg-dark);">
+    <div class="container">
+      <p class="mb-0 text-white" style="font-size: 0.9rem;">&copy; 2026 Santali Digital Library. All rights reserved.</p>
+    </div>
+  </footer>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Fetch Data & Button Logic -->
+  <!-- Dynamic Data Fetching & Interactive Actions -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -142,130 +632,169 @@
       const bookId = urlParams.get('id');
 
       const pageAlert = document.getElementById('pageAlert');
-      
       const coverEl = document.getElementById('detailCover');
       const titleEl = document.getElementById('detailTitle');
+      const breadcrumbTitle = document.getElementById('breadcrumbTitle');
       const authorEl = document.getElementById('detailAuthor');
       const priceEl = document.getElementById('detailPrice');
       const descEl = document.getElementById('detailDescription');
       const catEl = document.getElementById('detailCategory');
-      
+      const langEl = document.getElementById('detailLanguage');
+      const specFormat = document.getElementById('specFormat');
+
       const buyNowBtn = document.getElementById('buyNowBtn');
       const addToCartBtn = document.getElementById('addToCartBtn');
       const readBookBtn = document.getElementById('readBookBtn');
-      const backBtn = document.getElementById('backBtn');
+
+      // 1. Authenticate user & display header
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role, first_name, full_name, avatar_url')
+            .eq('id', user.id)
+            .maybeSingle();
+
+          if (profile) {
+            let firstName = profile.first_name || (profile.full_name ? profile.full_name.split(' ')[0] : user.email.split('@')[0]);
+            document.getElementById('headerUserName').textContent = `Hello, ${firstName}`;
+            if (profile.role) document.getElementById('headerUserBadge').textContent = profile.role.toUpperCase();
+            if (profile.avatar_url) {
+              const navAvatar = document.getElementById('navAvatar');
+              navAvatar.src = profile.avatar_url;
+              navAvatar.style.display = 'inline-block';
+              document.getElementById('navAvatarPlaceholder').style.display = 'none';
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Auth info skipped:", err);
+      }
+
+      // User Menu Dropdown Toggle
+      const userMenuBtn = document.getElementById('userMenuBtn');
+      const dropdownMenu = document.getElementById('dropdownMenu');
+      userMenuBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('active');
+      });
+      document.addEventListener('click', (e) => {
+        if (!dropdownMenu.contains(e.target) && !userMenuBtn.contains(e.target)) {
+          dropdownMenu.classList.remove('active');
+        }
+      });
+      document.getElementById('logoutLink')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await supabase.auth.signOut();
+        window.location.href = 'login.html';
+      });
 
       if (!bookId) {
-        showPageAlert("No book ID provided in URL.", "danger");
+        showPageAlert("No book reference provided in URL.", "danger");
         return;
       }
 
+      // 2. Fetch specific book metadata
       try {
-        const { data: book, error } = await supabase
-          .from('books')
-          .select('*')
-          .eq('id', bookId)
-          .single();
+        let query = supabase.from('books').select('*');
+        if (!isNaN(bookId)) {
+          query = query.eq('id', bookId);
+        } else {
+          query = query.or(`id.eq.${bookId},book_id.eq.${bookId}`);
+        }
 
-        if (error || !book) throw error;
+        const { data: book, error } = await query.maybeSingle();
+        if (error || !book) throw error || new Error("Book not found.");
 
-        coverEl.src = book.cover_url || '';
+        coverEl.src = book.cover_url || 'https://via.placeholder.com/300x420?text=No+Cover';
         coverEl.classList.remove('skeleton');
 
         titleEl.textContent = book.title;
         titleEl.classList.remove('skeleton');
 
-        authorEl.textContent = book.author;
+        breadcrumbTitle.textContent = book.title;
+
+        authorEl.textContent = book.author || 'Unknown Author';
         authorEl.classList.remove('skeleton');
 
         catEl.textContent = (book.category || 'GENERAL').toUpperCase();
         catEl.classList.remove('skeleton');
 
-        descEl.textContent = book.description || 'No description available for this book.';
+        langEl.textContent = book.language === 'santali' ? 'Santali (Ol Chiki)' : (book.language || 'Santali');
+        langEl.classList.remove('skeleton');
+
+        specFormat.textContent = (book.file_type || 'EPUB').toUpperCase();
+
+        descEl.textContent = book.description || 'No editorial summary provided for this publication.';
         descEl.classList.remove('skeleton');
 
-        if (book.pricing === 'free' || book.price === 0) {
+        if (book.pricing === 'free' || Number(book.price) === 0) {
           priceEl.textContent = "FREE";
-          priceEl.classList.replace('text-primary', 'text-success');
+          priceEl.style.color = "#10b981";
         } else {
           priceEl.textContent = `₹${book.price}`;
+          priceEl.style.color = "#005f73";
         }
         priceEl.classList.remove('skeleton');
 
-        // Enable Buttons now that data is loaded
+        // Enable buttons
         buyNowBtn.disabled = false;
         addToCartBtn.disabled = false;
         readBookBtn.disabled = false;
 
-        // ==========================================
-        // BUTTON CLICK LOGIC
-        // ==========================================
-
-        // BACK BUTTON: Return to the library
-        backBtn.addEventListener('click', () => {
-          window.location.href = 'browse.html';
-        });
-
-        // BUY NOW: Redirect to a checkout page
+        // CTAs
         buyNowBtn.addEventListener('click', () => {
-          window.location.href = `checkout.html?id=${book.id}`;
+          window.location.href = `subscription.html?upgrade=true`;
         });
 
-        // READ BOOK: Redirect directly to reader page
         readBookBtn.addEventListener('click', () => {
           window.location.href = `reader.html?id=${book.id}`;
         });
 
-        // ADD TO CART: Save to Supabase and transform button
-        let isAddedToCart = false;
-
+        let isAdded = false;
         addToCartBtn.addEventListener('click', async function () {
-          // If it was already added, go to the cart page
-          if (isAddedToCart) {
+          if (isAdded) {
             window.location.href = "cart.html";
             return;
           }
 
-          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-          if (!session) {
-            showPageAlert("You need to be logged in to add items to your cart.", "warning");
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            showPageAlert("Please log in to bookmark or save books to your library.", "warning");
             return;
           }
 
           this.disabled = true;
-          this.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i>Adding...`;
+          this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
 
-          const { error: cartError } = await supabase
+          const { error: cartErr } = await supabase
             .from('cart_items')
-            .insert([{ user_id: session.user.id, book_id: book.id, quantity: 1 }]);
+            .insert([{ user_id: user.id, book_id: book.id, quantity: 1 }]);
 
-          if (cartError) {
-            showPageAlert("Failed to add to cart. Please try again.", "danger");
+          if (cartErr) {
+            showPageAlert("Failed to save book to cart: " + cartErr.message, "danger");
             this.disabled = false;
-            this.innerHTML = `<i class="fa-solid fa-cart-plus me-2"></i>Add to Cart`;
+            this.innerHTML = `<i class="fa-solid fa-cart-plus"></i> Add to Cart`;
           } else {
-            showPageAlert("Book successfully added to your cart!", "success");
-            
-            // Transform button to View Cart
-            isAddedToCart = true;
-            this.classList.replace('btn-primary', 'btn-info');
-            this.classList.add('text-white');
-            this.innerHTML = `<i class="fa-solid fa-arrow-right me-2"></i>View Cart`;
-            this.disabled = false; // Re-enable so it can be clicked again
+            isAdded = true;
+            this.className = "btn btn-info text-white fw-bold px-4 py-2";
+            this.innerHTML = `<i class="fa-solid fa-circle-check"></i> View in Cart`;
+            this.disabled = false;
+            showPageAlert("Book saved to your personal library cart!", "success");
           }
         });
 
       } catch (err) {
-        console.error(err);
-        showPageAlert("Failed to load book details. The book may have been removed.", "danger");
+        console.error("Book Detail Error:", err);
+        showPageAlert("Failed to load book details: " + err.message, "danger");
       }
 
       function showPageAlert(message, type) {
         pageAlert.className = `alert alert-${type} shadow-sm mb-4`;
         pageAlert.textContent = message;
         pageAlert.classList.remove('d-none');
-        window.scrollTo(0, 0); 
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
   </script>
