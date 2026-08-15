@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
 
-        // 2. Format Role Badge & Role Dashboard Links
+        // 2. Format Role Badge & Role Management Item
         const rawRole = (profile?.role || user.user_metadata?.role || 'reader').toLowerCase();
         let roleBadge = '';
         let roleDashboardItem = '';
@@ -57,21 +57,12 @@ document.addEventListener("DOMContentLoaded", async function () {
           roleDashboardItem = `<li><a class="dropdown-item d-flex align-items-center py-2 text-danger fw-semibold" href="admin-dashboard.html"><i class="fa-solid fa-shield-halved text-danger me-2" style="width: 20px;"></i> Admin Dashboard</a></li>`;
         } else if (rawRole.includes('distributor') || rawRole.includes('vendor')) {
           roleBadge = `<span class="badge" style="background-color: #2563eb; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; letter-spacing: 0.3px;">DISTRIBUTOR</span>`;
-          // Added Reader Dashboard + Distributor Dashboard options for distributor logins as requested
-          roleDashboardItem = `
-            <li><a class="dropdown-item d-flex align-items-center py-2 text-info fw-semibold" href="reader-dashboard.html"><i class="fa-solid fa-book-bookmark text-info me-2" style="width: 20px;"></i> Reader Dashboard</a></li>
-            <li><a class="dropdown-item d-flex align-items-center py-2 text-primary fw-semibold" href="distributor-dashboard.html"><i class="fa-solid fa-truck-ramp-box text-primary me-2" style="width: 20px;"></i> Distributor Dashboard</a></li>
-          `;
+          roleDashboardItem = `<li><a class="dropdown-item d-flex align-items-center py-2 text-primary fw-semibold" href="distributor-dashboard.html"><i class="fa-solid fa-truck-ramp-box text-primary me-2" style="width: 20px;"></i> Distributor Dashboard</a></li>`;
         } else if (rawRole.includes('author') || rawRole.includes('publisher')) {
           roleBadge = `<span class="badge" style="background-color: #ffb703; color: #000; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; letter-spacing: 0.3px;">AUTHOR</span>`;
-          // Added Reader Dashboard + Author Dashboard options for author logins as requested
-          roleDashboardItem = `
-            <li><a class="dropdown-item d-flex align-items-center py-2 text-info fw-semibold" href="reader-dashboard.html"><i class="fa-solid fa-book-bookmark text-info me-2" style="width: 20px;"></i> Reader Dashboard</a></li>
-            <li><a class="dropdown-item d-flex align-items-center py-2 text-warning fw-semibold" href="author-dashboard.html"><i class="fa-solid fa-gauge text-warning me-2" style="width: 20px;"></i> Author Dashboard</a></li>
-          `;
+          roleDashboardItem = `<li><a class="dropdown-item d-flex align-items-center py-2 text-warning fw-semibold" href="author-dashboard.html"><i class="fa-solid fa-gauge text-warning me-2" style="width: 20px;"></i> Author Dashboard</a></li>`;
         } else {
           roleBadge = `<span class="badge" style="background-color: #00b4d8; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; letter-spacing: 0.3px;">READER</span>`;
-          roleDashboardItem = `<li><a class="dropdown-item d-flex align-items-center py-2 text-info fw-semibold" href="reader-dashboard.html"><i class="fa-solid fa-book-bookmark text-info me-2" style="width: 20px;"></i> Reader Dashboard</a></li>`;
         }
 
         // Avatar HTML with fallback
@@ -79,7 +70,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           ? `<img src="${profile.avatar_url}" alt="Avatar" style="width: 32px; height: 32px; object-fit: cover; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.6);" class="shadow-sm">`
           : `<div style="width: 32px; height: 32px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); display: inline-flex; align-items: center; justify-content: center; color: #ffffff; font-size: 0.9rem;"><i class="fa-solid fa-user"></i></div>`;
 
-        // Inject Dropdown
+        // Inject Dropdown (Reader Dashboard is ALWAYS present for everyone)
         userNavArea.innerHTML = `
           <div class="nav-item dropdown custom-hover-dropdown">
             <a class="nav-link dropdown-toggle text-white d-flex align-items-center gap-2 py-1" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-weight: 500;">
@@ -91,6 +82,11 @@ document.addEventListener("DOMContentLoaded", async function () {
               <li>
                 <a class="dropdown-item d-flex align-items-center py-2" href="profile.html">
                   <i class="fa-solid fa-user-gear text-muted me-2" style="width: 20px;"></i> My Profile
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center py-2 text-info fw-semibold" href="reader-dashboard.html">
+                  <i class="fa-solid fa-book-bookmark text-info me-2" style="width: 20px;"></i> Reader Dashboard
                 </a>
               </li>
               <li>
@@ -137,9 +133,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     alertBox.classList.remove("d-none");
   }
 
-  // =========================================================
-  // 1. SIGN UP FORM SUBMISSION
-  // =========================================================
+  // Sign Up Submission Handler
   if (registerForm) {
     registerForm.addEventListener("submit", async function (e) {
       e.preventDefault();
@@ -150,7 +144,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       const lastName = document.getElementById("regLastName")?.value.trim() || "";
       const email = document.getElementById("regEmail").value.trim();
       
-      // Calculate Country Code + Phone
       const countryCodeSelect = document.getElementById("regCountryCode")?.value || "+91";
       const customCode = document.getElementById("customCountryCode")?.value.trim() || "";
       const rawPhone = document.getElementById("regPhone")?.value.trim() || "";
@@ -233,9 +226,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  // =========================================================
-  // 2. LOGIN FORM SUBMISSION
-  // =========================================================
+  // Login Submission Handler
   if (loginForm) {
     loginForm.addEventListener("submit", async function (e) {
       e.preventDefault();
@@ -260,7 +251,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if (error) throw error;
 
-        // Fetch user profile role
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')
