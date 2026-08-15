@@ -9,45 +9,118 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts for Dynamic Typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   
   <!-- Custom CSS -->
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/style.css">
 
   <style>
+    :root {
+      --bg-dark: #075e4d;
+      --primary-gold: #ffb703;
+      --header-bg: #075e4d;
+      --footer-bg: #075e4d;
+      --font-scale: 100%;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      font-size: var(--font-scale);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* Maintenance Mode Fullscreen Lockdown Screen */
+    #maintenanceOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.98);
+      backdrop-filter: blur(14px);
+      z-index: 9999999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+      text-align: center;
+      padding: 24px;
+    }
+    #maintenanceOverlay .maintenance-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 18px;
+      padding: 45px 35px;
+      max-width: 580px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    #maintenanceOverlay i.fa-wrench {
+      font-size: 3.5rem;
+      color: #ffb703;
+      margin-bottom: 22px;
+      animation: wrenchPulse 2.2s infinite ease-in-out;
+    }
+    @keyframes wrenchPulse {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(18deg) scale(1.08); }
+    }
+
+    /* Global Announcement Bar */
+    #globalAnnouncementBar {
+      padding: 10px 16px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      z-index: 1050;
+      position: relative;
+    }
+
+    /* Header Nav */
+    .navbar-teal {
+      background-color: var(--header-bg) !important;
+      transition: background-color 0.3s ease;
+    }
+
+    /* Hero Banner */
+    .hero-teal {
+      background: linear-gradient(135deg, var(--bg-dark), #0b8a69);
+      color: #ffffff;
+      padding: 85px 0;
+      text-align: center;
+      position: relative;
+      transition: background 0.3s ease;
+    }
+
     /* Professional Marquee (Slider) Styles */
     .marquee-wrapper {
       width: 100%;
       overflow: hidden;
-      padding: 15px 0;
+      padding: 20px 0;
       position: relative;
     }
-    
     .marquee-track {
       display: flex;
       gap: 1.5rem;
       width: max-content;
       animation: scrollBooks 35s linear infinite; 
     }
-
-    .marquee-track:hover {
+    .marquee-track.pause-on-hover:hover {
       animation-play-state: paused;
     }
-
     .marquee-item {
       width: 260px;
       flex-shrink: 0;
     }
-
     @keyframes scrollBooks {
       0% { transform: translateX(0); }
       100% { transform: translateX(calc(-50% - 0.75rem)); } 
     }
 
-    /* Santali Digital Library monetization sections */
-    .sdm-section {
-      padding: 70px 0;
-    }
+    /* SDM Monetization & Landing Styling */
+    .sdm-section { padding: 70px 0; }
     .sdm-section-alt {
       background: linear-gradient(180deg, #f8fbfa 0%, #ffffff 100%);
       border-top: 1px solid #e9efed;
@@ -86,39 +159,17 @@
       align-items: center;
       justify-content: center;
       border-radius: 14px;
-      background: #0b7760;
+      background: var(--bg-dark);
       color: #fff;
       font-size: 1.25rem;
       margin-bottom: 16px;
     }
-    .sdm-price-card {
-      position: relative;
-      overflow: hidden;
-    }
-    .sdm-price-card.featured {
-      border: 2px solid #d9a441;
-    }
-    .sdm-price {
-      font-size: 2rem;
-      font-weight: 800;
-      color: #0b7760;
-    }
-    .sdm-price small {
-      font-size: .85rem;
-      color: #6c757d;
-      font-weight: 600;
-    }
-    .sdm-check {
-      color: #0b7760;
-      margin-right: 8px;
-    }
-    .sdm-flow {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px;
-      margin-top: 28px;
-    }
+    .sdm-price-card { position: relative; overflow: hidden; }
+    .sdm-price-card.featured { border: 2px solid #d9a441; }
+    .sdm-price { font-size: 2rem; font-weight: 800; color: #0b7760; }
+    .sdm-price small { font-size: .85rem; color: #6c757d; font-weight: 600; }
+    .sdm-check { color: #0b7760; margin-right: 8px; }
+    .sdm-flow { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 28px; }
     .sdm-flow-item {
       min-width: 145px;
       padding: 16px 14px;
@@ -129,39 +180,39 @@
       font-weight: 700;
       box-shadow: 0 5px 18px rgba(0,0,0,.04);
     }
-    .sdm-flow-item i {
-      display: block;
-      color: #d19a2d;
-      font-size: 1.35rem;
-      margin-bottom: 7px;
-    }
-    .sdm-stat {
-      border-radius: 16px;
-      padding: 20px;
-      background: #0b7760;
-      color: #fff;
-      height: 100%;
-    }
-    .sdm-stat .number {
-      font-size: 1.8rem;
-      font-weight: 800;
-    }
-    .sdm-note {
-      background: #fff8e7;
-      border-left: 4px solid #d19a2d;
-      border-radius: 10px;
-      padding: 14px 16px;
-    }
+    .sdm-flow-item i { display: block; color: #d19a2d; font-size: 1.35rem; margin-bottom: 7px; }
+    .sdm-stat { border-radius: 16px; padding: 20px; background: var(--bg-dark); color: #fff; height: 100%; }
+    .sdm-stat .number { font-size: 1.8rem; font-weight: 800; }
+    .sdm-note { background: #fff8e7; border-left: 4px solid #d19a2d; border-radius: 10px; padding: 14px 16px; }
     .sdm-cta {
-      background: linear-gradient(135deg, #075e4d, #0b8a69);
+      background: linear-gradient(135deg, var(--bg-dark), #0b8a69);
       color: #fff;
       border-radius: 24px;
       padding: 42px;
       box-shadow: 0 16px 40px rgba(7,94,77,.2);
     }
+    .footer-teal {
+      background-color: var(--footer-bg) !important;
+      transition: background-color 0.3s ease;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Maintenance Mode Screen (Locked if enabled) -->
+  <div id="maintenanceOverlay" class="d-none">
+    <div class="maintenance-card">
+      <i class="fa-solid fa-wrench"></i>
+      <h2 class="fw-bold mb-2">Under Scheduled Maintenance</h2>
+      <p id="maintenanceNoticeText" class="text-light opacity-75 mb-4">
+        Our platform is undergoing scheduled visual and database upgrades. Reading, borrowing, and logins are temporarily offline.
+      </p>
+      <div class="badge bg-warning text-dark px-3 py-2 fw-bold">Admin Maintenance Active</div>
+    </div>
+  </div>
+
+  <!-- Dynamic Announcement Bar -->
+  <div id="globalAnnouncementBar" class="d-none"></div>
 
   <!-- Navigation Bar -->
   <nav class="navbar navbar-expand-lg navbar-dark navbar-teal sticky-top">
@@ -208,8 +259,8 @@
   <!-- Hero Banner -->
   <header class="hero-teal">
     <div class="container">
-      <h1 class="hero-title" data-i18n="heroTitle">Discover Thousands of Digital Books</h1>
-      <p class="hero-subtitle" data-i18n="heroSub">Read anywhere, anytime. Publish your own eBooks in Ol Chiki and multiple languages to reach readers worldwide.</p>
+      <h1 class="hero-title" id="heroTitleDisplay" data-i18n="heroTitle">Discover Thousands of Digital Books</h1>
+      <p class="hero-subtitle" id="heroSubtitleDisplay" data-i18n="heroSub">Read anywhere, anytime. Publish your own eBooks in Ol Chiki and multiple languages to reach readers worldwide.</p>
       
       <!-- Search Component -->
       <div class="search-box-wrapper">
@@ -222,7 +273,7 @@
       </div>
 
       <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
-        <a href="#membership" class="btn btn-warning btn-lg fw-bold px-4">
+        <a href="#membership" class="btn btn-warning btn-lg fw-bold px-4" id="heroCtaButton">
           <i class="fa-solid fa-crown me-2"></i>View Membership
         </a>
         <a href="upload.html" class="btn btn-outline-light btn-lg px-4">
@@ -246,7 +297,7 @@
 
       <!-- Marquee Container -->
       <div class="marquee-wrapper d-none" id="marqueeWrapper">
-        <div class="marquee-track" id="marqueeBooksContainer"></div>
+        <div class="marquee-track pause-on-hover" id="marqueeBooksContainer"></div>
       </div>
 
       <!-- Static Grid Container -->
@@ -570,12 +621,14 @@
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="footer-teal text-center mt-auto">
+  <!-- Dynamic Footer -->
+  <footer class="footer-teal text-center mt-auto py-4">
     <div class="container">
-      <p class="mb-2 fw-bold">&copy; 2026 Santali Digital Library</p>
-      <p class="small mb-1 text-white-50" data-i18n="footerText">Made with ❤️ for Authors & Readers</p>
-      <p class="small mb-0 text-white-50">Reader subscriptions • eBook sales • Institutional plans • Author services</p>
+      <p class="mb-1 fw-bold">&copy; 2026 Santali Digital Library</p>
+      <p class="small text-white-50 mb-2" id="footerTaglineDisplay" data-i18n="footerText">Made with ❤️ for Authors & Readers</p>
+      <p class="small text-white-50 mb-0">
+        Support: <span id="footerEmailDisplay">support@santalidigitallibrary.in</span> | Helpline: <span id="footerPhoneDisplay">+91 98765 43210</span>
+      </p>
     </div>
   </footer>
 
@@ -664,10 +717,10 @@
     });
   </script>
 
-  <!-- Firebase Auth Script -->
+  <!-- Global Authentication Check -->
   <script type="module" src="assets/js/auth.js"></script>
 
-  <!-- Search, Book Loading, and Subscription Plan Logic -->
+  <!-- Core Dynamic Settings, Maintenance Mode, Search & Book Slider Script -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -675,19 +728,87 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    let siteSettings = {};
+
+    // 1. Dynamic Visuals & Maintenance Lockdown
+    async function loadDynamicVisualsAndCheckMaintenance() {
+      try {
+        const { data } = await supabase.from('site_settings').select('*');
+        (data || []).forEach(row => { siteSettings[row.key] = row.value; });
+
+        // Maintenance Mode Full Lockdown
+        if (siteSettings.maintenance_mode && siteSettings.maintenance_mode.enabled === true) {
+          const overlay = document.getElementById('maintenanceOverlay');
+          overlay.classList.remove('d-none');
+          if (siteSettings.maintenance_mode.message) {
+            document.getElementById('maintenanceNoticeText').textContent = siteSettings.maintenance_mode.message;
+          }
+          document.body.style.overflow = 'hidden';
+          return true; // Stop all further execution
+        }
+
+        // Apply Theme & Brand Colors
+        if (siteSettings.theme_colors) {
+          const root = document.documentElement;
+          if (siteSettings.theme_colors.primary) root.style.setProperty('--bg-dark', siteSettings.theme_colors.primary);
+          if (siteSettings.theme_colors.accent) root.style.setProperty('--primary-gold', siteSettings.theme_colors.accent);
+          if (siteSettings.theme_colors.header_bg) root.style.setProperty('--header-bg', siteSettings.theme_colors.header_bg);
+          if (siteSettings.theme_colors.footer_bg) root.style.setProperty('--footer-bg', siteSettings.theme_colors.footer_bg);
+        }
+
+        // Apply Typography
+        if (siteSettings.typography) {
+          if (siteSettings.typography.font_family) document.body.style.fontFamily = siteSettings.typography.font_family;
+          if (siteSettings.typography.font_scale) document.documentElement.style.setProperty('--font-scale', siteSettings.typography.font_scale);
+        }
+
+        // Promotional Announcement Bar
+        if (siteSettings.announcement_bar && siteSettings.announcement_bar.enabled) {
+          const bar = document.getElementById('globalAnnouncementBar');
+          bar.textContent = siteSettings.announcement_bar.text || '';
+          bar.style.backgroundColor = siteSettings.announcement_bar.bg_color || '#ffb703';
+          bar.style.color = siteSettings.announcement_bar.text_color || '#000000';
+          bar.classList.remove('d-none');
+        }
+
+        // Hero Content & Contact Info
+        if (siteSettings.hero_content) {
+          if (siteSettings.hero_content.title) document.getElementById('heroTitleDisplay').textContent = siteSettings.hero_content.title;
+          if (siteSettings.hero_content.subtitle) document.getElementById('heroSubtitleDisplay').textContent = siteSettings.hero_content.subtitle;
+          if (siteSettings.hero_content.cta_text) document.getElementById('heroCtaButton').innerHTML = `<i class="fa-solid fa-crown me-2"></i>${siteSettings.hero_content.cta_text}`;
+          if (siteSettings.hero_content.support_email) document.getElementById('footerEmailDisplay').textContent = siteSettings.hero_content.support_email;
+          if (siteSettings.hero_content.support_phone) document.getElementById('footerPhoneDisplay').textContent = siteSettings.hero_content.support_phone;
+          if (siteSettings.hero_content.footer_tagline) document.getElementById('footerTaglineDisplay').textContent = siteSettings.hero_content.footer_tagline;
+        }
+
+        // Marquee Speed & Hover Pause
+        if (siteSettings.page_limits) {
+          const track = document.getElementById('marqueeBooksContainer');
+          if (siteSettings.page_limits.marquee_speed && track) {
+            track.style.animationDuration = siteSettings.page_limits.marquee_speed;
+          }
+          if (siteSettings.page_limits.pause_on_hover === false && track) {
+            track.classList.remove('pause-on-hover');
+          }
+        }
+      } catch (err) {
+        console.warn("Could not load dynamic settings. Using defaults:", err);
+      }
+      return false;
+    }
+
+    // 2. Search & Book Rendering
     document.addEventListener("DOMContentLoaded", async () => {
-      
-      // Handle Plan Selection Buttons (Login Check)
+      const isLocked = await loadDynamicVisualsAndCheckMaintenance();
+      if (isLocked) return;
+
       document.querySelectorAll('.plan-btn').forEach(button => {
         button.addEventListener('click', async (e) => {
           const plan = e.currentTarget.getAttribute('data-plan');
           const { data: { user } } = await supabase.auth.getUser();
-
           if (user) {
-            // Already logged in -> go directly to subscription page
             window.location.href = `subscription.html?plan=${plan}`;
           } else {
-            // Not logged in -> go to login/signup page
             window.location.href = `login.html?redirect=subscription.html&plan=${plan}`;
           }
         });
@@ -695,12 +816,10 @@
 
       const searchInput = document.getElementById('searchInput');
       const searchBtn = document.getElementById('searchBtn');
-      
       const loadingState = document.getElementById('loadingState');
       const marqueeWrapper = document.getElementById('marqueeWrapper');
       const marqueeBooksContainer = document.getElementById('marqueeBooksContainer');
       const gridBooksContainer = document.getElementById('gridBooksContainer');
-      
       const sectionTitle = document.getElementById('sectionTitle');
       const sectionSubtitle = document.getElementById('sectionSubtitle');
 
@@ -714,8 +833,8 @@
           sectionSubtitle.textContent = `Showing results for "${query}"`;
         } else {
           const currentLang = localStorage.getItem('selectedLang') || 'en';
-          sectionTitle.textContent = translations[currentLang].sectionFeatured;
-          sectionSubtitle.textContent = translations[currentLang].sectionFeaturedSub;
+          sectionTitle.textContent = translations[currentLang]?.sectionFeatured || "Featured Books";
+          sectionSubtitle.textContent = translations[currentLang]?.sectionFeaturedSub || "Handpicked eBooks from top Santali authors and scholars";
         }
 
         if (books.length === 0) {
@@ -738,8 +857,11 @@
         }
 
         let cardsHtml = '';
+        const showBadges = siteSettings.page_limits ? siteSettings.page_limits.show_price_badge !== false : true;
+
         books.forEach(book => {
-          const priceDisplay = (book.price === 0 || String(book.price).toLowerCase() === 'free') 
+          const isFree = book.price === 0 || String(book.price).toLowerCase() === 'free';
+          const priceDisplay = isFree 
             ? '<span class="book-price text-success">FREE</span>' 
             : `<span class="book-price text-primary fw-bold">₹${book.price}</span>`;
           const bookCategory = book.category ? book.category.toUpperCase() : 'GENERAL';
@@ -748,7 +870,7 @@
             <div class="book-card-pro bg-white border shadow-sm h-100 d-flex flex-column" style="border-radius: 12px; overflow: hidden; transition: transform 0.2s;">
               <div style="height: 250px; overflow: hidden; position: relative;">
                 <img src="${book.cover_url || 'https://via.placeholder.com/500x750?text=No+Cover'}" style="object-fit: cover;" class="w-100 h-100" alt="${book.title}" onerror="this.src='https://via.placeholder.com/500x750?text=No+Cover'">
-                <span class="badge bg-dark position-absolute top-0 end-0 m-2 px-3 py-2 opacity-75">${bookCategory}</span>
+                ${showBadges ? `<span class="badge bg-dark position-absolute top-0 end-0 m-2 px-3 py-2 opacity-75">${bookCategory}</span>` : ''}
               </div>
               <div class="p-3 d-flex flex-column flex-grow-1">
                 <h5 class="fw-bold mb-1 text-dark text-truncate" title="${book.title}">${book.title}</h5>
@@ -777,7 +899,7 @@
             marqueeWrapper.classList.remove('d-none');
             
             let infiniteLoopHtml = cardsHtml;
-            if (books.length < 5) { infiniteLoopHtml += cardsHtml; }
+            if (books.length < 5) infiniteLoopHtml += cardsHtml;
             infiniteLoopHtml += infiniteLoopHtml; 
             
             marqueeBooksContainer.innerHTML = infiniteLoopHtml;
@@ -803,16 +925,15 @@
           const { data, error } = await supabase
             .from('books')
             .select('*')
+            .eq('status', 'Published')
             .or(`title.ilike.%${query}%,author.ilike.%${query}%,category.ilike.%${query}%`);
 
           if (error) throw error;
           renderBooks(data, true, query);
-
         } catch (err) {
-          console.error("Search Error:", err);
           loadingState.classList.add('d-none');
           gridBooksContainer.classList.remove('d-none');
-          gridBooksContainer.innerHTML = `<div class="col-12 text-center text-danger py-5"><i class="fa-solid fa-circle-exclamation fs-1 mb-3"></i><br>Failed to load search results. Please check your connection.</div>`;
+          gridBooksContainer.innerHTML = `<div class="col-12 text-center text-danger py-5"><i class="fa-solid fa-circle-exclamation fs-1 mb-3"></i><br>Failed to load search results.</div>`;
         }
       }
 
@@ -827,9 +948,11 @@
         loadingState.classList.remove('d-none');
         
         try {
+          // Fetch only Admin-approved published books featured for homepage slider
           const { data, error } = await supabase
             .from('books')
             .select('*')
+            .eq('status', 'Published')
             .eq('is_featured', true)
             .order('created_at', { ascending: false }); 
 
@@ -840,13 +963,12 @@
           } else {
              loadingState.classList.add('d-none');
              gridBooksContainer.classList.remove('d-none');
-             gridBooksContainer.innerHTML = `<div class="col-12 text-center text-muted py-5">No featured books currently available. Please select books to feature from the admin dashboard.</div>`;
+             gridBooksContainer.innerHTML = `<div class="col-12 text-center text-muted py-5">No featured books currently active in the slider.</div>`;
           }
         } catch (err) {
-          console.error("Initial load error:", err);
           loadingState.classList.add('d-none');
           gridBooksContainer.classList.remove('d-none');
-          gridBooksContainer.innerHTML = `<div class="col-12 text-center text-danger py-5">Failed to load library database.</div>`;
+          gridBooksContainer.innerHTML = `<div class="col-12 text-center text-danger py-5">Failed to load library catalogue.</div>`;
         }
       }
       
