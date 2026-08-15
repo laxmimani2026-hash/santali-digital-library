@@ -57,10 +57,18 @@ document.addEventListener("DOMContentLoaded", async function () {
           roleDashboardItem = `<li><a class="dropdown-item d-flex align-items-center py-2 text-danger fw-semibold" href="admin-dashboard.html"><i class="fa-solid fa-shield-halved text-danger me-2" style="width: 20px;"></i> Admin Dashboard</a></li>`;
         } else if (rawRole.includes('distributor') || rawRole.includes('vendor')) {
           roleBadge = `<span class="badge" style="background-color: #2563eb; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; letter-spacing: 0.3px;">DISTRIBUTOR</span>`;
-          roleDashboardItem = `<li><a class="dropdown-item d-flex align-items-center py-2 text-primary fw-semibold" href="distributor-dashboard.html"><i class="fa-solid fa-truck-ramp-box text-primary me-2" style="width: 20px;"></i> Distributor Dashboard</a></li>`;
+          // Added Reader Dashboard + Distributor Dashboard options for distributor logins as requested
+          roleDashboardItem = `
+            <li><a class="dropdown-item d-flex align-items-center py-2 text-info fw-semibold" href="reader-dashboard.html"><i class="fa-solid fa-book-bookmark text-info me-2" style="width: 20px;"></i> Reader Dashboard</a></li>
+            <li><a class="dropdown-item d-flex align-items-center py-2 text-primary fw-semibold" href="distributor-dashboard.html"><i class="fa-solid fa-truck-ramp-box text-primary me-2" style="width: 20px;"></i> Distributor Dashboard</a></li>
+          `;
         } else if (rawRole.includes('author') || rawRole.includes('publisher')) {
           roleBadge = `<span class="badge" style="background-color: #ffb703; color: #000; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; letter-spacing: 0.3px;">AUTHOR</span>`;
-          roleDashboardItem = `<li><a class="dropdown-item d-flex align-items-center py-2 text-warning fw-semibold" href="author-dashboard.html"><i class="fa-solid fa-gauge text-warning me-2" style="width: 20px;"></i> Author Dashboard</a></li>`;
+          // Added Reader Dashboard + Author Dashboard options for author logins as requested
+          roleDashboardItem = `
+            <li><a class="dropdown-item d-flex align-items-center py-2 text-info fw-semibold" href="reader-dashboard.html"><i class="fa-solid fa-book-bookmark text-info me-2" style="width: 20px;"></i> Reader Dashboard</a></li>
+            <li><a class="dropdown-item d-flex align-items-center py-2 text-warning fw-semibold" href="author-dashboard.html"><i class="fa-solid fa-gauge text-warning me-2" style="width: 20px;"></i> Author Dashboard</a></li>
+          `;
         } else {
           roleBadge = `<span class="badge" style="background-color: #00b4d8; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; letter-spacing: 0.3px;">READER</span>`;
           roleDashboardItem = `<li><a class="dropdown-item d-flex align-items-center py-2 text-info fw-semibold" href="reader-dashboard.html"><i class="fa-solid fa-book-bookmark text-info me-2" style="width: 20px;"></i> Reader Dashboard</a></li>`;
