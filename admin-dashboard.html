@@ -1021,7 +1021,7 @@
           });
         });
 
-        // Setup Interactive Role Modification
+        // Setup Interactive Role Modification with verified RLS error feedback
         document.querySelectorAll('.role-select').forEach(selectEl => {
           selectEl.addEventListener('change', async function() {
             const userId = this.getAttribute('data-userid');
@@ -1031,19 +1031,23 @@
             selectTarget.disabled = true;
 
             try {
-              const { error } = await supabase
+              const { data, error } = await supabase
                 .from('profiles')
                 .update({ role: newRole })
-                .eq('id', userId);
+                .eq('id', userId)
+                .select();
 
               if (error) throw error;
+              if (!data || data.length === 0) {
+                throw new Error("Update blocked by Supabase RLS policies.");
+              }
 
               // Update local state and UI classes
               selectTarget.className = `form-select form-select-sm role-select role-${newRole}`;
               const userInArray = allUsersData.find(u => u.id === userId);
               if (userInArray) userInArray.role = newRole;
 
-              showToast(`Role updated to ${newRole.toUpperCase()} successfully!`);
+              showToast(`User role updated to ${newRole.toUpperCase()}!`);
 
             } catch (updateErr) {
               console.error("Role Update Error:", updateErr);
