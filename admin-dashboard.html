@@ -22,13 +22,13 @@
     .table-hover tbody tr:hover { background-color: #f8fafc; }
     .book-cover-thumb { width: 40px; height: 55px; object-fit: cover; border-radius: 4px; background-color: #e2e8f0; }
     
-    /* User ID Badge */
-    .uid-badge {
+    /* ID Badges */
+    .uid-badge, .book-id-badge {
       background: #e2e8f0;
       color: #0f172a;
       font-family: monospace;
       font-weight: 700;
-      padding: 3px 8px;
+      padding: 4px 8px;
       border-radius: 6px;
       font-size: 0.8rem;
       display: inline-flex;
@@ -36,8 +36,8 @@
       gap: 6px;
       border: 1px solid #cbd5e1;
     }
-    .uid-badge i { cursor: pointer; color: #64748b; }
-    .uid-badge i:hover { color: #0f172a; }
+    .uid-badge i, .book-id-badge i { cursor: pointer; color: #64748b; }
+    .uid-badge i:hover, .book-id-badge i:hover { color: #0f172a; }
 
     /* Role Selector inside Table */
     .role-select {
@@ -72,7 +72,7 @@
 
     /* Print Styles */
     @media print {
-      .sidebar, .btn, .badge, select, .input-group { display: none !important; }
+      .sidebar, .btn, .badge, select, .input-group, .form-check { display: none !important; }
       .main-content { padding: 0; background-color: white; }
       .stat-card { box-shadow: none; border: 1px solid #ddd; }
     }
@@ -130,9 +130,7 @@
     <!-- Global Alert Box -->
     <div id="adminAlert" class="alert d-none shadow-sm" role="alert"></div>
 
-    <!-- ========================================== -->
-    <!-- SECTION 1: OVERVIEW & ROYALTIES           -->
-    <!-- ========================================== -->
+    <!-- SECTION 1: OVERVIEW & ROYALTIES -->
     <div id="overviewSection" class="content-section">
       <div class="row g-4 mb-4">
         <div class="col-md-3">
@@ -165,7 +163,6 @@
         </div>
       </div>
 
-      <!-- Financial Calculation Summary Card -->
       <div class="card stat-card p-4 mb-4">
         <h5 class="fw-bold mb-3"><i class="fa-solid fa-calculator me-2 text-primary"></i>Royalty & Operating Breakdown Model</h5>
         <div class="row g-3 text-center">
@@ -193,11 +190,8 @@
       </div>
     </div>
 
-    <!-- ========================================== -->
     <!-- SECTION 2: SUBSCRIPTIONS & PLANS BREAKDOWN -->
-    <!-- ========================================== -->
     <div id="subscriptionsSection" class="content-section d-none">
-      
       <div class="row g-4 mb-4">
         <div class="col-md-4">
           <div class="card stat-card p-4 border-start border-secondary border-4">
@@ -279,13 +273,14 @@
       </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- SECTION 3: BOOK APPROVAL PIPELINE        -->
-    <!-- ========================================== -->
+    <!-- SECTION 3: BOOK APPROVAL & HOME HOVER PIPELINE -->
     <div id="approvalSection" class="content-section d-none">
       <div class="card stat-card p-0 overflow-hidden">
         <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="fw-bold mb-0 text-dark">Book Approval Pipeline</h5>
+          <div>
+            <h5 class="fw-bold mb-0 text-dark">Book Approval & Catalog Pipeline</h5>
+            <p class="small text-muted mb-0">Approve author submissions, delete records from database, manage book IDs, and toggle home slider visibility.</p>
+          </div>
           <button class="btn btn-sm btn-outline-primary" id="refreshApprovalBtn">
             <i class="fa-solid fa-rotate-right me-1"></i> Refresh
           </button>
@@ -295,17 +290,18 @@
             <table class="table table-hover align-middle mb-0">
               <thead class="table-light text-secondary small">
                 <tr>
-                  <th class="ps-4">Book Info</th>
+                  <th class="ps-4">Book ID</th>
+                  <th>Book Info</th>
                   <th>Script</th>
                   <th>Submitted Date</th>
-                  <th>Review Stage</th>
                   <th>Status</th>
+                  <th>Home Slider (Hover)</th>
                   <th class="text-end pe-4">Actions</th>
                 </tr>
               </thead>
               <tbody id="approvalBooksList">
                 <tr>
-                  <td colspan="6" class="text-center py-5 text-muted">
+                  <td colspan="7" class="text-center py-5 text-muted">
                     <div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading pipeline...
                   </td>
                 </tr>
@@ -316,9 +312,7 @@
       </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- SECTION 4: COPYRIGHT MANAGEMENT            -->
-    <!-- ========================================== -->
+    <!-- SECTION 4: COPYRIGHT MANAGEMENT -->
     <div id="copyrightSection" class="content-section d-none">
       <div class="card stat-card p-0 overflow-hidden">
         <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
@@ -358,9 +352,7 @@
       </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- SECTION 5: ANTI-FRAUD LOGS                 -->
-    <!-- ========================================== -->
+    <!-- SECTION 5: ANTI-FRAUD LOGS -->
     <div id="antifraudSection" class="content-section d-none">
       <div class="card stat-card p-0 overflow-hidden">
         <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
@@ -381,9 +373,7 @@
       </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- SECTION 6: SALES & FINANCIAL REPORTS       -->
-    <!-- ========================================== -->
+    <!-- SECTION 6: SALES & FINANCIAL REPORTS -->
     <div id="reportsSection" class="content-section d-none">
       <div class="row g-4 mb-4">
         <div class="col-md-6">
@@ -438,9 +428,7 @@
       </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- SECTION 7: USER MANAGEMENT (SL NO, PINCODE, DELETE) -->
-    <!-- ========================================== -->
+    <!-- SECTION 7: USER MANAGEMENT -->
     <div id="usersSection" class="content-section d-none">
       <div class="card stat-card p-0 overflow-hidden">
         <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
@@ -452,7 +440,6 @@
             <p class="small text-muted mb-0 mt-1">Manage platform members, search by Name/UID/PIN, edit roles, and delete accounts.</p>
           </div>
           
-          <!-- Search & Filter Bar -->
           <div class="d-flex flex-wrap align-items-center gap-2">
             <div class="input-group input-group-sm" style="width: 280px;">
               <span class="input-group-text bg-light"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
@@ -504,9 +491,7 @@
       </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- SECTION 8: MESSAGES / INQUIRIES            -->
-    <!-- ========================================== -->
+    <!-- SECTION 8: MESSAGES / INQUIRIES -->
     <div id="messagesSection" class="content-section d-none">
       <div class="card stat-card p-0 overflow-hidden">
         <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
@@ -621,7 +606,7 @@
             pageTitle.textContent = "Subscriptions & Plan Breakdown";
             fetchSubscriptionDetails();
           } else if (targetId === 'approvalSection') {
-            pageTitle.textContent = "Book Approval Pipeline";
+            pageTitle.textContent = "Book Approvals & Catalog Pipeline";
             fetchApprovalBooks();
           } else if (targetId === 'reportsSection') {
             pageTitle.textContent = "Financial Reports";
@@ -701,7 +686,7 @@
 
         } catch (err) {
           console.error("Subscription fetch error:", err);
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load subscriptions. Please verify Supabase setup.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load subscriptions.</td></tr>`;
         }
       }
 
@@ -763,16 +748,16 @@
         });
       }
 
-      document.getElementById('subPlanFilter').addEventListener('change', (e) => {
+      document.getElementById('subPlanFilter')?.addEventListener('change', (e) => {
         renderSubscribersTable(e.target.value);
       });
 
-      document.getElementById('refreshSubsBtn').addEventListener('click', () => {
+      document.getElementById('refreshSubsBtn')?.addEventListener('click', () => {
         fetchSubscriptionDetails();
         fetchDashboardStats();
       });
 
-      // 3. Dashboard Metrics & Calculations
+      // 3. Dashboard Metrics
       async function fetchDashboardStats() {
         try {
           const { data: subs } = await supabase
@@ -812,17 +797,23 @@
         }
       }
 
-      // 4. Book Approval Pipeline
+      // =========================================================================
+      // 4. BOOK APPROVAL PIPELINE: VISIBLE BOOK ID, PUBLISH, HOVER TOGGLE, DELETE
+      // =========================================================================
       async function fetchApprovalBooks() {
         const tbody = document.getElementById('approvalBooksList');
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading pipeline...</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading books...</td></tr>`;
 
         try {
-          const { data: books, error } = await supabase.from('books').select('*').order('created_at', { ascending: false });
+          const { data: books, error } = await supabase
+            .from('books')
+            .select('*')
+            .order('created_at', { ascending: false });
+
           if (error) throw error;
 
           if (!books || books.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted fw-semibold">No books submitted for review.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted fw-semibold">No books submitted in database.</td></tr>`;
             return;
           }
 
@@ -833,52 +824,154 @@
               ? `<span class="badge bg-secondary">Santali (Ol Chiki)</span>` 
               : `<span class="badge bg-dark">${book.language || 'English'}</span>`;
             
-            let statusBadge = `<span class="badge bg-warning text-dark">Under Review</span>`;
-            if (book.status === 'Published') statusBadge = `<span class="badge bg-success">Published</span>`;
+            const isPublished = (book.status || '').toLowerCase() === 'published';
+            const statusBadge = isPublished
+              ? `<span class="badge bg-success">Published</span>`
+              : `<span class="badge bg-warning text-dark">Under Review</span>`;
+
+            const bookRefId = book.book_id || `BK-${String(book.id).substring(0, 6).toUpperCase()}`;
+            const isFeatured = book.is_featured === true;
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
               <td class="ps-4">
+                <span class="book-id-badge" title="Click to copy Book ID">
+                  <span>${bookRefId}</span>
+                  <i class="fa-regular fa-copy copy-bookid-btn" data-id="${bookRefId}"></i>
+                </span>
+              </td>
+              <td>
                 <div class="d-flex align-items-center">
-                  <img src="${book.cover_url || 'https://via.placeholder.com/40x55'}" class="book-cover-thumb me-3">
+                  <img src="${book.cover_url || 'https://via.placeholder.com/40x55'}" class="book-cover-thumb me-3" onerror="this.src='https://via.placeholder.com/40x55'">
                   <div>
-                    <h6 class="fw-bold mb-1 text-dark">${book.title}</h6>
-                    <small class="text-muted">By ${book.author}</small>
+                    <h6 class="fw-bold mb-0 text-dark">${book.title}</h6>
+                    <small class="text-muted">By ${book.author || 'Author'}</small>
                   </div>
                 </div>
               </td>
               <td>${scriptBadge}</td>
               <td class="text-muted small">${date}</td>
-              <td><span class="badge bg-info text-dark">Verified</span></td>
               <td>${statusBadge}</td>
+              <td>
+                <div class="form-check form-switch">
+                  <input class="form-check-input toggle-featured-switch" type="checkbox" role="switch" data-id="${book.id}" ${isFeatured ? 'checked' : ''}>
+                  <label class="form-check-label small fw-semibold text-muted">${isFeatured ? 'In Marquee' : 'Off'}</label>
+                </div>
+              </td>
               <td class="text-end pe-4">
-                <button class="btn btn-sm btn-success approve-book-btn me-1" data-id="${book.id}">Approve</button>
-                <button class="btn btn-sm btn-outline-danger delete-book-btn" data-id="${book.id}"><i class="fa-solid fa-trash-can"></i></button>
+                ${!isPublished 
+                  ? `<button class="btn btn-sm btn-success approve-book-btn me-1" data-id="${book.id}"><i class="fa-solid fa-check me-1"></i>Publish</button>` 
+                  : `<button class="btn btn-sm btn-outline-secondary unpublish-book-btn me-1" data-id="${book.id}">Unpublish</button>`
+                }
+                <button class="btn btn-sm btn-outline-danger delete-book-btn" data-id="${book.id}" data-title="${book.title}" title="Delete Permanently from DB">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
               </td>
             `;
             tbody.appendChild(tr);
           });
-          attachApprovalActionListeners();
+
+          attachBookActionListeners();
+
         } catch (err) {
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load pipeline.</td></tr>`;
+          console.error("Pipeline Error:", err);
+          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">Failed to load pipeline: ${err.message}</td></tr>`;
         }
       }
 
-      function attachApprovalActionListeners() {
+      function attachBookActionListeners() {
+        // 1. Copy Book ID
+        document.querySelectorAll('.copy-bookid-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const id = e.target.getAttribute('data-id');
+            navigator.clipboard.writeText(id).then(() => {
+              showToast(`Copied Book ID: ${id}`);
+            });
+          });
+        });
+
+        // 2. Publish / Approve Book
         document.querySelectorAll('.approve-book-btn').forEach(btn => {
           btn.addEventListener('click', async function() {
             const id = this.getAttribute('data-id');
+            this.disabled = true;
+            this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
             try {
               const { error } = await supabase.from('books').update({ status: 'Published' }).eq('id', id);
               if (error) throw error;
-              showAlert("Book approved and published to catalog!", "success");
+              showToast("Book approved & published to store!");
               fetchApprovalBooks();
             } catch (err) {
-              showAlert("Failed to approve book.", "danger");
+              alert("Failed to publish book: " + err.message);
+              fetchApprovalBooks();
+            }
+          });
+        });
+
+        // 3. Unpublish Book
+        document.querySelectorAll('.unpublish-book-btn').forEach(btn => {
+          btn.addEventListener('click', async function() {
+            const id = this.getAttribute('data-id');
+            this.disabled = true;
+            this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+            try {
+              const { error } = await supabase.from('books').update({ status: 'Under Review' }).eq('id', id);
+              if (error) throw error;
+              showToast("Book unpublished and moved to review.");
+              fetchApprovalBooks();
+            } catch (err) {
+              alert("Failed to update status: " + err.message);
+              fetchApprovalBooks();
+            }
+          });
+        });
+
+        // 4. Toggle Home Hover / Marquee Feature
+        document.querySelectorAll('.toggle-featured-switch').forEach(switchEl => {
+          switchEl.addEventListener('change', async function() {
+            const id = this.getAttribute('data-id');
+            const isChecked = this.checked;
+            this.disabled = true;
+            try {
+              const { error } = await supabase.from('books').update({ is_featured: isChecked }).eq('id', id);
+              if (error) throw error;
+              showToast(isChecked ? "Book added to Index Home Slider!" : "Book removed from Index Home Slider.");
+              fetchApprovalBooks();
+            } catch (err) {
+              alert("Failed to update featured setting: " + err.message);
+              this.checked = !isChecked;
+              this.disabled = false;
+            }
+          });
+        });
+
+        // 5. Permanent Delete from Database
+        document.querySelectorAll('.delete-book-btn').forEach(btn => {
+          btn.addEventListener('click', async function() {
+            const id = this.getAttribute('data-id');
+            const title = this.getAttribute('data-title') || 'this book';
+            
+            if (!confirm(`Are you sure you want to permanently delete "${title}" from the database? This action cannot be undone.`)) {
+              return;
+            }
+
+            this.disabled = true;
+            this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+
+            try {
+              const { error } = await supabase.from('books').delete().eq('id', id);
+              if (error) throw error;
+              showToast(`"${title}" was deleted from the database.`);
+              fetchApprovalBooks();
+            } catch (err) {
+              alert("Failed to delete book: " + err.message);
+              fetchApprovalBooks();
             }
           });
         });
       }
+
+      document.getElementById('refreshApprovalBtn')?.addEventListener('click', fetchApprovalBooks);
 
       // 5. Financial Reports
       async function fetchSalesReports() {
@@ -930,9 +1023,7 @@
         }
       }
 
-      // =========================================================================
-      // 6. USER MANAGEMENT: SERIAL NO, SEARCH, PIN CODE, ROLE CONTROL & DELETE
-      // =========================================================================
+      // 6. User Management
       async function fetchAdminUsers() {
         const adminUsersList = document.getElementById('adminUsersList');
         adminUsersList.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading users...</td></tr>`;
@@ -972,7 +1063,6 @@
             role = 'author';
           }
 
-          // Search Match: UID, Name, Email, or PIN Code
           const matchesSearch = !searchVal || 
             uid.includes(searchVal) || 
             fullName.includes(searchVal) || 
@@ -981,13 +1071,11 @@
             email.includes(searchVal) ||
             pincode.includes(searchVal);
 
-          // Role Filter Match
           const matchesRole = roleFilter === 'all' || role === roleFilter;
 
           return matchesSearch && matchesRole;
         });
 
-        // Update Total Count Badge
         if (totalBadge) {
           totalBadge.textContent = `${filteredUsers.length} of ${allUsersData.length} Users`;
         }
@@ -1048,7 +1136,6 @@
           adminUsersList.appendChild(tr);
         });
 
-        // 1. Copy UID Handler
         document.querySelectorAll('.copy-uid-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
             const uid = e.target.getAttribute('data-uid');
@@ -1058,35 +1145,19 @@
           });
         });
 
-        // 2. Interactive Role Modification
         document.querySelectorAll('.role-select').forEach(selectEl => {
           selectEl.addEventListener('change', async function() {
             const userId = this.getAttribute('data-userid');
             const newRole = this.value;
             const selectTarget = this;
-
             selectTarget.disabled = true;
 
             try {
-              const { data, error } = await supabase
-                .from('profiles')
-                .update({ role: newRole })
-                .eq('id', userId)
-                .select();
-
+              const { error } = await supabase.from('profiles').update({ role: newRole }).eq('id', userId);
               if (error) throw error;
-              if (!data || data.length === 0) {
-                throw new Error("Update blocked by Supabase RLS policies.");
-              }
-
               selectTarget.className = `form-select form-select-sm role-select role-${newRole}`;
-              const userInArray = allUsersData.find(u => u.id === userId);
-              if (userInArray) userInArray.role = newRole;
-
               showToast(`User role updated to ${newRole.toUpperCase()}!`);
-
             } catch (updateErr) {
-              console.error("Role Update Error:", updateErr);
               alert("Failed to update role: " + updateErr.message);
               renderUsersTable();
             } finally {
@@ -1095,79 +1166,31 @@
           });
         });
 
-        // 3. User Deletion Handler
         document.querySelectorAll('.delete-user-btn').forEach(btn => {
           btn.addEventListener('click', async function() {
             const userId = this.getAttribute('data-userid');
             const userName = this.getAttribute('data-name') || 'this user';
 
-            if (!confirm(`Are you sure you want to permanently delete account: "${userName}"? This cannot be undone.`)) {
-              return;
-            }
+            if (!confirm(`Are you sure you want to delete user: "${userName}"?`)) return;
 
-            const buttonEl = this;
-            buttonEl.disabled = true;
-            buttonEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
-
+            this.disabled = true;
             try {
-              // Delete profile row from database
-              const { error } = await supabase
-                .from('profiles')
-                .delete()
-                .eq('id', userId);
-
+              const { error } = await supabase.from('profiles').delete().eq('id', userId);
               if (error) throw error;
-
-              // Remove from local array & re-render
               allUsersData = allUsersData.filter(u => u.id !== userId);
               renderUsersTable();
-              showToast(`User "${userName}" deleted successfully.`);
-
+              showToast(`User deleted successfully.`);
             } catch (delErr) {
-              console.error("Delete Error:", delErr);
               alert("Failed to delete user: " + delErr.message);
-              buttonEl.disabled = false;
-              buttonEl.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
+              this.disabled = false;
             }
           });
         });
       }
 
-      // Live search and filter event listeners
       document.getElementById('userSearchInput')?.addEventListener('input', renderUsersTable);
       document.getElementById('userRoleFilter')?.addEventListener('change', renderUsersTable);
       document.getElementById('refreshUsersBtn')?.addEventListener('click', fetchAdminUsers);
-
-      // Export Users to CSV
-      document.getElementById('exportUsersCsvBtn')?.addEventListener('click', () => {
-        if (!allUsersData || allUsersData.length === 0) {
-          alert("No users to export.");
-          return;
-        }
-
-        let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "Sl No,User ID,First Name,Last Name,Email,Phone,PIN Code,Role\n";
-
-        allUsersData.forEach((u, i) => {
-          const uid = u.user_uid || `SDL-${u.id.substring(0, 6).toUpperCase()}`;
-          const fName = (u.first_name || (u.full_name ? u.full_name.split(' ')[0] : '')).replace(/,/g, '');
-          const lName = (u.last_name || (u.full_name ? u.full_name.split(' ').slice(1).join(' ') : '')).replace(/,/g, '');
-          const email = (u.email || u.contact_email || '').replace(/,/g, '');
-          const phone = (u.phone || '').replace(/,/g, '');
-          const pin = (u.pincode || u.postal_code || u.pin || '').replace(/,/g, '');
-          const role = u.role || 'reader';
-
-          csvContent += `"${i + 1}","${uid}","${fName}","${lName}","${email}","${phone}","${pin}","${role}"\n`;
-        });
-
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `SDL_Users_Export_${Date.now()}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
 
       // 7. Messages Inquiries
       async function fetchAdminMessages() {
@@ -1188,7 +1211,7 @@
         } catch(e) {}
       }
 
-      document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+      document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
         e.preventDefault();
         await supabase.auth.signOut();
         window.location.href = "admin-login.html";
