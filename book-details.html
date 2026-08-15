@@ -114,7 +114,7 @@
       transition: all 0.2s ease;
     }
 
-    .user-menu-container:hover .user-btn {
+    .user-btn:hover {
       background: rgba(255, 255, 255, 0.18);
     }
 
@@ -418,7 +418,7 @@
       <li><a href="browse.html">Books</a></li>
       <li><a href="categories.html">Categories</a></li>
       <li><a href="subscription.html">Subscriptions</a></li>
-      <li><a href="author-dashboard.html">Authors</a></li>
+      <li><a href="authors.html">Authors</a></li>
     </ul>
 
     <div class="nav-right">
@@ -431,13 +431,13 @@
           <i class="fa-solid fa-caret-down text-white-50"></i>
         </button>
 
-        <!-- User Dropdown with My Cart and My Orders included -->
+        <!-- User Dropdown with My Cart, My Orders, and Conditional Author Dashboard -->
         <div class="dropdown-menu-custom" id="dropdownMenu">
           <a href="profile.html"><i class="fa-solid fa-user-gear"></i> My Profile</a>
           <a href="subscription.html"><i class="fa-solid fa-crown" style="color:var(--primary-gold);"></i> My Subscription</a>
           <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> My Cart</a>
           <a href="orders.html"><i class="fa-solid fa-box-archive"></i> My Orders</a>
-          <a href="author-dashboard.html"><i class="fa-solid fa-gauge"></i> Author Dashboard</a>
+          <a href="author-dashboard.html" id="authorDashboardNav"><i class="fa-solid fa-gauge"></i> Author Dashboard</a>
           <hr style="margin: 0; border-top: 1px solid #e2e8f0;">
           <a href="#" id="logoutLink" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
         </div>
@@ -593,8 +593,9 @@
       const buyNowBtn = document.getElementById('buyNowBtn');
       const addToCartBtn = document.getElementById('addToCartBtn');
       const readBookBtn = document.getElementById('readBookBtn');
+      const authorDashboardNav = document.getElementById('authorDashboardNav');
 
-      // 1. Authenticate user & display header
+      // 1. Authenticate user, display header & apply role restrictions
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
@@ -605,9 +606,18 @@
             .maybeSingle();
 
           if (profile) {
+            const userRole = (profile.role || 'reader').toLowerCase();
             let firstName = profile.first_name || (profile.full_name ? profile.full_name.split(' ')[0] : user.email.split('@')[0]);
             document.getElementById('headerUserName').textContent = `Hello, ${firstName}`;
-            if (profile.role) document.getElementById('headerUserBadge').textContent = profile.role.toUpperCase();
+            document.getElementById('headerUserBadge').textContent = userRole.toUpperCase();
+
+            // Role-based visibility: hide Author Dashboard for Readers
+            if (userRole === 'reader' && authorDashboardNav) {
+              authorDashboardNav.style.display = 'none';
+            } else if (authorDashboardNav) {
+              authorDashboardNav.style.display = 'flex';
+            }
+
             if (profile.avatar_url) {
               const navAvatar = document.getElementById('navAvatar');
               navAvatar.src = profile.avatar_url;
