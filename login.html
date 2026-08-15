@@ -37,9 +37,79 @@
       background-color: #f8fafc;
       border-right: none;
     }
+
+    /* Emergency Banner & Maintenance Overlay */
+    #emergencyTopBanner {
+      background: #b91c1c;
+      color: #ffffff;
+      padding: 12px 20px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      z-index: 1000000;
+      position: relative;
+    }
+    #maintenanceOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.98);
+      backdrop-filter: blur(14px);
+      z-index: 9999999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+      text-align: center;
+      padding: 24px;
+    }
+    #maintenanceOverlay .maintenance-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 18px;
+      padding: 45px 35px;
+      max-width: 580px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    #maintenanceOverlay i.fa-wrench {
+      font-size: 3.5rem;
+      color: #ffb703;
+      margin-bottom: 22px;
+      animation: wrenchPulse 2.2s infinite ease-in-out;
+    }
+    @keyframes wrenchPulse {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(18deg) scale(1.08); }
+    }
   </style>
 </head>
 <body class="bg-light d-flex flex-column min-vh-100">
+
+  <!-- Emergency Top Banner -->
+  <div id="emergencyTopBanner" class="d-none">
+    <i class="fa-solid fa-triangle-exclamation me-2"></i>
+    <span id="emergencyBannerMessage">System update in progress.</span>
+  </div>
+
+  <!-- Maintenance Mode Fullscreen Lockdown Screen -->
+  <div id="maintenanceOverlay" class="d-none">
+    <div class="maintenance-card">
+      <i class="fa-solid fa-wrench"></i>
+      <h2 class="fw-bold mb-2">Under Scheduled Maintenance</h2>
+      <p id="maintenanceNoticeText" class="text-light opacity-75 mb-4">
+        Our platform is undergoing scheduled upgrades. Logins and registrations are temporarily paused.
+      </p>
+      <div class="badge bg-warning text-dark px-3 py-2 fw-bold mb-3">Admin Maintenance Active</div>
+      <br>
+      <a href="admin-login.html" class="btn btn-outline-light btn-sm mt-2">
+        <i class="fa-solid fa-shield-halved me-1"></i> Admin Sign In
+      </a>
+    </div>
+  </div>
 
   <!-- Navigation Bar -->
   <nav class="navbar navbar-expand-lg navbar-dark navbar-teal sticky-top">
@@ -126,10 +196,7 @@
             <div class="tab-pane fade" id="register-panel" role="tabpanel" aria-labelledby="register-tab">
               <h3 class="text-center mb-4 text-teal fw-bold" id="registerTitle">Create Account</h3>
               <form id="registerForm" novalidate>
-                
-                <!-- REGISTRATION FIELDS -->
                 <div id="signupFields">
-                  <!-- First Name & Last Name Fields -->
                   <div class="row g-2 mb-3">
                     <div class="col-sm-6">
                       <label for="regFirstName" class="form-label fw-semibold">First Name</label>
@@ -155,7 +222,6 @@
                     </div>
                   </div>
 
-                  <!-- Mobile Number with +91 Default & Country Dropdown -->
                   <div class="mb-3">
                     <label for="regPhone" class="form-label fw-semibold">Mobile Number</label>
                     <div class="input-group">
@@ -180,7 +246,6 @@
                     </div>
                   </div>
 
-                  <!-- Role Selection: Reader / Author / Publisher / Distributor -->
                   <div class="mb-3">
                     <label for="regRole" class="form-label fw-semibold">I want to join as</label>
                     <div class="input-group">
@@ -211,7 +276,6 @@
 
                   <button type="submit" class="btn btn-warning w-100 py-2 fw-bold text-dark mt-2" id="signUpBtn">Sign Up</button>
                 </div>
-
               </form>
             </div>
 
@@ -240,7 +304,6 @@
         registerTab.show();
       }
 
-      // Handle custom country code dropdown toggle
       const countrySelect = document.getElementById('regCountryCode');
       const customWrapper = document.getElementById('customCountryCodeWrapper');
       const customInput = document.getElementById('customCountryCode');
@@ -254,6 +317,52 @@
         }
       });
     });
+  </script>
+
+  <!-- Maintenance Mode Check -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const SUPABASE_URL = 'https://qdzadypqtctjonnwgxoo.supabase.co'; 
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    function parseValue(val) {
+      if (typeof val === 'string') {
+        try { return JSON.parse(val); } catch(e) { return val; }
+      }
+      return val || {};
+    }
+
+    async function checkMaintenanceMode() {
+      try {
+        const { data } = await supabase.from('site_settings').select('*').eq('key', 'maintenance_mode').single();
+        if (data) {
+          const maintenance = parseValue(data.value);
+          const isMaint = maintenance.enabled === true || maintenance.enabled === 'true';
+          const msg = maintenance.message || 'System update: Platform is under maintenance. Logins are paused.';
+
+          if (isMaint) {
+            const banner = document.getElementById('emergencyTopBanner');
+            if (banner) {
+              document.getElementById('emergencyBannerMessage').textContent = msg;
+              banner.classList.remove('d-none');
+            }
+
+            const overlay = document.getElementById('maintenanceOverlay');
+            if (overlay) {
+              document.getElementById('maintenanceNoticeText').textContent = msg;
+              overlay.classList.remove('d-none');
+            }
+            document.body.style.overflow = 'hidden';
+          }
+        }
+      } catch (e) {
+        console.warn("Could not check maintenance status:", e);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", checkMaintenanceMode);
   </script>
 
   <!-- Supabase Auth Integration -->
