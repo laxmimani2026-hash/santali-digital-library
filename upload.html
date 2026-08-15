@@ -310,9 +310,9 @@
       <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
           <h2 class="fw-bold" style="color: var(--bg-dark);">
-            <i class="fa-solid fa-cloud-arrow-up me-2 text-warning"></i> Publish New Book
+            <i class="fa-solid fa-cloud-arrow-up me-2 text-warning"></i> Submit eBook for Review
           </h2>
-          <p class="text-muted mb-0">Fill in the book details to generate a unique Book ID and publish to the library catalog.</p>
+          <p class="text-muted mb-0">Fill in the book details to generate a unique Book ID and submit it for admin approval.</p>
         </div>
         <a href="author-dashboard.html" class="btn btn-outline-secondary btn-sm fw-semibold">
           <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
@@ -424,7 +424,7 @@
 
               <div class="text-end mt-4">
                 <button type="submit" class="btn btn-gold shadow-sm">
-                  <i class="fa-solid fa-upload me-2"></i> Publish Book & Create ID
+                  <i class="fa-solid fa-upload me-2"></i> Submit for Review
                 </button>
               </div>
             </form>
@@ -590,7 +590,7 @@
         throw lastError || new Error("Storage upload failed.");
       }
 
-      // 3. Form Submit & Book ID Creation
+      // 3. Form Submit & Under Review Flow
       const uploadForm = document.getElementById("uploadBookForm");
       
       uploadForm?.addEventListener("submit", async (e) => {
@@ -598,7 +598,7 @@
 
         const submitBtn = uploadForm.querySelector("button[type='submit']");
         const originalBtnText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Uploading & Publishing...';
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Submitting for Approval...';
         submitBtn.disabled = true;
 
         try {
@@ -634,6 +634,7 @@
           const randomId = Math.random().toString(36).substring(2, 8).toUpperCase();
           const generatedBookId = `BK-${randomId}`;
 
+          // Submits with 'Under Review' status so admin controls publishing
           const { error: dbError } = await supabase
             .from('books')
             .insert([{
@@ -651,17 +652,18 @@
                 description: description,
                 cover_url: coverResult.publicUrl,
                 pdf_url: bookResult.publicUrl,
-                status: 'Published'
+                status: 'Under Review',
+                is_featured: false
             }]);
 
           if (dbError) throw dbError;
 
-          alert(`🎉 Book published successfully!\n\nGenerated Book ID: ${generatedBookId}`);
+          alert(`🎉 Book submitted successfully!\n\nBook ID: ${generatedBookId}\nStatus: Under Review (Admin approval required before publication).`);
           window.location.href = "author-dashboard.html";
 
         } catch (error) {
           console.error("Upload Error:", error);
-          alert("Upload Error: " + (error.message || "Failed to publish book."));
+          alert("Upload Error: " + (error.message || "Failed to submit book."));
         } finally {
           submitBtn.innerHTML = originalBtnText;
           submitBtn.disabled = false;

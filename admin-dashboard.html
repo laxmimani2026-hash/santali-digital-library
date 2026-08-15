@@ -273,24 +273,87 @@
       </div>
     </div>
 
-    <!-- SECTION 3: BOOK APPROVAL & HOME HOVER PIPELINE -->
+    <!-- SECTION 3: BOOK APPROVAL, SEARCH & MONTHLY UPLOADS -->
     <div id="approvalSection" class="content-section d-none">
+      
+      <!-- Metrics Overview for Uploads -->
+      <div class="row g-3 mb-3">
+        <div class="col-md-4">
+          <div class="card stat-card p-3 border-start border-primary border-4 d-flex flex-row align-items-center justify-content-between">
+            <div>
+              <span class="text-muted small fw-semibold">Total Submissions</span>
+              <h4 class="fw-bold mb-0 text-dark" id="totalBooksCount">0</h4>
+            </div>
+            <i class="fa-solid fa-book-bookmark text-primary fs-3 opacity-50"></i>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card stat-card p-3 border-start border-success border-4 d-flex flex-row align-items-center justify-content-between">
+            <div>
+              <span class="text-muted small fw-semibold" id="monthUploadTitle">Uploaded in Selected Month</span>
+              <h4 class="fw-bold mb-0 text-success" id="monthBooksCount">0</h4>
+            </div>
+            <i class="fa-solid fa-calendar-check text-success fs-3 opacity-50"></i>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card stat-card p-3 border-start border-warning border-4 d-flex flex-row align-items-center justify-content-between">
+            <div>
+              <span class="text-muted small fw-semibold">Pending Review</span>
+              <h4 class="fw-bold mb-0 text-warning" id="pendingBooksCount">0</h4>
+            </div>
+            <i class="fa-solid fa-hourglass-half text-warning fs-3 opacity-50"></i>
+          </div>
+        </div>
+      </div>
+
       <div class="card stat-card p-0 overflow-hidden">
-        <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
+        <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
           <div>
             <h5 class="fw-bold mb-0 text-dark">Book Approval & Catalog Pipeline</h5>
-            <p class="small text-muted mb-0">Approve author submissions, delete records from database, manage book IDs, and toggle home slider visibility.</p>
+            <p class="small text-muted mb-0">Search titles/IDs, filter by submission month, control publishing rights, and toggle home slider visibility.</p>
           </div>
-          <button class="btn btn-sm btn-outline-primary" id="refreshApprovalBtn">
-            <i class="fa-solid fa-rotate-right me-1"></i> Refresh
-          </button>
+
+          <!-- Multi-Search & Filter Toolbar -->
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <!-- Search Bar -->
+            <div class="input-group input-group-sm" style="width: 230px;">
+              <span class="input-group-text bg-light"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+              <input type="text" id="bookSearchInput" class="form-control" placeholder="Search Title, Author, ID...">
+            </div>
+
+            <!-- Month Filter -->
+            <select id="bookMonthFilter" class="form-select form-select-sm border-secondary fw-semibold" style="width: 170px;">
+              <option value="all">All Months</option>
+            </select>
+
+            <!-- Status Filter -->
+            <select id="bookStatusFilter" class="form-select form-select-sm border-secondary fw-semibold" style="width: 140px;">
+              <option value="all">All Status</option>
+              <option value="published">Published</option>
+              <option value="under_review">Under Review</option>
+            </select>
+
+            <!-- Marquee Filter -->
+            <select id="bookSliderFilter" class="form-select form-select-sm border-secondary fw-semibold" style="width: 150px;">
+              <option value="all">All Sliders</option>
+              <option value="featured">In Slider</option>
+              <option value="not_featured">Off Slider</option>
+            </select>
+
+            <button class="btn btn-sm btn-outline-primary" id="refreshApprovalBtn">
+              <i class="fa-solid fa-rotate-right me-1"></i> Refresh
+            </button>
+          </div>
         </div>
+
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
               <thead class="table-light text-secondary small">
                 <tr>
-                  <th class="ps-4">Book ID</th>
+                  <th class="ps-3 text-center" style="width: 60px;">Sl. No.</th>
+                  <th>Book ID</th>
                   <th>Book Info</th>
                   <th>Script</th>
                   <th>Submitted Date</th>
@@ -301,7 +364,7 @@
               </thead>
               <tbody id="approvalBooksList">
                 <tr>
-                  <td colspan="7" class="text-center py-5 text-muted">
+                  <td colspan="8" class="text-center py-5 text-muted">
                     <div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading pipeline...
                   </td>
                 </tr>
@@ -547,6 +610,7 @@
 
     let allSubscribersData = [];
     let allUsersData = [];
+    let allBooksData = [];
     let usersProfileMap = {};
     let globalMessages = [];
 
@@ -798,11 +862,11 @@
       }
 
       // =========================================================================
-      // 4. BOOK APPROVAL PIPELINE: VISIBLE BOOK ID, PUBLISH, HOVER TOGGLE, DELETE
+      // 4. BOOK PIPELINE: SL NO, SEARCH, MONTH COUNTER, MARQUEE & APPROVE/DELETE
       // =========================================================================
       async function fetchApprovalBooks() {
         const tbody = document.getElementById('approvalBooksList');
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading books...</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading books...</td></tr>`;
 
         try {
           const { data: books, error } = await supabase
@@ -812,75 +876,183 @@
 
           if (error) throw error;
 
-          if (!books || books.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted fw-semibold">No books submitted in database.</td></tr>`;
-            return;
-          }
-
-          tbody.innerHTML = '';
-          books.forEach(book => {
-            const date = new Date(book.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-            const scriptBadge = book.language && book.language.includes('santali') 
-              ? `<span class="badge bg-secondary">Santali (Ol Chiki)</span>` 
-              : `<span class="badge bg-dark">${book.language || 'English'}</span>`;
-            
-            const isPublished = (book.status || '').toLowerCase() === 'published';
-            const statusBadge = isPublished
-              ? `<span class="badge bg-success">Published</span>`
-              : `<span class="badge bg-warning text-dark">Under Review</span>`;
-
-            const bookRefId = book.book_id || `BK-${String(book.id).substring(0, 6).toUpperCase()}`;
-            const isFeatured = book.is_featured === true;
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td class="ps-4">
-                <span class="book-id-badge" title="Click to copy Book ID">
-                  <span>${bookRefId}</span>
-                  <i class="fa-regular fa-copy copy-bookid-btn" data-id="${bookRefId}"></i>
-                </span>
-              </td>
-              <td>
-                <div class="d-flex align-items-center">
-                  <img src="${book.cover_url || 'https://via.placeholder.com/40x55'}" class="book-cover-thumb me-3" onerror="this.src='https://via.placeholder.com/40x55'">
-                  <div>
-                    <h6 class="fw-bold mb-0 text-dark">${book.title}</h6>
-                    <small class="text-muted">By ${book.author || 'Author'}</small>
-                  </div>
-                </div>
-              </td>
-              <td>${scriptBadge}</td>
-              <td class="text-muted small">${date}</td>
-              <td>${statusBadge}</td>
-              <td>
-                <div class="form-check form-switch">
-                  <input class="form-check-input toggle-featured-switch" type="checkbox" role="switch" data-id="${book.id}" ${isFeatured ? 'checked' : ''}>
-                  <label class="form-check-label small fw-semibold text-muted">${isFeatured ? 'In Marquee' : 'Off'}</label>
-                </div>
-              </td>
-              <td class="text-end pe-4">
-                ${!isPublished 
-                  ? `<button class="btn btn-sm btn-success approve-book-btn me-1" data-id="${book.id}"><i class="fa-solid fa-check me-1"></i>Publish</button>` 
-                  : `<button class="btn btn-sm btn-outline-secondary unpublish-book-btn me-1" data-id="${book.id}">Unpublish</button>`
-                }
-                <button class="btn btn-sm btn-outline-danger delete-book-btn" data-id="${book.id}" data-title="${book.title}" title="Delete Permanently from DB">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </td>
-            `;
-            tbody.appendChild(tr);
-          });
-
-          attachBookActionListeners();
+          allBooksData = books || [];
+          populateMonthDropdown(allBooksData);
+          renderBooksTable();
 
         } catch (err) {
           console.error("Pipeline Error:", err);
-          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">Failed to load pipeline: ${err.message}</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger">Failed to load pipeline: ${err.message}</td></tr>`;
         }
       }
 
+      // Populate Month Dropdown dynamically
+      function populateMonthDropdown(books) {
+        const monthSelect = document.getElementById('bookMonthFilter');
+        if (!monthSelect) return;
+
+        const currentVal = monthSelect.value;
+        monthSelect.innerHTML = `<option value="all">All Months</option>`;
+
+        const monthSet = new Set();
+        books.forEach(b => {
+          if (b.created_at) {
+            const d = new Date(b.created_at);
+            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            const label = d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+            monthSet.add(JSON.stringify({ key, label }));
+          }
+        });
+
+        Array.from(monthSet).forEach(itemStr => {
+          const { key, label } = JSON.parse(itemStr);
+          const opt = document.createElement('option');
+          opt.value = key;
+          opt.textContent = label;
+          monthSelect.appendChild(opt);
+        });
+
+        if (currentVal && Array.from(monthSelect.options).some(o => o.value === currentVal)) {
+          monthSelect.value = currentVal;
+        }
+      }
+
+      function renderBooksTable() {
+        const tbody = document.getElementById('approvalBooksList');
+        const searchVal = document.getElementById('bookSearchInput')?.value.trim().toLowerCase() || '';
+        const monthFilter = document.getElementById('bookMonthFilter')?.value || 'all';
+        const statusFilter = document.getElementById('bookStatusFilter')?.value || 'all';
+        const sliderFilter = document.getElementById('bookSliderFilter')?.value || 'all';
+
+        // Update Stats Counters
+        document.getElementById('totalBooksCount').textContent = allBooksData.length;
+        
+        let pendingCount = 0;
+        let selectedMonthUploads = 0;
+
+        // Current / Selected Month Key
+        const targetMonthKey = monthFilter !== 'all' 
+          ? monthFilter 
+          : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+
+        allBooksData.forEach(b => {
+          const status = (b.status || 'under review').toLowerCase();
+          if (status !== 'published') pendingCount++;
+
+          if (b.created_at) {
+            const d = new Date(b.created_at);
+            const bKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            if (bKey === targetMonthKey) selectedMonthUploads++;
+          }
+        });
+
+        document.getElementById('pendingBooksCount').textContent = pendingCount;
+        document.getElementById('monthBooksCount').textContent = selectedMonthUploads;
+        
+        const monthSelectEl = document.getElementById('bookMonthFilter');
+        const selectedMonthText = monthSelectEl && monthSelectEl.selectedIndex > 0 
+          ? monthSelectEl.options[monthSelectEl.selectedIndex].text 
+          : 'This Month';
+        document.getElementById('monthUploadTitle').textContent = `Uploaded in ${selectedMonthText}`;
+
+        // Filter Table Rows
+        const filteredBooks = allBooksData.filter(book => {
+          const bookRefId = (book.book_id || `BK-${String(book.id).substring(0, 6)}` || '').toLowerCase();
+          const title = (book.title || '').toLowerCase();
+          const author = (book.author || '').toLowerCase();
+          const isPublished = (book.status || '').toLowerCase() === 'published';
+          const isFeatured = book.is_featured === true;
+
+          // 1. Search Query
+          const matchesSearch = !searchVal || bookRefId.includes(searchVal) || title.includes(searchVal) || author.includes(searchVal);
+
+          // 2. Month Filter
+          let matchesMonth = true;
+          if (monthFilter !== 'all' && book.created_at) {
+            const d = new Date(book.created_at);
+            const bKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            matchesMonth = (bKey === monthFilter);
+          }
+
+          // 3. Status Filter
+          let matchesStatus = true;
+          if (statusFilter === 'published') matchesStatus = isPublished;
+          if (statusFilter === 'under_review') matchesStatus = !isPublished;
+
+          // 4. Slider / Marquee Filter
+          let matchesSlider = true;
+          if (sliderFilter === 'featured') matchesSlider = isFeatured;
+          if (sliderFilter === 'not_featured') matchesSlider = !isFeatured;
+
+          return matchesSearch && matchesMonth && matchesStatus && matchesSlider;
+        });
+
+        if (filteredBooks.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted fw-semibold">No books found matching search or filter criteria.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = '';
+        filteredBooks.forEach((book, index) => {
+          const serialNo = index + 1;
+          const date = new Date(book.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+          const scriptBadge = book.language && book.language.includes('santali') 
+            ? `<span class="badge bg-secondary">Santali (Ol Chiki)</span>` 
+            : `<span class="badge bg-dark">${book.language || 'English'}</span>`;
+          
+          const isPublished = (book.status || '').toLowerCase() === 'published';
+          const statusBadge = isPublished
+            ? `<span class="badge bg-success">Published</span>`
+            : `<span class="badge bg-warning text-dark">Under Review</span>`;
+
+          const bookRefId = book.book_id || `BK-${String(book.id).substring(0, 6).toUpperCase()}`;
+          const isFeatured = book.is_featured === true;
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="ps-3 text-center fw-bold text-muted">${serialNo}</td>
+            <td>
+              <span class="book-id-badge" title="Click to copy Book ID">
+                <span>${bookRefId}</span>
+                <i class="fa-regular fa-copy copy-bookid-btn" data-id="${bookRefId}"></i>
+              </span>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <img src="${book.cover_url || 'https://via.placeholder.com/40x55'}" class="book-cover-thumb me-3" onerror="this.src='https://via.placeholder.com/40x55'">
+                <div>
+                  <h6 class="fw-bold mb-0 text-dark">${book.title}</h6>
+                  <small class="text-muted">By ${book.author || 'Author'}</small>
+                </div>
+              </div>
+            </td>
+            <td>${scriptBadge}</td>
+            <td class="text-muted small">${date}</td>
+            <td>${statusBadge}</td>
+            <td>
+              <div class="form-check form-switch">
+                <input class="form-check-input toggle-featured-switch" type="checkbox" role="switch" data-id="${book.id}" ${isFeatured ? 'checked' : ''}>
+                <label class="form-check-label small fw-semibold text-muted">${isFeatured ? 'In Marquee' : 'Off'}</label>
+              </div>
+            </td>
+            <td class="text-end pe-4">
+              ${!isPublished 
+                ? `<button class="btn btn-sm btn-success approve-book-btn me-1" data-id="${book.id}" title="Approve & Publish to Catalog"><i class="fa-solid fa-check me-1"></i>Publish</button>` 
+                : `<button class="btn btn-sm btn-outline-secondary unpublish-book-btn me-1" data-id="${book.id}">Unpublish</button>`
+              }
+              <button class="btn btn-sm btn-outline-danger delete-book-btn" data-id="${book.id}" data-title="${book.title}" title="Delete Permanently from Database">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        attachBookActionListeners();
+      }
+
       function attachBookActionListeners() {
-        // 1. Copy Book ID
+        // Copy Book ID
         document.querySelectorAll('.copy-bookid-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
             const id = e.target.getAttribute('data-id');
@@ -890,7 +1062,7 @@
           });
         });
 
-        // 2. Publish / Approve Book
+        // Admin Approval / Publish Action
         document.querySelectorAll('.approve-book-btn').forEach(btn => {
           btn.addEventListener('click', async function() {
             const id = this.getAttribute('data-id');
@@ -908,7 +1080,7 @@
           });
         });
 
-        // 3. Unpublish Book
+        // Unpublish Book
         document.querySelectorAll('.unpublish-book-btn').forEach(btn => {
           btn.addEventListener('click', async function() {
             const id = this.getAttribute('data-id');
@@ -926,7 +1098,7 @@
           });
         });
 
-        // 4. Toggle Home Hover / Marquee Feature
+        // Toggle Home Hover / Marquee Feature
         document.querySelectorAll('.toggle-featured-switch').forEach(switchEl => {
           switchEl.addEventListener('change', async function() {
             const id = this.getAttribute('data-id');
@@ -945,13 +1117,13 @@
           });
         });
 
-        // 5. Permanent Delete from Database
+        // Delete from Database
         document.querySelectorAll('.delete-book-btn').forEach(btn => {
           btn.addEventListener('click', async function() {
             const id = this.getAttribute('data-id');
             const title = this.getAttribute('data-title') || 'this book';
             
-            if (!confirm(`Are you sure you want to permanently delete "${title}" from the database? This action cannot be undone.`)) {
+            if (!confirm(`Are you sure you want to permanently delete "${title}" from the database? This cannot be undone.`)) {
               return;
             }
 
@@ -961,7 +1133,7 @@
             try {
               const { error } = await supabase.from('books').delete().eq('id', id);
               if (error) throw error;
-              showToast(`"${title}" was deleted from the database.`);
+              showToast(`"${title}" was deleted from database.`);
               fetchApprovalBooks();
             } catch (err) {
               alert("Failed to delete book: " + err.message);
@@ -971,6 +1143,11 @@
         });
       }
 
+      // Filter and Search Event Listeners
+      document.getElementById('bookSearchInput')?.addEventListener('input', renderBooksTable);
+      document.getElementById('bookMonthFilter')?.addEventListener('change', renderBooksTable);
+      document.getElementById('bookStatusFilter')?.addEventListener('change', renderBooksTable);
+      document.getElementById('bookSliderFilter')?.addEventListener('change', renderBooksTable);
       document.getElementById('refreshApprovalBtn')?.addEventListener('click', fetchApprovalBooks);
 
       // 5. Financial Reports
