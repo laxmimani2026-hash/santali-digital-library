@@ -22,13 +22,56 @@
     .table-hover tbody tr:hover { background-color: #f8fafc; }
     .book-cover-thumb { width: 40px; height: 55px; object-fit: cover; border-radius: 4px; background-color: #e2e8f0; }
     
-    /* Custom Row Indicators */
-    .row-unread { background-color: #fffdf5 !important; border-left: 3px solid #ffc107 !important; }
-    .row-resolved { border-left: 3px solid #198754 !important; }
+    /* User ID Badge */
+    .uid-badge {
+      background: #e2e8f0;
+      color: #0f172a;
+      font-family: monospace;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #cbd5e1;
+    }
+    .uid-badge i { cursor: pointer; color: #64748b; }
+    .uid-badge i:hover { color: #0f172a; }
+
+    /* Role Selector inside Table */
+    .role-select {
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 6px;
+      width: auto;
+      display: inline-block;
+      cursor: pointer;
+    }
+    .role-select.role-reader { background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+    .role-select.role-author { background-color: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+    .role-select.role-admin { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+    /* Toast notification */
+    #adminToast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: none;
+      z-index: 9999;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      font-weight: 600;
+    }
 
     /* Print Styles */
     @media print {
-      .sidebar, .btn, .badge, select { display: none !important; }
+      .sidebar, .btn, .badge, select, .input-group { display: none !important; }
       .main-content { padding: 0; background-color: white; }
       .stat-card { box-shadow: none; border: 1px solid #ddd; }
     }
@@ -400,14 +443,31 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- SECTION 7: USER MANAGEMENT                -->
+    <!-- SECTION 7: USER MANAGEMENT & ROLE CONTROL  -->
     <!-- ========================================== -->
     <div id="usersSection" class="content-section d-none">
       <div class="card stat-card p-0 overflow-hidden">
-        <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="fw-bold mb-0 text-dark">Registered Users & Authors</h5>
+        <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
           <div>
-            <button class="btn btn-sm btn-outline-primary me-2" id="refreshUsersBtn">
+            <h5 class="fw-bold mb-1 text-dark">Registered Users & Authors</h5>
+            <p class="small text-muted mb-0">Search users by Name/UID and modify authorization roles in real time.</p>
+          </div>
+          
+          <!-- Search & Filter Bar -->
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <div class="input-group input-group-sm" style="width: 280px;">
+              <span class="input-group-text bg-light"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+              <input type="text" id="userSearchInput" class="form-control" placeholder="Search by Name or User ID...">
+            </div>
+
+            <select id="userRoleFilter" class="form-select form-select-sm border-secondary fw-semibold" style="width: 140px;">
+              <option value="all">All Roles</option>
+              <option value="reader">Readers</option>
+              <option value="author">Authors</option>
+              <option value="admin">Admins</option>
+            </select>
+
+            <button class="btn btn-sm btn-outline-primary" id="refreshUsersBtn">
               <i class="fa-solid fa-rotate-right me-1"></i> Refresh
             </button>
             <button class="btn btn-sm btn-success" id="exportUsersCsvBtn">
@@ -415,16 +475,17 @@
             </button>
           </div>
         </div>
+
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0" id="usersReportTable">
               <thead class="table-light text-secondary small">
                 <tr>
-                  <th class="ps-4">First Name</th>
-                  <th>Last Name</th>
+                  <th class="ps-4">User ID</th>
+                  <th>Full Name</th>
                   <th>Email</th>
                   <th>Phone Number</th>
-                  <th class="pe-4">Role</th>
+                  <th class="pe-4">Role Authorization</th>
                 </tr>
               </thead>
               <tbody id="adminUsersList">
@@ -486,6 +547,8 @@
 
   </div>
 
+  <div id="adminToast">Action Completed</div>
+
   <!-- Supabase Logic -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
@@ -495,7 +558,16 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let allSubscribersData = [];
+    let allUsersData = [];
     let usersProfileMap = {};
+    let globalMessages = [];
+
+    function showToast(msg) {
+      const toast = document.getElementById('adminToast');
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
 
     document.addEventListener("DOMContentLoaded", async () => {
       const adminAlert = document.getElementById('adminAlert');
@@ -561,7 +633,7 @@
         });
       });
 
-      // Helper: Preload profiles into a lookup dictionary
+      // Helper: Preload profiles
       async function preloadProfiles() {
         const { data: profiles } = await supabase.from('profiles').select('*');
         usersProfileMap = {};
@@ -578,7 +650,6 @@
         try {
           await preloadProfiles();
 
-          // Query subscriptions directly
           const { data: subs, error } = await supabase
             .from('subscriptions')
             .select('*')
@@ -627,7 +698,7 @@
 
         } catch (err) {
           console.error("Subscription fetch error:", err);
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load subscriptions. Please verify that you ran the SQL policy setup.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load subscriptions. Please verify Supabase setup.</td></tr>`;
         }
       }
 
@@ -717,9 +788,9 @@
             }
           });
 
-          const deductions = Math.round(grossRev * 0.05); // 5% Gateway & Ops
+          const deductions = Math.round(grossRev * 0.05);
           const netRev = Math.max(0, grossRev - deductions);
-          const authorPool = Math.round(netRev * 0.40); // 40% Author Royalty Pool
+          const authorPool = Math.round(netRev * 0.40);
           const opsReserve = Math.round(netRev * 0.45);
           const profit = Math.max(0, netRev - authorPool - opsReserve);
 
@@ -856,7 +927,9 @@
         }
       }
 
-      // 6. User Management
+      // =========================================================================
+      // 6. USER MANAGEMENT: SEARCH (BY ID/NAME) & ROLE AUTHORIZATION UPDATE
+      // =========================================================================
       async function fetchAdminUsers() {
         const adminUsersList = document.getElementById('adminUsersList');
         adminUsersList.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading users...</td></tr>`;
@@ -865,29 +938,158 @@
           const { data: users, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
           if (error) throw error;
           
-          adminUsersList.innerHTML = ''; 
-          users.forEach(user => {
-            let roleBadge = `<span class="badge bg-secondary">Reader</span>`;
-            if (user.role === 'author') roleBadge = `<span class="badge bg-warning text-dark">Author</span>`;
-            if (user.role === 'admin') roleBadge = `<span class="badge bg-danger">Admin</span>`;
+          allUsersData = users || [];
+          renderUsersTable();
 
-            const fName = user.first_name || (user.full_name ? user.full_name.split(' ')[0] : 'N/A');
-            const lName = user.last_name || (user.full_name ? user.full_name.split(' ').slice(1).join(' ') : '—');
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td class="ps-4 fw-semibold text-dark">${fName}</td>
-              <td class="text-dark">${lName}</td>
-              <td class="text-muted small">${user.email || user.contact_email || 'N/A'}</td>
-              <td class="text-muted small">${user.phone || 'N/A'}</td>
-              <td class="pe-4">${roleBadge}</td>
-            `;
-            adminUsersList.appendChild(tr);
-          });
         } catch (err) {
           adminUsersList.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-danger">Failed to load users.</td></tr>`;
         }
       }
+
+      function renderUsersTable() {
+        const adminUsersList = document.getElementById('adminUsersList');
+        const searchVal = document.getElementById('userSearchInput').value.trim().toLowerCase();
+        const roleFilter = document.getElementById('userRoleFilter').value;
+
+        adminUsersList.innerHTML = '';
+
+        const filteredUsers = allUsersData.filter(user => {
+          const uid = (user.user_uid || `SDL-${user.id.substring(0, 6)}` || '').toLowerCase();
+          const fName = (user.first_name || '').toLowerCase();
+          const lName = (user.last_name || '').toLowerCase();
+          const fullName = (user.full_name || `${fName} ${lName}`).toLowerCase();
+          const email = (user.email || user.contact_email || '').toLowerCase();
+          const role = (user.role || 'reader').toLowerCase();
+
+          // 1. Check Search Match (Unique User ID, Full Name, First/Last Name, or Email)
+          const matchesSearch = !searchVal || 
+            uid.includes(searchVal) || 
+            fullName.includes(searchVal) || 
+            fName.includes(searchVal) || 
+            lName.includes(searchVal) || 
+            email.includes(searchVal);
+
+          // 2. Check Role Filter Match
+          const matchesRole = roleFilter === 'all' || role === roleFilter;
+
+          return matchesSearch && matchesRole;
+        });
+
+        if (filteredUsers.length === 0) {
+          adminUsersList.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-muted fw-semibold">No users matching search or filter criteria.</td></tr>`;
+          return;
+        }
+
+        filteredUsers.forEach(user => {
+          const userUid = user.user_uid || `SDL-${user.id.substring(0, 6).toUpperCase()}`;
+          const currentRole = (user.role || 'reader').toLowerCase();
+          const fName = user.first_name || (user.full_name ? user.full_name.split(' ')[0] : 'N/A');
+          const lName = user.last_name || (user.full_name ? user.full_name.split(' ').slice(1).join(' ') : '—');
+          const fullNameDisplay = `${fName} ${lName !== '—' ? lName : ''}`.trim();
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="ps-4">
+              <span class="uid-badge" title="Click to copy User ID">
+                <span>${userUid}</span>
+                <i class="fa-regular fa-copy copy-uid-btn" data-uid="${userUid}"></i>
+              </span>
+            </td>
+            <td>
+              <div class="fw-bold text-dark">${fullNameDisplay}</div>
+            </td>
+            <td class="text-muted small">${user.email || user.contact_email || 'N/A'}</td>
+            <td class="text-muted small">${user.phone || 'N/A'}</td>
+            <td class="pe-4">
+              <select class="form-select form-select-sm role-select role-${currentRole}" data-userid="${user.id}">
+                <option value="reader" ${currentRole === 'reader' ? 'selected' : ''}>Reader</option>
+                <option value="author" ${currentRole === 'author' ? 'selected' : ''}>Author</option>
+                <option value="admin" ${currentRole === 'admin' ? 'selected' : ''}>Admin</option>
+              </select>
+            </td>
+          `;
+          adminUsersList.appendChild(tr);
+        });
+
+        // Setup Copy ID Handlers
+        document.querySelectorAll('.copy-uid-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const uid = e.target.getAttribute('data-uid');
+            navigator.clipboard.writeText(uid).then(() => {
+              showToast(`Copied User ID: ${uid}`);
+            });
+          });
+        });
+
+        // Setup Interactive Role Modification
+        document.querySelectorAll('.role-select').forEach(selectEl => {
+          selectEl.addEventListener('change', async function() {
+            const userId = this.getAttribute('data-userid');
+            const newRole = this.value;
+            const selectTarget = this;
+
+            selectTarget.disabled = true;
+
+            try {
+              const { error } = await supabase
+                .from('profiles')
+                .update({ role: newRole })
+                .eq('id', userId);
+
+              if (error) throw error;
+
+              // Update local state and UI classes
+              selectTarget.className = `form-select form-select-sm role-select role-${newRole}`;
+              const userInArray = allUsersData.find(u => u.id === userId);
+              if (userInArray) userInArray.role = newRole;
+
+              showToast(`Role updated to ${newRole.toUpperCase()} successfully!`);
+
+            } catch (updateErr) {
+              console.error("Role Update Error:", updateErr);
+              alert("Failed to update role: " + updateErr.message);
+              renderUsersTable(); // Revert back
+            } finally {
+              selectTarget.disabled = false;
+            }
+          });
+        });
+      }
+
+      // Live search and filter event listeners
+      document.getElementById('userSearchInput')?.addEventListener('input', renderUsersTable);
+      document.getElementById('userRoleFilter')?.addEventListener('change', renderUsersTable);
+      document.getElementById('refreshUsersBtn')?.addEventListener('click', fetchAdminUsers);
+
+      // Export Users to CSV
+      document.getElementById('exportUsersCsvBtn')?.addEventListener('click', () => {
+        if (!allUsersData || allUsersData.length === 0) {
+          alert("No users to export.");
+          return;
+        }
+
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "User ID,First Name,Last Name,Email,Phone,Role\n";
+
+        allUsersData.forEach(u => {
+          const uid = u.user_uid || `SDL-${u.id.substring(0, 6).toUpperCase()}`;
+          const fName = (u.first_name || (u.full_name ? u.full_name.split(' ')[0] : '')).replace(/,/g, '');
+          const lName = (u.last_name || (u.full_name ? u.full_name.split(' ').slice(1).join(' ') : '')).replace(/,/g, '');
+          const email = (u.email || u.contact_email || '').replace(/,/g, '');
+          const phone = (u.phone || '').replace(/,/g, '');
+          const role = u.role || 'reader';
+
+          csvContent += `"${uid}","${fName}","${lName}","${email}","${phone}","${role}"\n`;
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `SDL_Users_Export_${Date.now()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
 
       // 7. Messages Inquiries
       async function fetchAdminMessages() {
