@@ -13,13 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
     :root {
       --bg-dark: #075e4d;
       --primary-gold: #ffb703;
@@ -31,234 +25,34 @@
       --bg-light: #f4f7f6;
       --border-color: #e0e0e0;
     }
-
-    body {
-      background-color: var(--bg-light);
-      color: var(--text-dark);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* --- Standard Header & Nav Styles --- */
-    header {
-      background-color: var(--bg-dark);
-      padding: 15px 5%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #fff;
-      font-size: 1.3rem;
-      font-weight: 700;
-      text-decoration: none;
-    }
-
-    .logo i {
-      color: var(--primary-gold);
-      font-size: 1.5rem;
-    }
-
-    .logo span span {
-      color: var(--primary-gold);
-    }
-
-    .nav-links {
-      display: flex;
-      list-style: none;
-      gap: 25px;
-      align-items: center;
-      margin: 0;
-      padding: 0;
-    }
-
-    .nav-links a {
-      color: rgba(255, 255, 255, 0.85);
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 0.95rem;
-      transition: color 0.3s ease;
-    }
-
-    .nav-links a:hover,
-    .nav-links a.active {
-      color: var(--primary-gold);
-    }
-
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .lang-select {
-      background: transparent;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .lang-select select {
-      background: transparent;
-      border: none;
-      color: #fff;
-      outline: none;
-      cursor: pointer;
-    }
-
-    .lang-select option {
-      background-color: var(--bg-dark);
-      color: #fff;
-    }
-
-    /* User Menu Dropdown */
-    .user-menu-container {
-      position: relative;
-      padding: 8px 0;
-    }
-
-    .user-btn {
-      background: transparent;
-      border: none;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 500;
-      padding: 5px 10px;
-      border-radius: 5px;
-      transition: background-color 0.2s ease;
-    }
-
-    .user-menu-container:hover .user-btn {
-      background-color: rgba(255, 255, 255, 0.08);
-    }
-
-    .user-avatar-img {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 1.5px solid rgba(255, 255, 255, 0.5);
-    }
-
-    .author-badge {
-      background-color: var(--primary-gold);
-      color: #000;
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 12px;
-      text-transform: uppercase;
-    }
-
-    .dropdown-menu-custom {
-      position: absolute;
-      top: 100%;
-      right: 0;
-      width: 220px;
-      background-color: #ffffff;
-      border-radius: 10px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-      display: none;
-      flex-direction: column;
-      overflow: hidden;
-      z-index: 100;
-      margin-top: 4px;
-    }
-
-    .user-menu-container:hover .dropdown-menu-custom,
-    .dropdown-menu-custom.active {
-      display: flex;
-    }
-
-    .dropdown-menu-custom a {
-      padding: 12px 18px;
-      text-decoration: none;
-      color: var(--text-dark);
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: background 0.2s;
-    }
-
-    .dropdown-menu-custom a:hover {
-      background-color: #f0f4f8;
-      color: var(--bg-dark);
-    }
-
-    .dropdown-menu-custom a i {
-      color: #777;
-      width: 16px;
-    }
-
-    .dropdown-menu-custom hr {
-      border: none;
-      border-top: 1px solid #eee;
-      margin: 0;
-    }
-
-    .dropdown-menu-custom a.logout {
-      color: #e74c3c;
-      font-weight: 600;
-    }
-
-    /* --- Form & Upload Card Styles --- */
-    .upload-card {
-      border-radius: 14px;
-      border: 1px solid var(--border-color);
-      background-color: #ffffff;
-    }
-
-    .file-drop-area {
-      border: 2px dashed #075e4d;
-      border-radius: 8px;
-      padding: 2rem;
-      text-align: center;
-      background-color: #f8fbfb;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    .file-drop-area:hover {
-      background-color: #eaf5f2;
-      border-color: #054639;
-    }
-
-    .btn-gold {
-      background-color: var(--primary-gold);
-      color: #000;
-      font-weight: 700;
-      border: none;
-      padding: 10px 28px;
-      border-radius: 8px;
-      transition: all 0.2s ease;
-    }
-
-    .btn-gold:hover {
-      background-color: var(--primary-hover);
-      transform: translateY(-2px);
-    }
+    body { background-color: var(--bg-light); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; }
+    header { background-color: var(--bg-dark); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+    .logo { display: flex; align-items: center; gap: 10px; color: #fff; font-size: 1.3rem; font-weight: 700; text-decoration: none; }
+    .logo i { color: var(--primary-gold); font-size: 1.5rem; }
+    .logo span span { color: var(--primary-gold); }
+    .nav-links { display: flex; list-style: none; gap: 25px; align-items: center; margin: 0; padding: 0; }
+    .nav-links a { color: rgba(255, 255, 255, 0.85); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: color 0.3s ease; }
+    .nav-links a:hover, .nav-links a.active { color: var(--primary-gold); }
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+    .user-menu-container { position: relative; padding: 8px 0; }
+    .user-btn { background: transparent; border: none; color: #fff; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 500; padding: 5px 10px; border-radius: 5px; }
+    .user-avatar-img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid rgba(255, 255, 255, 0.5); }
+    .author-badge { background-color: var(--primary-gold); color: #000; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; text-transform: uppercase; }
+    .dropdown-menu-custom { position: absolute; top: 100%; right: 0; width: 220px; background-color: #ffffff; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: none; flex-direction: column; overflow: hidden; z-index: 100; margin-top: 4px; }
+    .user-menu-container:hover .dropdown-menu-custom, .dropdown-menu-custom.active { display: flex; }
+    .dropdown-menu-custom a { padding: 12px 18px; text-decoration: none; color: var(--text-dark); font-size: 0.9rem; display: flex; align-items: center; gap: 12px; transition: background 0.2s; }
+    .dropdown-menu-custom a:hover { background-color: #f0f4f8; color: var(--bg-dark); }
+    .dropdown-menu-custom hr { border: none; border-top: 1px solid #eee; margin: 0; }
+    .dropdown-menu-custom a.logout { color: #e74c3c; font-weight: 600; }
+    .upload-card { border-radius: 14px; border: 1px solid var(--border-color); background-color: #ffffff; }
+    .file-drop-area { border: 2px dashed #075e4d; border-radius: 8px; padding: 2rem; text-align: center; background-color: #f8fbfb; cursor: pointer; }
+    .file-drop-area:hover { background-color: #eaf5f2; }
+    .btn-gold { background-color: var(--primary-gold); color: #000; font-weight: 700; border: none; padding: 10px 28px; border-radius: 8px; transition: all 0.2s ease; }
+    .btn-gold:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
   </style>
 </head>
 <body>
 
-  <!-- Unified Header / Navbar -->
   <header>
     <a href="index.html" class="logo">
       <i class="fa-solid fa-book-open-reader"></i>
@@ -274,16 +68,6 @@
     </ul>
 
     <div class="nav-right">
-      <div class="lang-select">
-        <i class="fa-solid fa-globe"></i>
-        <select>
-          <option>EN</option>
-          <option>ᱥᱟᱱᱛᱟᱲᱤ</option>
-          <option>हिन्दी</option>
-        </select>
-      </div>
-
-      <!-- User Menu -->
       <div class="user-menu-container" id="userMenuContainer">
         <button class="user-btn" id="userMenuBtn" type="button">
           <img src="" alt="" class="user-avatar-img" id="navAvatar" style="display: none;">
@@ -292,10 +76,9 @@
           <span class="author-badge" id="headerUserBadge">Author</span>
           <i class="fa-solid fa-caret-down"></i>
         </button>
-
         <div class="dropdown-menu-custom" id="dropdownMenu">
           <a href="author-dashboard.html"><i class="fa-solid fa-gauge"></i> Author Dashboard</a>
-          <a href="upload.html"><i class="fa-solid fa-cloud-arrow-up"></i> Publish New Book</a>
+          <a href="upload.html"><i class="fa-solid fa-cloud-arrow-up"></i> Submit New Book</a>
           <a href="profile.html"><i class="fa-solid fa-user-gear"></i> My Profile</a>
           <hr>
           <a href="#" id="logoutLink" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
@@ -304,15 +87,14 @@
     </div>
   </header>
 
-  <!-- Main Content -->
   <main class="container my-5 flex-grow-1">
     <div class="row mb-4">
       <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
           <h2 class="fw-bold" style="color: var(--bg-dark);">
-            <i class="fa-solid fa-cloud-arrow-up me-2 text-warning"></i> Submit eBook for Review
+            <i class="fa-solid fa-cloud-arrow-up me-2 text-warning"></i> Submit eBook for Approval
           </h2>
-          <p class="text-muted mb-0">Fill in the book details to generate a unique Book ID and submit it for admin approval.</p>
+          <p class="text-muted mb-0">Fill in the book details to generate a unique Book ID and submit for admin publication review.</p>
         </div>
         <a href="author-dashboard.html" class="btn btn-outline-secondary btn-sm fw-semibold">
           <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
@@ -324,7 +106,6 @@
       <div class="col-lg-11">
         <div class="card shadow-sm upload-card">
           <div class="card-body p-4 p-md-5">
-            
             <form id="uploadBookForm">
               <h5 class="fw-bold mb-4 border-bottom pb-2" style="color: var(--bg-dark);">Book Information</h5>
               
@@ -375,7 +156,6 @@
               <h5 class="fw-bold mb-4 border-bottom pb-2 mt-5" style="color: var(--bg-dark);">Files & Cover Media</h5>
 
               <div class="row g-4 mb-4">
-                <!-- Cover Upload -->
                 <div class="col-md-6">
                   <span class="form-label fw-semibold d-block mb-2">Book Cover Image <span class="text-danger">*</span></span>
                   <label class="file-drop-area d-block w-100" for="coverImage">
@@ -387,7 +167,6 @@
                   <div id="coverFileName" class="small text-success mt-2 fw-semibold"></div>
                 </div>
 
-                <!-- eBook File Upload -->
                 <div class="col-md-6">
                   <span class="form-label fw-semibold d-block mb-2" id="fileUploadLabel">Book File (EPUB) <span class="text-danger">*</span></span>
                   <label class="file-drop-area d-block w-100" for="bookFile">
@@ -424,11 +203,10 @@
 
               <div class="text-end mt-4">
                 <button type="submit" class="btn btn-gold shadow-sm">
-                  <i class="fa-solid fa-upload me-2"></i> Submit for Review
+                  <i class="fa-solid fa-cloud-arrow-up me-2"></i> Submit for Review
                 </button>
               </div>
             </form>
-
           </div>
         </div>
       </div>
@@ -441,25 +219,16 @@
     </div>
   </footer>
 
-  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- JavaScript -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
     const SUPABASE_URL = 'https://qdzadypqtctjonnwgxoo.supabase.co'; 
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
-    
-    let supabase = null;
-    try {
-      supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } catch (err) {
-      console.error("Supabase Init Error:", err);
-    }
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     document.addEventListener("DOMContentLoaded", async () => {
-      // 1. Check Authentication & Setup User Header Info
       let currentUserId = 'anonymous_user';
       let currentUserUid = null;
 
@@ -477,11 +246,7 @@
             currentUserUid = profile.user_uid || `SDL-${user.id.substring(0, 6).toUpperCase()}`;
             let firstName = profile.first_name || (profile.full_name ? profile.full_name.split(' ')[0] : user.email.split('@')[0]);
             document.getElementById('headerUserName').textContent = `Hello, ${firstName}`;
-            
-            if (profile.role) {
-              document.getElementById('headerUserBadge').textContent = profile.role.toUpperCase();
-            }
-
+            if (profile.role) document.getElementById('headerUserBadge').textContent = profile.role.toUpperCase();
             if (profile.avatar_url) {
               const navAvatar = document.getElementById('navAvatar');
               navAvatar.src = profile.avatar_url;
@@ -490,33 +255,21 @@
             }
           }
         }
-      } catch (err) {
-        console.warn("User profile fetch skipped:", err);
-      }
+      } catch (err) {}
 
-      // Dropdown toggle
       const userMenuBtn = document.getElementById('userMenuBtn');
       const dropdownMenu = document.getElementById('dropdownMenu');
-
-      userMenuBtn?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        dropdownMenu.classList.toggle('active');
-      });
-
+      userMenuBtn?.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('active'); });
       document.addEventListener('click', (e) => {
-        if (!dropdownMenu.contains(e.target) && !userMenuBtn.contains(e.target)) {
-          dropdownMenu.classList.remove('active');
-        }
+        if (!dropdownMenu.contains(e.target) && !userMenuBtn.contains(e.target)) dropdownMenu.classList.remove('active');
       });
 
-      // Logout handler
       document.getElementById('logoutLink')?.addEventListener('click', async (e) => {
         e.preventDefault();
         await supabase.auth.signOut();
         window.location.href = 'login.html';
       });
 
-      // 2. Format Switcher
       const fileFormatSelect = document.getElementById('fileFormatSelect');
       const fileUploadLabel = document.getElementById('fileUploadLabel');
       const fileTypeIcon = document.getElementById('fileTypeIcon');
@@ -525,40 +278,33 @@
       const bookFileInput = document.getElementById('bookFile');
       const bookFileName = document.getElementById('bookFileName');
 
-      if (fileFormatSelect) {
-        fileFormatSelect.addEventListener('change', function() {
-          bookFileInput.value = "";
-          bookFileName.innerText = "";
+      fileFormatSelect?.addEventListener('change', function() {
+        bookFileInput.value = "";
+        bookFileName.innerText = "";
+        if (this.value === 'pdf') {
+          fileUploadLabel.innerHTML = 'Book File (PDF) <span class="text-danger">*</span>';
+          fileTypeIcon.className = 'fa-solid fa-file-pdf fs-1 text-danger mb-2';
+          fileTypePrompt.innerText = 'Click to upload PDF';
+          fileTypeHelper.innerText = 'PDF only (Max 20MB)';
+          bookFileInput.setAttribute('accept', 'application/pdf');
+        } else {
+          fileUploadLabel.innerHTML = 'Book File (EPUB) <span class="text-danger">*</span>';
+          fileTypeIcon.className = 'fa-solid fa-book-open fs-1 text-success mb-2';
+          fileTypePrompt.innerText = 'Click to upload EPUB';
+          fileTypeHelper.innerText = 'EPUB only (Max 20MB)';
+          bookFileInput.setAttribute('accept', '.epub, application/epub+zip');
+        }
+      });
 
-          if (this.value === 'pdf') {
-            fileUploadLabel.innerHTML = 'Book File (PDF) <span class="text-danger">*</span>';
-            fileTypeIcon.className = 'fa-solid fa-file-pdf fs-1 text-danger mb-2';
-            fileTypePrompt.innerText = 'Click to upload PDF';
-            fileTypeHelper.innerText = 'PDF only (Max 20MB)';
-            bookFileInput.setAttribute('accept', 'application/pdf');
-          } else {
-            fileUploadLabel.innerHTML = 'Book File (EPUB) <span class="text-danger">*</span>';
-            fileTypeIcon.className = 'fa-solid fa-book-open fs-1 text-success mb-2';
-            fileTypePrompt.innerText = 'Click to upload EPUB';
-            fileTypeHelper.innerText = 'EPUB only (Max 20MB)';
-            bookFileInput.setAttribute('accept', '.epub, application/epub+zip');
-          }
-        });
-      }
-
-      // Show Selected Filenames
       document.getElementById('coverImage')?.addEventListener('change', function() {
         if (this.files[0]) document.getElementById('coverFileName').innerText = "Selected: " + this.files[0].name;
       });
-      
       bookFileInput?.addEventListener('change', function() {
         if (this.files[0]) bookFileName.innerText = "Selected: " + this.files[0].name;
       });
 
-      // Pricing Toggle
       const pricingSelect = document.getElementById('bookPricing');
       const priceDiv = document.getElementById('priceAmountDiv');
-      
       pricingSelect?.addEventListener('change', function() {
         if (this.value === 'paid') {
           priceDiv.classList.remove('d-none');
@@ -569,36 +315,27 @@
         }
       });
 
-      // Upload Helper with Fallback Buckets
       async function uploadWithFallback(fileName, fileObject, preferredBuckets) {
         let lastError = null;
         for (const bucket of preferredBuckets) {
           try {
-            const { data, error } = await supabase.storage
-              .from(bucket)
-              .upload(fileName, fileObject, { upsert: true });
-
+            const { data, error } = await supabase.storage.from(bucket).upload(fileName, fileObject, { upsert: true });
             if (!error && data) {
               const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(fileName);
               return { bucket, publicUrl: publicUrlData.publicUrl };
             }
             lastError = error;
-          } catch (err) {
-            lastError = err;
-          }
+          } catch (err) { lastError = err; }
         }
         throw lastError || new Error("Storage upload failed.");
       }
 
-      // 3. Form Submit & Under Review Flow
       const uploadForm = document.getElementById("uploadBookForm");
-      
       uploadForm?.addEventListener("submit", async (e) => {
         e.preventDefault();
-
         const submitBtn = uploadForm.querySelector("button[type='submit']");
         const originalBtnText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Submitting for Approval...';
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Uploading & Submitting...';
         submitBtn.disabled = true;
 
         try {
@@ -609,18 +346,11 @@
           const fileType = fileFormatSelect ? fileFormatSelect.value : 'epub';
           const pricing = document.getElementById("bookPricing").value;
           const description = document.getElementById("bookDescription").value.trim();
-          
-          let price = 0;
-          if (pricing === "paid") {
-            price = parseFloat(document.getElementById("bookPrice").value) || 0;
-          }
+          let price = pricing === "paid" ? parseFloat(document.getElementById("bookPrice").value) || 0 : 0;
 
           const coverFile = document.getElementById("coverImage").files[0];
           const mainBookFile = bookFileInput.files[0];
-
-          if (!coverFile || !mainBookFile) {
-            throw new Error("Please select both a cover image and a book file.");
-          }
+          if (!coverFile || !mainBookFile) throw new Error("Please select both a cover image and a book file.");
 
           const timeStamp = Date.now();
           const cleanCoverName = `${currentUserId}-${timeStamp}-${coverFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
@@ -630,11 +360,10 @@
           const targetBuckets = fileType === 'epub' ? ['book_epubs', 'books', 'book_pdfs'] : ['book_pdfs', 'books', 'book_epubs'];
           const bookResult = await uploadWithFallback(cleanBookName, mainBookFile, targetBuckets);
 
-          // Generate Book ID: BK-XXXXXX
           const randomId = Math.random().toString(36).substring(2, 8).toUpperCase();
           const generatedBookId = `BK-${randomId}`;
 
-          // Submits with 'Under Review' status so admin controls publishing
+          // Stored as 'Under Review' so it does not appear in browse.html until admin approves
           const { error: dbError } = await supabase
             .from('books')
             .insert([{
