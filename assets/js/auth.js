@@ -63,6 +63,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           roleDashboardItem = `<li><a class="dropdown-item d-flex align-items-center py-2 text-warning fw-semibold" href="author-dashboard.html"><i class="fa-solid fa-gauge text-warning me-2" style="width: 20px;"></i> Author Dashboard</a></li>`;
         } else {
           roleBadge = `<span class="badge" style="background-color: #00b4d8; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; letter-spacing: 0.3px;">READER</span>`;
+          roleDashboardItem = `<li><a class="dropdown-item d-flex align-items-center py-2 text-info fw-semibold" href="reader-dashboard.html"><i class="fa-solid fa-book-bookmark text-info me-2" style="width: 20px;"></i> Reader Dashboard</a></li>`;
         }
 
         // Avatar HTML with fallback
@@ -102,7 +103,7 @@ document.addEventListener("DOMContentLoaded", async function () {
               ${roleDashboardItem ? `<li><hr class="dropdown-divider my-1"></li>${roleDashboardItem}` : ''}
               <li><hr class="dropdown-divider my-1"></li>
               <li>
-                <button id="logoutBtn" class="dropdown-item d-flex align-items-center text-danger py-2 fw-semibold">
+                <button id="logoutBtn" class="dropdown-item d-flex align-items-center text-danger py-2 fw-semibold border-0 bg-transparent w-100">
                   <i class="fa-solid fa-arrow-right-from-bracket me-2" style="width: 20px;"></i> Logout
                 </button>
               </li>
@@ -213,7 +214,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           } else if (role === 'author') {
             window.location.href = "author-dashboard.html"; 
           } else {
-            window.location.href = "browse.html";
+            window.location.href = "reader-dashboard.html";
           }
         }, 1500);
 
@@ -275,7 +276,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           } else if (userRole === 'admin') {
             window.location.href = "admin-dashboard.html";
           } else {
-            window.location.href = "browse.html";
+            window.location.href = "reader-dashboard.html";
           }
         }, 1200);
 
