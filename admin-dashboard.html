@@ -199,8 +199,8 @@
         <div class="col-md-4">
           <div class="card stat-card p-4 border-start border-secondary border-4">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="text-muted text-uppercase fw-bold mb-0">Monthly Pass (₹99)</h6>
-              <span class="badge bg-secondary">Tier 1</span>
+              <h6 class="text-muted text-uppercase fw-bold mb-0">Monthly Pass</h6>
+              <span class="badge bg-secondary">Monthly</span>
             </div>
             <h3 class="fw-bold text-dark mb-1" id="subCountMonthly">0 Subscribers</h3>
             <p class="text-success fw-semibold small mb-0">Revenue: <span id="subRevenueMonthly">₹0</span></p>
@@ -210,8 +210,8 @@
         <div class="col-md-4">
           <div class="card stat-card p-4 border-start border-info border-4">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="text-info text-uppercase fw-bold mb-0">Quarterly Pass (₹249)</h6>
-              <span class="badge bg-info text-dark">Tier 2</span>
+              <h6 class="text-info text-uppercase fw-bold mb-0">Quarterly Pass</h6>
+              <span class="badge bg-info text-dark">Quarterly</span>
             </div>
             <h3 class="fw-bold text-dark mb-1" id="subCountQuarterly">0 Subscribers</h3>
             <p class="text-success fw-semibold small mb-0">Revenue: <span id="subRevenueQuarterly">₹0</span></p>
@@ -221,8 +221,8 @@
         <div class="col-md-4">
           <div class="card stat-card p-4 border-start border-warning border-4">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="text-warning text-uppercase fw-bold mb-0">Annual Pass (₹899)</h6>
-              <span class="badge bg-warning text-dark">BEST VALUE</span>
+              <h6 class="text-warning text-uppercase fw-bold mb-0">Yearly Pass</h6>
+              <span class="badge bg-warning text-dark">Yearly</span>
             </div>
             <h3 class="fw-bold text-dark mb-1" id="subCountAnnual">0 Subscribers</h3>
             <p class="text-success fw-semibold small mb-0">Revenue: <span id="subRevenueAnnual">₹0</span></p>
@@ -238,11 +238,16 @@
           </div>
 
           <div class="d-flex align-items-center gap-2">
+            <!-- Filter Option for Month-wise Subscription -->
+            <select id="subMonthFilter" class="form-select form-select-sm border-secondary fw-semibold">
+              <option value="all">All Months</option>
+            </select>
+
             <select id="subPlanFilter" class="form-select form-select-sm border-secondary fw-semibold">
               <option value="all">All Plans</option>
-              <option value="monthly">Monthly Pass (₹99)</option>
-              <option value="quarterly">Quarterly Pass (₹249)</option>
-              <option value="annual">Annual Reader Pass (₹899)</option>
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="yearly">Yearly</option>
             </select>
             <button class="btn btn-sm btn-outline-primary" id="refreshSubsBtn">
               <i class="fa-solid fa-rotate-right me-1"></i> Refresh
@@ -256,6 +261,7 @@
               <thead class="table-light text-secondary small">
                 <tr>
                   <th class="ps-4">Subscription ID</th>
+                  <th>User ID</th>
                   <th>Subscriber Name</th>
                   <th>Plan Tier</th>
                   <th>Subscription Period</th>
@@ -265,7 +271,7 @@
               </thead>
               <tbody id="subscribersTableBody">
                 <tr>
-                  <td colspan="6" class="text-center py-5 text-muted">
+                  <td colspan="7" class="text-center py-5 text-muted">
                     <div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading subscription records...
                   </td>
                 </tr>
@@ -312,7 +318,7 @@
         <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
           <div>
             <h5 class="fw-bold mb-0 text-dark">Book Approval & Catalog Pipeline</h5>
-            <p class="small text-muted mb-0">Search titles/IDs, filter by submission month, control publishing rights, and toggle home slider visibility[cite: 14].</p>
+            <p class="small text-muted mb-0">Search titles/IDs, filter by submission month, control publishing rights, and toggle home slider visibility.</p>
           </div>
 
           <div class="d-flex flex-wrap align-items-center gap-2">
@@ -365,16 +371,14 @@
     <!-- SECTION 4: VISUAL & PAGE SETTINGS MANAGER -->
     <div id="settingsSection" class="content-section d-none">
       <form id="siteSettingsForm">
-        
-        <!-- Emergency Maintenance Alert Box -->
         <div class="card stat-card p-4 mb-4 border-start border-danger border-4">
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <div class="d-flex align-items-center gap-2">
-                <h5 class="fw-bold mb-1 text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i>Maintenance Mode & Emergency Banner[cite: 14]</h5>
+                <h5 class="fw-bold mb-1 text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i>Maintenance Mode & Emergency Banner</h5>
                 <span class="badge bg-secondary" id="maintenanceStatusBadge">SYSTEM LIVE</span>
               </div>
-              <p class="small text-muted mb-0">When turned ON, an emergency alert bar will appear across the library and lock non-admin browsing/logins[cite: 14].</p>
+              <p class="small text-muted mb-0">When turned ON, an emergency alert bar will appear across the library and lock non-admin browsing/logins.</p>
             </div>
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="settingMaintenanceEnable" style="width: 3.2em; height: 1.6em; cursor: pointer;">
@@ -387,12 +391,9 @@
         </div>
 
         <div class="row g-4 mb-4">
-          
-          <!-- 1. Theme, Palette & Branding -->
           <div class="col-lg-6">
             <div class="card stat-card p-4 h-100">
-              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-palette text-primary me-2"></i>Theme & Brand Colors[cite: 14]</h5>
-              
+              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-palette text-primary me-2"></i>Theme & Brand Colors</h5>
               <div class="mb-3">
                 <label class="form-label fw-semibold small">Primary Brand / Dark Theme</label>
                 <div class="input-group">
@@ -400,7 +401,6 @@
                   <input type="text" class="form-control" id="settingPrimaryColorText" value="#075e4d">
                 </div>
               </div>
-
               <div class="mb-3">
                 <label class="form-label fw-semibold small">Accent & Gold Highlights</label>
                 <div class="input-group">
@@ -408,7 +408,6 @@
                   <input type="text" class="form-control" id="settingAccentColorText" value="#ffb703">
                 </div>
               </div>
-
               <div class="mb-3">
                 <label class="form-label fw-semibold small">Navbar & Top Bar Background</label>
                 <div class="input-group">
@@ -416,7 +415,6 @@
                   <input type="text" class="form-control" id="settingHeaderBgText" value="#005f73">
                 </div>
               </div>
-
               <div class="mb-0">
                 <label class="form-label fw-semibold small">Footer Background</label>
                 <div class="input-group">
@@ -427,11 +425,9 @@
             </div>
           </div>
 
-          <!-- 2. Typography & Fonts -->
           <div class="col-lg-6">
             <div class="card stat-card p-4 h-100">
-              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-font text-success me-2"></i>Typography & Sizing[cite: 14]</h5>
-              
+              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-font text-success me-2"></i>Typography & Sizing</h5>
               <div class="mb-3">
                 <label class="form-label fw-semibold small">Primary Site Font Family</label>
                 <select class="form-select" id="settingFontFamily">
@@ -442,7 +438,6 @@
                   <option value="'Playfair Display', serif">Playfair Display (Editorial Serif)</option>
                 </select>
               </div>
-
               <div class="mb-3">
                 <label class="form-label fw-semibold small">Global Base Font Scale</label>
                 <select class="form-select" id="settingFontScale">
@@ -451,7 +446,6 @@
                   <option value="105%">Large / Accessible (105%)</option>
                 </select>
               </div>
-
               <div class="mb-0">
                 <label class="form-label fw-semibold small">Page Layout Density</label>
                 <select class="form-select" id="settingLayoutDensity">
@@ -462,21 +456,18 @@
             </div>
           </div>
 
-          <!-- 3. Announcement Banner Customizer -->
           <div class="col-lg-6">
             <div class="card stat-card p-4 h-100">
               <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-bullhorn text-warning me-2"></i>Promotional Announcement Bar[cite: 14]</h5>
+                <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-bullhorn text-warning me-2"></i>Promotional Announcement Bar</h5>
                 <div class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" id="settingAnnouncementEnable">
                 </div>
               </div>
-              
               <div class="mb-3">
                 <label class="form-label fw-semibold small">Notice Banner Text</label>
                 <textarea class="form-control" id="settingAnnouncementText" rows="2" placeholder="e.g. 📢 Special Discount: Read 100+ Santali Ol Chiki eBooks with our 50% off Quarterly Pass!"></textarea>
               </div>
-
               <div class="row g-2">
                 <div class="col-6">
                   <label class="form-label fw-semibold small">Bar Background</label>
@@ -490,11 +481,9 @@
             </div>
           </div>
 
-          <!-- 4. Marquee Slider & Catalog Settings -->
           <div class="col-lg-6">
             <div class="card stat-card p-4 h-100">
-              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-sliders text-info me-2"></i>Slider & Browse Behavior[cite: 14]</h5>
-              
+              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-sliders text-info me-2"></i>Slider & Browse Behavior</h5>
               <div class="row g-3 mb-3">
                 <div class="col-6">
                   <label class="form-label fw-semibold small">Marquee Scroll Speed</label>
@@ -514,23 +503,20 @@
                   </select>
                 </div>
               </div>
-
               <div class="form-check form-switch mb-2">
                 <input class="form-check-input" type="checkbox" id="settingPauseOnHover" checked>
-                <label class="form-check-label small fw-semibold" for="settingPauseOnHover">Pause Marquee Slider on Mouse Hover[cite: 14]</label>
+                <label class="form-check-label small fw-semibold" for="settingPauseOnHover">Pause Marquee Slider on Mouse Hover</label>
               </div>
-
               <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="settingShowPriceBadge" checked>
-                <label class="form-check-label small fw-semibold" for="settingShowPriceBadge">Show Floating Price Badges on Book Covers[cite: 14]</label>
+                <label class="form-check-label small fw-semibold" for="settingShowPriceBadge">Show Floating Price Badges on Book Covers</label>
               </div>
             </div>
           </div>
 
-          <!-- 5. Homepage Hero & Text Content -->
           <div class="col-12">
             <div class="card stat-card p-4">
-              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-heading text-primary me-2"></i>Homepage Hero Content & Contact Info[cite: 14]</h5>
+              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-heading text-primary me-2"></i>Homepage Hero Content & Contact Info</h5>
               <div class="row g-3 mb-3">
                 <div class="col-md-6">
                   <label class="form-label fw-semibold small">Main Hero Headline</label>
@@ -542,10 +528,9 @@
                 </div>
                 <div class="col-12">
                   <label class="form-label fw-semibold small">Hero Subtitle / Description</label>
-                  <textarea class="form-control" id="settingHeroSubtitle" rows="2">Read anywhere, anytime. Publish your own eBooks in Ol Chiki and multiple languages to reach readers worldwide[cite: 14].</textarea>
+                  <textarea class="form-control" id="settingHeroSubtitle" rows="2">Read anywhere, anytime. Publish your own eBooks in Ol Chiki and multiple languages to reach readers worldwide.</textarea>
                 </div>
               </div>
-
               <div class="row g-3">
                 <div class="col-md-6">
                   <label class="form-label fw-semibold small">Support Email Address</label>
@@ -562,7 +547,6 @@
               </div>
             </div>
           </div>
-
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-5">
@@ -891,10 +875,41 @@
         (profiles || []).forEach(p => { usersProfileMap[p.id] = p; });
       }
 
+      // Populate Dynamic Month Filter for Subscriptions
+      function populateSubscriptionMonths(subs) {
+        const monthSelect = document.getElementById('subMonthFilter');
+        if (!monthSelect) return;
+        const currentVal = monthSelect.value;
+        monthSelect.innerHTML = `<option value="all">All Months</option>`;
+
+        const monthSet = new Set();
+        subs.forEach(s => {
+          const rawDate = s.activated_on || s.created_at;
+          if (rawDate) {
+            const d = new Date(rawDate);
+            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            const label = d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+            monthSet.add(JSON.stringify({ key, label }));
+          }
+        });
+
+        Array.from(monthSet).forEach(itemStr => {
+          const { key, label } = JSON.parse(itemStr);
+          const opt = document.createElement('option');
+          opt.value = key;
+          opt.textContent = label;
+          monthSelect.appendChild(opt);
+        });
+
+        if (currentVal && Array.from(monthSelect.options).some(o => o.value === currentVal)) {
+          monthSelect.value = currentVal;
+        }
+      }
+
       // 2. Fetch Subscription Details
       async function fetchSubscriptionDetails() {
         const tbody = document.getElementById('subscribersTableBody');
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading subscriptions...</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading subscriptions...</td></tr>`;
 
         try {
           await preloadProfiles();
@@ -921,35 +936,56 @@
           document.getElementById('subRevenueAnnual').textContent = `₹${annualRev.toLocaleString('en-IN')}`;
           document.getElementById('filteredSubscribersCount').textContent = `${allSubscribersData.length} Total`;
 
-          renderSubscribersTable('all');
+          populateSubscriptionMonths(allSubscribersData);
+          renderSubscribersTable();
         } catch (err) {
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load subscriptions.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">Failed to load subscriptions.</td></tr>`;
         }
       }
 
-      function renderSubscribersTable(filter) {
+      function renderSubscribersTable() {
         const tbody = document.getElementById('subscribersTableBody');
+        const planFilter = document.getElementById('subPlanFilter')?.value || 'all';
+        const monthFilter = document.getElementById('subMonthFilter')?.value || 'all';
+
         tbody.innerHTML = '';
 
         const filtered = allSubscribersData.filter(sub => {
           const plan = (sub.plan_name || '').toLowerCase();
-          const key = (plan.includes('annual') || plan.includes('year')) ? 'annual' : plan.includes('quarter') ? 'quarterly' : 'monthly';
-          return filter === 'all' || key === filter;
+          const key = (plan.includes('annual') || plan.includes('year')) ? 'yearly' : plan.includes('quarter') ? 'quarterly' : 'monthly';
+          const matchesPlan = (planFilter === 'all' || key === planFilter);
+
+          let matchesMonth = true;
+          const rawDate = sub.activated_on || sub.created_at;
+          if (monthFilter !== 'all' && rawDate) {
+            const d = new Date(rawDate);
+            const subMonthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            matchesMonth = (subMonthKey === monthFilter);
+          }
+
+          return matchesPlan && matchesMonth;
         });
 
+        document.getElementById('filteredSubscribersCount').textContent = `${filtered.length} Total`;
+
         if (filtered.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted fw-semibold">No subscribers found for this plan filter.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted fw-semibold">No subscribers found matching the filters.</td></tr>`;
           return;
         }
 
         const now = new Date();
         filtered.forEach(sub => {
           const plan = (sub.plan_name || '').toLowerCase();
-          const key = (plan.includes('annual') || plan.includes('year')) ? 'annual' : plan.includes('quarter') ? 'quarterly' : 'monthly';
+          const key = (plan.includes('annual') || plan.includes('year')) ? 'yearly' : plan.includes('quarter') ? 'quarterly' : 'monthly';
           
-          let planBadge = `<span class="badge bg-secondary">Monthly (₹99)</span>`, price = "₹99";
-          if (key === 'quarterly') { planBadge = `<span class="badge bg-info text-dark">Quarterly (₹249)</span>`; price = "₹249"; }
-          else if (key === 'annual') { planBadge = `<span class="badge bg-warning text-dark">Annual Pass (₹899)</span>`; price = "₹899"; }
+          let planBadge = `<span class="badge bg-secondary">Monthly</span>`, price = `₹${sub.price || 99}`;
+          if (key === 'quarterly') { 
+            planBadge = `<span class="badge bg-info text-dark">Quarterly</span>`; 
+            price = `₹${sub.price || 249}`; 
+          } else if (key === 'yearly') { 
+            planBadge = `<span class="badge bg-warning text-dark">Yearly</span>`; 
+            price = `₹${sub.price || 899}`; 
+          }
 
           const start = sub.activated_on ? new Date(sub.activated_on).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
           const end = sub.valid_until ? new Date(sub.valid_until).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
@@ -959,11 +995,18 @@
             : `<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="fa-solid fa-circle-check me-1"></i>Active</span>`;
 
           const userObj = usersProfileMap[sub.user_id] || {};
+          const userUid = userObj.user_uid || (sub.user_id ? `SDL-${sub.user_id.substring(0, 6).toUpperCase()}` : 'N/A');
           let subscriberName = userObj.full_name || `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || 'Reader';
 
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td class="ps-4 fw-bold text-primary">${sub.subscription_id || 'N/A'}</td>
+            <td>
+              <span class="uid-badge" title="Click to copy User ID">
+                <span>${userUid}</span>
+                <i class="fa-regular fa-copy copy-sub-uid-btn" data-uid="${userUid}"></i>
+              </span>
+            </td>
             <td>
               <div class="fw-semibold text-dark">${subscriberName}</div>
               <small class="text-muted">${userObj.email || userObj.contact_email || ''}</small>
@@ -975,9 +1018,17 @@
           `;
           tbody.appendChild(tr);
         });
+
+        document.querySelectorAll('.copy-sub-uid-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const uid = e.target.getAttribute('data-uid');
+            navigator.clipboard.writeText(uid).then(() => showToast(`Copied User ID: ${uid}`));
+          });
+        });
       }
 
-      document.getElementById('subPlanFilter')?.addEventListener('change', (e) => renderSubscribersTable(e.target.value));
+      document.getElementById('subPlanFilter')?.addEventListener('change', renderSubscribersTable);
+      document.getElementById('subMonthFilter')?.addEventListener('change', renderSubscribersTable);
       document.getElementById('refreshSubsBtn')?.addEventListener('click', () => {
         fetchSubscriptionDetails();
         fetchDashboardStats();
@@ -1252,7 +1303,6 @@
           const map = {};
           (data || []).forEach(row => { map[row.key] = parseValue(row.value); });
 
-          // Maintenance Mode & Emergency Banner[cite: 14]
           if (map.maintenance_mode) {
             const isMaint = map.maintenance_mode.enabled === true || map.maintenance_mode.enabled === 'true';
             document.getElementById('settingMaintenanceEnable').checked = isMaint;
@@ -1304,7 +1354,7 @@
         }
       }
 
-      // Save Settings to Supabase[cite: 14]
+      // Save Settings to Supabase
       document.getElementById('siteSettingsForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('saveSettingsBtn');
@@ -1546,7 +1596,7 @@
               </select>
             </td>
             <td class="text-end pe-3">
-              <button class="btn btn-sm btn-outline-danger delete-user-btn" data-userid="${user.id}" data-name="${fullNameDisplay}" title="Delete User">
+              <button class="btn btn-sm btn-outline-danger delete-user-btn" data-userid="${user.id}" data-name="${fullNameDisplay}" title="Delete User and associated books/subscriptions">
                 <i class="fa-solid fa-trash-can"></i>
               </button>
             </td>
@@ -1571,15 +1621,36 @@
           });
         });
 
+        // 1 & 3: Delete user, their subscriber data, and their uploaded books automatically
         document.querySelectorAll('.delete-user-btn').forEach(btn => {
           btn.addEventListener('click', async function() {
             const userId = this.getAttribute('data-userid');
             const userName = this.getAttribute('data-name') || 'this user';
-            if (!confirm(`Are you sure you want to delete user "${userName}"?`)) return;
-            await supabase.from('profiles').delete().eq('id', userId);
-            allUsersData = allUsersData.filter(u => u.id !== userId);
-            renderUsersTable();
-            showToast(`User deleted successfully.`);
+            if (!confirm(`Are you sure you want to permanently delete user "${userName}"? This will also remove all their active subscriptions and uploaded books.`)) return;
+
+            try {
+              // 1. Delete associated subscription records
+              await supabase.from('subscriptions').delete().eq('user_id', userId);
+
+              // 2. Delete associated books uploaded by this user/author
+              await supabase.from('books').delete().or(`user_id.eq.${userId},author.eq."${userName}"`);
+
+              // 3. Delete user profile record
+              const { error } = await supabase.from('profiles').delete().eq('id', userId);
+              if (error) throw error;
+
+              allUsersData = allUsersData.filter(u => u.id !== userId);
+              renderUsersTable();
+              
+              // Refresh linked lists
+              fetchSubscriptionDetails();
+              fetchApprovalBooks();
+              fetchDashboardStats();
+              
+              showToast(`User "${userName}", their subscriptions, and their books were deleted.`);
+            } catch (err) {
+              alert("Error deleting user: " + err.message);
+            }
           });
         });
       }
