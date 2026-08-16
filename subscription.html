@@ -5,21 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reader Membership & Subscriptions | Santali Digital Library</title>
   
-  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
     :root {
       --bg-dark: #075e4d;
       --primary-gold: #ffb703;
@@ -29,376 +20,38 @@
       --bg-light: #f4f7f6;
       --border-color: #e0e0e0;
     }
-
-    body {
-      background-color: var(--bg-light);
-      color: var(--text-dark);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* --- Navigation Bar --- */
-    header {
-      background-color: var(--bg-dark);
-      padding: 15px 5%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #fff;
-      font-size: 1.3rem;
-      font-weight: 700;
-      text-decoration: none;
-    }
-
-    .logo i {
-      color: var(--primary-gold);
-      font-size: 1.5rem;
-    }
-
-    .logo span span {
-      color: var(--primary-gold);
-    }
-
-    .nav-links {
-      display: flex;
-      list-style: none;
-      gap: 25px;
-      align-items: center;
-      margin: 0;
-      padding: 0;
-    }
-
-    .nav-links a {
-      color: rgba(255, 255, 255, 0.85);
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 0.95rem;
-      transition: color 0.3s ease;
-    }
-
-    .nav-links a:hover,
-    .nav-links a.active {
-      color: var(--primary-gold);
-    }
-
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    /* User Menu Dropdown */
-    .user-menu-container {
-      position: relative;
-      padding: 8px 0;
-    }
-
-    .user-btn {
-      background: transparent;
-      border: none;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 500;
-      padding: 5px 10px;
-      border-radius: 5px;
-      transition: background-color 0.2s ease;
-    }
-
-    .user-menu-container:hover .user-btn {
-      background-color: rgba(255, 255, 255, 0.08);
-    }
-
-    .user-avatar-img {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 1.5px solid rgba(255, 255, 255, 0.5);
-    }
-
-    .role-badge {
-      background-color: #219ebc;
-      color: #fff;
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 12px;
-      text-transform: uppercase;
-    }
-
-    .dropdown-menu-custom {
-      position: absolute;
-      top: 100%;
-      right: 0;
-      width: 220px;
-      background-color: #ffffff;
-      border-radius: 10px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-      display: none;
-      flex-direction: column;
-      overflow: hidden;
-      z-index: 100;
-      margin-top: 4px;
-    }
-
-    .user-menu-container:hover .dropdown-menu-custom,
-    .dropdown-menu-custom.active {
-      display: flex;
-    }
-
-    .dropdown-menu-custom a {
-      padding: 12px 18px;
-      text-decoration: none;
-      color: var(--text-dark);
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: background 0.2s;
-    }
-
-    .dropdown-menu-custom a:hover {
-      background-color: #f0f4f8;
-      color: var(--bg-dark);
-    }
-
-    .dropdown-menu-custom a i {
-      color: #777;
-      width: 16px;
-    }
-
-    .dropdown-menu-custom hr {
-      border: none;
-      border-top: 1px solid #eee;
-      margin: 0;
-    }
-
-    .dropdown-menu-custom a.logout {
-      color: #e74c3c;
-      font-weight: 600;
-    }
-
-    /* --- Banner Styles --- */
-    .active-banner {
-      background: linear-gradient(135deg, #075e4d 0%, #004d40 100%);
-      color: #ffffff;
-      border-radius: 16px;
-      padding: 35px 30px;
-      box-shadow: 0 8px 24px rgba(7, 94, 77, 0.18);
-      position: relative;
-    }
-
-    .plan-status-tag {
-      background-color: var(--primary-gold);
-      color: #000;
-      font-weight: 700;
-      font-size: 0.75rem;
-      padding: 4px 10px;
-      border-radius: 20px;
-      text-transform: uppercase;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .active-badge-pill {
-      background-color: #2ec4b6;
-      color: #ffffff;
-      font-weight: 700;
-      font-size: 0.75rem;
-      padding: 4px 10px;
-      border-radius: 20px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .meta-label {
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.7);
-      margin-bottom: 2px;
-    }
-
-    .meta-val {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--primary-gold);
-    }
-
-    /* --- Pricing Cards --- */
-    .pricing-card {
-      background: #ffffff;
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 32px 24px;
-      transition: all 0.3s ease;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-
-    .pricing-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 25px rgba(0,0,0,0.08);
-      border-color: #075e4d;
-    }
-
-    .pricing-card.featured {
-      border: 2px solid var(--primary-gold);
-      box-shadow: 0 8px 20px rgba(255, 183, 3, 0.2);
-    }
-
-    .pricing-card.is-current {
-      border: 2px solid #2ec4b6;
-      background-color: #fbfdfc;
-    }
-
-    .pricing-card.is-disabled {
-      opacity: 0.7;
-      background-color: #f8f9fa;
-      border-color: #e9ecef;
-      transform: none !important;
-      box-shadow: none !important;
-    }
-
-    .popular-tag {
-      position: absolute;
-      top: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--primary-gold);
-      color: #000;
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 3px 14px;
-      border-radius: 20px;
-      text-transform: uppercase;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-
-    .current-plan-tag {
-      position: absolute;
-      top: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #2ec4b6;
-      color: #fff;
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 3px 14px;
-      border-radius: 20px;
-      text-transform: uppercase;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-
-    .price-text {
-      font-size: 2.2rem;
-      font-weight: 800;
-      color: var(--bg-dark);
-    }
-
-    .price-period {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      font-weight: 400;
-    }
-
-    .plan-features {
-      list-style: none;
-      padding: 0;
-      margin: 25px 0;
-      flex-grow: 1;
-    }
-
-    .plan-features li {
-      margin-bottom: 12px;
-      font-size: 0.9rem;
-      color: #555;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .plan-features li i {
-      color: #2ec4b6;
-      font-size: 0.95rem;
-    }
-
-    .btn-plan {
-      background-color: var(--primary-gold);
-      color: #000;
-      font-weight: 700;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      width: 100%;
-      transition: all 0.2s ease;
-    }
-
-    .btn-plan:hover:not(:disabled) {
-      background-color: var(--primary-hover);
-    }
-
-    .btn-plan:disabled {
-      background-color: #e2e8f0;
-      color: #94a3b8;
-      cursor: not-allowed;
-      border: 1px solid #cbd5e1;
-    }
-
-    .btn-outline-custom {
-      border: 2px solid #ffffff;
-      color: #ffffff;
-      font-weight: 600;
-      border-radius: 8px;
-      padding: 8px 18px;
-      background: transparent;
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: all 0.2s ease;
-    }
-
-    .btn-outline-custom:hover {
-      background: #ffffff;
-      color: var(--bg-dark);
-    }
-
-    /* Payment Method Option Pill */
-    .payment-option-label {
-      border: 1.5px solid var(--border-color);
-      border-radius: 10px;
-      padding: 12px 14px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: all 0.2s ease;
-    }
-    .payment-option-label:hover {
-      border-color: #075e4d;
-      background-color: #f8fbfb;
-    }
-    .btn-check:checked + .payment-option-label {
-      border-color: #075e4d;
-      background-color: #eaf5f2;
-      font-weight: 600;
-      color: #075e4d;
-    }
+    body { background-color: var(--bg-light); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; }
+    header { background-color: var(--bg-dark); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+    .logo { display: flex; align-items: center; gap: 10px; color: #fff; font-size: 1.3rem; font-weight: 700; text-decoration: none; }
+    .logo i { color: var(--primary-gold); font-size: 1.5rem; }
+    .nav-links { display: flex; list-style: none; gap: 25px; align-items: center; margin: 0; padding: 0; }
+    .nav-links a { color: rgba(255, 255, 255, 0.85); text-decoration: none; font-weight: 500; font-size: 0.95rem; }
+    .nav-links a:hover, .nav-links a.active { color: var(--primary-gold); }
+    .role-badge { background-color: #219ebc; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; }
+    
+    .active-banner { background: linear-gradient(135deg, #075e4d 0%, #004d40 100%); color: #ffffff; border-radius: 16px; padding: 35px 30px; box-shadow: 0 8px 24px rgba(7, 94, 77, 0.18); }
+    .plan-status-tag { background-color: var(--primary-gold); color: #000; font-weight: 700; font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
+    .active-badge-pill { background-color: #2ec4b6; color: #ffffff; font-weight: 700; font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; }
+    .meta-label { font-size: 0.8rem; color: rgba(255,255,255,0.7); }
+    .meta-val { font-size: 0.95rem; font-weight: 700; color: var(--primary-gold); }
+    
+    .pricing-card { background: #ffffff; border: 1px solid var(--border-color); border-radius: 16px; padding: 32px 24px; transition: all 0.3s ease; height: 100%; display: flex; flex-direction: column; position: relative; }
+    .pricing-card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.08); border-color: #075e4d; }
+    .pricing-card.featured { border: 2px solid var(--primary-gold); box-shadow: 0 8px 20px rgba(255, 183, 3, 0.2); }
+    .pricing-card.special-card { border: 2px solid #0284c7; background: #f0f9ff; box-shadow: 0 8px 20px rgba(2, 132, 199, 0.15); }
+    
+    .popular-tag { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--primary-gold); color: #000; font-size: 0.72rem; font-weight: 700; padding: 3px 14px; border-radius: 20px; text-transform: uppercase; }
+    .special-tag { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #0284c7; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 3px 14px; border-radius: 20px; text-transform: uppercase; }
+    
+    .price-text { font-size: 2.2rem; font-weight: 800; color: var(--bg-dark); }
+    .price-period { font-size: 0.9rem; color: var(--text-muted); }
+    .plan-features { list-style: none; padding: 0; margin: 25px 0; flex-grow: 1; }
+    .plan-features li { margin-bottom: 12px; font-size: 0.9rem; color: #555; display: flex; align-items: center; gap: 10px; }
+    .plan-features li i { color: #2ec4b6; }
+    
+    .btn-plan { background-color: var(--primary-gold); color: #000; font-weight: 700; border: none; padding: 12px; border-radius: 8px; width: 100%; transition: all 0.2s ease; }
+    .btn-plan:hover:not(:disabled) { background-color: var(--primary-hover); }
+    .btn-plan:disabled { background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -409,34 +62,15 @@
       <i class="fa-solid fa-book-open-reader"></i>
       <span>Santali Digital <span>Library</span></span>
     </a>
-
     <ul class="nav-links d-none d-md-flex">
       <li><a href="index.html">Home</a></li>
       <li><a href="browse.html">Books</a></li>
-      <li><a href="categories.html">Categories</a></li>
       <li><a href="subscription.html" class="active">Subscriptions</a></li>
       <li><a href="contact.html">Contact</a></li>
     </ul>
-
-    <div class="nav-right">
-      <!-- User Menu -->
-      <div class="user-menu-container" id="userMenuContainer">
-        <button class="user-btn" id="userMenuBtn" type="button">
-          <img src="" alt="" class="user-avatar-img" id="navAvatar" style="display: none;">
-          <i class="fa-solid fa-circle-user" id="navAvatarPlaceholder" style="font-size: 1.3rem;"></i>
-          <span id="headerUserName">Hello, Reader</span>
-          <span class="role-badge" id="headerUserBadge">Reader</span>
-          <i class="fa-solid fa-caret-down"></i>
-        </button>
-
-        <div class="dropdown-menu-custom" id="dropdownMenu">
-          <a href="profile.html"><i class="fa-solid fa-user-gear"></i> My Profile</a>
-          <a href="subscription.html"><i class="fa-solid fa-crown" style="color:var(--primary-gold);"></i> My Subscription</a>
-          <a href="author-dashboard.html"><i class="fa-solid fa-gauge"></i> Author Dashboard</a>
-          <hr>
-          <a href="#" id="logoutLink" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-        </div>
-      </div>
+    <div class="d-flex align-items-center gap-2 text-white">
+      <span id="headerUserName">Hello, Reader</span>
+      <span class="role-badge" id="headerUserBadge">Reader</span>
     </div>
   </header>
 
@@ -451,16 +85,11 @@
             <span class="plan-status-tag" id="bannerBadge"><i class="fa-solid fa-crown"></i> CURRENT ACTIVE PLAN</span>
             <span class="active-badge-pill" id="bannerActiveTag"><i class="fa-solid fa-circle-check"></i> Active</span>
           </div>
-          <h2 class="fw-bold mb-1" id="bannerPlanTitle">Annual Reader Pass</h2>
-          <p class="mb-0 text-white-50" id="bannerPlanSubtitle">Unlimited access to digital literature & author publications.</p>
+          <h2 class="fw-bold mb-1" id="bannerPlanTitle">Reader Pass</h2>
+          <p class="mb-0 text-white-50">Unlimited access to digital literature & author publications.</p>
         </div>
-        <a href="#plansSection" class="btn-outline-custom" id="upgradeBtn">
-          Upgrade to Higher Tier
-        </a>
       </div>
-
       <hr style="border-color: rgba(255,255,255,0.15); margin: 20px 0;">
-
       <div class="row g-3" id="bannerMetaRow">
         <div class="col-sm-4">
           <div class="meta-label">Subscription ID:</div>
@@ -478,175 +107,130 @@
     </div>
 
     <!-- Section Heading -->
-    <div class="text-center mb-5" id="plansSection">
+    <div class="text-center mb-5">
       <h2 class="fw-bold" style="color: var(--bg-dark);">Reader Membership & Subscriptions</h2>
-      <p class="text-muted" id="plansIntroText">Choose the membership tier that fits your reading habits and support Santali literature.</p>
+      <p class="text-muted">Choose the membership tier that fits your reading habits and support Santali literature.</p>
     </div>
 
-    <!-- Pricing Grid -->
-    <div class="row g-4 justify-content-center">
+    <!-- Pricing Grid (Dynamically updated from Admin Settings) -->
+    <div class="row g-4 justify-content-center" id="pricingGrid">
       
-      <!-- Tier 1: Monthly Plan -->
-      <div class="col-md-4">
-        <div class="pricing-card" id="cardTier1">
+      <!-- Tier 1: Monthly -->
+      <div class="col-lg-4 col-md-6" id="colMonthly">
+        <div class="pricing-card" id="cardMonthly">
           <h4 class="fw-bold mb-2">Monthly Pass</h4>
           <p class="text-muted small mb-3">Ideal for short-term and casual readers.</p>
           <div class="mb-3">
-            <span class="price-text">₹99</span>
+            <span class="price-text" id="displayMonthlyPrice">₹99</span>
             <span class="price-period">/ month</span>
           </div>
           <ul class="plan-features">
             <li><i class="fa-solid fa-check"></i> Unlimited Read Online</li>
             <li><i class="fa-solid fa-check"></i> Access to all Ol Chiki Books</li>
-            <li><i class="fa-solid fa-check"></i> Standard Access</li>
+            <li><i class="fa-solid fa-check"></i> Standard Reader Support</li>
           </ul>
-          <button class="btn-plan open-pay-btn" id="btnTier1" data-tier="1" data-plan="Monthly Pass" data-days="30" data-price="99">
+          <button class="btn-plan open-pay-btn" id="btnMonthly" data-tier="1" data-plan="Monthly Pass" data-days="30" data-price="99">
             Choose Monthly
           </button>
         </div>
       </div>
 
-      <!-- Tier 2: Quarterly Plan -->
-      <div class="col-md-4">
-        <div class="pricing-card" id="cardTier2">
+      <!-- Tier 2: Quarterly -->
+      <div class="col-lg-4 col-md-6" id="colQuarterly">
+        <div class="pricing-card" id="cardQuarterly">
           <h4 class="fw-bold mb-2">Quarterly Pass</h4>
           <p class="text-muted small mb-3">Great balance of value and reading time.</p>
           <div class="mb-3">
-            <span class="price-text">₹249</span>
+            <span class="price-text" id="displayQuarterlyPrice">₹249</span>
             <span class="price-period">/ 3 months</span>
           </div>
           <ul class="plan-features">
             <li><i class="fa-solid fa-check"></i> All Monthly Pass Features</li>
-            <li><i class="fa-solid fa-check"></i> High-Speed eBook Downloads</li>
-            <li><i class="fa-solid fa-check"></i> Save ₹48 compared to monthly</li>
+            <li><i class="fa-solid fa-check"></i> High-Speed eBook Reading</li>
+            <li><i class="fa-solid fa-check"></i> Extended 90-Day Access</li>
           </ul>
-          <button class="btn-plan open-pay-btn" id="btnTier2" data-tier="2" data-plan="Quarterly Pass" data-days="90" data-price="249">
+          <button class="btn-plan open-pay-btn" id="btnQuarterly" data-tier="2" data-plan="Quarterly Pass" data-days="90" data-price="249">
             Choose Quarterly
           </button>
         </div>
       </div>
 
-      <!-- Tier 3: Annual Plan (Featured) -->
-      <div class="col-md-4">
-        <div class="pricing-card featured" id="cardTier3">
-          <span class="popular-tag" id="tagTier3"><i class="fa-solid fa-star me-1"></i> Best Value</span>
+      <!-- Tier 3: Annual -->
+      <div class="col-lg-4 col-md-6" id="colYearly">
+        <div class="pricing-card featured" id="cardYearly">
+          <span class="popular-tag"><i class="fa-solid fa-star me-1"></i> Best Value</span>
           <h4 class="fw-bold mb-2">Annual Reader Pass</h4>
           <p class="text-muted small mb-3">Full year of continuous Santali literature.</p>
           <div class="mb-3">
-            <span class="price-text">₹899</span>
+            <span class="price-text" id="displayYearlyPrice">₹899</span>
             <span class="price-period">/ year</span>
           </div>
           <ul class="plan-features">
             <li><i class="fa-solid fa-check"></i> Unlimited Access to entire Catalog</li>
-            <li><i class="fa-solid fa-check"></i> Premium Reader Mode & Audio Tools</li>
+            <li><i class="fa-solid fa-check"></i> Full 365 Days Access</li>
             <li><i class="fa-solid fa-check"></i> Priority Author Community Access</li>
-            <li><i class="fa-solid fa-check"></i> Save ₹289 (~3 Months Free)</li>
           </ul>
-          <button class="btn-plan open-pay-btn" id="btnTier3" data-tier="3" data-plan="Annual Reader Pass" data-days="365" data-price="899">
+          <button class="btn-plan open-pay-btn" id="btnYearly" data-tier="3" data-plan="Annual Reader Pass" data-days="365" data-price="899">
             Get Annual Pass
           </button>
         </div>
       </div>
 
-    </div>
+      <!-- Special Promotional Plan (Weekly/15-Day trial) -->
+      <div class="col-lg-4 col-md-6 d-none" id="colSpecial">
+        <div class="pricing-card special-card" id="cardSpecial">
+          <span class="special-tag"><i class="fa-solid fa-fire me-1"></i> Special Deal</span>
+          <h4 class="fw-bold mb-2" id="displaySpecialTitle">15-Day Special Pass</h4>
+          <p class="text-muted small mb-3">Special promotional reading pass.</p>
+          <div class="mb-3">
+            <span class="price-text" id="displaySpecialPrice">₹49</span>
+            <span class="price-period" id="displaySpecialPeriod">/ 15 days</span>
+          </div>
+          <ul class="plan-features">
+            <li><i class="fa-solid fa-check"></i> Full Access to all Ol Chiki Books</li>
+            <li><i class="fa-solid fa-check"></i> Short-Term Special Access</li>
+            <li><i class="fa-solid fa-check"></i> Instant Online Activation</li>
+          </ul>
+          <button class="btn-plan open-pay-btn" id="btnSpecial" data-tier="1" data-plan="Special Pass" data-days="15" data-price="49" style="background:#0284c7; color:#fff;">
+            Get Special Pass
+          </button>
+        </div>
+      </div>
 
+    </div>
   </main>
 
-  <!-- PAYMENT CHECKOUT MODAL -->
-  <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+  <!-- Payment Modal -->
+  <div class="modal fade" id="paymentModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
         <div class="modal-header border-0 pb-0" style="background-color: var(--bg-dark); color: white; border-top-left-radius: 16px; border-top-right-radius: 16px;">
           <div>
-            <h5 class="modal-title fw-bold" id="paymentModalLabel">
-              <i class="fa-solid fa-shield-halved text-warning me-2"></i> Complete Payment
-            </h5>
+            <h5 class="modal-title fw-bold"><i class="fa-solid fa-shield-halved text-warning me-2"></i> Complete Payment</h5>
             <p class="small text-white-50 mb-3">Santali Digital Library Secure Checkout</p>
           </div>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body p-4">
-          
-          <!-- Order Summary Card -->
           <div class="p-3 mb-4 rounded-3" style="background-color: #f8fbfb; border: 1px solid #dce4e8;">
             <div class="d-flex justify-content-between align-items-center">
               <div>
-                <span class="fw-bold text-dark fs-6" id="modalPlanName">Annual Reader Pass</span>
-                <p class="small text-muted mb-0" id="modalPlanDuration">Duration: 365 Days Access</p>
+                <span class="fw-bold text-dark fs-6" id="modalPlanName">Plan Name</span>
+                <p class="small text-muted mb-0" id="modalPlanDuration">Duration: 30 Days Access</p>
               </div>
-              <div class="text-end">
-                <span class="fs-4 fw-bold" style="color: var(--bg-dark);" id="modalPlanPrice">₹899</span>
-              </div>
+              <span class="fs-4 fw-bold text-success" id="modalPlanPrice">₹99</span>
             </div>
           </div>
-
-          <!-- Payment Options -->
-          <h6 class="fw-bold mb-3 text-secondary">Select Payment Method</h6>
-          <div class="d-flex flex-column gap-2 mb-4">
-            
-            <!-- UPI / QR -->
-            <div>
-              <input type="radio" class="btn-check" name="paymentMethod" id="payUPI" checked>
-              <label class="payment-option-label w-100" for="payUPI">
-                <i class="fa-brands fa-google-pay fs-4 text-primary"></i>
-                <div class="flex-grow-1">
-                  <div class="fw-semibold">UPI / QR Code</div>
-                  <div class="small text-muted">GPay, PhonePe, Paytm, BHIM</div>
-                </div>
-                <i class="fa-solid fa-circle-check text-success"></i>
-              </label>
-            </div>
-
-            <!-- Card -->
-            <div>
-              <input type="radio" class="btn-check" name="paymentMethod" id="payCard">
-              <label class="payment-option-label w-100" for="payCard">
-                <i class="fa-regular fa-credit-card fs-4 text-warning"></i>
-                <div class="flex-grow-1">
-                  <div class="fw-semibold">Debit / Credit Card</div>
-                  <div class="small text-muted">Visa, MasterCard, RuPay</div>
-                </div>
-              </label>
-            </div>
-
-            <!-- Net Banking -->
-            <div>
-              <input type="radio" class="btn-check" name="paymentMethod" id="payNetBanking">
-              <label class="payment-option-label w-100" for="payNetBanking">
-                <i class="fa-solid fa-building-columns fs-4 text-info"></i>
-                <div class="flex-grow-1">
-                  <div class="fw-semibold">Net Banking</div>
-                  <div class="small text-muted">All Indian Major Banks</div>
-                </div>
-              </label>
-            </div>
-
-          </div>
-
-          <!-- Pay Button -->
           <button type="button" class="btn btn-plan w-100 py-3 fs-6 shadow-sm" id="confirmPaymentBtn">
-            <i class="fa-solid fa-lock me-2"></i> Pay <span id="btnPayAmount">₹899</span> Securely
+            <i class="fa-solid fa-lock me-2"></i> Pay & Activate
           </button>
-          
-          <p class="text-center text-muted small mt-3 mb-0">
-            <i class="fa-solid fa-lock text-success me-1"></i> 256-bit Encrypted SSL Payment
-          </p>
-
         </div>
       </div>
     </div>
   </div>
 
-  <footer class="text-center mt-auto py-3" style="background-color: var(--bg-dark);">
-    <div class="container">
-      <p class="mb-0 text-white" style="font-size: 0.9rem;">&copy; 2026 Santali Digital Library. All rights reserved.</p>
-    </div>
-  </footer>
-
-  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- JavaScript & Supabase Logic -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -656,246 +240,134 @@
 
     let currentUser = null;
     let selectedPlanData = null;
-    let currentActiveTier = 0; // 0 = None, 1 = Monthly, 2 = Quarterly, 3 = Annual
 
     const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
 
-    function formatDate(dateObj) {
-      const options = { day: '2-digit', month: 'short', year: 'numeric' };
-      return dateObj.toLocaleDateString('en-GB', options);
+    function parseValue(val) {
+      if (typeof val === 'string') {
+        try { return JSON.parse(val); } catch(e) { return val; }
+      }
+      return val || {};
     }
 
-    function getTierLevel(planName) {
-      const name = (planName || '').toLowerCase();
-      if (name.includes('annual') || name.includes('year')) return 3;
-      if (name.includes('quarter')) return 2;
-      if (name.includes('month')) return 1;
-      return 0;
-    }
+    async function loadDynamicPricing() {
+      try {
+        const { data } = await supabase.from('site_settings').select('*').eq('key', 'subscription_plans').maybeSingle();
+        if (data && data.value) {
+          const cfg = parseValue(data.value);
 
-    function applyTierRestrictions(activeTier) {
-      currentActiveTier = activeTier;
+          if (cfg.monthly_price) {
+            document.getElementById('displayMonthlyPrice').textContent = `₹${cfg.monthly_price}`;
+            document.getElementById('btnMonthly').setAttribute('data-price', cfg.monthly_price);
+          }
+          if (cfg.quarterly_price) {
+            document.getElementById('displayQuarterlyPrice').textContent = `₹${cfg.quarterly_price}`;
+            document.getElementById('btnQuarterly').setAttribute('data-price', cfg.quarterly_price);
+          }
+          if (cfg.yearly_price) {
+            document.getElementById('displayYearlyPrice').textContent = `₹${cfg.yearly_price}`;
+            document.getElementById('btnYearly').setAttribute('data-price', cfg.yearly_price);
+          }
 
-      const tiers = [
-        { id: 1, card: document.getElementById('cardTier1'), btn: document.getElementById('btnTier1'), name: 'Monthly Pass' },
-        { id: 2, card: document.getElementById('cardTier2'), btn: document.getElementById('btnTier2'), name: 'Quarterly Pass' },
-        { id: 3, card: document.getElementById('cardTier3'), btn: document.getElementById('btnTier3'), name: 'Annual Reader Pass' }
-      ];
-
-      tiers.forEach(t => {
-        if (activeTier === 0) {
-          // No active plan: all enabled
-          t.btn.disabled = false;
-          t.btn.innerHTML = t.id === 3 ? 'Get Annual Pass' : (t.id === 2 ? 'Choose Quarterly' : 'Choose Monthly');
-          t.card.classList.remove('is-disabled', 'is-current');
-        } else if (t.id === activeTier) {
-          // Current active plan
-          t.btn.disabled = true;
-          t.btn.innerHTML = '<i class="fa-solid fa-circle-check me-1 text-success"></i> Current Active Plan';
-          t.card.classList.remove('is-disabled');
-          t.card.classList.add('is-current');
-        } else if (t.id < activeTier) {
-          // Lower plan: strictly disabled
-          t.btn.disabled = true;
-          t.btn.innerHTML = '<i class="fa-solid fa-lock me-1"></i> Lower Tier Unavailable';
-          t.card.classList.add('is-disabled');
-          t.card.classList.remove('is-current');
-        } else if (t.id > activeTier) {
-          // Higher plan: available for upgrade
-          t.btn.disabled = false;
-          t.btn.innerHTML = `<i class="fa-solid fa-arrow-up me-1"></i> Upgrade to ${t.name.split(' ')[0]}`;
-          t.card.classList.remove('is-disabled', 'is-current');
+          // Promotional special card
+          const sp = cfg.special;
+          if (sp && sp.enabled === true) {
+            document.getElementById('colSpecial').classList.remove('d-none');
+            document.getElementById('displaySpecialTitle').textContent = sp.title || 'Special Pass';
+            document.getElementById('displaySpecialPrice').textContent = `₹${sp.price || 49}`;
+            document.getElementById('displaySpecialPeriod').textContent = `/ ${sp.days} days`;
+            
+            const btnSp = document.getElementById('btnSpecial');
+            btnSp.setAttribute('data-plan', sp.title || 'Special Pass');
+            btnSp.setAttribute('data-days', sp.days || 15);
+            btnSp.setAttribute('data-price', sp.price || 49);
+          }
         }
-      });
-
-      if (activeTier === 3) {
-        document.getElementById('plansIntroText').textContent = 'You are currently subscribed to our highest membership tier with all features unlocked.';
-        const upgradeBtn = document.getElementById('upgradeBtn');
-        if (upgradeBtn) upgradeBtn.style.display = 'none';
+      } catch (e) {
+        console.warn("Could not load dynamic prices:", e);
       }
     }
 
     async function loadSubscriptionState() {
-      try {
-        const { data: { user }, error: authErr } = await supabase.auth.getUser();
-        if (authErr || !user) {
-          window.location.href = "login.html?redirect=subscription.html";
-          return;
-        }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        window.location.href = "login.html?redirect=subscription.html";
+        return;
+      }
+      currentUser = user;
 
-        currentUser = user;
+      const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle();
+      if (profile) {
+        document.getElementById('headerUserName').textContent = `Hello, ${profile.first_name || profile.full_name || 'Reader'}`;
+        document.getElementById('headerUserBadge').textContent = (profile.role || 'reader').toUpperCase();
+      }
 
-        // Fetch Profile
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .maybeSingle();
+      const { data: sub } = await supabase.from('subscriptions').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
 
-        let firstName = profile?.first_name || (profile?.full_name ? profile.full_name.split(' ')[0] : user.email.split('@')[0]);
-        firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
-        document.getElementById('headerUserName').textContent = `Hello, ${firstName}`;
-
-        if (profile?.role) {
-          document.getElementById('headerUserBadge').textContent = profile.role.toUpperCase();
-        }
-
-        if (profile?.avatar_url) {
-          const navAvatar = document.getElementById('navAvatar');
-          navAvatar.src = profile.avatar_url;
-          navAvatar.style.display = 'inline-block';
-          document.getElementById('navAvatarPlaceholder').style.display = 'none';
-        }
-
-        // Fetch latest active subscription
-        const { data: sub, error: subError } = await supabase
-          .from('subscriptions')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (!subError && sub && new Date(sub.valid_until) > new Date()) {
-          // Active Subscription Present
-          const activeTier = getTierLevel(sub.plan_name);
-          applyTierRestrictions(activeTier);
-
-          document.getElementById('bannerPlanTitle').textContent = sub.plan_name || 'Active Membership Pass';
-          document.getElementById('bannerSubId').textContent = sub.subscription_id || `SUB-2026-${sub.id.substring(0,6).toUpperCase()}`;
-          document.getElementById('bannerStartDate').textContent = formatDate(new Date(sub.activated_on || sub.created_at));
-          document.getElementById('bannerEndDate').textContent = formatDate(new Date(sub.valid_until));
-          document.getElementById('bannerBadge').innerHTML = '<i class="fa-solid fa-crown"></i> CURRENT ACTIVE PLAN';
-          document.getElementById('bannerActiveTag').innerHTML = '<i class="fa-solid fa-circle-check"></i> Active';
-          document.getElementById('bannerMetaRow').style.display = 'flex';
-          
-          if (activeTier < 3) {
-            document.getElementById('upgradeBtn').textContent = 'Upgrade to Higher Tier';
-            document.getElementById('upgradeBtn').style.display = 'inline-block';
-          }
-        } else {
-          // No Active Subscription
-          applyTierRestrictions(0);
-          document.getElementById('bannerPlanTitle').textContent = 'No Active Subscription';
-          document.getElementById('bannerPlanSubtitle').textContent = 'Subscribe to any membership tier below to unlock unlimited digital reading access.';
-          document.getElementById('bannerBadge').innerHTML = '<i class="fa-solid fa-circle-info"></i> MEMBERSHIP STATUS';
-          document.getElementById('bannerActiveTag').className = 'plan-status-tag';
-          document.getElementById('bannerActiveTag').style.backgroundColor = '#6c757d';
-          document.getElementById('bannerActiveTag').style.color = '#ffffff';
-          document.getElementById('bannerActiveTag').innerHTML = 'Inactive / Expired';
-          document.getElementById('bannerMetaRow').style.display = 'none';
-          document.getElementById('upgradeBtn').textContent = 'Select a Plan';
-        }
-
-      } catch (err) {
-        console.warn("Subscription load notice:", err);
+      if (sub && new Date(sub.valid_until) > new Date()) {
+        document.getElementById('bannerPlanTitle').textContent = sub.plan_name || 'Active Membership Pass';
+        document.getElementById('bannerSubId').textContent = sub.subscription_id || 'SUB-ACTIVE';
+        document.getElementById('bannerStartDate').textContent = new Date(sub.activated_on || sub.created_at).toLocaleDateString();
+        document.getElementById('bannerEndDate').textContent = new Date(sub.valid_until).toLocaleDateString();
+      } else {
+        document.getElementById('bannerPlanTitle').textContent = 'No Active Subscription';
+        document.getElementById('bannerMetaRow').style.display = 'none';
       }
     }
 
-    // Step 1: Open Payment Modal (Validation: only higher tier allowed)
-    document.querySelectorAll('.open-pay-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        if (!currentUser) {
-          window.location.href = 'login.html?redirect=subscription.html';
-          return;
-        }
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('open-pay-btn')) {
+        const btn = e.target;
+        selectedPlanData = {
+          tier: parseInt(btn.getAttribute('data-tier')),
+          planName: btn.getAttribute('data-plan'),
+          days: parseInt(btn.getAttribute('data-days')),
+          price: btn.getAttribute('data-price')
+        };
 
-        const tier = parseInt(this.getAttribute('data-tier'));
-        const planName = this.getAttribute('data-plan');
-        const days = parseInt(this.getAttribute('data-days'));
-        const price = this.getAttribute('data-price');
-
-        // Block same or lower tier purchase attempt
-        if (currentActiveTier > 0 && tier <= currentActiveTier) {
-          alert("You already have an active plan of this tier or higher. Downgrading is not permitted while your current subscription is active.");
-          return;
-        }
-
-        selectedPlanData = { tier, planName, days, price };
-
-        // Populate Modal Fields
-        document.getElementById('modalPlanName').textContent = planName;
-        document.getElementById('modalPlanDuration').textContent = `Duration: ${days} Days Full Access`;
-        document.getElementById('modalPlanPrice').textContent = `₹${price}`;
-        document.getElementById('btnPayAmount').textContent = `₹${price}`;
-
-        // Show Modal
+        document.getElementById('modalPlanName').textContent = selectedPlanData.planName;
+        document.getElementById('modalPlanDuration').textContent = `Duration: ${selectedPlanData.days} Days Access`;
+        document.getElementById('modalPlanPrice').textContent = `₹${selectedPlanData.price}`;
         paymentModal.show();
-      });
+      }
     });
 
-    // Step 2: Confirm Payment & Upgrade in Supabase
     document.getElementById('confirmPaymentBtn')?.addEventListener('click', async function() {
       if (!selectedPlanData || !currentUser) return;
+      const btn = this;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Activating...';
 
-      const confirmBtn = this;
-      const originalText = confirmBtn.innerHTML;
-      confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Verifying Payment...';
-      confirmBtn.disabled = true;
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setDate(startDate.getDate() + selectedPlanData.days);
+      const subId = `SUB-2026-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
 
       try {
-        // Simulate gateway verification
-        await new Promise(res => setTimeout(res, 1200));
-
-        const startDate = new Date();
-        const endDate = new Date();
-        endDate.setDate(startDate.getDate() + selectedPlanData.days);
-
-        const randomCode = Math.random().toString(36).substring(2, 10).toUpperCase();
-        const subId = `SUB-2026-${randomCode}`;
-
-        // Insert into Supabase subscriptions table
-        const { error } = await supabase
-          .from('subscriptions')
-          .insert([{
-            user_id: currentUser.id,
-            subscription_id: subId,
-            plan_name: selectedPlanData.planName,
-            price: parseFloat(selectedPlanData.price),
-            activated_on: startDate.toISOString(),
-            valid_until: endDate.toISOString(),
-            status: 'active'
-          }]);
+        const { error } = await supabase.from('subscriptions').insert([{
+          user_id: currentUser.id,
+          subscription_id: subId,
+          plan_name: selectedPlanData.planName,
+          price: parseFloat(selectedPlanData.price),
+          activated_on: startDate.toISOString(),
+          valid_until: endDate.toISOString(),
+          status: 'active'
+        }]);
 
         if (error) throw error;
-
-        // Hide Modal & Show Prompt
-        paymentModal.hide();
-        alert(`✅ Payment & Upgrade Successful!\n\nNew Plan: ${selectedPlanData.planName}\nAmount Paid: ₹${selectedPlanData.price}\nSubscription ID: ${subId}\n\nYour upgraded membership is now active.`);
-        
+        alert(`✅ Subscription activated: ${selectedPlanData.planName}`);
         window.location.reload();
-
       } catch (err) {
-        console.error("Payment error:", err);
-        alert("Payment Error: " + (err.message || "Failed to process upgrade."));
+        alert("Activation error: " + err.message);
       } finally {
-        confirmBtn.innerHTML = originalText;
-        confirmBtn.disabled = false;
+        btn.disabled = false;
       }
     });
 
-    // User Dropdown Handlers
-    const userMenuBtn = document.getElementById('userMenuBtn');
-    const dropdownMenu = document.getElementById('dropdownMenu');
-
-    userMenuBtn?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      dropdownMenu.classList.toggle('active');
+    document.addEventListener("DOMContentLoaded", async () => {
+      await loadDynamicPricing();
+      await loadSubscriptionState();
     });
-
-    document.addEventListener('click', (e) => {
-      if (!dropdownMenu.contains(e.target) && !userMenuBtn.contains(e.target)) {
-        dropdownMenu.classList.remove('active');
-      }
-    });
-
-    document.getElementById('logoutLink')?.addEventListener('click', async (e) => {
-      e.preventDefault();
-      await supabase.auth.signOut();
-      window.location.href = 'login.html';
-    });
-
-    document.addEventListener('DOMContentLoaded', loadSubscriptionState);
   </script>
 </body>
 </html>
