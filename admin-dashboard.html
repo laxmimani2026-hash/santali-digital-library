@@ -238,7 +238,6 @@
           </div>
 
           <div class="d-flex align-items-center gap-2">
-            <!-- Filter Option for Month-wise Subscription -->
             <select id="subMonthFilter" class="form-select form-select-sm border-secondary fw-semibold">
               <option value="all">All Months</option>
             </select>
@@ -906,7 +905,7 @@
         }
       }
 
-      // 2. Fetch Subscription Details
+      // 2. Fetch Subscription Details (Filters out & cleans up deleted user records)
       async function fetchSubscriptionDetails() {
         const tbody = document.getElementById('subscribersTableBody');
         tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading subscriptions...</td></tr>`;
@@ -916,7 +915,31 @@
           const { data: subs, error } = await supabase.from('subscriptions').select('*').order('created_at', { ascending: false });
           if (error) throw error;
 
-          allSubscribersData = subs || [];
+          // Identify and purge orphan subscriptions whose users no longer exist in profiles
+          const rawSubs = subs || [];
+          const orphanSubIds = [];
+          
+          allSubscribersData = rawSubs.filter(sub => {
+            if (sub.user_id && usersProfileMap[sub.user_id]) {
+              return true;
+            } else {
+              orphanSubIds.push(sub.id || sub.subscription_id);
+              return false;
+            }
+          });
+
+          // Background purge of orphan subscription records from the database
+          if (orphanSubIds.length > 0) {
+            try {
+              const orphanUserIds = rawSubs.filter(s => !usersProfileMap[s.user_id]).map(s => s.user_id).filter(Boolean);
+              if (orphanUserIds.length > 0) {
+                await supabase.from('subscriptions').delete().in('user_id', orphanUserIds);
+              }
+            } catch(cleanErr) {
+              console.warn("Could not clean orphan records:", cleanErr);
+            }
+          }
+
           let monthlyCount = 0, quarterlyCount = 0, annualCount = 0;
           let monthlyRev = 0, quarterlyRev = 0, annualRev = 0;
 
@@ -969,7 +992,7 @@
         document.getElementById('filteredSubscribersCount').textContent = `${filtered.length} Total`;
 
         if (filtered.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted fw-semibold">No subscribers found matching the filters.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted fw-semibold">No active subscriptions found for this selection.</td></tr>`;
           return;
         }
 
@@ -995,7 +1018,7 @@
             : `<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="fa-solid fa-circle-check me-1"></i>Active</span>`;
 
           const userObj = usersProfileMap[sub.user_id] || {};
-          const userUid = userObj.user_uid || (sub.user_id ? `SDL-${sub.user_id.substring(0, 6).toUpperCase()}` : 'N/A');
+          const userUid = userObj.user_uid || `SDL-${sub.user_id.substring(0, 6).toUpperCase()}`;
           let subscriberName = userObj.full_name || `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || 'Reader';
 
           const tr = document.createElement('tr');
@@ -1034,17 +1057,20 @@
         fetchDashboardStats();
       });
 
-      // 3. Dashboard Metrics
+      // 3. Dashboard Metrics (Only accounts for valid, non-deleted users)
       async function fetchDashboardStats() {
         try {
-          const { data: subs } = await supabase.from('subscriptions').select('price, plan_name, valid_until');
+          await preloadProfiles();
+          const { data: subs } = await supabase.from('subscriptions').select('user_id, price, plan_name, valid_until');
           let grossRev = 0, activeCount = 0;
           const now = new Date();
 
           (subs || []).forEach(s => {
-            const p = parseFloat(s.price) || 0;
-            grossRev += p;
-            if (s.valid_until && new Date(s.valid_until) >= now) activeCount++;
+            if (s.user_id && usersProfileMap[s.user_id]) {
+              const p = parseFloat(s.price) || 0;
+              grossRev += p;
+              if (s.valid_until && new Date(s.valid_until) >= now) activeCount++;
+            }
           });
 
           const deductions = Math.round(grossRev * 0.05);
@@ -1068,16 +1094,36 @@
         }
       }
 
-      // 4. Book Pipeline
+      // 4. Book Pipeline (Excludes books belonging to deleted users/authors)
       async function fetchApprovalBooks() {
         const tbody = document.getElementById('approvalBooksList');
         tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading books...</td></tr>`;
 
         try {
+          await preloadProfiles();
           const { data: books, error } = await supabase.from('books').select('*').order('created_at', { ascending: false });
           if (error) throw error;
 
-          allBooksData = books || [];
+          const rawBooks = books || [];
+          const orphanBookIds = [];
+
+          allBooksData = rawBooks.filter(b => {
+            // Keep if no specific user_id linked or if user exists in database
+            if (!b.user_id || usersProfileMap[b.user_id]) {
+              return true;
+            } else {
+              orphanBookIds.push(b.id);
+              return false;
+            }
+          });
+
+          // Clean up orphan books from DB
+          if (orphanBookIds.length > 0) {
+            try {
+              await supabase.from('books').delete().in('id', orphanBookIds);
+            } catch(e) {}
+          }
+
           populateMonthDropdown(allBooksData);
           renderBooksTable();
         } catch (err) {
@@ -1456,7 +1502,7 @@
       syncColors('settingHeaderBg', 'settingHeaderBgText');
       syncColors('settingFooterBg', 'settingFooterBgText');
 
-      // 6. Financial Reports
+      // 6. Financial Reports (Filtered to valid users)
       async function fetchSalesReports() {
         const tbody = document.getElementById('reportTableBody');
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Generating report...</td></tr>`;
@@ -1466,14 +1512,16 @@
           const { data: subs, error } = await supabase.from('subscriptions').select('*').order('created_at', { ascending: false });
           if (error) throw error;
 
-          if (!subs || subs.length === 0) {
+          const validSubs = (subs || []).filter(s => s.user_id && usersProfileMap[s.user_id]);
+
+          if (validSubs.length === 0) {
             tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted fw-semibold">No subscription transactions found.</td></tr>`;
             return;
           }
 
           let totalRev = 0;
           tbody.innerHTML = '';
-          subs.forEach(sub => {
+          validSubs.forEach(sub => {
             const price = parseFloat(sub.price) || 0;
             totalRev += price;
             const date = sub.activated_on ? new Date(sub.activated_on).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
@@ -1493,7 +1541,7 @@
           });
 
           document.getElementById('reportTotalRevenue').textContent = `₹${totalRev.toLocaleString('en-IN')}`;
-          document.getElementById('reportTotalOrders').textContent = subs.length.toLocaleString('en-IN');
+          document.getElementById('reportTotalOrders').textContent = validSubs.length.toLocaleString('en-IN');
         } catch (err) {
           tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to generate reports.</td></tr>`;
         }
@@ -1621,7 +1669,6 @@
           });
         });
 
-        // 1 & 3: Delete user, their subscriber data, and their uploaded books automatically
         document.querySelectorAll('.delete-user-btn').forEach(btn => {
           btn.addEventListener('click', async function() {
             const userId = this.getAttribute('data-userid');
@@ -1629,25 +1676,25 @@
             if (!confirm(`Are you sure you want to permanently delete user "${userName}"? This will also remove all their active subscriptions and uploaded books.`)) return;
 
             try {
-              // 1. Delete associated subscription records
+              // Cascade delete from subscriptions
               await supabase.from('subscriptions').delete().eq('user_id', userId);
 
-              // 2. Delete associated books uploaded by this user/author
+              // Cascade delete from books
               await supabase.from('books').delete().or(`user_id.eq.${userId},author.eq."${userName}"`);
 
-              // 3. Delete user profile record
+              // Delete profile record
               const { error } = await supabase.from('profiles').delete().eq('id', userId);
               if (error) throw error;
 
               allUsersData = allUsersData.filter(u => u.id !== userId);
+              delete usersProfileMap[userId];
               renderUsersTable();
               
-              // Refresh linked lists
               fetchSubscriptionDetails();
               fetchApprovalBooks();
               fetchDashboardStats();
               
-              showToast(`User "${userName}", their subscriptions, and their books were deleted.`);
+              showToast(`User "${userName}", their subscriptions, and books were deleted.`);
             } catch (err) {
               alert("Error deleting user: " + err.message);
             }
