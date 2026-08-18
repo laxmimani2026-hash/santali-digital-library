@@ -47,11 +47,6 @@
       --epub-text: #e2e8f0;
     }
 
-    body.sepia-ui {
-      --epub-bg: #fbf0d9;
-      --epub-text: #5f4b32;
-    }
-
     * { box-sizing: border-box; }
     
     body {
@@ -96,7 +91,6 @@
 
     .app-body { display: flex; flex-grow: 1; overflow: hidden; position: relative; }
 
-    /* Sidebars */
     .sidebar {
       width: 300px;
       background-color: var(--panel-bg);
@@ -121,7 +115,6 @@
     }
     .cover-wrapper img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* Workspace */
     .center-workspace {
       flex-grow: 1;
       display: flex;
@@ -192,7 +185,20 @@
       box-shadow: none;
     }
 
-    /* Responsive Drawer behaviors */
+    #loadingOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--center-bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
     @media (max-width: 991.98px) {
       .left-sidebar, .right-sidebar {
         position: absolute;
@@ -244,34 +250,35 @@
   </nav>
 
   <div class="app-body">
-    <!-- Left Metadata Sidebar -->
+    <!-- Left Sidebar -->
     <aside class="sidebar left-sidebar" id="leftSidebar">
       <div class="book-cover-container">
         <div class="cover-wrapper">
           <img id="sidebarCover" src="https://placehold.co/130x180/5c4bca/ffffff?text=eBook" alt="Book Cover">
         </div>
-        <h2 id="sidebarTitle" class="fs-6 fw-bold mb-1 text-truncate">Title</h2>
-        <p id="sidebarAuthor" class="small text-muted mb-2">Author</p>
+        <h2 id="sidebarTitle" class="fs-6 fw-bold mb-1 text-truncate">Loading...</h2>
+        <p id="sidebarAuthor" class="small text-muted mb-2">-</p>
         <span class="badge bg-secondary" id="sidebarFormatBadge">EPUB</span>
       </div>
       <div id="sidebarDynamicPanel" class="p-3 border-top">
         <div class="control-label">Description</div>
-        <div id="sidebarPanelContent" class="small text-muted" style="line-height: 1.5;">Loading details...</div>
+        <div id="sidebarPanelContent" class="small text-muted" style="line-height: 1.5;">Fetching details...</div>
       </div>
     </aside>
 
-    <!-- Workspace / Viewports -->
+    <!-- Workspace -->
     <main class="center-workspace">
+      <div id="loadingOverlay">
+        <div class="spinner-border text-primary mb-2" role="status"></div>
+        <div class="small text-muted" id="loadingStatus">Loading document...</div>
+      </div>
+
       <div class="reader-container" id="readerContainer">
-        <!-- Floating Controls -->
         <button class="nav-btn prev d-none" id="prevPageBtn" aria-label="Previous Page"><i class="fa-solid fa-chevron-left"></i></button>
         <button class="nav-btn next d-none" id="nextPageBtn" aria-label="Next Page"><i class="fa-solid fa-chevron-right"></i></button>
         
-        <!-- EPUB Element Container -->
         <div id="epub-viewer"></div>
-
-        <!-- PDF Element (IFrame / PDF Viewer fallback) -->
-        <iframe id="pdf-viewer-frame" class="d-none" title="PDF Document Viewer"></iframe>
+        <iframe id="pdf-viewer-frame" class="d-none" title="PDF Viewer"></iframe>
       </div>
     </main>
 
@@ -329,7 +336,6 @@
     let epubRendition = null;
     let currentFontSize = 100;
     
-    // Anti-fraud engagement metrics
     const sessionStartTime = Date.now();
     const pageTurnTimes = [];
     let validPagesRead = 0;
@@ -382,6 +388,27 @@
       if (epubRendition) epubRendition.spread('none');
     });
 
+    function hideLoader() {
+      const overlay = document.getElementById('loadingOverlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+
+    async function fetchBookRecord(idVal) {
+      // 1. Primary search by primary key `id` (Supports UUID and integers)
+      let { data, error } = await supabase.from('books').select('*').eq('id', idVal).maybeSingle();
+      if (data) return data;
+
+      // 2. Fallback search by `book_id` (Custom textual identifiers like BK-1002)
+      const res2 = await supabase.from('books').select('*').eq('book_id', idVal).maybeSingle();
+      if (res2.data) return res2.data;
+
+      // 3. Fallback search by `uuid` column if defined separately
+      const res3 = await supabase.from('books').select('*').eq('uuid', idVal).maybeSingle();
+      if (res3.data) return res3.data;
+
+      return null;
+    }
+
     async function loadBookData() {
       if (!bookId) {
         alert("No book selected. Returning to library.");
@@ -390,41 +417,32 @@
       }
 
       try {
-        let { data: book, error } = await supabase
-          .from('books')
-          .select('*')
-          .eq('book_id', bookId)
-          .maybeSingle();
+        const book = await fetchBookRecord(bookId);
 
-        if (!book && !isNaN(Number(bookId))) {
-          const res = await supabase.from('books').select('*').eq('id', bookId).maybeSingle();
-          book = res.data;
-          error = res.error;
-        }
-
-        if (error || !book) {
+        if (!book) {
           throw new Error("Book not found in database.");
         }
 
-        document.getElementById('topBookTitle').textContent = book.title || 'Untitled';
-        document.getElementById('sidebarTitle').textContent = book.title || 'Untitled';
-        document.getElementById('sidebarAuthor').textContent = book.author ? `By ${book.author}` : 'Unknown Author';
-        document.getElementById('sidebarPanelContent').textContent = book.description || 'No description available.';
-        document.getElementById('sidebarFormatBadge').textContent = (book.file_type || 'epub').toUpperCase();
+        // Update Metadata UI
+        const title = book.title || book.book_name || 'Untitled Book';
+        const author = book.author || book.author_name || 'Unknown Author';
+        const description = book.description || book.summary || 'No description available.';
+        const cover = book.cover_url || book.thumbnail_url || book.image_url || 'https://placehold.co/130x180/5c4bca/ffffff?text=eBook';
+        const fileUrl = book.file_url || book.pdf_url || book.epub_url || book.download_url || book.book_url;
+        const fileType = (book.file_type || book.format || (fileUrl && fileUrl.endsWith('.pdf') ? 'pdf' : 'epub')).toLowerCase();
 
-        if (book.cover_url) {
-          document.getElementById('sidebarCover').src = book.cover_url;
-        }
+        document.getElementById('topBookTitle').textContent = title;
+        document.getElementById('sidebarTitle').textContent = title;
+        document.getElementById('sidebarAuthor').textContent = `By ${author}`;
+        document.getElementById('sidebarPanelContent').textContent = description;
+        document.getElementById('sidebarFormatBadge').textContent = fileType.toUpperCase();
+        document.getElementById('sidebarCover').src = cover;
 
-        const fileUrl = book.pdf_url || book.file_url;
         if (!fileUrl) {
           throw new Error("No readable book file is associated with this entry.");
         }
 
-        const format = (book.file_type || '').toLowerCase();
-        const isPdf = format === 'pdf' || fileUrl.toLowerCase().endsWith('.pdf');
-
-        if (isPdf) {
+        if (fileType === 'pdf' || fileUrl.toLowerCase().endsWith('.pdf')) {
           renderPdf(fileUrl);
         } else {
           renderEpub(fileUrl);
@@ -432,7 +450,9 @@
 
       } catch (err) {
         console.error("Reader Error:", err);
+        hideLoader();
         document.getElementById('sidebarPanelContent').innerHTML = `<span class="text-danger">${err.message}</span>`;
+        document.getElementById('topBookTitle').textContent = 'Error Loading Book';
       }
     }
 
@@ -449,7 +469,7 @@
         spread: "auto"
       });
 
-      epubRendition.display();
+      epubRendition.display().then(() => hideLoader());
 
       const goPrev = () => epubRendition && epubRendition.prev();
       const goNext = () => epubRendition && epubRendition.next();
@@ -457,7 +477,6 @@
       prevBtn.addEventListener('click', goPrev);
       nextBtn.addEventListener('click', goNext);
 
-      // Keyboard navigation
       document.addEventListener('keyup', (e) => {
         if (e.key === 'ArrowLeft') goPrev();
         if (e.key === 'ArrowRight') goNext();
@@ -483,6 +502,7 @@
     }
 
     function renderPdf(url) {
+      hideLoader();
       document.getElementById('epub-viewer').classList.add('d-none');
       document.getElementById('topPageIndicator').classList.add('d-none');
       document.getElementById('rightSidebar').classList.add('d-none');
@@ -499,7 +519,7 @@
       if (pageTurnTimes.length > 5) {
         const timeFor5Pages = (now - pageTurnTimes[pageTurnTimes.length - 5]) / 1000;
         if (timeFor5Pages < 3) {
-          console.warn("Anti-Fraud Alert: Rapid page-turn detected.");
+          console.warn("Rapid page-turn detected.");
           return;
         }
       }
