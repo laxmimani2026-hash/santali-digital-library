@@ -10,9 +10,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,700;1,400&family=Georgia&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Noto+Sans+Ol+Chiki:wght@400;600;700&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
 
+  <!-- Bootstrap 5.3 & Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
+  <!-- EPUB.js & JSZip -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
   
@@ -23,24 +25,35 @@
       --topbar-bg: #151623;
       --topbar-text: #ffffff;
       --panel-bg: #ffffff;
-      --center-bg: #fafafa;
-      --text-main: #333333;
-      --text-muted: #777777;
-      --border-color: #eaeaea;
+      --center-bg: #f5f6f8;
+      --text-main: #2b2f38;
+      --text-muted: #6c757d;
+      --border-color: #e5e7eb;
       --card-bg: #f8f9fa;
+      --epub-bg: #ffffff;
+      --epub-text: #1f2937;
     }
 
     body.dark-ui {
       --topbar-bg: #0d0e15;
       --panel-bg: #181924;
-      --center-bg: #12131c;
+      --center-bg: #11121a;
       --text-main: #e2e8f0;
       --text-muted: #94a3b8;
-      --border-color: #2a2d3d;
+      --border-color: #26293b;
       --brand-light: #252243;
-      --card-bg: #212332;
+      --card-bg: #1f2130;
+      --epub-bg: #181924;
+      --epub-text: #e2e8f0;
     }
 
+    body.sepia-ui {
+      --epub-bg: #fbf0d9;
+      --epub-text: #5f4b32;
+    }
+
+    * { box-sizing: border-box; }
+    
     body {
       background-color: var(--panel-bg);
       color: var(--text-main);
@@ -56,56 +69,85 @@
     .top-navbar {
       background-color: var(--topbar-bg);
       color: var(--topbar-text);
-      height: 64px;
+      height: 60px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 24px;
+      padding: 0 1rem;
       flex-shrink: 0;
-      z-index: 1000;
+      z-index: 1030;
     }
 
-    .app-body { display: flex; flex-grow: 1; overflow: hidden; }
+    .progress-bar-container {
+      height: 3px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+    }
 
-    .left-sidebar {
-      width: 280px;
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--brand-primary);
+      transition: width 0.3s ease;
+    }
+
+    .app-body { display: flex; flex-grow: 1; overflow: hidden; position: relative; }
+
+    /* Sidebars */
+    .sidebar {
+      width: 300px;
       background-color: var(--panel-bg);
-      border-right: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
       overflow-y: auto;
+      transition: all 0.3s ease;
+      z-index: 1020;
     }
 
-    .book-cover-container { padding: 20px; text-align: center; }
-    .cover-wrapper { width: 130px; height: 180px; margin: 0 auto 12px auto; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .left-sidebar { border-right: 1px solid var(--border-color); }
+    .right-sidebar { border-left: 1px solid var(--border-color); padding: 1.25rem; }
+
+    .book-cover-container { padding: 1.5rem 1rem; text-align: center; }
+    .cover-wrapper { 
+      width: 120px; 
+      height: 170px; 
+      margin: 0 auto 12px; 
+      border-radius: 6px; 
+      overflow: hidden; 
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15); 
+    }
     .cover-wrapper img { width: 100%; height: 100%; object-fit: cover; }
 
+    /* Workspace */
     .center-workspace {
       flex-grow: 1;
       display: flex;
       flex-direction: column;
       background-color: var(--center-bg);
       position: relative;
+      overflow: hidden;
     }
 
     .reader-container { 
       flex-grow: 1; 
-      overflow: hidden; 
-      padding: 15px; 
+      position: relative; 
       display: flex; 
-      flex-direction: column; 
-      align-items: center;
+      align-items: center; 
       justify-content: center;
-      position: relative;
+      padding: 1rem;
     }
     
     #epub-viewer { 
       width: 100%; 
-      max-width: 850px; 
+      max-width: 900px; 
       height: 100%; 
-      background: #fff; 
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+      background: var(--epub-bg); 
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
       border-radius: 8px; 
+      overflow: hidden;
     }
 
     #pdf-viewer-frame {
@@ -119,8 +161,8 @@
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(0,0,0,0.5);
-      color: white;
+      background: rgba(0,0,0,0.4);
+      color: #fff;
       border: none;
       width: 44px;
       height: 44px;
@@ -130,72 +172,145 @@
       justify-content: center;
       cursor: pointer;
       z-index: 10;
-      transition: background 0.2s;
+      transition: background 0.2s, transform 0.2s;
     }
-    .nav-btn:hover { background: rgba(0,0,0,0.8); }
-    .nav-btn.prev { left: 25px; }
-    .nav-btn.next { right: 25px; }
+    .nav-btn:hover { background: rgba(0,0,0,0.75); transform: translateY(-50%) scale(1.05); }
+    .nav-btn.prev { left: 1.5rem; }
+    .nav-btn.next { right: 1.5rem; }
 
-    .right-sidebar { width: 320px; background-color: var(--panel-bg); border-left: 1px solid var(--border-color); padding: 20px 16px; overflow-y: auto; }
-    .settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .custom-select { border: 1px solid var(--border-color); border-radius: 6px; padding: 5px; font-size: 0.85rem; background: var(--card-bg); color: var(--text-main); }
+    .control-label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .custom-select, .form-control {
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background-color: var(--card-bg);
+      color: var(--text-main);
+    }
+    .custom-select:focus, .form-control:focus {
+      background-color: var(--card-bg);
+      color: var(--text-main);
+      border-color: var(--brand-primary);
+      box-shadow: none;
+    }
+
+    /* Responsive Drawer behaviors */
+    @media (max-width: 991.98px) {
+      .left-sidebar, .right-sidebar {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        height: 100%;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      }
+      .left-sidebar { left: -320px; }
+      .left-sidebar.show { left: 0; }
+      .right-sidebar { right: -340px; }
+      .right-sidebar.show { right: 0; }
+      .nav-btn { width: 36px; height: 36px; }
+      .nav-btn.prev { left: 0.5rem; }
+      .nav-btn.next { right: 0.5rem; }
+    }
   </style>
 </head>
 <body>
 
-  <nav class="top-navbar">
-    <a href="browse.html" class="text-white text-decoration-none" id="backToLibraryBtn">
-      <i class="fa-solid fa-arrow-left me-2"></i> Library
-    </a>
-    <div class="text-center">
-      <h1 id="topBookTitle" class="fs-6 m-0 fw-bold">Loading...</h1>
-      <small class="text-muted" id="topPageIndicator">Page <span id="topPageNum">1</span> of <span id="topTotalPages">1</span></small>
+  <!-- Top Navbar -->
+  <nav class="top-navbar position-relative">
+    <div class="d-flex align-items-center gap-2">
+      <a href="browse.html" class="btn btn-sm btn-outline-light border-0" id="backToLibraryBtn">
+        <i class="fa-solid fa-arrow-left me-1"></i> <span class="d-none d-sm-inline">Library</span>
+      </a>
+      <button class="btn btn-sm btn-outline-light border-0 d-lg-none" id="toggleLeftDrawerBtn">
+        <i class="fa-solid fa-book-open"></i>
+      </button>
     </div>
-    <div>
-      <i class="fa-solid fa-moon text-white-50 ms-3 cursor-pointer" id="topDarkModeBtn" title="Dark UI"></i>
+
+    <div class="text-center px-2 text-truncate" style="max-width: 50%;">
+      <h1 id="topBookTitle" class="fs-6 m-0 fw-bold text-truncate text-white">Loading...</h1>
+      <small class="text-white-50" id="topPageIndicator">Page <span id="topPageNum">-</span> of <span id="topTotalPages">-</span></small>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-sm btn-outline-light border-0" id="topDarkModeBtn" title="Toggle Theme">
+        <i class="fa-solid fa-moon"></i>
+      </button>
+      <button class="btn btn-sm btn-outline-light border-0 d-lg-none" id="toggleRightDrawerBtn">
+        <i class="fa-solid fa-sliders"></i>
+      </button>
+    </div>
+
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill" id="readingProgressBar"></div>
     </div>
   </nav>
 
   <div class="app-body">
-    <aside class="left-sidebar">
+    <!-- Left Metadata Sidebar -->
+    <aside class="sidebar left-sidebar" id="leftSidebar">
       <div class="book-cover-container">
         <div class="cover-wrapper">
           <img id="sidebarCover" src="https://placehold.co/130x180/5c4bca/ffffff?text=eBook" alt="Book Cover">
         </div>
-        <h3 id="sidebarTitle" class="fs-6 fw-bold">Title</h3>
-        <p id="sidebarAuthor" class="small text-muted mb-1">Author</p>
+        <h2 id="sidebarTitle" class="fs-6 fw-bold mb-1 text-truncate">Title</h2>
+        <p id="sidebarAuthor" class="small text-muted mb-2">Author</p>
         <span class="badge bg-secondary" id="sidebarFormatBadge">EPUB</span>
       </div>
       <div id="sidebarDynamicPanel" class="p-3 border-top">
-        <h6 id="sidebarPanelTitle" class="fw-bold mb-2">Description</h6>
-        <div id="sidebarPanelContent" class="small text-muted">Loading details...</div>
+        <div class="control-label">Description</div>
+        <div id="sidebarPanelContent" class="small text-muted" style="line-height: 1.5;">Loading details...</div>
       </div>
     </aside>
 
+    <!-- Workspace / Viewports -->
     <main class="center-workspace">
       <div class="reader-container" id="readerContainer">
-        <!-- Navigation Buttons for EPUB -->
-        <button class="nav-btn prev d-none" id="prevPageBtn"><i class="fa-solid fa-chevron-left"></i></button>
-        <button class="nav-btn next d-none" id="nextPageBtn"><i class="fa-solid fa-chevron-right"></i></button>
+        <!-- Floating Controls -->
+        <button class="nav-btn prev d-none" id="prevPageBtn" aria-label="Previous Page"><i class="fa-solid fa-chevron-left"></i></button>
+        <button class="nav-btn next d-none" id="nextPageBtn" aria-label="Next Page"><i class="fa-solid fa-chevron-right"></i></button>
         
-        <!-- EPUB Element -->
+        <!-- EPUB Element Container -->
         <div id="epub-viewer"></div>
 
-        <!-- PDF Element (Shown when format is PDF) -->
-        <iframe id="pdf-viewer-frame" class="d-none"></iframe>
+        <!-- PDF Element (IFrame / PDF Viewer fallback) -->
+        <iframe id="pdf-viewer-frame" class="d-none" title="PDF Document Viewer"></iframe>
       </div>
     </main>
 
-    <aside class="right-sidebar">
-      <h6 class="fw-bold mb-3">READING SETTINGS</h6>
-      <div class="settings-row">
-        <span>Script/Font</span>
-        <select class="custom-select" id="fontFamilySelect">
+    <!-- Right Settings Sidebar -->
+    <aside class="sidebar right-sidebar" id="rightSidebar">
+      <h6 class="fw-bold mb-3 d-flex justify-content-between align-items-center">
+        <span>Settings</span>
+        <button class="btn btn-sm btn-close d-lg-none" id="closeRightSidebar"></button>
+      </h6>
+
+      <div class="mb-3">
+        <div class="control-label">Font Family</div>
+        <select class="form-select form-select-sm custom-select" id="fontFamilySelect">
+          <option value="Lora" selected>Lora (Serif)</option>
           <option value="Noto Sans Ol Chiki">Ol Chiki (ᱚᱞ ᱪᱤᱠᱤ)</option>
-          <option value="Lora" selected>Lora (Roman)</option>
+          <option value="Merriweather">Merriweather</option>
           <option value="Georgia">Georgia</option>
-          <option value="Open Sans">Open Sans</option>
+          <option value="Open Sans">Open Sans (Sans-Serif)</option>
+          <option value="Roboto">Roboto</option>
         </select>
+      </div>
+
+      <div class="mb-3">
+        <div class="control-label">Font Size</div>
+        <div class="input-group input-group-sm">
+          <button class="btn btn-outline-secondary" id="fontSizeDecBtn"><i class="fa-solid fa-minus"></i></button>
+          <input type="text" class="form-control text-center" id="fontSizeLabel" value="100%" readonly>
+          <button class="btn btn-outline-secondary" id="fontSizeIncBtn"><i class="fa-solid fa-plus"></i></button>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <div class="control-label">Page Spread</div>
+        <div class="btn-group btn-group-sm w-100" role="group">
+          <input type="radio" class="btn-check" name="spreadOpt" id="spreadAuto" autocomplete="off" checked>
+          <label class="btn btn-outline-secondary" for="spreadAuto">Auto</label>
+          <input type="radio" class="btn-check" name="spreadOpt" id="spreadSingle" autocomplete="off">
+          <label class="btn btn-outline-secondary" for="spreadSingle">Single</label>
+        </div>
       </div>
     </aside>
   </div>
@@ -210,23 +325,61 @@
     const urlParams = new URLSearchParams(window.location.search);
     const bookId = urlParams.get('id');
 
-    let epubBook, epubRendition, currentCfi;
+    let epubBook = null;
+    let epubRendition = null;
+    let currentFontSize = 100;
     
     // Anti-fraud engagement metrics
-    let sessionStartTime = Date.now();
-    let pageTurnTimes = [];
+    const sessionStartTime = Date.now();
+    const pageTurnTimes = [];
     let validPagesRead = 0;
+
+    // Mobile Sidebar Toggles
+    const leftSidebar = document.getElementById('leftSidebar');
+    const rightSidebar = document.getElementById('rightSidebar');
+    document.getElementById('toggleLeftDrawerBtn')?.addEventListener('click', () => leftSidebar.classList.toggle('show'));
+    document.getElementById('toggleRightDrawerBtn')?.addEventListener('click', () => rightSidebar.classList.toggle('show'));
+    document.getElementById('closeRightSidebar')?.addEventListener('click', () => rightSidebar.classList.remove('show'));
 
     // Dark Mode Toggle
     document.getElementById('topDarkModeBtn').addEventListener('click', () => {
-      document.body.classList.toggle('dark-ui');
+      const isDark = document.body.classList.toggle('dark-ui');
+      if (epubRendition) {
+        epubRendition.themes.override('color', isDark ? '#e2e8f0' : '#2b2f38');
+        epubRendition.themes.override('background', isDark ? '#181924' : '#ffffff');
+      }
     });
 
-    // Font Changer (EPUB)
+    // Font Controls
     document.getElementById('fontFamilySelect').addEventListener('change', (e) => {
-      if (epubRendition) {
-        epubRendition.themes.font(e.target.value);
+      if (epubRendition) epubRendition.themes.font(e.target.value);
+    });
+
+    document.getElementById('fontSizeIncBtn').addEventListener('click', () => {
+      if (currentFontSize < 160) {
+        currentFontSize += 10;
+        updateFontSize();
       }
+    });
+
+    document.getElementById('fontSizeDecBtn').addEventListener('click', () => {
+      if (currentFontSize > 70) {
+        currentFontSize -= 10;
+        updateFontSize();
+      }
+    });
+
+    function updateFontSize() {
+      document.getElementById('fontSizeLabel').value = `${currentFontSize}%`;
+      if (epubRendition) epubRendition.themes.fontSize(`${currentFontSize}%`);
+    }
+
+    // Spread Controls
+    document.getElementById('spreadAuto').addEventListener('change', () => {
+      if (epubRendition) epubRendition.spread('auto');
+    });
+    document.getElementById('spreadSingle').addEventListener('change', () => {
+      if (epubRendition) epubRendition.spread('none');
     });
 
     async function loadBookData() {
@@ -237,21 +390,22 @@
       }
 
       try {
-        // Query by numeric/UUID id or custom book_id (BK-XXXXXX)
-        let query = supabase.from('books').select('*');
-        if (!isNaN(bookId)) {
-          query = query.eq('id', bookId);
-        } else {
-          query = query.or(`id.eq.${bookId},book_id.eq.${bookId}`);
-        }
+        let { data: book, error } = await supabase
+          .from('books')
+          .select('*')
+          .eq('book_id', bookId)
+          .maybeSingle();
 
-        const { data: book, error } = await query.maybeSingle();
+        if (!book && !isNaN(Number(bookId))) {
+          const res = await supabase.from('books').select('*').eq('id', bookId).maybeSingle();
+          book = res.data;
+          error = res.error;
+        }
 
         if (error || !book) {
           throw new Error("Book not found in database.");
         }
 
-        // Update UI Info
         document.getElementById('topBookTitle').textContent = book.title || 'Untitled';
         document.getElementById('sidebarTitle').textContent = book.title || 'Untitled';
         document.getElementById('sidebarAuthor').textContent = book.author ? `By ${book.author}` : 'Unknown Author';
@@ -262,12 +416,11 @@
           document.getElementById('sidebarCover').src = book.cover_url;
         }
 
-        const fileUrl = book.pdf_url;
+        const fileUrl = book.pdf_url || book.file_url;
         if (!fileUrl) {
           throw new Error("No readable book file is associated with this entry.");
         }
 
-        // Determine file format and render
         const format = (book.file_type || '').toLowerCase();
         const isPdf = format === 'pdf' || fileUrl.toLowerCase().endsWith('.pdf');
 
@@ -280,7 +433,6 @@
       } catch (err) {
         console.error("Reader Error:", err);
         document.getElementById('sidebarPanelContent').innerHTML = `<span class="text-danger">${err.message}</span>`;
-        alert("Error loading book: " + err.message);
       }
     }
 
@@ -294,24 +446,36 @@
       epubRendition = epubBook.renderTo("epub-viewer", { 
         width: "100%", 
         height: "100%",
-        spread: "always"
+        spread: "auto"
       });
 
       epubRendition.display();
 
-      prevBtn.addEventListener('click', () => epubRendition.prev());
-      nextBtn.addEventListener('click', () => epubRendition.next());
+      const goPrev = () => epubRendition && epubRendition.prev();
+      const goNext = () => epubRendition && epubRendition.next();
+
+      prevBtn.addEventListener('click', goPrev);
+      nextBtn.addEventListener('click', goNext);
+
+      // Keyboard navigation
+      document.addEventListener('keyup', (e) => {
+        if (e.key === 'ArrowLeft') goPrev();
+        if (e.key === 'ArrowRight') goNext();
+      });
 
       epubBook.ready
         .then(() => epubBook.locations.generate(1024))
         .then(() => {
           epubRendition.on('relocated', (location) => {
-            currentCfi = location.start.cfi;
+            const currentCfi = location.start.cfi;
             const currentLoc = epubBook.locations.locationFromCfi(currentCfi) || 1;
             const totalLocs = epubBook.locations.total || 1;
             
             document.getElementById('topPageNum').textContent = currentLoc;
             document.getElementById('topTotalPages').textContent = totalLocs;
+            
+            const pct = Math.min(100, Math.round((currentLoc / totalLocs) * 100));
+            document.getElementById('readingProgressBar').style.width = `${pct}%`;
             
             trackReadingEngagement(currentLoc);
           });
@@ -321,6 +485,7 @@
     function renderPdf(url) {
       document.getElementById('epub-viewer').classList.add('d-none');
       document.getElementById('topPageIndicator').classList.add('d-none');
+      document.getElementById('rightSidebar').classList.add('d-none');
 
       const pdfFrame = document.getElementById('pdf-viewer-frame');
       pdfFrame.classList.remove('d-none');
@@ -356,5 +521,6 @@
 
     document.addEventListener("DOMContentLoaded", loadBookData);
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
