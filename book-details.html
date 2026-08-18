@@ -711,7 +711,8 @@
 
         // Button Click Handlers
         buyNowBtn.addEventListener('click', () => {
-          window.location.href = `subscription.html?upgrade=true`;
+          // Open checkout directly for this book
+          window.location.href = `checkout.html?id=${book.id}`;
         });
 
         readBookBtn.addEventListener('click', () => {
