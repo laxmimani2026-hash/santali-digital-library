@@ -431,7 +431,6 @@
           <i class="fa-solid fa-caret-down text-white-50"></i>
         </button>
 
-        <!-- User Dropdown with My Cart, My Orders, and Conditional Author Dashboard -->
         <div class="dropdown-menu-custom" id="dropdownMenu">
           <a href="profile.html"><i class="fa-solid fa-user-gear"></i> My Profile</a>
           <a href="subscription.html"><i class="fa-solid fa-crown" style="color:var(--primary-gold);"></i> My Subscription</a>
@@ -687,18 +686,27 @@
         descEl.textContent = book.description || 'No description available for this book.';
         descEl.classList.remove('skeleton');
 
-        if (book.pricing === 'free' || Number(book.price) === 0) {
+        const isFree = book.pricing === 'free' || Number(book.price) === 0 || String(book.price).trim().toUpperCase() === 'FREE';
+
+        if (isFree) {
           priceEl.textContent = "FREE";
           priceEl.style.color = "#10b981";
+          
+          // Hide purchase buttons for free books
+          buyNowBtn.style.display = "none";
+          addToCartBtn.style.display = "none";
         } else {
           priceEl.textContent = `₹${book.price}`;
           priceEl.style.color = "#005f73";
+          
+          buyNowBtn.style.display = "inline-flex";
+          addToCartBtn.style.display = "inline-flex";
+          buyNowBtn.disabled = false;
+          addToCartBtn.disabled = false;
         }
         priceEl.classList.remove('skeleton');
 
-        // Enable buttons
-        buyNowBtn.disabled = false;
-        addToCartBtn.disabled = false;
+        // Enable Read Book button
         readBookBtn.disabled = false;
 
         // Button Click Handlers
