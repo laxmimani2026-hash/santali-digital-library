@@ -5,8 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Book Details | Santali Digital Library</title>
   
+  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Inter & Plus Jakarta Sans -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
@@ -403,6 +406,7 @@
 </head>
 <body>
 
+  <!-- Top Navigation Header -->
   <header>
     <a href="index.html" class="logo">
       <i class="fa-solid fa-book-open-reader"></i>
@@ -427,6 +431,7 @@
           <i class="fa-solid fa-caret-down text-white-50"></i>
         </button>
 
+        <!-- User Dropdown with My Cart, My Orders, and Conditional Author Dashboard -->
         <div class="dropdown-menu-custom" id="dropdownMenu">
           <a href="profile.html"><i class="fa-solid fa-user-gear"></i> My Profile</a>
           <a href="subscription.html"><i class="fa-solid fa-crown" style="color:var(--primary-gold);"></i> My Subscription</a>
@@ -440,7 +445,317 @@
     </div>
   </header>
 
+  <!-- Clean Breadcrumb Path -->
   <div class="breadcrumb-bar">
     <div class="container">
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="browse.html">Catalog</a></li>
+          <li class="breadcrumb-item active" id="breadcrumbTitle">Loading Details...</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Main Showcase Section -->
+  <main class="container my-5 flex-grow-1">
+    
+    <div id="pageAlert" class="alert d-none shadow-sm mb-4" role="alert"></div>
+
+    <div class="book-detail-card">
+      <div class="row g-0">
+        
+        <!-- Left Stage: 3D Cover Display -->
+        <div class="col-lg-5 col-md-5">
+          <div class="cover-panel">
+            <div class="book-cover-container">
+              <img src="" alt="Book Cover" id="detailCover" class="skeleton"
+                   onerror="this.src='https://via.placeholder.com/240x350?text=Cover+Not+Found'; this.classList.remove('skeleton');">
+              <div class="book-spine-shine"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Content: Information & Actions -->
+        <div class="col-lg-7 col-md-7 p-4 p-lg-5 d-flex flex-column justify-content-between">
+          <div>
+            
+            <!-- Category & Language Badges -->
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+              <span class="meta-tag meta-tag-category skeleton" id="detailCategory">FICTION</span>
+              <span class="meta-tag meta-tag-lang skeleton" id="detailLanguage">Santali (Ol Chiki)</span>
+            </div>
+
+            <!-- Title & Author -->
+            <h1 class="fw-bold text-dark mb-1 skeleton" id="detailTitle" style="font-size: 2.1rem; line-height: 1.25;">
+              Loading Book Title...
+            </h1>
+            <p class="text-muted fs-6 mb-4">
+              By <span id="detailAuthor" class="fw-bold text-dark skeleton">Author Name</span>
+            </p>
+
+            <!-- Specification Row -->
+            <div class="specs-row">
+              <div class="spec-box">
+                <div class="spec-label"><i class="fa-solid fa-file-lines"></i> Format</div>
+                <div class="spec-value" id="specFormat">EPUB</div>
+              </div>
+              <div class="spec-box">
+                <div class="spec-label"><i class="fa-solid fa-shield-check"></i> Status</div>
+                <div class="spec-value text-success">Verified</div>
+              </div>
+              <div class="spec-box">
+                <div class="spec-label"><i class="fa-solid fa-bolt"></i> Access</div>
+                <div class="spec-value">Instant</div>
+              </div>
+            </div>
+
+            <!-- Price Card -->
+            <div class="price-box">
+              <div>
+                <span class="small text-muted text-uppercase fw-bold d-block">Price</span>
+                <span class="price-val skeleton" id="detailPrice">₹0</span>
+              </div>
+              <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 fw-semibold">
+                <i class="fa-solid fa-check-circle me-1"></i> Full Access
+              </span>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-4">
+              <h6 class="fw-bold text-uppercase small text-muted mb-2">Description</h6>
+              <p class="text-secondary skeleton" id="detailDescription" style="line-height: 1.7; font-size: 0.92rem; font-family: 'Inter', sans-serif;">
+                Loading description...
+              </p>
+            </div>
+
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="pt-4 border-top">
+            <div class="action-btn-group">
+              <button class="btn btn-action-buy" id="buyNowBtn" disabled>
+                <i class="fa-solid fa-bolt"></i> Buy Now
+              </button>
+              <button class="btn btn-action-cart" id="addToCartBtn" disabled>
+                <i class="fa-solid fa-cart-plus"></i> Add to Cart
+              </button>
+              <button class="btn btn-action-read" id="readBookBtn" disabled>
+                <i class="fa-solid fa-book-open"></i> Read Book
+              </button>
+              <a href="browse.html" class="btn btn-outline-secondary fw-semibold ms-auto" style="border-radius: 10px;">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center mt-auto py-3" style="background-color: var(--bg-dark);">
+    <div class="container">
+      <p class="mb-0 text-white" style="font-size: 0.88rem;">&copy; 2026 Santali Digital Library. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Fetch Data & Actions Logic -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const SUPABASE_URL = 'https://qdzadypqtctjonnwgxoo.supabase.co'; 
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const bookId = urlParams.get('id');
+
+      const pageAlert = document.getElementById('pageAlert');
+      const coverEl = document.getElementById('detailCover');
+      const titleEl = document.getElementById('detailTitle');
+      const breadcrumbTitle = document.getElementById('breadcrumbTitle');
+      const authorEl = document.getElementById('detailAuthor');
+      const priceEl = document.getElementById('detailPrice');
+      const descEl = document.getElementById('detailDescription');
+      const catEl = document.getElementById('detailCategory');
+      const langEl = document.getElementById('detailLanguage');
+      const specFormat = document.getElementById('specFormat');
+
+      const buyNowBtn = document.getElementById('buyNowBtn');
+      const addToCartBtn = document.getElementById('addToCartBtn');
+      const readBookBtn = document.getElementById('readBookBtn');
+      const authorDashboardNav = document.getElementById('authorDashboardNav');
+
+      // 1. Authenticate user, display header & apply role restrictions
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role, first_name, full_name, avatar_url')
+            .eq('id', user.id)
+            .maybeSingle();
+
+          if (profile) {
+            const userRole = (profile.role || 'reader').toLowerCase();
+            let firstName = profile.first_name || (profile.full_name ? profile.full_name.split(' ')[0] : user.email.split('@')[0]);
+            document.getElementById('headerUserName').textContent = `Hello, ${firstName}`;
+            document.getElementById('headerUserBadge').textContent = userRole.toUpperCase();
+
+            // Role-based visibility: hide Author Dashboard for Readers
+            if (userRole === 'reader' && authorDashboardNav) {
+              authorDashboardNav.style.display = 'none';
+            } else if (authorDashboardNav) {
+              authorDashboardNav.style.display = 'flex';
+            }
+
+            if (profile.avatar_url) {
+              const navAvatar = document.getElementById('navAvatar');
+              navAvatar.src = profile.avatar_url;
+              navAvatar.style.display = 'inline-block';
+              document.getElementById('navAvatarPlaceholder').style.display = 'none';
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Auth info skipped:", err);
+      }
+
+      // Dropdown toggle
+      const userMenuBtn = document.getElementById('userMenuBtn');
+      const dropdownMenu = document.getElementById('dropdownMenu');
+      userMenuBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('active');
+      });
+      document.addEventListener('click', (e) => {
+        if (!dropdownMenu.contains(e.target) && !userMenuBtn.contains(e.target)) {
+          dropdownMenu.classList.remove('active');
+        }
+      });
+      document.getElementById('logoutLink')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await supabase.auth.signOut();
+        window.location.href = 'login.html';
+      });
+
+      if (!bookId) {
+        showPageAlert("No book ID provided in URL.", "danger");
+        return;
+      }
+
+      // 2. Fetch specific book metadata
+      try {
+        let query = supabase.from('books').select('*');
+        if (!isNaN(bookId)) {
+          query = query.eq('id', bookId);
+        } else {
+          query = query.or(`id.eq.${bookId},book_id.eq.${bookId}`);
+        }
+
+        const { data: book, error } = await query.maybeSingle();
+        if (error || !book) throw error || new Error("Book not found.");
+
+        coverEl.src = book.cover_url || 'https://via.placeholder.com/240x350?text=No+Cover';
+        coverEl.classList.remove('skeleton');
+
+        titleEl.textContent = book.title;
+        titleEl.classList.remove('skeleton');
+
+        breadcrumbTitle.textContent = book.title;
+
+        authorEl.textContent = book.author || 'Unknown Author';
+        authorEl.classList.remove('skeleton');
+
+        catEl.textContent = (book.category || 'GENERAL').toUpperCase();
+        catEl.classList.remove('skeleton');
+
+        langEl.textContent = book.language === 'santali' ? 'Santali (Ol Chiki)' : (book.language || 'Santali');
+        langEl.classList.remove('skeleton');
+
+        specFormat.textContent = (book.file_type || 'EPUB').toUpperCase();
+
+        descEl.textContent = book.description || 'No description available for this book.';
+        descEl.classList.remove('skeleton');
+
+        if (book.pricing === 'free' || Number(book.price) === 0) {
+          priceEl.textContent = "FREE";
+          priceEl.style.color = "#10b981";
+        } else {
+          priceEl.textContent = `₹${book.price}`;
+          priceEl.style.color = "#005f73";
+        }
+        priceEl.classList.remove('skeleton');
+
+        // Enable buttons
+        buyNowBtn.disabled = false;
+        addToCartBtn.disabled = false;
+        readBookBtn.disabled = false;
+
+        // Button Click Handlers
+        buyNowBtn.addEventListener('click', () => {
+          window.location.href = `subscription.html?upgrade=true`;
+        });
+
+        readBookBtn.addEventListener('click', () => {
+          window.location.href = `reader.html?id=${book.id}`;
+        });
+
+        let isAdded = false;
+        addToCartBtn.addEventListener('click', async function () {
+          if (isAdded) {
+            window.location.href = "cart.html";
+            return;
+          }
+
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            showPageAlert("Please log in to add items to your cart.", "warning");
+            return;
+          }
+
+          this.disabled = true;
+          this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Adding...`;
+
+          const { error: cartErr } = await supabase
+            .from('cart_items')
+            .insert([{ user_id: user.id, book_id: book.id, quantity: 1 }]);
+
+          if (cartErr) {
+            showPageAlert("Failed to add book to cart: " + cartErr.message, "danger");
+            this.disabled = false;
+            this.innerHTML = `<i class="fa-solid fa-cart-plus"></i> Add to Cart`;
+          } else {
+            isAdded = true;
+            this.className = "btn btn-info text-white fw-bold";
+            this.style.borderRadius = "10px";
+            this.innerHTML = `<i class="fa-solid fa-circle-check"></i> View in Cart`;
+            this.disabled = false;
+            showPageAlert("Book successfully added to your cart!", "success");
+          }
+        });
+
+      } catch (err) {
+        console.error("Book Detail Error:", err);
+        showPageAlert("Failed to load book details: " + err.message, "danger");
+      }
+
+      function showPageAlert(message, type) {
+        pageAlert.className = `alert alert-${type} shadow-sm mb-4`;
+        pageAlert.textContent = message;
+        pageAlert.classList.remove('d-none');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  </script>
+</body>
+</html>
