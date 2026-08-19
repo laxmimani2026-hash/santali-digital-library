@@ -106,7 +106,6 @@
     .left-sidebar { border-right: 1px solid var(--border-color); }
     .right-sidebar { border-left: 1px solid var(--border-color); padding: 1.25rem; }
 
-    /* Reader Profile Badge */
     .reader-profile-card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
@@ -168,14 +167,14 @@
       border-radius: 8px; 
       overflow: hidden;
       position: relative;
+      transition: background 0.2s ease;
     }
 
-    /* Edge Click Tap Targets */
     .tap-target {
       position: absolute;
       top: 0;
       bottom: 0;
-      width: 25%;
+      width: 20%;
       z-index: 15;
       cursor: pointer;
     }
@@ -195,6 +194,22 @@
       border-radius: 6px;
       background-color: var(--card-bg);
       color: var(--text-main);
+    }
+
+    .theme-swatch {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .theme-swatch:hover {
+      transform: scale(1.1);
+    }
+    .theme-swatch.active {
+      border-color: var(--brand-primary) !important;
+      box-shadow: 0 0 0 2px rgba(92, 75, 202, 0.25);
     }
 
     #loadingOverlay {
@@ -239,9 +254,6 @@
     </div>
 
     <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-sm btn-outline-light border-0" id="topDarkModeBtn" title="Toggle Theme">
-        <i class="fa-solid fa-moon"></i>
-      </button>
       <button class="btn btn-sm btn-outline-light border-0 d-lg-none" id="toggleRightDrawerBtn">
         <i class="fa-solid fa-sliders"></i>
       </button>
@@ -255,7 +267,6 @@
   <div class="app-body">
     <!-- Left Sidebar -->
     <aside class="sidebar left-sidebar" id="leftSidebar">
-      <!-- Active Reader Profile Box -->
       <div class="reader-profile-card">
         <div class="reader-avatar" id="userAvatar">U</div>
         <div class="overflow-hidden">
@@ -287,7 +298,6 @@
       </div>
 
       <div class="reader-container" id="readerContainer">
-        <!-- Edge click trigger targets -->
         <div class="tap-target left" id="tapLeft" title="Previous Page"></div>
         <div class="tap-target right" id="tapRight" title="Next Page"></div>
 
@@ -303,6 +313,19 @@
         <button class="btn btn-sm btn-close d-lg-none" id="closeRightSidebar"></button>
       </h6>
 
+      <!-- 5 Background Color Presets -->
+      <div class="mb-4">
+        <div class="control-label">Background Theme</div>
+        <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light border">
+          <button type="button" class="theme-swatch active border-secondary" data-bg="#ffffff" data-text="#1f2937" style="background-color: #ffffff;" title="Pure White"></button>
+          <button type="button" class="theme-swatch" data-bg="#fbf0d9" data-text="#5f4b32" style="background-color: #fbf0d9;" title="Warm Sepia"></button>
+          <button type="button" class="theme-swatch" data-bg="#e8f0fe" data-text="#1a237e" style="background-color: #e8f0fe;" title="Soft Blue"></button>
+          <button type="button" class="theme-swatch" data-bg="#2d3748" data-text="#f7fafc" style="background-color: #2d3748;" title="Slate Gray"></button>
+          <button type="button" class="theme-swatch" data-bg="#121212" data-text="#e0e0e0" style="background-color: #121212;" title="Deep Night"></button>
+        </div>
+      </div>
+
+      <!-- Font Selector -->
       <div class="mb-3">
         <div class="control-label">Font Family</div>
         <select class="form-select form-select-sm custom-select" id="fontFamilySelect">
@@ -311,9 +334,12 @@
           <option value="Merriweather">Merriweather</option>
           <option value="Georgia">Georgia</option>
           <option value="Open Sans">Open Sans (Sans-Serif)</option>
+          <option value="Bitter">Bitter</option>
+          <option value="Roboto">Roboto</option>
         </select>
       </div>
 
+      <!-- Font Size -->
       <div class="mb-3">
         <div class="control-label">Font Size</div>
         <div class="input-group input-group-sm">
@@ -323,6 +349,7 @@
         </div>
       </div>
 
+      <!-- Page Spread -->
       <div class="mb-3">
         <div class="control-label">Page Spread</div>
         <div class="btn-group btn-group-sm w-100" role="group">
@@ -336,7 +363,6 @@
   </div>
 
   <script>
-    // Copy/Selection Protections
     document.addEventListener('copy', (e) => e.preventDefault());
     document.addEventListener('cut', (e) => e.preventDefault());
     document.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -363,34 +389,58 @@
     let currentUser = null;
     let currentResolvedBookId = null;
     let currentFontSize = 100;
-    
-    const sessionStartTime = Date.now();
-    const pageTurnTimes = [];
-    let validPagesRead = 0;
+    let currentFontFamily = 'Lora';
+    let currentThemeBg = '#ffffff';
+    let currentThemeText = '#1f2937';
+    let saveTimeout = null;
 
-    // Mobile Drawers
+    // Mobile Sidebar Toggles
     const leftSidebar = document.getElementById('leftSidebar');
     const rightSidebar = document.getElementById('rightSidebar');
     document.getElementById('toggleLeftDrawerBtn')?.addEventListener('click', () => leftSidebar.classList.toggle('show'));
     document.getElementById('toggleRightDrawerBtn')?.addEventListener('click', () => rightSidebar.classList.toggle('show'));
     document.getElementById('closeRightSidebar')?.addEventListener('click', () => rightSidebar.classList.remove('show'));
 
-    // Dark Mode
-    document.getElementById('topDarkModeBtn').addEventListener('click', () => {
-      const isDark = document.body.classList.toggle('dark-ui');
-      if (epubRendition) {
-        epubRendition.themes.override('color', isDark ? '#e2e8f0' : '#2b2f38');
-        epubRendition.themes.override('background', isDark ? '#181924' : '#ffffff');
-      }
-    });
-
-    // Font Controls
+    // 1. Font Family Logic
     document.getElementById('fontFamilySelect').addEventListener('change', (e) => {
-      if (epubRendition) epubRendition.themes.font(e.target.value);
+      currentFontFamily = e.target.value;
+      applyFontFamily(currentFontFamily);
     });
 
+    function applyFontFamily(font) {
+      if (!epubRendition) return;
+      epubRendition.themes.font(font);
+      epubRendition.themes.override('font-family', `"${font}", sans-serif !important`);
+    }
+
+    // 2. 5 Background Color Presets Handler
+    document.querySelectorAll('.theme-swatch').forEach(button => {
+      button.addEventListener('click', (e) => {
+        document.querySelectorAll('.theme-swatch').forEach(btn => btn.classList.remove('active'));
+        const target = e.currentTarget;
+        target.classList.add('active');
+
+        currentThemeBg = target.getAttribute('data-bg');
+        currentThemeText = target.getAttribute('data-text');
+
+        applyReadingTheme(currentThemeBg, currentThemeText);
+      });
+    });
+
+    function applyReadingTheme(bgColor, textColor) {
+      const viewer = document.getElementById('epub-viewer');
+      if (viewer) viewer.style.backgroundColor = bgColor;
+
+      if (epubRendition) {
+        epubRendition.themes.override('background', `${bgColor} !important`);
+        epubRendition.themes.override('color', `${textColor} !important`);
+        epubRendition.themes.override('fill', `${textColor} !important`);
+      }
+    }
+
+    // Font Sizing Controls
     document.getElementById('fontSizeIncBtn').addEventListener('click', () => {
-      if (currentFontSize < 160) {
+      if (currentFontSize < 180) {
         currentFontSize += 10;
         updateFontSize();
       }
@@ -405,9 +455,13 @@
 
     function updateFontSize() {
       document.getElementById('fontSizeLabel').value = `${currentFontSize}%`;
-      if (epubRendition) epubRendition.themes.fontSize(`${currentFontSize}%`);
+      if (epubRendition) {
+        epubRendition.themes.fontSize(`${currentFontSize}%`);
+        epubRendition.themes.override('font-size', `${currentFontSize}% !important`);
+      }
     }
 
+    // Page Spread
     document.getElementById('spreadAuto').addEventListener('change', () => {
       if (epubRendition) epubRendition.spread('auto');
     });
@@ -420,7 +474,6 @@
       if (overlay) overlay.style.display = 'none';
     }
 
-    // Initialize User & Profile
     async function initUserSession() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
@@ -453,6 +506,17 @@
       return null;
     }
 
+    async function getSavedProgress(bookId) {
+      if (!currentUser) return null;
+      const { data } = await supabase
+        .from('reading_progress')
+        .select('last_location_cfi, pages_read, total_pages')
+        .eq('user_id', currentUser.id)
+        .eq('book_id', bookId)
+        .maybeSingle();
+      return data;
+    }
+
     async function loadBookData() {
       await initUserSession();
 
@@ -464,8 +528,8 @@
 
       try {
         const book = await fetchBookRecord(bookId);
-
         if (!book) throw new Error("Book not found in database.");
+
         currentResolvedBookId = book.id;
 
         const title = book.title || book.book_name || 'Untitled Book';
@@ -484,10 +548,12 @@
 
         if (!fileUrl) throw new Error("No readable book file is associated with this entry.");
 
+        const savedProgress = await getSavedProgress(currentResolvedBookId);
+
         if (fileType === 'pdf' || fileUrl.toLowerCase().endsWith('.pdf')) {
           renderPdf(fileUrl);
         } else {
-          renderEpub(fileUrl);
+          renderEpub(fileUrl, savedProgress?.last_location_cfi);
         }
 
       } catch (err) {
@@ -498,7 +564,7 @@
       }
     }
 
-    function renderEpub(url) {
+    function renderEpub(url, initialCfi = null) {
       epubBook = ePub(url);
       epubRendition = epubBook.renderTo("epub-viewer", { 
         width: "100%", 
@@ -506,44 +572,45 @@
         spread: "auto"
       });
 
-      // Disable selection inside EPUB
-      epubRendition.themes.default({
-        '*': {
-          '-webkit-user-select': 'none !important',
-          '-moz-user-select': 'none !important',
-          '-ms-user-select': 'none !important',
-          'user-select': 'none !important'
-        }
-      });
-
-      const goPrev = () => epubRendition && epubRendition.prev();
-      const goNext = () => epubRendition && epubRendition.next();
-
-      // Feature 1: Left/Right edge click handlers
-      document.getElementById('tapLeft').addEventListener('click', goPrev);
-      document.getElementById('tapRight').addEventListener('click', goNext);
-
-      // Support edge clicks inside the iframe content document
+      // Inject web fonts and enforce styling in iframe documents
       epubRendition.hooks.content.register((contents) => {
         const doc = contents.document;
+        
+        const fontLink = doc.createElement('link');
+        fontLink.rel = 'stylesheet';
+        fontLink.href = 'https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,700;1,400&family=Georgia&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Noto+Sans+Ol+Chiki:wght@400;600;700&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,300;0,400;0,700;1,300&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap';
+        doc.head.appendChild(fontLink);
+
+        applyReadingTheme(currentThemeBg, currentThemeText);
+        applyFontFamily(currentFontFamily);
+        updateFontSize();
+
         doc.addEventListener('contextmenu', (e) => e.preventDefault());
         doc.addEventListener('copy', (e) => e.preventDefault());
         
         doc.addEventListener('click', (e) => {
           const width = doc.documentElement.clientWidth;
-          if (e.clientX < width * 0.3) {
+          if (e.clientX < width * 0.25) {
             goPrev();
-          } else if (e.clientX > width * 0.7) {
+          } else if (e.clientX > width * 0.75) {
             goNext();
           }
         });
       });
 
-      epubRendition.display().then(() => hideLoader());
+      const goPrev = () => epubRendition && epubRendition.prev();
+      const goNext = () => epubRendition && epubRendition.next();
+
+      document.getElementById('tapLeft').addEventListener('click', goPrev);
+      document.getElementById('tapRight').addEventListener('click', goNext);
 
       document.addEventListener('keyup', (e) => {
         if (e.key === 'ArrowLeft') goPrev();
         if (e.key === 'ArrowRight') goNext();
+      });
+
+      epubRendition.display(initialCfi || undefined).then(() => {
+        hideLoader();
       });
 
       epubBook.ready
@@ -560,7 +627,7 @@
             const pct = Math.min(100, Math.round((currentLoc / totalLocs) * 100));
             document.getElementById('readingProgressBar').style.width = `${pct}%`;
             
-            trackReadingEngagement(currentLoc, totalLocs, currentCfi);
+            saveReadingProgress(currentLoc, totalLocs, currentCfi);
           });
         });
     }
@@ -578,20 +645,12 @@
       pdfFrame.src = `${url}#toolbar=0&navpanes=0&scrollbar=1`;
     }
 
-    // Sync progress with Supabase for Reader Dashboard
-    async function trackReadingEngagement(pageNo, totalPages, cfi) {
-      const now = Date.now();
-      pageTurnTimes.push(now);
+    // 3. Progress Sync to Supabase
+    function saveReadingProgress(pageNo, totalPages, cfi) {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(async () => {
+        if (!currentUser || !currentResolvedBookId) return;
 
-      if (pageTurnTimes.length > 5) {
-        const timeFor5Pages = (now - pageTurnTimes[pageTurnTimes.length - 5]) / 1000;
-        if (timeFor5Pages < 3) return; // Anti-fraud throttle
-      }
-
-      validPagesRead++;
-
-      // Update active reader progress in reading_progress table
-      if (currentUser && currentResolvedBookId) {
         try {
           await supabase.from('reading_progress').upsert({
             user_id: currentUser.id,
@@ -602,9 +661,9 @@
             last_read_at: new Date().toISOString()
           }, { onConflict: 'user_id,book_id' });
         } catch (e) {
-          console.warn("Progress sync error:", e);
+          console.warn("Database sync error:", e);
         }
-      }
+      }, 1000);
     }
 
     document.addEventListener("DOMContentLoaded", loadBookData);
