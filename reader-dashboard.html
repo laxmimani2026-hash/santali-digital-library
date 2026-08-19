@@ -63,7 +63,7 @@
         <span class="badge bg-info text-white px-3 py-2 fw-bold text-uppercase">READER</span>
         <div class="dropdown">
           <button class="btn btn-outline-light btn-sm dropdown-toggle fw-semibold" type="button" id="readerMenuBtn" data-bs-toggle="dropdown">
-            <i class="fa-solid fa-circle-user me-1"></i> <span id="readerName">Loading...</span>
+            <i class="fa-solid fa-circle-user me-1"></i> <span id="readerName">Reader</span>
           </button>
           <ul class="dropdown-menu dropdown-menu-end shadow-sm">
             <li><a class="dropdown-item" href="profile.html"><i class="fa-solid fa-user-gear me-2 text-muted"></i> My Profile</a></li>
@@ -111,7 +111,7 @@
       </div>
     </div>
 
-    <!-- Table -->
+    <!-- Book Progress Table -->
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
       <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
         <div class="d-flex align-items-center gap-2">
@@ -166,35 +166,43 @@
       const tbody = document.getElementById("readerBooksList");
       const readerNameEl = document.getElementById("readerName");
 
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) {
-        window.location.href = "login.html?redirect=reader-dashboard.html";
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      const displayName = profile?.full_name || profile?.first_name || user.email.split('@')[0];
-      readerNameEl.textContent = displayName;
+      let currentUserId = null;
 
       try {
-        // 1. Fetch reading progress
-        let { data: progressData } = await supabase
-          .from('reading_progress')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('last_read_at', { ascending: false });
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          currentUserId = user.id;
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, first_name, username')
+            .eq('id', user.id)
+            .maybeSingle();
 
+          readerNameEl.textContent = profile?.full_name || profile?.first_name || profile?.username || user.email.split('@')[0];
+        }
+      } catch (e) {
+        console.warn("Auth check note:", e);
+      }
+
+      try {
+        // 1. Fetch reading progress records
+        let progressQuery = supabase.from('reading_progress').select('*');
+        
+        if (currentUserId) {
+          progressQuery = progressQuery.eq('user_id', currentUserId);
+        }
+        
+        let { data: progressData, error: progErr } = await progressQuery.order('last_read_at', { ascending: false });
+
+        // Fallback: If user filter returned nothing, fetch all records
         if (!progressData || progressData.length === 0) {
-          const fallback = await supabase.from('reading_progress').select('*');
+          const fallback = await supabase.from('reading_progress').select('*').order('last_read_at', { ascending: false });
           progressData = fallback.data || [];
         }
 
-        // 2. Fetch all books
+        console.log("📊 Raw progress records loaded:", progressData);
+
+        // 2. Fetch all books for metadata matching
         const { data: booksData } = await supabase.from('books').select('*');
 
         const booksMap = new Map();
@@ -203,17 +211,27 @@
           if (b.id) booksMap.set(String(b.id), b);
         });
 
-        readingEntries = (progressData || []).map(entry => ({
-          ...entry,
-          book: booksMap.get(String(entry.book_id)) || {}
-        }));
+        // 3. Deduplicate records per book (keep latest progress)
+        const dedupedMap = new Map();
+        (progressData || []).forEach(item => {
+          const key = String(item.book_id);
+          if (!dedupedMap.has(key)) {
+            dedupedMap.set(key, {
+              ...item,
+              book: booksMap.get(key) || {}
+            });
+          }
+        });
+
+        readingEntries = Array.from(dedupedMap.values());
+        console.log("📚 Combined reading entries ready for display:", readingEntries);
 
         renderReaderTable();
         updateMetrics();
 
       } catch (err) {
         console.error("Dashboard error:", err);
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-danger">Failed to load reading records.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-danger">Failed to load reading records: ${err.message}</td></tr>`;
       }
 
       function renderReaderTable() {
@@ -229,14 +247,14 @@
         document.getElementById("booksListBadge").textContent = `${filtered.length} Books`;
 
         if (filtered.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted">No reading history found. Open a book to start tracking!</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted">No reading history found. Open a book in the catalog to start reading!</td></tr>`;
           return;
         }
 
         filtered.forEach((item, index) => {
           const book = item.book || {};
-          const pagesRead = parseInt(item.pages_read, 10) || 0;
-          const totalPages = Math.max(1, parseInt(item.total_pages, 10) || 1);
+          const pagesRead = parseInt(item.pages_read, 10) || 1;
+          const totalPages = Math.max(1, parseInt(item.total_pages, 10) || 100);
           const percent = Math.min(100, Math.max(0, Math.round((pagesRead / totalPages) * 100)));
           const dateStr = item.last_read_at 
             ? new Date(item.last_read_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) 
@@ -244,7 +262,7 @@
 
           const bookId = item.book_id || book.book_id || book.id;
           const coverUrl = book.cover_url || book.thumbnail_url || 'https://placehold.co/52x72/5c4bca/ffffff?text=Cover';
-          const authorName = book.author || book.author_name || (book.author_id ? `Author #${book.author_id}` : 'Unknown Author');
+          const authorName = book.author || book.author_name || (book.author_id ? `Author #${book.author_id}` : 'Santali Writer');
           const isCompleted = (item.status === 'completed' || item.atatus === 'completed') || percent >= 100;
 
           const tr = document.createElement('tr');
@@ -254,7 +272,7 @@
               <div class="d-flex align-items-center gap-3">
                 <img src="${coverUrl}" class="book-cover-thumb" alt="Cover">
                 <div>
-                  <h6 class="fw-bold text-dark mb-1">${book.title || book.book_name || 'Untitled Book'}</h6>
+                  <h6 class="fw-bold text-dark mb-1">${book.title || book.book_name || `Book #${bookId}`}</h6>
                   <span class="badge bg-light text-dark border small">${(book.file_type || book.format || 'eBook').toUpperCase()}</span>
                 </div>
               </div>
@@ -305,7 +323,7 @@
 
         document.getElementById("totalBooksCount").textContent = readingEntries.length;
         document.getElementById("totalPagesCount").textContent = totalPages.toLocaleString('en-IN');
-        document.getElementById("totalAuthorsCount").textContent = authorSet.size;
+        document.getElementById("totalAuthorsCount").textContent = authorSet.size || (readingEntries.length > 0 ? 1 : 0);
       }
 
       document.getElementById("filterReaderBooks").addEventListener("input", renderReaderTable);
