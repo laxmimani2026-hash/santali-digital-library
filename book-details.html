@@ -711,12 +711,50 @@
 
         // Button Click Handlers
         buyNowBtn.addEventListener('click', () => {
-          // Open checkout directly for this book
-          window.location.href = `checkout.html?id=${book.id}`;
+          window.location.href = `checkout.html?id=${book.id || book.book_id}`;
         });
 
-        readBookBtn.addEventListener('click', () => {
-          window.location.href = `reader.html?id=${book.id}`;
+        // Update Reading List in reading_progress upon clicking "Read Book"
+        readBookBtn.addEventListener('click', async () => {
+          const targetBookId = String(book.book_id || book.id);
+          const targetParamId = book.id || book.book_id;
+
+          try {
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (user) {
+              // Check existing record
+              const { data: existing } = await supabase
+                .from('reading_progress')
+                .select('id, pages_read, total_pages')
+                .eq('user_id', user.id)
+                .eq('book_id', targetBookId)
+                .maybeSingle();
+
+              if (!existing) {
+                // Initialize in dashboard with status 'in_progress'
+                await supabase.from('reading_progress').insert({
+                  user_id: user.id,
+                  book_id: targetBookId,
+                  pages_read: 1,
+                  total_pages: 100,
+                  status: 'in_progress',
+                  atatus: 'in_progress',
+                  last_read_at: new Date().toISOString()
+                });
+              } else {
+                // Refresh timestamp
+                await supabase.from('reading_progress').update({
+                  last_read_at: new Date().toISOString()
+                }).eq('id', existing.id);
+              }
+            }
+          } catch (err) {
+            console.warn("Could not pre-register reading list progress:", err);
+          }
+
+          // Navigate to Reader Mode
+          window.location.href = `reader.html?id=${targetParamId}`;
         });
 
         let isAdded = false;
@@ -737,7 +775,7 @@
 
           const { error: cartErr } = await supabase
             .from('cart_items')
-            .insert([{ user_id: user.id, book_id: book.id, quantity: 1 }]);
+            .insert([{ user_id: user.id, book_id: book.id || book.book_id, quantity: 1 }]);
 
           if (cartErr) {
             showPageAlert("Failed to add book to cart: " + cartErr.message, "danger");
