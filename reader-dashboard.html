@@ -86,7 +86,7 @@
       </a>
     </div>
 
-    <!-- Stats -->
+    <!-- Stats Section -->
     <div class="row g-4 mb-4">
       <div class="col-md-4">
         <div class="stat-card border-start border-primary border-4">
@@ -172,7 +172,6 @@
         return;
       }
 
-      // Fetch user profile
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
@@ -183,7 +182,7 @@
       readerNameEl.textContent = displayName;
 
       try {
-        // 1. Fetch reading progress records for current user
+        // 1. Fetch reading progress records
         const { data: progressData, error: progErr } = await supabase
           .from('reading_progress')
           .select('id, user_id, book_id, pages_read, total_pages, last_read_at, status')
@@ -193,22 +192,12 @@
         if (progErr) throw progErr;
 
         if (progressData && progressData.length > 0) {
-          const bookIds = [...new Set(progressData.map(p => p.book_id))];
+          const bookIds = [...new Set(progressData.map(p => String(p.book_id)))];
 
-          // 2. Fetch books matching the book_ids
+          // 2. Fetch all books
           let { data: booksData } = await supabase
             .from('books')
-            .select('*')
-            .in('book_id', bookIds);
-
-          // Fallback check if stored by id
-          if (!booksData || booksData.length === 0) {
-            const fallback = await supabase
-              .from('books')
-              .select('*')
-              .in('id', bookIds);
-            booksData = fallback.data || [];
-          }
+            .select('*');
 
           const booksMap = new Map();
           (booksData || []).forEach(b => {
@@ -228,7 +217,7 @@
         updateMetrics();
 
       } catch (err) {
-        console.error("Dashboard load error:", err);
+        console.error("Dashboard error:", err);
         tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-danger">Failed to load reading records: ${err.message}</td></tr>`;
       }
 
@@ -252,7 +241,7 @@
         filtered.forEach((item, index) => {
           const book = item.book || {};
           const pagesRead = parseInt(item.pages_read, 10) || 0;
-          const totalPages = parseInt(item.total_pages, 10) || 1;
+          const totalPages = Math.max(1, parseInt(item.total_pages, 10) || 1);
           const percent = Math.min(100, Math.max(0, Math.round((pagesRead / totalPages) * 100)));
           const dateStr = item.last_read_at 
             ? new Date(item.last_read_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) 

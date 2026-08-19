@@ -154,7 +154,7 @@
       border-radius: 8px; 
       overflow: hidden;
       position: relative;
-      transition: background 0.2s ease;
+      transition: background-color 0.2s ease;
     }
 
     .tap-target {
@@ -184,19 +184,19 @@
     }
 
     .theme-swatch {
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       cursor: pointer;
-      border: 2px solid transparent;
+      border: 2px solid #ccc;
       transition: transform 0.15s, border-color 0.15s;
     }
     .theme-swatch:hover {
-      transform: scale(1.1);
+      transform: scale(1.12);
     }
     .theme-swatch.active {
       border-color: var(--brand-primary) !important;
-      box-shadow: 0 0 0 2px rgba(92, 75, 202, 0.25);
+      box-shadow: 0 0 0 3px rgba(92, 75, 202, 0.3);
     }
 
     #loadingOverlay {
@@ -237,7 +237,7 @@
 
     <div class="text-center px-2 text-truncate" style="max-width: 50%;">
       <h1 id="topBookTitle" class="fs-6 m-0 fw-bold text-truncate text-white">Loading...</h1>
-      <small class="text-white-50" id="topPageIndicator">Page <span id="topPageNum">-</span> of <span id="topTotalPages">-</span></small>
+      <small class="text-white-50" id="topPageIndicator">Page <span id="topPageNum">1</span> of <span id="topTotalPages">--</span></small>
     </div>
 
     <div class="d-flex align-items-center gap-2">
@@ -300,11 +300,11 @@
         <button class="btn btn-sm btn-close d-lg-none" id="closeRightSidebar"></button>
       </h6>
 
-      <!-- 5 Background Color Presets -->
+      <!-- 5 Reading Background Options -->
       <div class="mb-4">
         <div class="control-label">Background Theme</div>
         <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light border">
-          <button type="button" class="theme-swatch active border-secondary" data-bg="#ffffff" data-text="#1f2937" style="background-color: #ffffff;" title="Pure White"></button>
+          <button type="button" class="theme-swatch active" data-bg="#ffffff" data-text="#1f2937" style="background-color: #ffffff;" title="Pure White"></button>
           <button type="button" class="theme-swatch" data-bg="#fbf0d9" data-text="#5f4b32" style="background-color: #fbf0d9;" title="Warm Sepia"></button>
           <button type="button" class="theme-swatch" data-bg="#e8f0fe" data-text="#1a237e" style="background-color: #e8f0fe;" title="Soft Blue"></button>
           <button type="button" class="theme-swatch" data-bg="#2d3748" data-text="#f7fafc" style="background-color: #2d3748;" title="Slate Gray"></button>
@@ -312,17 +312,17 @@
         </div>
       </div>
 
-      <!-- Font Selector -->
+      <!-- Font Family Selector -->
       <div class="mb-3">
         <div class="control-label">Font Family</div>
         <select class="form-select form-select-sm custom-select" id="fontFamilySelect">
-          <option value="Lora" selected>Lora (Serif)</option>
-          <option value="Noto Sans Ol Chiki">Ol Chiki (ᱚᱞ ᱪᱤᱠᱤ)</option>
-          <option value="Merriweather">Merriweather</option>
-          <option value="Georgia">Georgia</option>
-          <option value="Open Sans">Open Sans (Sans-Serif)</option>
-          <option value="Bitter">Bitter</option>
-          <option value="Roboto">Roboto</option>
+          <option value="'Lora', serif" selected>Lora (Serif)</option>
+          <option value="'Noto Sans Ol Chiki', sans-serif">Ol Chiki (ᱚᱞ ᱪᱤᱠᱤ)</option>
+          <option value="'Merriweather', serif">Merriweather</option>
+          <option value="'Georgia', serif">Georgia</option>
+          <option value="'Open Sans', sans-serif">Open Sans</option>
+          <option value="'Bitter', serif">Bitter</option>
+          <option value="'Roboto', sans-serif">Roboto</option>
         </select>
       </div>
 
@@ -369,84 +369,92 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const urlParams = new URLSearchParams(window.location.search);
-    const requestedBookId = urlParams.get('id') || urlParams.get('book_id');
+    const rawParamId = urlParams.get('id') || urlParams.get('book_id');
 
     let epubBook = null;
     let epubRendition = null;
     let currentUser = null;
-    let activeBookId = null;
+    let currentBookId = null;
     let currentFontSize = 100;
-    let currentFontFamily = 'Lora';
+    let currentFontFamily = "'Lora', serif";
     let currentThemeBg = '#ffffff';
     let currentThemeText = '#1f2937';
-    let saveDebounceTimer = null;
+    let activeIframeDocs = [];
 
-    // Mobile Sidebar Toggles
+    // Mobile sidebar triggers
     const leftSidebar = document.getElementById('leftSidebar');
     const rightSidebar = document.getElementById('rightSidebar');
     document.getElementById('toggleLeftDrawerBtn')?.addEventListener('click', () => leftSidebar.classList.toggle('show'));
     document.getElementById('toggleRightDrawerBtn')?.addEventListener('click', () => rightSidebar.classList.toggle('show'));
     document.getElementById('closeRightSidebar')?.addEventListener('click', () => rightSidebar.classList.remove('show'));
 
-    // 1. Font Family Logic
-    document.getElementById('fontFamilySelect').addEventListener('change', (e) => {
-      currentFontFamily = e.target.value;
-      applyFontFamily(currentFontFamily);
-    });
+    // Master CSS injector into EPUB iframes
+    function applyStylesDirectly() {
+      const viewer = document.getElementById('epub-viewer');
+      if (viewer) viewer.style.backgroundColor = currentThemeBg;
 
-    function applyFontFamily(font) {
-      if (!epubRendition) return;
-      epubRendition.themes.font(font);
-      epubRendition.themes.override('font-family', `"${font}", sans-serif !important`);
+      activeIframeDocs.forEach(doc => {
+        if (!doc) return;
+        let styleTag = doc.getElementById('custom-reader-style');
+        if (!styleTag) {
+          styleTag = doc.createElement('style');
+          styleTag.id = 'custom-reader-style';
+          doc.head.appendChild(styleTag);
+        }
+        
+        styleTag.innerHTML = `
+          html, body, p, div, span, h1, h2, h3, h4, h5, h6, li, a {
+            background-color: ${currentThemeBg} !important;
+            color: ${currentThemeText} !important;
+            font-family: ${currentFontFamily} !important;
+          }
+          body {
+            font-size: ${currentFontSize}% !important;
+          }
+          * {
+            -webkit-user-select: none !important;
+            user-select: none !important;
+          }
+        `;
+      });
     }
 
-    // 2. 5 Background Color Presets Handler
-    document.querySelectorAll('.theme-swatch').forEach(button => {
-      button.addEventListener('click', (e) => {
-        document.querySelectorAll('.theme-swatch').forEach(btn => btn.classList.remove('active'));
+    // 1. Font Change
+    document.getElementById('fontFamilySelect').addEventListener('change', (e) => {
+      currentFontFamily = e.target.value;
+      applyStylesDirectly();
+    });
+
+    // 2. 5 Background Color Presets
+    document.querySelectorAll('.theme-swatch').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.theme-swatch').forEach(b => b.classList.remove('active'));
         const target = e.currentTarget;
         target.classList.add('active');
 
         currentThemeBg = target.getAttribute('data-bg');
         currentThemeText = target.getAttribute('data-text');
 
-        applyReadingTheme(currentThemeBg, currentThemeText);
+        applyStylesDirectly();
       });
     });
 
-    function applyReadingTheme(bgColor, textColor) {
-      const viewer = document.getElementById('epub-viewer');
-      if (viewer) viewer.style.backgroundColor = bgColor;
-
-      if (epubRendition) {
-        epubRendition.themes.override('background', `${bgColor} !important`);
-        epubRendition.themes.override('color', `${textColor} !important`);
-        epubRendition.themes.override('fill', `${textColor} !important`);
-      }
-    }
-
-    // Font Sizing Controls
+    // Font Sizing
     document.getElementById('fontSizeIncBtn').addEventListener('click', () => {
       if (currentFontSize < 180) {
         currentFontSize += 10;
-        updateFontSize();
+        document.getElementById('fontSizeLabel').value = `${currentFontSize}%`;
+        applyStylesDirectly();
       }
     });
 
     document.getElementById('fontSizeDecBtn').addEventListener('click', () => {
       if (currentFontSize > 70) {
         currentFontSize -= 10;
-        updateFontSize();
+        document.getElementById('fontSizeLabel').value = `${currentFontSize}%`;
+        applyStylesDirectly();
       }
     });
-
-    function updateFontSize() {
-      document.getElementById('fontSizeLabel').value = `${currentFontSize}%`;
-      if (epubRendition) {
-        epubRendition.themes.fontSize(`${currentFontSize}%`);
-        epubRendition.themes.override('font-size', `${currentFontSize}% !important`);
-      }
-    }
 
     // Page Spread
     document.getElementById('spreadAuto').addEventListener('change', () => {
@@ -480,7 +488,6 @@
       }
     }
 
-    // Queries books table by book_id or primary keys
     async function fetchBookRecord(idVal) {
       let { data } = await supabase.from('books').select('*').eq('book_id', idVal).maybeSingle();
       if (data) return data;
@@ -491,31 +498,63 @@
       return null;
     }
 
-    async function getSavedProgress(bId) {
-      if (!currentUser) return null;
-      const { data } = await supabase
-        .from('reading_progress')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .eq('book_id', bId)
-        .maybeSingle();
-      return data;
+    // 3. Database Progress Write (Works with reading_progress: id, user_id, book_id, pages_read, total_pages, last_read_at, status)
+    async function recordProgress(pageNo, totalPages) {
+      if (!currentUser || !currentBookId) return;
+
+      const p = Math.max(1, parseInt(pageNo, 10) || 1);
+      const t = Math.max(1, parseInt(totalPages, 10) || 1);
+      const readingStatus = p >= t ? 'completed' : 'in_progress';
+
+      try {
+        const { data: existing } = await supabase
+          .from('reading_progress')
+          .select('id')
+          .eq('user_id', currentUser.id)
+          .eq('book_id', String(currentBookId))
+          .maybeSingle();
+
+        if (existing && existing.id) {
+          await supabase
+            .from('reading_progress')
+            .update({
+              pages_read: p,
+              total_pages: t,
+              status: readingStatus,
+              last_read_at: new Date().toISOString()
+            })
+            .eq('id', existing.id);
+        } else {
+          await supabase
+            .from('reading_progress')
+            .insert({
+              user_id: currentUser.id,
+              book_id: String(currentBookId),
+              pages_read: p,
+              total_pages: t,
+              status: readingStatus,
+              last_read_at: new Date().toISOString()
+            });
+        }
+      } catch (err) {
+        console.warn("Progress update warning:", err);
+      }
     }
 
     async function loadBookData() {
       await initUserSession();
 
-      if (!requestedBookId) {
+      if (!rawParamId) {
         alert("No book selected. Returning to dashboard.");
         window.location.href = "reader-dashboard.html";
         return;
       }
 
       try {
-        const book = await fetchBookRecord(requestedBookId);
-        if (!book) throw new Error("Book not found in database.");
+        const book = await fetchBookRecord(rawParamId);
+        if (!book) throw new Error("Book record not found in database.");
 
-        activeBookId = book.book_id || book.id;
+        currentBookId = book.book_id || book.id;
 
         const title = book.title || book.book_name || 'Untitled Book';
         const author = book.author || book.author_name || (book.author_id ? `Author #${book.author_id}` : 'Unknown Author');
@@ -533,12 +572,13 @@
 
         if (!fileUrl) throw new Error("No readable book file is associated with this entry.");
 
-        const savedProgress = await getSavedProgress(activeBookId);
+        // Record initial start engagement immediately
+        await recordProgress(1, 100);
 
         if (fileType === 'pdf' || fileUrl.toLowerCase().endsWith('.pdf')) {
           renderPdf(fileUrl);
         } else {
-          renderEpub(fileUrl, savedProgress);
+          renderEpub(fileUrl);
         }
 
       } catch (err) {
@@ -549,7 +589,7 @@
       }
     }
 
-    function renderEpub(url, savedProgress = null) {
+    function renderEpub(url) {
       epubBook = ePub(url);
       epubRendition = epubBook.renderTo("epub-viewer", { 
         width: "100%", 
@@ -559,26 +599,22 @@
 
       epubRendition.hooks.content.register((contents) => {
         const doc = contents.document;
-        
+        activeIframeDocs.push(doc);
+
         const fontLink = doc.createElement('link');
         fontLink.rel = 'stylesheet';
         fontLink.href = 'https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,700;1,400&family=Georgia&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Noto+Sans+Ol+Chiki:wght@400;600;700&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,300;0,400;0,700;1,300&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap';
         doc.head.appendChild(fontLink);
 
-        applyReadingTheme(currentThemeBg, currentThemeText);
-        applyFontFamily(currentFontFamily);
-        updateFontSize();
+        applyStylesDirectly();
 
         doc.addEventListener('contextmenu', (e) => e.preventDefault());
         doc.addEventListener('copy', (e) => e.preventDefault());
         
         doc.addEventListener('click', (e) => {
           const width = doc.documentElement.clientWidth;
-          if (e.clientX < width * 0.25) {
-            goPrev();
-          } else if (e.clientX > width * 0.75) {
-            goNext();
-          }
+          if (e.clientX < width * 0.25) goPrev();
+          else if (e.clientX > width * 0.75) goNext();
         });
       });
 
@@ -593,17 +629,17 @@
         if (e.key === 'ArrowRight') goNext();
       });
 
-      epubRendition.display().then(() => {
-        hideLoader();
-      });
+      epubRendition.display().then(() => hideLoader());
 
       epubBook.ready
         .then(() => epubBook.locations.generate(1024))
         .then(() => {
+          const totalLocs = epubBook.locations.total || 100;
+          document.getElementById('topTotalPages').textContent = totalLocs;
+
           epubRendition.on('relocated', (location) => {
             const currentCfi = location.start.cfi;
             const currentLoc = epubBook.locations.locationFromCfi(currentCfi) || 1;
-            const totalLocs = epubBook.locations.total || 1;
             
             document.getElementById('topPageNum').textContent = currentLoc;
             document.getElementById('topTotalPages').textContent = totalLocs;
@@ -611,7 +647,16 @@
             const pct = Math.min(100, Math.round((currentLoc / totalLocs) * 100));
             document.getElementById('readingProgressBar').style.width = `${pct}%`;
             
-            saveReadingProgress(currentLoc, totalLocs);
+            recordProgress(currentLoc, totalLocs);
+          });
+        })
+        .catch(() => {
+          // If generate fails, track page index changes directly
+          let fallbackPage = 1;
+          epubRendition.on('relocated', () => {
+            fallbackPage++;
+            document.getElementById('topPageNum').textContent = fallbackPage;
+            recordProgress(fallbackPage, 100);
           });
         });
     }
@@ -627,53 +672,6 @@
       const pdfFrame = document.getElementById('pdf-viewer-frame');
       pdfFrame.classList.remove('d-none');
       pdfFrame.src = `${url}#toolbar=0&navpanes=0&scrollbar=1`;
-    }
-
-    // 3. Progress Sync matching reading_progress (user_id, book_id, pages_read, total_pages, last_read_at, status)
-    function saveReadingProgress(pageNo, totalPages) {
-      clearTimeout(saveDebounceTimer);
-      saveDebounceTimer = setTimeout(async () => {
-        if (!currentUser || !activeBookId) return;
-
-        const numPage = parseInt(pageNo, 10) || 1;
-        const numTotal = parseInt(totalPages, 10) || 1;
-        const readingStatus = numPage >= numTotal ? 'completed' : 'in_progress';
-
-        try {
-          // Check if progress entry already exists
-          const { data: existing } = await supabase
-            .from('reading_progress')
-            .select('id')
-            .eq('user_id', currentUser.id)
-            .eq('book_id', activeBookId)
-            .maybeSingle();
-
-          if (existing && existing.id) {
-            await supabase
-              .from('reading_progress')
-              .update({
-                pages_read: numPage,
-                total_pages: numTotal,
-                status: readingStatus,
-                last_read_at: new Date().toISOString()
-              })
-              .eq('id', existing.id);
-          } else {
-            await supabase
-              .from('reading_progress')
-              .insert({
-                user_id: currentUser.id,
-                book_id: activeBookId,
-                pages_read: numPage,
-                total_pages: numTotal,
-                status: readingStatus,
-                last_read_at: new Date().toISOString()
-              });
-          }
-        } catch (e) {
-          console.warn("Database sync error:", e);
-        }
-      }, 1000);
     }
 
     document.addEventListener("DOMContentLoaded", loadBookData);
