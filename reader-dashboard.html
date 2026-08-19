@@ -191,7 +191,7 @@
 
         if (progErr) throw progErr;
 
-        // 2. Fetch all books to match
+        // 2. Fetch all books
         const { data: booksData } = await supabase.from('books').select('*');
 
         const booksMap = new Map();

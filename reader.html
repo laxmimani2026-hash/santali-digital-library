@@ -371,7 +371,7 @@
     document.getElementById('toggleRightDrawerBtn')?.addEventListener('click', () => rightSidebar.classList.toggle('show'));
     document.getElementById('closeRightSidebar')?.addEventListener('click', () => rightSidebar.classList.remove('show'));
 
-    // Apply Styles to all rendered iframe documents
+    // Dynamic Style Injection into EPUB iframes
     function refreshIframeStyles() {
       const viewer = document.getElementById('epub-viewer');
       if (viewer) viewer.style.backgroundColor = currentThemeBg;
@@ -478,7 +478,6 @@
       }
     }
 
-    // Find book by either book_id, id, or uuid
     async function fetchBookRecord(paramId) {
       let { data } = await supabase.from('books').select('*').eq('book_id', paramId).maybeSingle();
       if (data) return data;
@@ -489,47 +488,43 @@
       return null;
     }
 
-    // 3. Database Sync for reading_progress table
+    // 3. Database Write with Diagnostic Logging
     async function recordProgress(pageNo, totalPages) {
-      if (!currentUser || !resolvedBookId) return;
+      if (!currentUser) {
+        console.warn("⚠️ Cannot save progress: User not authenticated.");
+        return;
+      }
+      if (!resolvedBookId) {
+        console.warn("⚠️ Cannot save progress: resolvedBookId is null.");
+        return;
+      }
 
       const p = Math.max(1, parseInt(pageNo, 10) || 1);
       const t = Math.max(1, parseInt(totalPages, 10) || 1);
       const readingStatus = p >= t ? 'completed' : 'in_progress';
 
-      try {
-        // Check existing by user_id and book_id
-        const { data: existing } = await supabase
-          .from('reading_progress')
-          .select('id')
-          .eq('user_id', currentUser.id)
-          .eq('book_id', resolvedBookId)
-          .maybeSingle();
+      const payload = {
+        user_id: currentUser.id,
+        book_id: String(resolvedBookId),
+        pages_read: p,
+        total_pages: t,
+        status: readingStatus,
+        last_read_at: new Date().toISOString()
+      };
 
-        if (existing && existing.id) {
-          await supabase
-            .from('reading_progress')
-            .update({
-              pages_read: p,
-              total_pages: t,
-              status: readingStatus,
-              last_read_at: new Date().toISOString()
-            })
-            .eq('id', existing.id);
+      try {
+        const { data, error } = await supabase
+          .from('reading_progress')
+          .upsert(payload, { onConflict: 'user_id,book_id' })
+          .select();
+
+        if (error) {
+          console.error("❌ Supabase DB Save Error:", error.message, error.details);
         } else {
-          await supabase
-            .from('reading_progress')
-            .insert({
-              user_id: currentUser.id,
-              book_id: resolvedBookId,
-              pages_read: p,
-              total_pages: t,
-              status: readingStatus,
-              last_read_at: new Date().toISOString()
-            });
+          console.log("✅ Reading progress synced to Supabase:", payload);
         }
       } catch (err) {
-        console.warn("Progress write failed:", err);
+        console.error("❌ Network or Sync error:", err);
       }
     }
 
@@ -564,7 +559,7 @@
 
         if (!fileUrl) throw new Error("No readable book file available.");
 
-        // Initial progress write
+        // Initial progress save
         await recordProgress(1, 100);
 
         if (fileType === 'pdf' || fileUrl.toLowerCase().endsWith('.pdf')) {
@@ -589,7 +584,6 @@
         spread: "auto"
       });
 
-      // Hook iframe content on load and apply custom styles
       epubRendition.hooks.content.register((contents) => {
         const doc = contents.document;
 
