@@ -363,14 +363,12 @@
     let currentThemeBg = '#ffffff';
     let currentThemeText = '#1f2937';
 
-    // Sidebar Toggles
     const leftSidebar = document.getElementById('leftSidebar');
     const rightSidebar = document.getElementById('rightSidebar');
     document.getElementById('toggleLeftDrawerBtn')?.addEventListener('click', () => leftSidebar.classList.toggle('show'));
     document.getElementById('toggleRightDrawerBtn')?.addEventListener('click', () => rightSidebar.classList.toggle('show'));
     document.getElementById('closeRightSidebar')?.addEventListener('click', () => rightSidebar.classList.remove('show'));
 
-    // Dynamic Style Injection into EPUB iframes
     function refreshIframeStyles() {
       const viewer = document.getElementById('epub-viewer');
       if (viewer) viewer.style.backgroundColor = currentThemeBg;
@@ -487,16 +485,9 @@
       return null;
     }
 
-    // 3. Database Write with Fallback
+    // 3. Database Write with Automatic Fallback
     async function recordProgress(pageNo, totalPages) {
-      if (!currentUser) {
-        console.warn("⚠️ Cannot save progress: User not authenticated.");
-        return;
-      }
-      if (!resolvedBookId) {
-        console.warn("⚠️ Cannot save progress: resolvedBookId is null.");
-        return;
-      }
+      if (!currentUser || !resolvedBookId) return;
 
       const p = Math.max(1, parseInt(pageNo, 10) || 1);
       const t = Math.max(1, parseInt(totalPages, 10) || 1);
@@ -518,7 +509,6 @@
           .upsert(payload, { onConflict: 'user_id,book_id' });
 
         if (error) {
-          console.warn("Upsert issue, trying direct select/update/insert:", error);
           const { data: existing } = await supabase
             .from('reading_progress')
             .select('id')
@@ -532,9 +522,9 @@
             await supabase.from('reading_progress').insert(payload);
           }
         }
-        console.log("✅ Reading progress synced to Supabase:", payload);
+        console.log("✅ Synced to DB:", payload);
       } catch (err) {
-        console.error("❌ Network or Sync error:", err);
+        console.error("❌ Sync error:", err);
       }
     }
 

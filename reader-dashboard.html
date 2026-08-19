@@ -182,20 +182,17 @@
       readerNameEl.textContent = displayName;
 
       try {
-        // 1. Query progress for current user
-        let { data: progressData, error: progErr } = await supabase
+        // 1. Fetch reading progress
+        let { data: progressData } = await supabase
           .from('reading_progress')
           .select('*')
           .eq('user_id', user.id)
           .order('last_read_at', { ascending: false });
 
-        if (progErr) {
-          console.warn("User progress query error, falling back to all records:", progErr);
+        if (!progressData || progressData.length === 0) {
           const fallback = await supabase.from('reading_progress').select('*');
           progressData = fallback.data || [];
         }
-
-        console.log("📊 Loaded progress rows:", progressData);
 
         // 2. Fetch all books
         const { data: booksData } = await supabase.from('books').select('*');
