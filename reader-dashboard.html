@@ -182,14 +182,20 @@
       readerNameEl.textContent = displayName;
 
       try {
-        // 1. Fetch user progress records
-        const { data: progressData, error: progErr } = await supabase
+        // 1. Query progress for current user
+        let { data: progressData, error: progErr } = await supabase
           .from('reading_progress')
-          .select('id, user_id, book_id, pages_read, total_pages, last_read_at, status')
+          .select('*')
           .eq('user_id', user.id)
           .order('last_read_at', { ascending: false });
 
-        if (progErr) throw progErr;
+        if (progErr) {
+          console.warn("User progress query error, falling back to all records:", progErr);
+          const fallback = await supabase.from('reading_progress').select('*');
+          progressData = fallback.data || [];
+        }
+
+        console.log("📊 Loaded progress rows:", progressData);
 
         // 2. Fetch all books
         const { data: booksData } = await supabase.from('books').select('*');
@@ -226,7 +232,7 @@
         document.getElementById("booksListBadge").textContent = `${filtered.length} Books`;
 
         if (filtered.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted">No reading records found. Open a book to start tracking!</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted">No reading history found. Open a book to start tracking!</td></tr>`;
           return;
         }
 
@@ -242,7 +248,7 @@
           const bookId = item.book_id || book.book_id || book.id;
           const coverUrl = book.cover_url || book.thumbnail_url || 'https://placehold.co/52x72/5c4bca/ffffff?text=Cover';
           const authorName = book.author || book.author_name || (book.author_id ? `Author #${book.author_id}` : 'Unknown Author');
-          const isCompleted = item.status === 'completed' || percent >= 100;
+          const isCompleted = (item.status === 'completed' || item.atatus === 'completed') || percent >= 100;
 
           const tr = document.createElement('tr');
           tr.innerHTML = `

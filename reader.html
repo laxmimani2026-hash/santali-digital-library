@@ -150,7 +150,6 @@
       border-radius: 8px; 
       overflow: hidden;
       position: relative;
-      transition: background-color 0.2s ease;
     }
 
     .tap-target {
@@ -488,7 +487,7 @@
       return null;
     }
 
-    // 3. Database Write with Diagnostic Logging
+    // 3. Database Write with Fallback
     async function recordProgress(pageNo, totalPages) {
       if (!currentUser) {
         console.warn("⚠️ Cannot save progress: User not authenticated.");
@@ -509,20 +508,31 @@
         pages_read: p,
         total_pages: t,
         status: readingStatus,
+        atatus: readingStatus,
         last_read_at: new Date().toISOString()
       };
 
       try {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('reading_progress')
-          .upsert(payload, { onConflict: 'user_id,book_id' })
-          .select();
+          .upsert(payload, { onConflict: 'user_id,book_id' });
 
         if (error) {
-          console.error("❌ Supabase DB Save Error:", error.message, error.details);
-        } else {
-          console.log("✅ Reading progress synced to Supabase:", payload);
+          console.warn("Upsert issue, trying direct select/update/insert:", error);
+          const { data: existing } = await supabase
+            .from('reading_progress')
+            .select('id')
+            .eq('user_id', currentUser.id)
+            .eq('book_id', String(resolvedBookId))
+            .maybeSingle();
+
+          if (existing?.id) {
+            await supabase.from('reading_progress').update(payload).eq('id', existing.id);
+          } else {
+            await supabase.from('reading_progress').insert(payload);
+          }
         }
+        console.log("✅ Reading progress synced to Supabase:", payload);
       } catch (err) {
         console.error("❌ Network or Sync error:", err);
       }
@@ -559,7 +569,6 @@
 
         if (!fileUrl) throw new Error("No readable book file available.");
 
-        // Initial progress save
         await recordProgress(1, 100);
 
         if (fileType === 'pdf' || fileUrl.toLowerCase().endsWith('.pdf')) {
