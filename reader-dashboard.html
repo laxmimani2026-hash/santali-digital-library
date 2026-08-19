@@ -130,13 +130,14 @@
               <th>Author</th>
               <th>Pages Read</th>
               <th style="min-width: 160px;">Progress</th>
+              <th>Status</th>
               <th>Last Read</th>
               <th class="text-end pe-4">Action</th>
             </tr>
           </thead>
           <tbody id="readerBooksList">
             <tr>
-              <td colspan="7" class="text-center py-5 text-muted">
+              <td colspan="8" class="text-center py-5 text-muted">
                 <div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading your reading library...
               </td>
             </tr>
@@ -171,6 +172,7 @@
         return;
       }
 
+      // Fetch user profile
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
@@ -181,21 +183,53 @@
       readerNameEl.textContent = displayName;
 
       try {
+        // 1. Fetch reading progress records for current user
         const { data: progressData, error: progErr } = await supabase
           .from('reading_progress')
-          .select('*, books(*)')
+          .select('id, user_id, book_id, pages_read, total_pages, last_read_at, status')
           .eq('user_id', user.id)
           .order('last_read_at', { ascending: false });
 
         if (progErr) throw progErr;
 
-        readingEntries = progressData || [];
+        if (progressData && progressData.length > 0) {
+          const bookIds = [...new Set(progressData.map(p => p.book_id))];
+
+          // 2. Fetch books matching the book_ids
+          let { data: booksData } = await supabase
+            .from('books')
+            .select('*')
+            .in('book_id', bookIds);
+
+          // Fallback check if stored by id
+          if (!booksData || booksData.length === 0) {
+            const fallback = await supabase
+              .from('books')
+              .select('*')
+              .in('id', bookIds);
+            booksData = fallback.data || [];
+          }
+
+          const booksMap = new Map();
+          (booksData || []).forEach(b => {
+            if (b.book_id) booksMap.set(String(b.book_id), b);
+            if (b.id) booksMap.set(String(b.id), b);
+          });
+
+          readingEntries = progressData.map(entry => ({
+            ...entry,
+            book: booksMap.get(String(entry.book_id)) || {}
+          }));
+        } else {
+          readingEntries = [];
+        }
+
         renderReaderTable();
         updateMetrics();
 
       } catch (err) {
-        console.error("Dashboard error:", err);
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-danger">Failed to load reading records.</td></tr>`;
+        console.error("Dashboard load error:", err);
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-danger">Failed to load reading records: ${err.message}</td></tr>`;
       }
 
       function renderReaderTable() {
@@ -203,29 +237,31 @@
         tbody.innerHTML = '';
 
         const filtered = readingEntries.filter(entry => {
-          const title = (entry.books?.title || entry.books?.book_name || '').toLowerCase();
-          const author = (entry.books?.author || entry.books?.author_name || '').toLowerCase();
+          const title = (entry.book?.title || entry.book?.book_name || '').toLowerCase();
+          const author = (entry.book?.author || entry.book?.author_name || '').toLowerCase();
           return !filterVal || title.includes(filterVal) || author.includes(filterVal);
         });
 
         document.getElementById("booksListBadge").textContent = `${filtered.length} Books`;
 
         if (filtered.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted">No reading records found.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted">No reading history found. Explore the catalog to start reading!</td></tr>`;
           return;
         }
 
         filtered.forEach((item, index) => {
-          const book = item.books || {};
-          const pagesRead = item.pages_read || 0;
-          const totalPages = item.total_pages || 1;
+          const book = item.book || {};
+          const pagesRead = parseInt(item.pages_read, 10) || 0;
+          const totalPages = parseInt(item.total_pages, 10) || 1;
           const percent = Math.min(100, Math.max(0, Math.round((pagesRead / totalPages) * 100)));
           const dateStr = item.last_read_at 
             ? new Date(item.last_read_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) 
             : 'Recently';
 
-          const bookId = book.id || item.book_id;
+          const bookId = item.book_id || book.book_id || book.id;
           const coverUrl = book.cover_url || book.thumbnail_url || 'https://placehold.co/52x72/5c4bca/ffffff?text=Cover';
+          const authorName = book.author || book.author_name || (book.author_id ? `Author #${book.author_id}` : 'Unknown Author');
+          const isCompleted = item.status === 'completed' || percent >= 100;
 
           const tr = document.createElement('tr');
           tr.innerHTML = `
@@ -234,13 +270,13 @@
               <div class="d-flex align-items-center gap-3">
                 <img src="${coverUrl}" class="book-cover-thumb" alt="Cover">
                 <div>
-                  <h6 class="fw-bold text-dark mb-1">${book.title || 'Untitled Book'}</h6>
+                  <h6 class="fw-bold text-dark mb-1">${book.title || book.book_name || 'Untitled Book'}</h6>
                   <span class="badge bg-light text-dark border small">${(book.file_type || book.format || 'eBook').toUpperCase()}</span>
                 </div>
               </div>
             </td>
             <td>
-              <div class="fw-semibold text-dark">${book.author || 'Unknown Author'}</div>
+              <div class="fw-semibold text-dark">${authorName}</div>
             </td>
             <td>
               <strong class="text-dark">${pagesRead}</strong> <span class="text-muted small">/ ${totalPages}</span>
@@ -248,10 +284,15 @@
             <td>
               <div class="d-flex align-items-center gap-2">
                 <div class="progress progress-bar-custom flex-grow-1">
-                  <div class="progress-bar ${percent === 100 ? 'bg-success' : 'bg-primary'}" role="progressbar" style="width: ${percent}%;"></div>
+                  <div class="progress-bar ${isCompleted ? 'bg-success' : 'bg-primary'}" role="progressbar" style="width: ${percent}%;"></div>
                 </div>
                 <small class="text-muted fw-bold">${percent}%</small>
               </div>
+            </td>
+            <td>
+              <span class="badge ${isCompleted ? 'bg-success' : 'bg-warning text-dark'} text-uppercase" style="font-size: 0.7rem;">
+                ${isCompleted ? 'Completed' : 'Reading'}
+              </span>
             </td>
             <td class="text-muted small">${dateStr}</td>
             <td class="text-end pe-4">
@@ -269,8 +310,13 @@
         const authorSet = new Set();
 
         readingEntries.forEach(item => {
-          totalPages += (item.pages_read || 0);
-          if (item.books?.author) authorSet.add(item.books.author);
+          const pages = parseInt(item.pages_read, 10) || 0;
+          totalPages += pages;
+
+          const author = item.book?.author || item.book?.author_name || (item.book?.author_id ? String(item.book.author_id) : null);
+          if (author && author.trim()) {
+            authorSet.add(author.trim());
+          }
         });
 
         document.getElementById("totalBooksCount").textContent = readingEntries.length;

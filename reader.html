@@ -31,19 +31,6 @@
       --epub-text: #1f2937;
     }
 
-    body.dark-ui {
-      --topbar-bg: #0d0e15;
-      --panel-bg: #181924;
-      --center-bg: #11121a;
-      --text-main: #e2e8f0;
-      --text-muted: #94a3b8;
-      --border-color: #26293b;
-      --brand-light: #252243;
-      --card-bg: #1f2130;
-      --epub-bg: #181924;
-      --epub-text: #e2e8f0;
-    }
-
     * { 
       box-sizing: border-box; 
       -webkit-user-select: none !important;
@@ -382,17 +369,17 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const urlParams = new URLSearchParams(window.location.search);
-    const bookId = urlParams.get('id');
+    const requestedBookId = urlParams.get('id') || urlParams.get('book_id');
 
     let epubBook = null;
     let epubRendition = null;
     let currentUser = null;
-    let currentResolvedBookId = null;
+    let activeBookId = null;
     let currentFontSize = 100;
     let currentFontFamily = 'Lora';
     let currentThemeBg = '#ffffff';
     let currentThemeText = '#1f2937';
-    let saveTimeout = null;
+    let saveDebounceTimer = null;
 
     // Mobile Sidebar Toggles
     const leftSidebar = document.getElementById('leftSidebar');
@@ -493,26 +480,24 @@
       }
     }
 
+    // Queries books table by book_id or primary keys
     async function fetchBookRecord(idVal) {
-      let { data } = await supabase.from('books').select('*').eq('id', idVal).maybeSingle();
+      let { data } = await supabase.from('books').select('*').eq('book_id', idVal).maybeSingle();
       if (data) return data;
 
-      const res2 = await supabase.from('books').select('*').eq('book_id', idVal).maybeSingle();
+      let res2 = await supabase.from('books').select('*').eq('id', idVal).maybeSingle();
       if (res2.data) return res2.data;
-
-      const res3 = await supabase.from('books').select('*').eq('uuid', idVal).maybeSingle();
-      if (res3.data) return res3.data;
 
       return null;
     }
 
-    async function getSavedProgress(bookId) {
+    async function getSavedProgress(bId) {
       if (!currentUser) return null;
       const { data } = await supabase
         .from('reading_progress')
-        .select('last_location_cfi, pages_read, total_pages')
+        .select('*')
         .eq('user_id', currentUser.id)
-        .eq('book_id', bookId)
+        .eq('book_id', bId)
         .maybeSingle();
       return data;
     }
@@ -520,20 +505,20 @@
     async function loadBookData() {
       await initUserSession();
 
-      if (!bookId) {
+      if (!requestedBookId) {
         alert("No book selected. Returning to dashboard.");
         window.location.href = "reader-dashboard.html";
         return;
       }
 
       try {
-        const book = await fetchBookRecord(bookId);
+        const book = await fetchBookRecord(requestedBookId);
         if (!book) throw new Error("Book not found in database.");
 
-        currentResolvedBookId = book.id;
+        activeBookId = book.book_id || book.id;
 
         const title = book.title || book.book_name || 'Untitled Book';
-        const author = book.author || book.author_name || 'Unknown Author';
+        const author = book.author || book.author_name || (book.author_id ? `Author #${book.author_id}` : 'Unknown Author');
         const description = book.description || book.summary || 'No description available.';
         const cover = book.cover_url || book.thumbnail_url || book.image_url || 'https://placehold.co/130x180/5c4bca/ffffff?text=eBook';
         const fileUrl = book.file_url || book.pdf_url || book.epub_url || book.download_url || book.book_url;
@@ -548,12 +533,12 @@
 
         if (!fileUrl) throw new Error("No readable book file is associated with this entry.");
 
-        const savedProgress = await getSavedProgress(currentResolvedBookId);
+        const savedProgress = await getSavedProgress(activeBookId);
 
         if (fileType === 'pdf' || fileUrl.toLowerCase().endsWith('.pdf')) {
           renderPdf(fileUrl);
         } else {
-          renderEpub(fileUrl, savedProgress?.last_location_cfi);
+          renderEpub(fileUrl, savedProgress);
         }
 
       } catch (err) {
@@ -564,7 +549,7 @@
       }
     }
 
-    function renderEpub(url, initialCfi = null) {
+    function renderEpub(url, savedProgress = null) {
       epubBook = ePub(url);
       epubRendition = epubBook.renderTo("epub-viewer", { 
         width: "100%", 
@@ -572,7 +557,6 @@
         spread: "auto"
       });
 
-      // Inject web fonts and enforce styling in iframe documents
       epubRendition.hooks.content.register((contents) => {
         const doc = contents.document;
         
@@ -609,7 +593,7 @@
         if (e.key === 'ArrowRight') goNext();
       });
 
-      epubRendition.display(initialCfi || undefined).then(() => {
+      epubRendition.display().then(() => {
         hideLoader();
       });
 
@@ -627,7 +611,7 @@
             const pct = Math.min(100, Math.round((currentLoc / totalLocs) * 100));
             document.getElementById('readingProgressBar').style.width = `${pct}%`;
             
-            saveReadingProgress(currentLoc, totalLocs, currentCfi);
+            saveReadingProgress(currentLoc, totalLocs);
           });
         });
     }
@@ -645,21 +629,47 @@
       pdfFrame.src = `${url}#toolbar=0&navpanes=0&scrollbar=1`;
     }
 
-    // 3. Progress Sync to Supabase
-    function saveReadingProgress(pageNo, totalPages, cfi) {
-      clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(async () => {
-        if (!currentUser || !currentResolvedBookId) return;
+    // 3. Progress Sync matching reading_progress (user_id, book_id, pages_read, total_pages, last_read_at, status)
+    function saveReadingProgress(pageNo, totalPages) {
+      clearTimeout(saveDebounceTimer);
+      saveDebounceTimer = setTimeout(async () => {
+        if (!currentUser || !activeBookId) return;
+
+        const numPage = parseInt(pageNo, 10) || 1;
+        const numTotal = parseInt(totalPages, 10) || 1;
+        const readingStatus = numPage >= numTotal ? 'completed' : 'in_progress';
 
         try {
-          await supabase.from('reading_progress').upsert({
-            user_id: currentUser.id,
-            book_id: currentResolvedBookId,
-            pages_read: pageNo,
-            total_pages: totalPages,
-            last_location_cfi: cfi,
-            last_read_at: new Date().toISOString()
-          }, { onConflict: 'user_id,book_id' });
+          // Check if progress entry already exists
+          const { data: existing } = await supabase
+            .from('reading_progress')
+            .select('id')
+            .eq('user_id', currentUser.id)
+            .eq('book_id', activeBookId)
+            .maybeSingle();
+
+          if (existing && existing.id) {
+            await supabase
+              .from('reading_progress')
+              .update({
+                pages_read: numPage,
+                total_pages: numTotal,
+                status: readingStatus,
+                last_read_at: new Date().toISOString()
+              })
+              .eq('id', existing.id);
+          } else {
+            await supabase
+              .from('reading_progress')
+              .insert({
+                user_id: currentUser.id,
+                book_id: activeBookId,
+                pages_read: numPage,
+                total_pages: numTotal,
+                status: readingStatus,
+                last_read_at: new Date().toISOString()
+              });
+          }
         } catch (e) {
           console.warn("Database sync error:", e);
         }
