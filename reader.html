@@ -27,15 +27,11 @@
       --text-muted: #6c757d;
       --border-color: #e5e7eb;
       --card-bg: #f8f9fa;
-      --epub-bg: #ffffff;
-      --epub-text: #1f2937;
     }
 
     * { 
       box-sizing: border-box; 
       -webkit-user-select: none !important;
-      -moz-user-select: none !important;
-      -ms-user-select: none !important;
       user-select: none !important;
     }
     
@@ -63,7 +59,7 @@
     }
 
     .progress-bar-container {
-      height: 3px;
+      height: 4px;
       width: 100%;
       background: rgba(255, 255, 255, 0.1);
       position: absolute;
@@ -74,7 +70,7 @@
     .progress-bar-fill {
       height: 100%;
       width: 0%;
-      background: var(--brand-primary);
+      background: #10b981;
       transition: width 0.3s ease;
     }
 
@@ -149,7 +145,7 @@
       width: 100%; 
       max-width: 900px; 
       height: 100%; 
-      background: var(--epub-bg); 
+      background: #ffffff; 
       box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
       border-radius: 8px; 
       overflow: hidden;
@@ -237,7 +233,7 @@
 
     <div class="text-center px-2 text-truncate" style="max-width: 50%;">
       <h1 id="topBookTitle" class="fs-6 m-0 fw-bold text-truncate text-white">Loading...</h1>
-      <small class="text-white-50" id="topPageIndicator">Page <span id="topPageNum">1</span> of <span id="topTotalPages">--</span></small>
+      <small class="text-white-50" id="topPageIndicator">Page <span id="topPageNum">1</span> of <span id="topTotalPages">--</span> (<span id="topPercent">0%</span>)</small>
     </div>
 
     <div class="d-flex align-items-center gap-2">
@@ -316,7 +312,7 @@
       <div class="mb-3">
         <div class="control-label">Font Family</div>
         <select class="form-select form-select-sm custom-select" id="fontFamilySelect">
-          <option value="'Lora', serif" selected>Lora (Serif)</option>
+          <option value="'Lora', Georgia, serif" selected>Lora (Serif)</option>
           <option value="'Noto Sans Ol Chiki', sans-serif">Ol Chiki (ᱚᱞ ᱪᱤᱠᱤ)</option>
           <option value="'Merriweather', serif">Merriweather</option>
           <option value="'Georgia', serif">Georgia</option>
@@ -349,18 +345,6 @@
     </aside>
   </div>
 
-  <script>
-    document.addEventListener('copy', (e) => e.preventDefault());
-    document.addEventListener('cut', (e) => e.preventDefault());
-    document.addEventListener('contextmenu', (e) => e.preventDefault());
-    document.addEventListener('selectstart', (e) => e.preventDefault());
-    document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && ['c', 'x', 'a', 'p', 's', 'u'].includes(e.key.toLowerCase())) {
-        e.preventDefault();
-      }
-    });
-  </script>
-
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -374,55 +358,61 @@
     let epubBook = null;
     let epubRendition = null;
     let currentUser = null;
-    let currentBookId = null;
+    let resolvedBookId = null;
     let currentFontSize = 100;
-    let currentFontFamily = "'Lora', serif";
+    let currentFontFamily = "'Lora', Georgia, serif";
     let currentThemeBg = '#ffffff';
     let currentThemeText = '#1f2937';
-    let activeIframeDocs = [];
 
-    // Mobile sidebar triggers
+    // Sidebar Toggles
     const leftSidebar = document.getElementById('leftSidebar');
     const rightSidebar = document.getElementById('rightSidebar');
     document.getElementById('toggleLeftDrawerBtn')?.addEventListener('click', () => leftSidebar.classList.toggle('show'));
     document.getElementById('toggleRightDrawerBtn')?.addEventListener('click', () => rightSidebar.classList.toggle('show'));
     document.getElementById('closeRightSidebar')?.addEventListener('click', () => rightSidebar.classList.remove('show'));
 
-    // Master CSS injector into EPUB iframes
-    function applyStylesDirectly() {
+    // Apply Styles to all rendered iframe documents
+    function refreshIframeStyles() {
       const viewer = document.getElementById('epub-viewer');
       if (viewer) viewer.style.backgroundColor = currentThemeBg;
 
-      activeIframeDocs.forEach(doc => {
-        if (!doc) return;
-        let styleTag = doc.getElementById('custom-reader-style');
-        if (!styleTag) {
-          styleTag = doc.createElement('style');
-          styleTag.id = 'custom-reader-style';
-          doc.head.appendChild(styleTag);
+      const iframes = document.querySelectorAll('#epub-viewer iframe');
+      iframes.forEach(iframe => {
+        try {
+          const doc = iframe.contentDocument || iframe.contentWindow.document;
+          if (!doc) return;
+
+          let styleTag = doc.getElementById('custom-reader-injected-style');
+          if (!styleTag) {
+            styleTag = doc.createElement('style');
+            styleTag.id = 'custom-reader-injected-style';
+            doc.head.appendChild(styleTag);
+          }
+
+          styleTag.textContent = `
+            html, body, p, div, span, h1, h2, h3, h4, h5, h6, li, a, blockquote {
+              background-color: ${currentThemeBg} !important;
+              color: ${currentThemeText} !important;
+              font-family: ${currentFontFamily} !important;
+            }
+            body {
+              font-size: ${currentFontSize}% !important;
+            }
+            * {
+              -webkit-user-select: none !important;
+              user-select: none !important;
+            }
+          `;
+        } catch (e) {
+          console.warn("Iframe styling notice:", e);
         }
-        
-        styleTag.innerHTML = `
-          html, body, p, div, span, h1, h2, h3, h4, h5, h6, li, a {
-            background-color: ${currentThemeBg} !important;
-            color: ${currentThemeText} !important;
-            font-family: ${currentFontFamily} !important;
-          }
-          body {
-            font-size: ${currentFontSize}% !important;
-          }
-          * {
-            -webkit-user-select: none !important;
-            user-select: none !important;
-          }
-        `;
       });
     }
 
-    // 1. Font Change
+    // 1. Font Selection
     document.getElementById('fontFamilySelect').addEventListener('change', (e) => {
       currentFontFamily = e.target.value;
-      applyStylesDirectly();
+      refreshIframeStyles();
     });
 
     // 2. 5 Background Color Presets
@@ -435,7 +425,7 @@
         currentThemeBg = target.getAttribute('data-bg');
         currentThemeText = target.getAttribute('data-text');
 
-        applyStylesDirectly();
+        refreshIframeStyles();
       });
     });
 
@@ -444,7 +434,7 @@
       if (currentFontSize < 180) {
         currentFontSize += 10;
         document.getElementById('fontSizeLabel').value = `${currentFontSize}%`;
-        applyStylesDirectly();
+        refreshIframeStyles();
       }
     });
 
@@ -452,11 +442,11 @@
       if (currentFontSize > 70) {
         currentFontSize -= 10;
         document.getElementById('fontSizeLabel').value = `${currentFontSize}%`;
-        applyStylesDirectly();
+        refreshIframeStyles();
       }
     });
 
-    // Page Spread
+    // Spread
     document.getElementById('spreadAuto').addEventListener('change', () => {
       if (epubRendition) epubRendition.spread('auto');
     });
@@ -488,30 +478,32 @@
       }
     }
 
-    async function fetchBookRecord(idVal) {
-      let { data } = await supabase.from('books').select('*').eq('book_id', idVal).maybeSingle();
+    // Find book by either book_id, id, or uuid
+    async function fetchBookRecord(paramId) {
+      let { data } = await supabase.from('books').select('*').eq('book_id', paramId).maybeSingle();
       if (data) return data;
 
-      let res2 = await supabase.from('books').select('*').eq('id', idVal).maybeSingle();
+      let res2 = await supabase.from('books').select('*').eq('id', paramId).maybeSingle();
       if (res2.data) return res2.data;
 
       return null;
     }
 
-    // 3. Database Progress Write (Works with reading_progress: id, user_id, book_id, pages_read, total_pages, last_read_at, status)
+    // 3. Database Sync for reading_progress table
     async function recordProgress(pageNo, totalPages) {
-      if (!currentUser || !currentBookId) return;
+      if (!currentUser || !resolvedBookId) return;
 
       const p = Math.max(1, parseInt(pageNo, 10) || 1);
       const t = Math.max(1, parseInt(totalPages, 10) || 1);
       const readingStatus = p >= t ? 'completed' : 'in_progress';
 
       try {
+        // Check existing by user_id and book_id
         const { data: existing } = await supabase
           .from('reading_progress')
           .select('id')
           .eq('user_id', currentUser.id)
-          .eq('book_id', String(currentBookId))
+          .eq('book_id', resolvedBookId)
           .maybeSingle();
 
         if (existing && existing.id) {
@@ -529,7 +521,7 @@
             .from('reading_progress')
             .insert({
               user_id: currentUser.id,
-              book_id: String(currentBookId),
+              book_id: resolvedBookId,
               pages_read: p,
               total_pages: t,
               status: readingStatus,
@@ -537,7 +529,7 @@
             });
         }
       } catch (err) {
-        console.warn("Progress update warning:", err);
+        console.warn("Progress write failed:", err);
       }
     }
 
@@ -545,7 +537,7 @@
       await initUserSession();
 
       if (!rawParamId) {
-        alert("No book selected. Returning to dashboard.");
+        alert("No book ID provided. Returning to dashboard.");
         window.location.href = "reader-dashboard.html";
         return;
       }
@@ -554,7 +546,7 @@
         const book = await fetchBookRecord(rawParamId);
         if (!book) throw new Error("Book record not found in database.");
 
-        currentBookId = book.book_id || book.id;
+        resolvedBookId = book.book_id || book.id;
 
         const title = book.title || book.book_name || 'Untitled Book';
         const author = book.author || book.author_name || (book.author_id ? `Author #${book.author_id}` : 'Unknown Author');
@@ -570,9 +562,9 @@
         document.getElementById('sidebarFormatBadge').textContent = fileType.toUpperCase();
         document.getElementById('sidebarCover').src = cover;
 
-        if (!fileUrl) throw new Error("No readable book file is associated with this entry.");
+        if (!fileUrl) throw new Error("No readable book file available.");
 
-        // Record initial start engagement immediately
+        // Initial progress write
         await recordProgress(1, 100);
 
         if (fileType === 'pdf' || fileUrl.toLowerCase().endsWith('.pdf')) {
@@ -582,7 +574,7 @@
         }
 
       } catch (err) {
-        console.error("Reader Error:", err);
+        console.error("Reader Load Error:", err);
         hideLoader();
         document.getElementById('sidebarPanelContent').innerHTML = `<span class="text-danger">${err.message}</span>`;
         document.getElementById('topBookTitle').textContent = 'Error Loading Book';
@@ -597,20 +589,17 @@
         spread: "auto"
       });
 
+      // Hook iframe content on load and apply custom styles
       epubRendition.hooks.content.register((contents) => {
         const doc = contents.document;
-        activeIframeDocs.push(doc);
 
         const fontLink = doc.createElement('link');
         fontLink.rel = 'stylesheet';
         fontLink.href = 'https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,700;1,400&family=Georgia&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Noto+Sans+Ol+Chiki:wght@400;600;700&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,300;0,400;0,700;1,300&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap';
         doc.head.appendChild(fontLink);
 
-        applyStylesDirectly();
+        refreshIframeStyles();
 
-        doc.addEventListener('contextmenu', (e) => e.preventDefault());
-        doc.addEventListener('copy', (e) => e.preventDefault());
-        
         doc.addEventListener('click', (e) => {
           const width = doc.documentElement.clientWidth;
           if (e.clientX < width * 0.25) goPrev();
@@ -631,34 +620,35 @@
 
       epubRendition.display().then(() => hideLoader());
 
+      let currentGeneratedPage = 1;
+      let totalGeneratedPages = 100;
+
       epubBook.ready
         .then(() => epubBook.locations.generate(1024))
         .then(() => {
-          const totalLocs = epubBook.locations.total || 100;
-          document.getElementById('topTotalPages').textContent = totalLocs;
-
-          epubRendition.on('relocated', (location) => {
-            const currentCfi = location.start.cfi;
-            const currentLoc = epubBook.locations.locationFromCfi(currentCfi) || 1;
-            
-            document.getElementById('topPageNum').textContent = currentLoc;
-            document.getElementById('topTotalPages').textContent = totalLocs;
-            
-            const pct = Math.min(100, Math.round((currentLoc / totalLocs) * 100));
-            document.getElementById('readingProgressBar').style.width = `${pct}%`;
-            
-            recordProgress(currentLoc, totalLocs);
-          });
-        })
-        .catch(() => {
-          // If generate fails, track page index changes directly
-          let fallbackPage = 1;
-          epubRendition.on('relocated', () => {
-            fallbackPage++;
-            document.getElementById('topPageNum').textContent = fallbackPage;
-            recordProgress(fallbackPage, 100);
-          });
+          totalGeneratedPages = epubBook.locations.total || 100;
+          document.getElementById('topTotalPages').textContent = totalGeneratedPages;
         });
+
+      epubRendition.on('relocated', (location) => {
+        refreshIframeStyles();
+
+        if (epubBook.locations && epubBook.locations.total) {
+          const currentCfi = location.start.cfi;
+          currentGeneratedPage = epubBook.locations.locationFromCfi(currentCfi) || 1;
+          totalGeneratedPages = epubBook.locations.total || 100;
+        } else {
+          currentGeneratedPage++;
+        }
+
+        const pct = Math.min(100, Math.max(1, Math.round((currentGeneratedPage / totalGeneratedPages) * 100)));
+        document.getElementById('topPageNum').textContent = currentGeneratedPage;
+        document.getElementById('topTotalPages').textContent = totalGeneratedPages;
+        document.getElementById('topPercent').textContent = `${pct}%`;
+        document.getElementById('readingProgressBar').style.width = `${pct}%`;
+
+        recordProgress(currentGeneratedPage, totalGeneratedPages);
+      });
     }
 
     function renderPdf(url) {

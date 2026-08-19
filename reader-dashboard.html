@@ -86,7 +86,7 @@
       </a>
     </div>
 
-    <!-- Stats Section -->
+    <!-- Stats -->
     <div class="row g-4 mb-4">
       <div class="col-md-4">
         <div class="stat-card border-start border-primary border-4">
@@ -111,7 +111,7 @@
       </div>
     </div>
 
-    <!-- Book Progress Table -->
+    <!-- Table -->
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
       <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
         <div class="d-flex align-items-center gap-2">
@@ -182,7 +182,7 @@
       readerNameEl.textContent = displayName;
 
       try {
-        // 1. Fetch reading progress records
+        // 1. Fetch user progress records
         const { data: progressData, error: progErr } = await supabase
           .from('reading_progress')
           .select('id, user_id, book_id, pages_read, total_pages, last_read_at, status')
@@ -191,34 +191,26 @@
 
         if (progErr) throw progErr;
 
-        if (progressData && progressData.length > 0) {
-          const bookIds = [...new Set(progressData.map(p => String(p.book_id)))];
+        // 2. Fetch all books to match
+        const { data: booksData } = await supabase.from('books').select('*');
 
-          // 2. Fetch all books
-          let { data: booksData } = await supabase
-            .from('books')
-            .select('*');
+        const booksMap = new Map();
+        (booksData || []).forEach(b => {
+          if (b.book_id) booksMap.set(String(b.book_id), b);
+          if (b.id) booksMap.set(String(b.id), b);
+        });
 
-          const booksMap = new Map();
-          (booksData || []).forEach(b => {
-            if (b.book_id) booksMap.set(String(b.book_id), b);
-            if (b.id) booksMap.set(String(b.id), b);
-          });
-
-          readingEntries = progressData.map(entry => ({
-            ...entry,
-            book: booksMap.get(String(entry.book_id)) || {}
-          }));
-        } else {
-          readingEntries = [];
-        }
+        readingEntries = (progressData || []).map(entry => ({
+          ...entry,
+          book: booksMap.get(String(entry.book_id)) || {}
+        }));
 
         renderReaderTable();
         updateMetrics();
 
       } catch (err) {
         console.error("Dashboard error:", err);
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-danger">Failed to load reading records: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-danger">Failed to load reading records.</td></tr>`;
       }
 
       function renderReaderTable() {
@@ -234,7 +226,7 @@
         document.getElementById("booksListBadge").textContent = `${filtered.length} Books`;
 
         if (filtered.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted">No reading history found. Explore the catalog to start reading!</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted">No reading records found. Open a book to start tracking!</td></tr>`;
           return;
         }
 
@@ -286,7 +278,7 @@
             <td class="text-muted small">${dateStr}</td>
             <td class="text-end pe-4">
               <a href="reader.html?id=${bookId}" class="btn btn-sm btn-primary fw-semibold">
-                <i class="fa-solid fa-book-open me-1"></i> ${percent > 0 ? 'Continue' : 'Start'}
+                <i class="fa-solid fa-book-open me-1"></i> Continue
               </a>
             </td>
           `;
