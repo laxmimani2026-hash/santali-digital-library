@@ -185,24 +185,18 @@
       }
 
       try {
-        // 1. Fetch reading progress records
         let progressQuery = supabase.from('reading_progress').select('*');
-        
         if (currentUserId) {
           progressQuery = progressQuery.eq('user_id', currentUserId);
         }
         
-        let { data: progressData, error: progErr } = await progressQuery.order('last_read_at', { ascending: false });
+        let { data: progressData } = await progressQuery.order('last_read_at', { ascending: false });
 
-        // Fallback: If user filter returned nothing, fetch all records
         if (!progressData || progressData.length === 0) {
           const fallback = await supabase.from('reading_progress').select('*').order('last_read_at', { ascending: false });
           progressData = fallback.data || [];
         }
 
-        console.log("📊 Raw progress records loaded:", progressData);
-
-        // 2. Fetch all books for metadata matching
         const { data: booksData } = await supabase.from('books').select('*');
 
         const booksMap = new Map();
@@ -211,7 +205,6 @@
           if (b.id) booksMap.set(String(b.id), b);
         });
 
-        // 3. Deduplicate records per book (keep latest progress)
         const dedupedMap = new Map();
         (progressData || []).forEach(item => {
           const key = String(item.book_id);
@@ -224,8 +217,6 @@
         });
 
         readingEntries = Array.from(dedupedMap.values());
-        console.log("📚 Combined reading entries ready for display:", readingEntries);
-
         renderReaderTable();
         updateMetrics();
 
@@ -264,6 +255,7 @@
           const coverUrl = book.cover_url || book.thumbnail_url || 'https://placehold.co/52x72/5c4bca/ffffff?text=Cover';
           const authorName = book.author || book.author_name || (book.author_id ? `Author #${book.author_id}` : 'Santali Writer');
           const isCompleted = (item.status === 'completed' || item.atatus === 'completed') || percent >= 100;
+          const cfiParam = item.last_cfi ? `&cfi=${encodeURIComponent(item.last_cfi)}` : '';
 
           const tr = document.createElement('tr');
           tr.innerHTML = `
@@ -298,7 +290,7 @@
             </td>
             <td class="text-muted small">${dateStr}</td>
             <td class="text-end pe-4">
-              <a href="reader.html?id=${bookId}" class="btn btn-sm btn-primary fw-semibold">
+              <a href="reader.html?id=${bookId}&page=${pagesRead}${cfiParam}" class="btn btn-sm btn-primary fw-semibold">
                 <i class="fa-solid fa-book-open me-1"></i> Continue
               </a>
             </td>

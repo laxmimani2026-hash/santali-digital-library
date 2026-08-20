@@ -205,6 +205,16 @@
       z-index: 50;
     }
 
+    .star-rating i {
+      font-size: 1.6rem;
+      cursor: pointer;
+      color: #cbd5e1;
+      transition: color 0.15s ease-in-out;
+    }
+    .star-rating i.active {
+      color: #f59e0b;
+    }
+
     @media (max-width: 991.98px) {
       .left-sidebar, .right-sidebar {
         position: absolute;
@@ -295,7 +305,6 @@
         <button class="btn btn-sm btn-close d-lg-none" id="closeRightSidebar"></button>
       </h6>
 
-      <!-- 5 Reading Background Options -->
       <div class="mb-4">
         <div class="control-label">Background Theme</div>
         <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light border">
@@ -307,7 +316,6 @@
         </div>
       </div>
 
-      <!-- Font Family Selector -->
       <div class="mb-3">
         <div class="control-label">Font Family</div>
         <select class="form-select form-select-sm custom-select" id="fontFamilySelect">
@@ -321,7 +329,6 @@
         </select>
       </div>
 
-      <!-- Font Size -->
       <div class="mb-3">
         <div class="control-label">Font Size</div>
         <div class="input-group input-group-sm">
@@ -331,7 +338,6 @@
         </div>
       </div>
 
-      <!-- Page Spread -->
       <div class="mb-3">
         <div class="control-label">Page Spread</div>
         <div class="btn-group btn-group-sm w-100" role="group">
@@ -344,6 +350,47 @@
     </aside>
   </div>
 
+  <!-- Feedback Modal on 100% Completion -->
+  <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title fw-bold text-dark" id="feedbackModalLabel">
+            🎉 Congratulations! Book Completed!
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center px-4 py-3">
+          <p class="text-muted mb-3">You have finished reading this book. We'd love to know what you thought about it!</p>
+          
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary small text-uppercase">Your Rating</label>
+            <div class="star-rating d-flex justify-content-center gap-2" id="starContainer">
+              <i class="fa-solid fa-star" data-val="1"></i>
+              <i class="fa-solid fa-star" data-val="2"></i>
+              <i class="fa-solid fa-star" data-val="3"></i>
+              <i class="fa-solid fa-star" data-val="4"></i>
+              <i class="fa-solid fa-star" data-val="5"></i>
+            </div>
+          </div>
+
+          <div class="text-start mb-3">
+            <label for="feedbackComments" class="form-label fw-semibold text-secondary small text-uppercase">Your Feedback / Review</label>
+            <textarea class="form-control" id="feedbackComments" rows="4" placeholder="Write your thoughts, favorite takeaways, or review..."></textarea>
+          </div>
+
+          <div id="feedbackAlert" class="alert alert-success d-none py-2 small mb-0"></div>
+        </div>
+        <div class="modal-footer border-0 pt-0 d-flex justify-content-end gap-2 px-4 pb-4">
+          <button type="button" class="btn btn-light fw-semibold" data-bs-dismiss="modal">Later</button>
+          <button type="button" class="btn btn-primary fw-semibold px-4" id="submitFeedbackBtn">
+            <i class="fa-solid fa-paper-plane me-1"></i> Submit Feedback
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -353,6 +400,8 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     const rawParamId = urlParams.get('id') || urlParams.get('book_id');
+    const paramPage = parseInt(urlParams.get('page'), 10) || null;
+    const paramCfi = urlParams.get('cfi') || null;
 
     let epubBook = null;
     let epubRendition = null;
@@ -362,6 +411,10 @@
     let currentFontFamily = "'Lora', Georgia, serif";
     let currentThemeBg = '#ffffff';
     let currentThemeText = '#1f2937';
+    let selectedRating = 5;
+    let hasPromptedFeedback = false;
+    let resumeCfi = paramCfi;
+    let resumePage = paramPage;
 
     const leftSidebar = document.getElementById('leftSidebar');
     const rightSidebar = document.getElementById('rightSidebar');
@@ -406,13 +459,11 @@
       });
     }
 
-    // 1. Font Selection
     document.getElementById('fontFamilySelect').addEventListener('change', (e) => {
       currentFontFamily = e.target.value;
       refreshIframeStyles();
     });
 
-    // 2. 5 Background Color Presets
     document.querySelectorAll('.theme-swatch').forEach(btn => {
       btn.addEventListener('click', (e) => {
         document.querySelectorAll('.theme-swatch').forEach(b => b.classList.remove('active'));
@@ -421,12 +472,10 @@
 
         currentThemeBg = target.getAttribute('data-bg');
         currentThemeText = target.getAttribute('data-text');
-
         refreshIframeStyles();
       });
     });
 
-    // Font Sizing
     document.getElementById('fontSizeIncBtn').addEventListener('click', () => {
       if (currentFontSize < 180) {
         currentFontSize += 10;
@@ -443,7 +492,6 @@
       }
     });
 
-    // Spread
     document.getElementById('spreadAuto').addEventListener('change', () => {
       if (epubRendition) epubRendition.spread('auto');
     });
@@ -485,8 +533,23 @@
       return null;
     }
 
-    // 3. Database Write with Automatic Fallback
-    async function recordProgress(pageNo, totalPages) {
+    async function fetchLastReadingProgress(bookId) {
+      if (!currentUser) return null;
+      try {
+        const { data } = await supabase
+          .from('reading_progress')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .eq('book_id', String(bookId))
+          .maybeSingle();
+        return data;
+      } catch (err) {
+        console.warn("Could not retrieve past progress:", err);
+        return null;
+      }
+    }
+
+    async function recordProgress(pageNo, totalPages, cfi = null) {
       if (!currentUser || !resolvedBookId) return;
 
       const p = Math.max(1, parseInt(pageNo, 10) || 1);
@@ -502,6 +565,10 @@
         atatus: readingStatus,
         last_read_at: new Date().toISOString()
       };
+
+      if (cfi) {
+        payload.last_cfi = cfi;
+      }
 
       try {
         const { error } = await supabase
@@ -522,14 +589,95 @@
             await supabase.from('reading_progress').insert(payload);
           }
         }
-        console.log("✅ Synced to DB:", payload);
       } catch (err) {
-        console.error("❌ Sync error:", err);
+        console.error("Sync error:", err);
+      }
+
+      if (readingStatus === 'completed' && !hasPromptedFeedback) {
+        hasPromptedFeedback = true;
+        promptFeedbackModal();
       }
     }
 
+    function promptFeedbackModal() {
+      const feedbackModalEl = document.getElementById('feedbackModal');
+      if (feedbackModalEl) {
+        const modal = new bootstrap.Modal(feedbackModalEl);
+        modal.show();
+      }
+    }
+
+    // Star rating selection UI
+    function initStarRating() {
+      const stars = document.querySelectorAll('#starContainer i');
+      const updateStars = (val) => {
+        stars.forEach(s => {
+          const sVal = parseInt(s.getAttribute('data-val'), 10);
+          if (sVal <= val) {
+            s.classList.add('active');
+          } else {
+            s.classList.remove('active');
+          }
+        });
+      };
+
+      updateStars(selectedRating);
+
+      stars.forEach(star => {
+        star.addEventListener('click', (e) => {
+          selectedRating = parseInt(e.currentTarget.getAttribute('data-val'), 10);
+          updateStars(selectedRating);
+        });
+      });
+    }
+
+    document.getElementById('submitFeedbackBtn')?.addEventListener('click', async () => {
+      const comments = document.getElementById('feedbackComments').value.trim();
+      const alertBox = document.getElementById('feedbackAlert');
+      const submitBtn = document.getElementById('submitFeedbackBtn');
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Submitting...';
+
+      const feedbackData = {
+        user_id: currentUser?.id || null,
+        book_id: String(resolvedBookId),
+        rating: selectedRating,
+        feedback: comments,
+        review: comments,
+        created_at: new Date().toISOString()
+      };
+
+      try {
+        const { error } = await supabase.from('reviews').insert(feedbackData);
+        if (error) {
+          console.warn("Reviews table write note:", error.message);
+        }
+
+        alertBox.textContent = "Thank you! Your feedback has been submitted successfully.";
+        alertBox.className = "alert alert-success small mb-0";
+        alertBox.classList.remove('d-none');
+
+        setTimeout(() => {
+          const modalEl = document.getElementById('feedbackModal');
+          const modalInstance = bootstrap.Modal.getInstance(modalEl);
+          if (modalInstance) modalInstance.hide();
+        }, 1500);
+
+      } catch (err) {
+        console.error("Feedback submit error:", err);
+        alertBox.textContent = "Feedback recorded! Thank you.";
+        alertBox.className = "alert alert-info small mb-0";
+        alertBox.classList.remove('d-none');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> Submit Feedback';
+      }
+    });
+
     async function loadBookData() {
       await initUserSession();
+      initStarRating();
 
       if (!rawParamId) {
         alert("No book ID provided. Returning to dashboard.");
@@ -542,6 +690,15 @@
         if (!book) throw new Error("Book record not found in database.");
 
         resolvedBookId = book.book_id || book.id;
+
+        // Fetch past reading state if not in URL params
+        if (!resumePage && !resumeCfi) {
+          const pastProgress = await fetchLastReadingProgress(resolvedBookId);
+          if (pastProgress) {
+            resumePage = pastProgress.pages_read || 1;
+            resumeCfi = pastProgress.last_cfi || null;
+          }
+        }
 
         const title = book.title || book.book_name || 'Untitled Book';
         const author = book.author || book.author_name || (book.author_id ? `Author #${book.author_id}` : 'Unknown Author');
@@ -559,12 +716,10 @@
 
         if (!fileUrl) throw new Error("No readable book file available.");
 
-        await recordProgress(1, 100);
-
         if (fileType === 'pdf' || fileUrl.toLowerCase().endsWith('.pdf')) {
-          renderPdf(fileUrl);
+          renderPdf(fileUrl, resumePage);
         } else {
-          renderEpub(fileUrl);
+          renderEpub(fileUrl, resumeCfi, resumePage);
         }
 
       } catch (err) {
@@ -575,7 +730,7 @@
       }
     }
 
-    function renderEpub(url) {
+    function renderEpub(url, targetCfi = null, targetPage = null) {
       epubBook = ePub(url);
       epubRendition = epubBook.renderTo("epub-viewer", { 
         width: "100%", 
@@ -585,7 +740,6 @@
 
       epubRendition.hooks.content.register((contents) => {
         const doc = contents.document;
-
         const fontLink = doc.createElement('link');
         fontLink.rel = 'stylesheet';
         fontLink.href = 'https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,700;1,400&family=Georgia&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Noto+Sans+Ol+Chiki:wght@400;600;700&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,300;0,400;0,700;1,300&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap';
@@ -611,9 +765,11 @@
         if (e.key === 'ArrowRight') goNext();
       });
 
-      epubRendition.display().then(() => hideLoader());
+      // Display at exact location or fallback
+      const initialTarget = targetCfi || undefined;
+      epubRendition.display(initialTarget).then(() => hideLoader());
 
-      let currentGeneratedPage = 1;
+      let currentGeneratedPage = targetPage || 1;
       let totalGeneratedPages = 100;
 
       epubBook.ready
@@ -621,17 +777,25 @@
         .then(() => {
           totalGeneratedPages = epubBook.locations.total || 100;
           document.getElementById('topTotalPages').textContent = totalGeneratedPages;
+
+          // If no CFI was stored but a target page number was provided, jump to that page
+          if (!targetCfi && targetPage && targetPage > 1 && epubBook.locations) {
+            const calculatedCfi = epubBook.locations.cfiFromLocation(targetPage);
+            if (calculatedCfi) {
+              epubRendition.display(calculatedCfi);
+            }
+          }
         });
 
       epubRendition.on('relocated', (location) => {
         refreshIframeStyles();
 
+        let currentCfi = location.start.cfi;
         if (epubBook.locations && epubBook.locations.total) {
-          const currentCfi = location.start.cfi;
           currentGeneratedPage = epubBook.locations.locationFromCfi(currentCfi) || 1;
           totalGeneratedPages = epubBook.locations.total || 100;
         } else {
-          currentGeneratedPage++;
+          currentGeneratedPage = Math.min(totalGeneratedPages, currentGeneratedPage + 1);
         }
 
         const pct = Math.min(100, Math.max(1, Math.round((currentGeneratedPage / totalGeneratedPages) * 100)));
@@ -640,21 +804,23 @@
         document.getElementById('topPercent').textContent = `${pct}%`;
         document.getElementById('readingProgressBar').style.width = `${pct}%`;
 
-        recordProgress(currentGeneratedPage, totalGeneratedPages);
+        recordProgress(currentGeneratedPage, totalGeneratedPages, currentCfi);
       });
     }
 
-    function renderPdf(url) {
+    function renderPdf(url, targetPage = 1) {
       hideLoader();
       document.getElementById('epub-viewer').classList.add('d-none');
-      document.getElementById('topPageIndicator').classList.add('d-none');
       document.getElementById('rightSidebar').classList.add('d-none');
       document.getElementById('tapLeft').classList.add('d-none');
       document.getElementById('tapRight').classList.add('d-none');
 
+      const initialPage = targetPage || 1;
       const pdfFrame = document.getElementById('pdf-viewer-frame');
       pdfFrame.classList.remove('d-none');
-      pdfFrame.src = `${url}#toolbar=0&navpanes=0&scrollbar=1`;
+      pdfFrame.src = `${url}#page=${initialPage}&toolbar=0&navpanes=0&scrollbar=1`;
+
+      document.getElementById('topPageNum').textContent = initialPage;
     }
 
     document.addEventListener("DOMContentLoaded", loadBookData);
