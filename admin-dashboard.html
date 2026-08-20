@@ -191,9 +191,12 @@
       <div class="card stat-card p-0 overflow-hidden mb-4 shadow-sm">
         <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
           <div>
-            <h5 class="fw-bold mb-0 text-dark">
-              <i class="fa-solid fa-book-reader text-success me-2"></i>Author Page Consumption Analytics (&gt;10s Verified Reads)
-            </h5>
+            <div class="d-flex align-items-center gap-2">
+              <h5 class="fw-bold mb-0 text-dark">
+                <i class="fa-solid fa-book-reader text-success me-2"></i>Author Page Consumption Analytics (&gt;10s Verified Reads)
+              </h5>
+              <span class="badge bg-success rounded-pill px-3 py-2" id="totalVerifiedPagesCount">0 Pages Read</span>
+            </div>
             <small class="text-muted">Calculates verified reads per author to distribute the 40% author royalty pool.</small>
           </div>
 
@@ -1006,6 +1009,7 @@
     // Render Author Aggregated Reading Table with ID and Reader Identity Inspect
     function renderAuthorAnalyticsTable() {
       const tbody = document.getElementById('authorReadingStatsBody');
+      const totalBadge = document.getElementById('totalVerifiedPagesCount');
       const selectedMonthYear = document.getElementById('authorMonthYearFilter')?.value || 'all';
 
       authorAnalyticsMap = {};
@@ -1020,12 +1024,16 @@
       });
 
       filteredEvents.forEach(evt => {
-        const aId = evt.author_id || 'AUTH-UNKNOWN';
         const aName = evt.author_name || 'Unknown Author';
+        const aId = evt.author_id && evt.author_id !== 'null' && evt.author_id !== '' 
+          ? evt.author_id 
+          : `AUTH-${aName.replace(/\s+/g, '').substring(0, 6).toUpperCase()}`;
+
         totalVerifiedPages++;
 
-        if (!authorAnalyticsMap[aId]) {
-          authorAnalyticsMap[aId] = {
+        const groupKey = aId;
+        if (!authorAnalyticsMap[groupKey]) {
+          authorAnalyticsMap[groupKey] = {
             authorId: aId,
             authorName: aName,
             totalPages: 0,
@@ -1033,20 +1041,24 @@
           };
         }
 
-        authorAnalyticsMap[aId].totalPages += 1;
-        const readerId = evt.user_id || 'guest';
-        if (!authorAnalyticsMap[aId].readers[readerId]) {
-          authorAnalyticsMap[aId].readers[readerId] = {
+        authorAnalyticsMap[groupKey].totalPages += 1;
+        const readerId = evt.user_id || 'guest_reader';
+        if (!authorAnalyticsMap[groupKey].readers[readerId]) {
+          authorAnalyticsMap[groupKey].readers[readerId] = {
             userId: readerId,
             pagesRead: 0,
             lastReadAt: evt.created_at
           };
         }
-        authorAnalyticsMap[aId].readers[readerId].pagesRead += 1;
-        if (new Date(evt.created_at) > new Date(authorAnalyticsMap[aId].readers[readerId].lastReadAt)) {
-          authorAnalyticsMap[aId].readers[readerId].lastReadAt = evt.created_at;
+        authorAnalyticsMap[groupKey].readers[readerId].pagesRead += 1;
+        if (new Date(evt.created_at) > new Date(authorAnalyticsMap[groupKey].readers[readerId].lastReadAt)) {
+          authorAnalyticsMap[groupKey].readers[readerId].lastReadAt = evt.created_at;
         }
       });
+
+      if (totalBadge) {
+        totalBadge.textContent = `${totalVerifiedPages.toLocaleString('en-IN')} Pages Read`;
+      }
 
       if (totalVerifiedPages === 0) {
         tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted fw-semibold">No verified reads found for this timeframe.</td></tr>`;
