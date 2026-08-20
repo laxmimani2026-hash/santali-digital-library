@@ -9,21 +9,17 @@
   <style>
     body { background-color: #f8f9fa; display: flex; min-height: 100vh; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     
-    /* Sidebar Styling */
     .sidebar { width: 270px; background-color: #0f172a; color: white; padding-top: 20px; flex-shrink: 0; transition: all 0.3s ease; }
     .sidebar a { color: #cbd5e1; text-decoration: none; padding: 13px 20px; display: block; font-weight: 500; transition: 0.2s; border-left: 4px solid transparent; cursor: pointer; }
     .sidebar a:hover, .sidebar a.active { background-color: #1e293b; color: #38bdf8; border-left: 4px solid #38bdf8; }
     
-    /* Main Content */
     .main-content { flex-grow: 1; padding: 30px; overflow-y: auto; background-color: #f1f5f9; }
     .stat-card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); background: white; }
     
-    /* Table Styling */
     .table-hover tbody tr:hover { background-color: #f8fafc; }
     .book-cover-thumb { width: 40px; height: 55px; object-fit: cover; border-radius: 4px; background-color: #e2e8f0; }
     
-    /* ID Badges */
-    .uid-badge, .book-id-badge {
+    .uid-badge, .book-id-badge, .author-id-badge {
       background: #e2e8f0;
       color: #0f172a;
       font-family: monospace;
@@ -36,10 +32,10 @@
       gap: 6px;
       border: 1px solid #cbd5e1;
     }
-    .uid-badge i, .book-id-badge i { cursor: pointer; color: #64748b; }
-    .uid-badge i:hover, .book-id-badge i:hover { color: #0f172a; }
+    .author-id-badge { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+    .uid-badge i, .book-id-badge i, .author-id-badge i { cursor: pointer; color: #64748b; }
+    .uid-badge i:hover, .book-id-badge i:hover, .author-id-badge i:hover { color: #0f172a; }
 
-    /* Role Selector inside Table */
     .role-select {
       font-size: 0.82rem;
       font-weight: 600;
@@ -54,7 +50,6 @@
     .role-select.role-distributor { background-color: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
     .role-select.role-admin { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
 
-    /* Toast notification */
     #adminToast {
       position: fixed;
       bottom: 24px;
@@ -193,28 +188,45 @@
       </div>
 
       <!-- Author Page Consumption Analytics Table -->
-      <div class="card stat-card p-0 overflow-hidden mb-4">
-        <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="fw-bold mb-0 text-dark">
-            <i class="fa-solid fa-book-reader text-success me-2"></i>Author Page Consumption Analytics (&gt;10s Verified Reads)
-          </h5>
-          <span class="badge bg-success" id="totalVerifiedPagesCount">0 Pages Read</span>
+      <div class="card stat-card p-0 overflow-hidden mb-4 shadow-sm">
+        <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
+          <div>
+            <h5 class="fw-bold mb-0 text-dark">
+              <i class="fa-solid fa-book-reader text-success me-2"></i>Author Page Consumption Analytics (&gt;10s Verified Reads)
+            </h5>
+            <small class="text-muted">Calculates verified reads per author to distribute the 40% author royalty pool.</small>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            <!-- Year & Month Filter -->
+            <select id="authorMonthYearFilter" class="form-select form-select-sm border-secondary fw-semibold" style="width: 170px;">
+              <option value="all">All Time Records</option>
+            </select>
+
+            <!-- Refresh Button -->
+            <button class="btn btn-sm btn-outline-primary fw-semibold" id="refreshAuthorAnalyticsBtn">
+              <i class="fa-solid fa-rotate me-1"></i> Refresh
+            </button>
+          </div>
         </div>
+
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
               <thead class="table-light text-secondary small">
                 <tr>
-                  <th class="ps-4">Author Name</th>
+                  <th class="ps-4">Author ID</th>
+                  <th>Author Name</th>
+                  <th>Total Verified Pages</th>
                   <th>Unique Readers</th>
-                  <th>Total Verified Pages Read</th>
                   <th>Share of Total Pool</th>
-                  <th class="pe-4 text-end">Est. Author Royalty</th>
+                  <th>Est. Author Royalty</th>
+                  <th class="pe-4 text-end">Inspect Reader Details</th>
                 </tr>
               </thead>
               <tbody id="authorReadingStatsBody">
                 <tr>
-                  <td colspan="5" class="text-center py-4 text-muted">
+                  <td colspan="7" class="text-center py-4 text-muted">
                     <div class="spinner-border text-primary spinner-border-sm me-2"></div> Calculating reading metrics...
                   </td>
                 </tr>
@@ -227,8 +239,6 @@
 
     <!-- SECTION 2: SUBSCRIPTIONS & PLANS BREAKDOWN + PRICING CONTROLS -->
     <div id="subscriptionsSection" class="content-section d-none">
-      
-      <!-- Live Pricing & Special Plan Configuration Box -->
       <div class="card stat-card p-4 mb-4 border-start border-warning border-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
@@ -264,7 +274,6 @@
           </div>
         </div>
 
-        <!-- Special Plan Settings -->
         <div class="bg-light p-3 rounded-3 border">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex align-items-center gap-2">
@@ -890,6 +899,44 @@
 
   </div>
 
+  <!-- Readers Inspector Modal -->
+  <div class="modal fade" id="readerDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0 shadow">
+        <div class="modal-header border-bottom">
+          <div>
+            <h5 class="modal-title fw-bold text-dark mb-0" id="readerModalAuthorName">Author Readers Overview</h5>
+            <small class="text-muted" id="readerModalAuthorId">Author ID: --</small>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light text-secondary small">
+                <tr>
+                  <th class="ps-4">User ID</th>
+                  <th>Reader Name</th>
+                  <th>Contact Email</th>
+                  <th>Verified Pages Read</th>
+                  <th class="pe-4 text-end">Last Read At</th>
+                </tr>
+              </thead>
+              <tbody id="readerModalTableBody">
+                <tr>
+                  <td colspan="5" class="text-center py-4 text-muted">Loading reader breakdown...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer border-top">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="adminToast">Action Completed</div>
 
   <!-- Supabase Logic -->
@@ -905,6 +952,9 @@
     let allBooksData = [];
     let usersProfileMap = {};
     let globalMessages = [];
+    let rawReadEventsData = [];
+    let authorAnalyticsMap = {};
+    let globalAuthorPool = 0;
 
     function showToast(msg) {
       const toast = document.getElementById('adminToast');
@@ -920,8 +970,762 @@
       return val || {};
     }
 
+    async function preloadProfiles() {
+      const { data: profiles } = await supabase.from('profiles').select('*');
+      usersProfileMap = {};
+      (profiles || []).forEach(p => { usersProfileMap[p.id] = p; });
+    }
+
+    // Populate Year and Month Filters dynamically for Author Analytics
+    function populateAnalyticsMonthFilter(events) {
+      const filterSelect = document.getElementById('authorMonthYearFilter');
+      if (!filterSelect) return;
+      const currentSelection = filterSelect.value;
+      filterSelect.innerHTML = `<option value="all">All Time Records</option>`;
+
+      const monthYearSet = new Set();
+      events.forEach(evt => {
+        if (evt.created_at) {
+          const d = new Date(evt.created_at);
+          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+          const label = d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+          monthYearSet.add(JSON.stringify({ key, label }));
+        }
+      });
+
+      Array.from(monthYearSet).forEach(itemStr => {
+        const { key, label } = JSON.parse(itemStr);
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = label;
+        if (key === currentSelection) opt.selected = true;
+        filterSelect.appendChild(opt);
+      });
+    }
+
+    // Render Author Aggregated Reading Table with ID and Reader Identity Inspect
+    function renderAuthorAnalyticsTable() {
+      const tbody = document.getElementById('authorReadingStatsBody');
+      const selectedMonthYear = document.getElementById('authorMonthYearFilter')?.value || 'all';
+
+      authorAnalyticsMap = {};
+      let totalVerifiedPages = 0;
+
+      const filteredEvents = rawReadEventsData.filter(evt => {
+        if (selectedMonthYear === 'all') return true;
+        if (!evt.created_at) return false;
+        const d = new Date(evt.created_at);
+        const evtKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        return evtKey === selectedMonthYear;
+      });
+
+      filteredEvents.forEach(evt => {
+        const aId = evt.author_id || 'AUTH-UNKNOWN';
+        const aName = evt.author_name || 'Unknown Author';
+        totalVerifiedPages++;
+
+        if (!authorAnalyticsMap[aId]) {
+          authorAnalyticsMap[aId] = {
+            authorId: aId,
+            authorName: aName,
+            totalPages: 0,
+            readers: {}
+          };
+        }
+
+        authorAnalyticsMap[aId].totalPages += 1;
+        const readerId = evt.user_id || 'guest';
+        if (!authorAnalyticsMap[aId].readers[readerId]) {
+          authorAnalyticsMap[aId].readers[readerId] = {
+            userId: readerId,
+            pagesRead: 0,
+            lastReadAt: evt.created_at
+          };
+        }
+        authorAnalyticsMap[aId].readers[readerId].pagesRead += 1;
+        if (new Date(evt.created_at) > new Date(authorAnalyticsMap[aId].readers[readerId].lastReadAt)) {
+          authorAnalyticsMap[aId].readers[readerId].lastReadAt = evt.created_at;
+        }
+      });
+
+      if (totalVerifiedPages === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted fw-semibold">No verified reads found for this timeframe.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      Object.keys(authorAnalyticsMap).forEach(authorKey => {
+        const item = authorAnalyticsMap[authorKey];
+        const uniqueReaderCount = Object.keys(item.readers).length;
+        const share = totalVerifiedPages > 0 ? (item.totalPages / totalVerifiedPages) : 0;
+        const payout = Math.round(share * globalAuthorPool);
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="ps-4">
+            <span class="author-id-badge" title="Click to copy Author ID">
+              <span>${item.authorId}</span>
+              <i class="fa-regular fa-copy copy-author-id" data-id="${item.authorId}"></i>
+            </span>
+          </td>
+          <td class="fw-bold text-dark">${item.authorName}</td>
+          <td><span class="badge bg-primary rounded-pill px-3 py-2">${item.totalPages} Pages</span></td>
+          <td><i class="fa-solid fa-users text-muted me-1"></i>${uniqueReaderCount} Reader(s)</td>
+          <td>${(share * 100).toFixed(1)}%</td>
+          <td class="fw-bold text-success">₹${payout.toLocaleString('en-IN')}</td>
+          <td class="pe-4 text-end">
+            <button class="btn btn-sm btn-outline-primary view-readers-btn" data-authorid="${item.authorId}">
+              <i class="fa-solid fa-magnifying-glass me-1"></i> View Readers
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Copy Author ID
+      document.querySelectorAll('.copy-author-id').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.target.getAttribute('data-id');
+          navigator.clipboard.writeText(id).then(() => showToast(`Copied Author ID: ${id}`));
+        });
+      });
+
+      // Show Reader Details Modal
+      document.querySelectorAll('.view-readers-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const aId = this.getAttribute('data-authorid');
+          openReaderInspectionModal(aId);
+        });
+      });
+    }
+
+    function openReaderInspectionModal(authorId) {
+      const authorData = authorAnalyticsMap[authorId];
+      if (!authorData) return;
+
+      document.getElementById('readerModalAuthorName').textContent = `${authorData.authorName}'s Readers`;
+      document.getElementById('readerModalAuthorId').textContent = `Author ID: ${authorData.authorId} (${authorData.totalPages} verified pages read)`;
+
+      const modalTbody = document.getElementById('readerModalTableBody');
+      modalTbody.innerHTML = '';
+
+      Object.values(authorData.readers).forEach(r => {
+        const userObj = usersProfileMap[r.userId] || {};
+        const userUid = userObj.user_uid || `UID-${r.userId.substring(0, 6).toUpperCase()}`;
+        const name = userObj.full_name || `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || 'Reader';
+        const email = userObj.email || userObj.contact_email || '—';
+        const lastRead = new Date(r.lastReadAt).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' });
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="ps-4"><span class="uid-badge"><span>${userUid}</span></span></td>
+          <td class="fw-bold text-dark">${name}</td>
+          <td class="small text-muted">${email}</td>
+          <td><span class="badge bg-success rounded-pill">${r.pagesRead} Pages</span></td>
+          <td class="pe-4 text-end small text-muted">${lastRead}</td>
+        `;
+        modalTbody.appendChild(tr);
+      });
+
+      const modal = new bootstrap.Modal(document.getElementById('readerDetailModal'));
+      modal.show();
+    }
+
+    // Dashboard Overview Metrics
+    async function fetchDashboardStats() {
+      try {
+        await preloadProfiles();
+        const { data: subs } = await supabase.from('subscriptions').select('user_id, price, valid_until');
+        let grossRev = 0, activeCount = 0;
+        const now = new Date();
+
+        (subs || []).forEach(s => {
+          if (s.user_id && usersProfileMap[s.user_id]) {
+            const p = parseFloat(s.price) || 0;
+            grossRev += p;
+            if (s.valid_until && new Date(s.valid_until) >= now) activeCount++;
+          }
+        });
+
+        const deductions = Math.round(grossRev * 0.05);
+        const netRev = Math.max(0, grossRev - deductions);
+        globalAuthorPool = Math.round(netRev * 0.40);
+        const opsReserve = Math.round(netRev * 0.45);
+        const profit = Math.max(0, netRev - globalAuthorPool - opsReserve);
+
+        document.getElementById('totalSubscribersCount').textContent = activeCount.toLocaleString('en-IN');
+        document.getElementById('grossRevenueText').textContent = `₹${grossRev.toLocaleString('en-IN')}`;
+        document.getElementById('authorPoolText').textContent = `₹${globalAuthorPool.toLocaleString('en-IN')}`;
+        document.getElementById('platformProfitText').textContent = `₹${profit.toLocaleString('en-IN')}`;
+
+        document.getElementById('calcGross').textContent = `₹${grossRev.toLocaleString('en-IN')}`;
+        document.getElementById('calcDeductions').textContent = `- ₹${deductions.toLocaleString('en-IN')}`;
+        document.getElementById('calcNet').textContent = `₹${netRev.toLocaleString('en-IN')}`;
+        document.getElementById('calcAuthorPool').textContent = `₹${globalAuthorPool.toLocaleString('en-IN')}`;
+        document.getElementById('calcOps').textContent = `₹${opsReserve.toLocaleString('en-IN')}`;
+
+        // Fetch Page Read Events
+        const { data: readEvents, error } = await supabase
+          .from('page_read_events')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        rawReadEventsData = readEvents || [];
+
+        populateAnalyticsMonthFilter(rawReadEventsData);
+        renderAuthorAnalyticsTable();
+
+      } catch (err) {
+        console.error("Dashboard Stats Error:", err);
+      }
+    }
+
+    // 1. Dynamic Plan Pricing & Special Plan Logic
+    async function loadPlanConfiguration() {
+      try {
+        const { data } = await supabase.from('site_settings').select('*').eq('key', 'subscription_plans').maybeSingle();
+        if (data && data.value) {
+          const cfg = parseValue(data.value);
+          document.getElementById('cfgMonthlyPrice').value = cfg.monthly_price || 99;
+          document.getElementById('cfgQuarterlyPrice').value = cfg.quarterly_price || 249;
+          document.getElementById('cfgYearlyPrice').value = cfg.yearly_price || 899;
+
+          const sp = cfg.special || {};
+          const isSpActive = sp.enabled === true;
+          document.getElementById('cfgSpecialEnable').checked = isSpActive;
+          document.getElementById('cfgSpecialLabel').textContent = isSpActive ? "Active" : "Disabled";
+          document.getElementById('cfgSpecialTitle').value = sp.title || "15-Day Special Pass";
+          document.getElementById('cfgSpecialDuration').value = sp.days || "15";
+          document.getElementById('cfgSpecialPrice').value = sp.price || "49";
+        }
+      } catch (e) {
+        console.warn("Could not load plan configuration:", e);
+      }
+    }
+
+    document.getElementById('cfgSpecialEnable')?.addEventListener('change', function() {
+      document.getElementById('cfgSpecialLabel').textContent = this.checked ? "Active" : "Disabled";
+    });
+
+    document.getElementById('savePlanConfigBtn')?.addEventListener('click', async () => {
+      const btn = document.getElementById('savePlanConfigBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Saving...';
+
+      const planConfig = {
+        monthly_price: parseFloat(document.getElementById('cfgMonthlyPrice').value) || 99,
+        quarterly_price: parseFloat(document.getElementById('cfgQuarterlyPrice').value) || 249,
+        yearly_price: parseFloat(document.getElementById('cfgYearlyPrice').value) || 899,
+        special: {
+          enabled: document.getElementById('cfgSpecialEnable').checked,
+          title: document.getElementById('cfgSpecialTitle').value.trim() || 'Special Pass',
+          days: parseInt(document.getElementById('cfgSpecialDuration').value) || 15,
+          price: parseFloat(document.getElementById('cfgSpecialPrice').value) || 49
+        }
+      };
+
+      try {
+        const { error } = await supabase.from('site_settings').upsert([{
+          key: 'subscription_plans',
+          value: planConfig
+        }]);
+        if (error) throw error;
+        showToast("Pricing and special promotional pass saved successfully!");
+      } catch (err) {
+        alert("Error saving plans: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-floppy-disk me-1"></i> Save Plan Prices';
+      }
+    });
+
+    // 2. Subscriptions Table
+    function populateSubscriptionMonths(subs) {
+      const monthSelect = document.getElementById('subMonthFilter');
+      if (!monthSelect) return;
+      monthSelect.innerHTML = `<option value="all">All Months</option>`;
+
+      const monthSet = new Set();
+      subs.forEach(s => {
+        const rawDate = s.activated_on || s.created_at;
+        if (rawDate) {
+          const d = new Date(rawDate);
+          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+          const label = d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+          monthSet.add(JSON.stringify({ key, label }));
+        }
+      });
+
+      Array.from(monthSet).forEach(itemStr => {
+        const { key, label } = JSON.parse(itemStr);
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = label;
+        monthSelect.appendChild(opt);
+      });
+    }
+
+    async function fetchSubscriptionDetails() {
+      const tbody = document.getElementById('subscribersTableBody');
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading subscriptions...</td></tr>`;
+
+      try {
+        await preloadProfiles();
+        const { data: subs, error } = await supabase.from('subscriptions').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+
+        const rawSubs = subs || [];
+        allSubscribersData = rawSubs.filter(sub => sub.user_id && usersProfileMap[sub.user_id]);
+
+        let monthlyCount = 0, quarterlyCount = 0, annualCount = 0;
+        let monthlyRev = 0, quarterlyRev = 0, annualRev = 0;
+
+        allSubscribersData.forEach(sub => {
+          const plan = (sub.plan_name || '').toLowerCase();
+          const price = parseFloat(sub.price) || 0;
+          if (plan.includes('annual') || plan.includes('year')) { annualCount++; annualRev += price || 899; }
+          else if (plan.includes('quarter')) { quarterlyCount++; quarterlyRev += price || 249; }
+          else { monthlyCount++; monthlyRev += price || 99; }
+        });
+
+        document.getElementById('subCountMonthly').textContent = `${monthlyCount} Subscribers`;
+        document.getElementById('subRevenueMonthly').textContent = `₹${monthlyRev.toLocaleString('en-IN')}`;
+        document.getElementById('subCountQuarterly').textContent = `${quarterlyCount} Subscribers`;
+        document.getElementById('subRevenueQuarterly').textContent = `₹${quarterlyRev.toLocaleString('en-IN')}`;
+        document.getElementById('subCountAnnual').textContent = `${annualCount} Subscribers`;
+        document.getElementById('subRevenueAnnual').textContent = `₹${annualRev.toLocaleString('en-IN')}`;
+        document.getElementById('filteredSubscribersCount').textContent = `${allSubscribersData.length} Total`;
+
+        populateSubscriptionMonths(allSubscribersData);
+        renderSubscribersTable();
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">Failed to load subscriptions.</td></tr>`;
+      }
+    }
+
+    function renderSubscribersTable() {
+      const tbody = document.getElementById('subscribersTableBody');
+      const planFilter = document.getElementById('subPlanFilter')?.value || 'all';
+      const monthFilter = document.getElementById('subMonthFilter')?.value || 'all';
+
+      tbody.innerHTML = '';
+
+      const filtered = allSubscribersData.filter(sub => {
+        const plan = (sub.plan_name || '').toLowerCase();
+        let key = 'monthly';
+        if (plan.includes('annual') || plan.includes('year')) key = 'yearly';
+        else if (plan.includes('quarter')) key = 'quarterly';
+        else if (plan.includes('day') || plan.includes('week') || plan.includes('special')) key = 'special';
+
+        const matchesPlan = (planFilter === 'all' || key === planFilter);
+
+        let matchesMonth = true;
+        const rawDate = sub.activated_on || sub.created_at;
+        if (monthFilter !== 'all' && rawDate) {
+          const d = new Date(rawDate);
+          const subMonthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+          matchesMonth = (subMonthKey === monthFilter);
+        }
+
+        return matchesPlan && matchesMonth;
+      });
+
+      document.getElementById('filteredSubscribersCount').textContent = `${filtered.length} Total`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted fw-semibold">No active subscriptions found for this selection.</td></tr>`;
+        return;
+      }
+
+      const now = new Date();
+      filtered.forEach(sub => {
+        const plan = (sub.plan_name || '').toLowerCase();
+        let planBadge = `<span class="badge bg-secondary">Monthly</span>`;
+        if (plan.includes('annual') || plan.includes('year')) planBadge = `<span class="badge bg-warning text-dark">Yearly</span>`;
+        else if (plan.includes('quarter')) planBadge = `<span class="badge bg-info text-dark">Quarterly</span>`;
+        else if (plan.includes('day') || plan.includes('week') || plan.includes('special')) planBadge = `<span class="badge bg-primary">Special Pass</span>`;
+
+        const start = sub.activated_on ? new Date(sub.activated_on).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
+        const end = sub.valid_until ? new Date(sub.valid_until).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
+        const isExpired = sub.valid_until && new Date(sub.valid_until) < now;
+        const statusBadge = isExpired 
+          ? `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger">Expired</span>`
+          : `<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="fa-solid fa-circle-check me-1"></i>Active</span>`;
+
+        const userObj = usersProfileMap[sub.user_id] || {};
+        const userUid = userObj.user_uid || `SDL-${sub.user_id.substring(0, 6).toUpperCase()}`;
+        let subscriberName = userObj.full_name || `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || 'Reader';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="ps-4 fw-bold text-primary">${sub.subscription_id || 'N/A'}</td>
+          <td>
+            <span class="uid-badge" title="Click to copy User ID">
+              <span>${userUid}</span>
+              <i class="fa-regular fa-copy copy-sub-uid-btn" data-uid="${userUid}"></i>
+            </span>
+          </td>
+          <td>
+            <div class="fw-semibold text-dark">${subscriberName}</div>
+            <small class="text-muted">${userObj.email || userObj.contact_email || ''}</small>
+          </td>
+          <td>${planBadge}</td>
+          <td class="small text-muted">${start} to <strong class="text-dark">${end}</strong></td>
+          <td class="fw-bold text-success">₹${sub.price || 0}</td>
+          <td class="pe-4">${statusBadge}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.querySelectorAll('.copy-sub-uid-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const uid = e.target.getAttribute('data-uid');
+          navigator.clipboard.writeText(uid).then(() => showToast(`Copied User ID: ${uid}`));
+        });
+      });
+    }
+
+    document.getElementById('subPlanFilter')?.addEventListener('change', renderSubscribersTable);
+    document.getElementById('subMonthFilter')?.addEventListener('change', renderSubscribersTable);
+    document.getElementById('refreshSubsBtn')?.addEventListener('click', () => {
+      fetchSubscriptionDetails();
+      fetchDashboardStats();
+    });
+
+    // 3. Book Pipeline
+    async function fetchApprovalBooks() {
+      const tbody = document.getElementById('approvalBooksList');
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading books...</td></tr>`;
+
+      try {
+        await preloadProfiles();
+        const { data: books, error } = await supabase.from('books').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+
+        const rawBooks = books || [];
+        allBooksData = rawBooks.filter(b => !b.user_id || usersProfileMap[b.user_id]);
+
+        populateMonthDropdown(allBooksData);
+        renderBooksTable();
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger">Failed to load pipeline: ${err.message}</td></tr>`;
+      }
+    }
+
+    function populateMonthDropdown(books) {
+      const monthSelect = document.getElementById('bookMonthFilter');
+      if (!monthSelect) return;
+      monthSelect.innerHTML = `<option value="all">All Months</option>`;
+
+      const monthSet = new Set();
+      books.forEach(b => {
+        if (b.created_at) {
+          const d = new Date(b.created_at);
+          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+          const label = d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+          monthSet.add(JSON.stringify({ key, label }));
+        }
+      });
+
+      Array.from(monthSet).forEach(itemStr => {
+        const { key, label } = JSON.parse(itemStr);
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = label;
+        monthSelect.appendChild(opt);
+      });
+    }
+
+    function renderBooksTable() {
+      const tbody = document.getElementById('approvalBooksList');
+      const searchVal = document.getElementById('bookSearchInput')?.value.trim().toLowerCase() || '';
+      const monthFilter = document.getElementById('bookMonthFilter')?.value || 'all';
+      const statusFilter = document.getElementById('bookStatusFilter')?.value || 'all';
+
+      document.getElementById('totalBooksCount').textContent = allBooksData.length;
+      let pendingCount = 0, selectedMonthUploads = 0;
+
+      const targetMonthKey = monthFilter !== 'all' 
+        ? monthFilter 
+        : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+
+      allBooksData.forEach(b => {
+        const status = (b.status || 'under review').toLowerCase();
+        if (status !== 'published') pendingCount++;
+        if (b.created_at) {
+          const d = new Date(b.created_at);
+          const bKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+          if (bKey === targetMonthKey) selectedMonthUploads++;
+        }
+      });
+
+      document.getElementById('pendingBooksCount').textContent = pendingCount;
+      document.getElementById('monthBooksCount').textContent = selectedMonthUploads;
+
+      const filtered = allBooksData.filter(book => {
+        const bookRefId = (book.book_id || `BK-${String(book.id).substring(0, 6)}` || '').toLowerCase();
+        const title = (book.title || '').toLowerCase();
+        const author = (book.author || '').toLowerCase();
+        const isPublished = (book.status || '').toLowerCase() === 'published';
+
+        const matchesSearch = !searchVal || bookRefId.includes(searchVal) || title.includes(searchVal) || author.includes(searchVal);
+        let matchesMonth = true;
+        if (monthFilter !== 'all' && book.created_at) {
+          const d = new Date(book.created_at);
+          const bKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+          matchesMonth = (bKey === monthFilter);
+        }
+
+        let matchesStatus = true;
+        if (statusFilter === 'published') matchesStatus = isPublished;
+        if (statusFilter === 'under_review') matchesStatus = !isPublished;
+
+        return matchesSearch && matchesMonth && matchesStatus;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted fw-semibold">No books found matching search or filter criteria.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      filtered.forEach((book, index) => {
+        const serialNo = index + 1;
+        const date = new Date(book.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        const scriptBadge = book.language && book.language.includes('santali') 
+          ? `<span class="badge bg-secondary">Santali (Ol Chiki)</span>` 
+          : `<span class="badge bg-dark">${book.language || 'English'}</span>`;
+        
+        const isPublished = (book.status || '').toLowerCase() === 'published';
+        const statusBadge = isPublished
+          ? `<span class="badge bg-success">Published</span>`
+          : `<span class="badge bg-warning text-dark">Under Review</span>`;
+
+        const bookRefId = book.book_id || `BK-${String(book.id).substring(0, 6).toUpperCase()}`;
+        const isFeatured = book.is_featured === true;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="ps-3 text-center fw-bold text-muted">${serialNo}</td>
+          <td>
+            <span class="book-id-badge" title="Click to copy Book ID">
+              <span>${bookRefId}</span>
+              <i class="fa-regular fa-copy copy-bookid-btn" data-id="${bookRefId}"></i>
+            </span>
+          </td>
+          <td>
+            <div class="d-flex align-items-center">
+              <img src="${book.cover_url || 'https://via.placeholder.com/40x55'}" class="book-cover-thumb me-3" onerror="this.src='https://via.placeholder.com/40x55'">
+              <div>
+                <h6 class="fw-bold mb-0 text-dark">${book.title}</h6>
+                <small class="text-muted">By ${book.author || 'Author'}</small>
+              </div>
+            </div>
+          </td>
+          <td>${scriptBadge}</td>
+          <td class="text-muted small">${date}</td>
+          <td>${statusBadge}</td>
+          <td>
+            <div class="form-check form-switch">
+              <input class="form-check-input toggle-featured-switch" type="checkbox" data-id="${book.id}" ${isFeatured ? 'checked' : ''}>
+              <label class="form-check-label small fw-semibold text-muted">${isFeatured ? 'In Marquee' : 'Off'}</label>
+            </div>
+          </td>
+          <td class="text-end pe-4">
+            ${!isPublished 
+              ? `<button class="btn btn-sm btn-success approve-book-btn me-1" data-id="${book.id}"><i class="fa-solid fa-check me-1"></i>Publish</button>` 
+              : `<button class="btn btn-sm btn-outline-secondary unpublish-book-btn me-1" data-id="${book.id}">Unpublish</button>`
+            }
+            <button class="btn btn-sm btn-outline-danger delete-book-btn" data-id="${book.id}" data-title="${book.title}">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.querySelectorAll('.approve-book-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const id = this.getAttribute('data-id');
+          await supabase.from('books').update({ status: 'Published' }).eq('id', id);
+          showToast("Book published to Catalog!");
+          fetchApprovalBooks();
+        });
+      });
+
+      document.querySelectorAll('.unpublish-book-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const id = this.getAttribute('data-id');
+          await supabase.from('books').update({ status: 'Under Review' }).eq('id', id);
+          showToast("Book moved to Under Review.");
+          fetchApprovalBooks();
+        });
+      });
+
+      document.querySelectorAll('.toggle-featured-switch').forEach(switchEl => {
+        switchEl.addEventListener('change', async function() {
+          const id = this.getAttribute('data-id');
+          await supabase.from('books').update({ is_featured: this.checked }).eq('id', id);
+          showToast(this.checked ? "Book added to Home Slider!" : "Book removed from Home Slider.");
+        });
+      });
+
+      document.querySelectorAll('.delete-book-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const id = this.getAttribute('data-id');
+          const title = this.getAttribute('data-title') || 'this book';
+          if (!confirm(`Delete "${title}" from the database?`)) return;
+          await supabase.from('books').delete().eq('id', id);
+          fetchApprovalBooks();
+        });
+      });
+    }
+
+    document.getElementById('bookSearchInput')?.addEventListener('input', renderBooksTable);
+    document.getElementById('bookMonthFilter')?.addEventListener('change', renderBooksTable);
+    document.getElementById('bookStatusFilter')?.addEventListener('change', renderBooksTable);
+    document.getElementById('refreshApprovalBtn')?.addEventListener('click', fetchApprovalBooks);
+
+    // 4. Site Settings
+    async function loadSiteSettings() {
+      try {
+        const { data, error } = await supabase.from('site_settings').select('*');
+        if (error) throw error;
+        const map = {};
+        (data || []).forEach(row => { map[row.key] = parseValue(row.value); });
+
+        if (map.theme_colors) {
+          document.getElementById('settingPrimaryColor').value = map.theme_colors.primary || '#075e4d';
+          document.getElementById('settingPrimaryColorText').value = map.theme_colors.primary || '#075e4d';
+          document.getElementById('settingAccentColor').value = map.theme_colors.accent || '#ffb703';
+          document.getElementById('settingAccentColorText').value = map.theme_colors.accent || '#ffb703';
+        }
+      } catch (e) {
+        console.warn("Could not load dynamic settings:", e);
+      }
+    }
+
+    // 5. User Management
+    async function fetchAdminUsers() {
+      const adminUsersList = document.getElementById('adminUsersList');
+      adminUsersList.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading users...</td></tr>`;
+      try {
+        const { data: users, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        allUsersData = users || [];
+        renderUsersTable();
+      } catch (err) {
+        adminUsersList.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger">Failed to load users.</td></tr>`;
+      }
+    }
+
+    function renderUsersTable() {
+      const adminUsersList = document.getElementById('adminUsersList');
+      const searchVal = document.getElementById('userSearchInput').value.trim().toLowerCase();
+      const roleFilter = document.getElementById('userRoleFilter').value;
+      const totalBadge = document.getElementById('totalUsersCountBadge');
+
+      adminUsersList.innerHTML = '';
+
+      const filteredUsers = allUsersData.filter(user => {
+        const uid = (user.user_uid || `SDL-${user.id.substring(0, 6)}` || '').toLowerCase();
+        const fName = (user.first_name || '').toLowerCase();
+        const lName = (user.last_name || '').toLowerCase();
+        const fullName = (user.full_name || `${fName} ${lName}`).toLowerCase();
+        const email = (user.email || user.contact_email || '').toLowerCase();
+        const pincode = (user.pincode || user.postal_code || user.pin || '').toLowerCase();
+        
+        let role = (user.role || 'reader').toLowerCase();
+        if (role.includes('distributor') || role.includes('vendor')) role = 'distributor';
+        else if (role.includes('author') || role.includes('publisher')) role = 'author';
+
+        const matchesSearch = !searchVal || uid.includes(searchVal) || fullName.includes(searchVal) || email.includes(searchVal) || pincode.includes(searchVal);
+        const matchesRole = roleFilter === 'all' || role === roleFilter;
+        return matchesSearch && matchesRole;
+      });
+
+      if (totalBadge) totalBadge.textContent = `${filteredUsers.length} of ${allUsersData.length} Users`;
+
+      if (filteredUsers.length === 0) {
+        adminUsersList.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted fw-semibold">No users matching criteria.</td></tr>`;
+        return;
+      }
+
+      filteredUsers.forEach((user, index) => {
+        const serialNo = index + 1;
+        const userUid = user.user_uid || `SDL-${user.id.substring(0, 6).toUpperCase()}`;
+        
+        let currentRole = (user.role || 'reader').toLowerCase();
+        if (currentRole.includes('distributor') || currentRole.includes('vendor')) currentRole = 'distributor';
+        else if (currentRole.includes('author') || currentRole.includes('publisher')) currentRole = 'author';
+
+        const fName = user.first_name || (user.full_name ? user.full_name.split(' ')[0] : 'N/A');
+        const lName = user.last_name || (user.full_name ? user.full_name.split(' ').slice(1).join(' ') : '—');
+        const fullNameDisplay = `${fName} ${lName !== '—' ? lName : ''}`.trim();
+        const pincodeDisplay = user.pincode || user.postal_code || user.pin || '—';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="ps-3 text-center fw-bold text-muted">${serialNo}</td>
+          <td>
+            <span class="uid-badge" title="Click to copy User ID">
+              <span>${userUid}</span>
+              <i class="fa-regular fa-copy copy-uid-btn" data-uid="${userUid}"></i>
+            </span>
+          </td>
+          <td><div class="fw-bold text-dark">${fullNameDisplay}</div></td>
+          <td class="text-muted small">${user.email || user.contact_email || 'N/A'}</td>
+          <td class="text-muted small">${user.phone || 'N/A'}</td>
+          <td><span class="badge bg-light text-dark border px-2 py-1">${pincodeDisplay}</span></td>
+          <td>
+            <select class="form-select form-select-sm role-select role-${currentRole}" data-userid="${user.id}">
+              <option value="reader" ${currentRole === 'reader' ? 'selected' : ''}>Reader</option>
+              <option value="author" ${currentRole === 'author' ? 'selected' : ''}>Author / Publisher</option>
+              <option value="distributor" ${currentRole === 'distributor' ? 'selected' : ''}>Distributor / Vendor</option>
+              <option value="admin" ${currentRole === 'admin' ? 'selected' : ''}>Admin</option>
+            </select>
+          </td>
+          <td class="text-end pe-3">
+            <button class="btn btn-sm btn-outline-danger delete-user-btn" data-userid="${user.id}" data-name="${fullNameDisplay}" title="Delete User and cascade all data">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </td>
+        `;
+        adminUsersList.appendChild(tr);
+      });
+
+      document.querySelectorAll('.delete-user-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const userId = this.getAttribute('data-userid');
+          const userName = this.getAttribute('data-name') || 'this user';
+          if (!confirm(`Are you sure you want to delete user "${userName}"? This will also remove all their active subscriptions and uploaded books.`)) return;
+
+          try {
+            await supabase.from('subscriptions').delete().eq('user_id', userId);
+            await supabase.from('books').delete().or(`user_id.eq.${userId},author.eq."${userName}"`);
+            await supabase.from('profiles').delete().eq('id', userId);
+
+            allUsersData = allUsersData.filter(u => u.id !== userId);
+            delete usersProfileMap[userId];
+            renderUsersTable();
+            fetchSubscriptionDetails();
+            fetchApprovalBooks();
+            fetchDashboardStats();
+            showToast(`User "${userName}", their subscriptions, and books were deleted.`);
+          } catch (err) {
+            alert("Error deleting user: " + err.message);
+          }
+        });
+      });
+    }
+
+    document.getElementById('userSearchInput')?.addEventListener('input', renderUsersTable);
+    document.getElementById('userRoleFilter')?.addEventListener('change', renderUsersTable);
+    document.getElementById('refreshUsersBtn')?.addEventListener('click', fetchAdminUsers);
+
+    // Initial Dashboard Setup & Event Binding
     document.addEventListener("DOMContentLoaded", async () => {
-      // Auth & Admin Verification
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         window.location.href = "admin-login.html";
@@ -964,719 +1768,29 @@
           } else if (targetId === 'settingsSection') {
             pageTitle.textContent = "Visual & Page Settings Manager";
             loadSiteSettings();
-          } else if (targetId === 'reportsSection') {
-            pageTitle.textContent = "Financial Reports";
-            fetchSalesReports();
           } else if (targetId === 'usersSection') {
             pageTitle.textContent = "User Management";
             fetchAdminUsers();
-          } else if (targetId === 'messagesSection') {
-            pageTitle.textContent = "Contact Inquiries";
-            fetchAdminMessages();
           }
         });
       });
 
-      async function preloadProfiles() {
-        const { data: profiles } = await supabase.from('profiles').select('*');
-        usersProfileMap = {};
-        (profiles || []).forEach(p => { usersProfileMap[p.id] = p; });
-      }
-
-      // 1. Dynamic Plan Pricing & Special Plan Logic
-      async function loadPlanConfiguration() {
-        try {
-          const { data } = await supabase.from('site_settings').select('*').eq('key', 'subscription_plans').maybeSingle();
-          if (data && data.value) {
-            const cfg = parseValue(data.value);
-            document.getElementById('cfgMonthlyPrice').value = cfg.monthly_price || 99;
-            document.getElementById('cfgQuarterlyPrice').value = cfg.quarterly_price || 249;
-            document.getElementById('cfgYearlyPrice').value = cfg.yearly_price || 899;
-
-            const sp = cfg.special || {};
-            const isSpActive = sp.enabled === true;
-            document.getElementById('cfgSpecialEnable').checked = isSpActive;
-            document.getElementById('cfgSpecialLabel').textContent = isSpActive ? "Active" : "Disabled";
-            document.getElementById('cfgSpecialTitle').value = sp.title || "15-Day Special Pass";
-            document.getElementById('cfgSpecialDuration').value = sp.days || "15";
-            document.getElementById('cfgSpecialPrice').value = sp.price || "49";
-          }
-        } catch (e) {
-          console.warn("Could not load plan configuration:", e);
-        }
-      }
-
-      document.getElementById('cfgSpecialEnable')?.addEventListener('change', function() {
-        document.getElementById('cfgSpecialLabel').textContent = this.checked ? "Active" : "Disabled";
-      });
-
-      document.getElementById('savePlanConfigBtn')?.addEventListener('click', async () => {
-        const btn = document.getElementById('savePlanConfigBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Saving...';
-
-        const planConfig = {
-          monthly_price: parseFloat(document.getElementById('cfgMonthlyPrice').value) || 99,
-          quarterly_price: parseFloat(document.getElementById('cfgQuarterlyPrice').value) || 249,
-          yearly_price: parseFloat(document.getElementById('cfgYearlyPrice').value) || 899,
-          special: {
-            enabled: document.getElementById('cfgSpecialEnable').checked,
-            title: document.getElementById('cfgSpecialTitle').value.trim() || 'Special Pass',
-            days: parseInt(document.getElementById('cfgSpecialDuration').value) || 15,
-            price: parseFloat(document.getElementById('cfgSpecialPrice').value) || 49
-          }
-        };
-
-        try {
-          const { error } = await supabase.from('site_settings').upsert([{
-            key: 'subscription_plans',
-            value: planConfig
-          }]);
-          if (error) throw error;
-          showToast("Pricing and special promotional pass saved successfully!");
-        } catch (err) {
-          alert("Error saving plans: " + err.message);
-        } finally {
-          btn.disabled = false;
-          btn.innerHTML = '<i class="fa-solid fa-floppy-disk me-1"></i> Save Plan Prices';
-        }
-      });
-
-      // 2. Fetch Subscription Details & exclude orphans
-      function populateSubscriptionMonths(subs) {
-        const monthSelect = document.getElementById('subMonthFilter');
-        if (!monthSelect) return;
-        monthSelect.innerHTML = `<option value="all">All Months</option>`;
-
-        const monthSet = new Set();
-        subs.forEach(s => {
-          const rawDate = s.activated_on || s.created_at;
-          if (rawDate) {
-            const d = new Date(rawDate);
-            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-            const label = d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
-            monthSet.add(JSON.stringify({ key, label }));
-          }
-        });
-
-        Array.from(monthSet).forEach(itemStr => {
-          const { key, label } = JSON.parse(itemStr);
-          const opt = document.createElement('option');
-          opt.value = key;
-          opt.textContent = label;
-          monthSelect.appendChild(opt);
-        });
-      }
-
-      async function fetchSubscriptionDetails() {
-        const tbody = document.getElementById('subscribersTableBody');
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading subscriptions...</td></tr>`;
-
-        try {
-          await preloadProfiles();
-          const { data: subs, error } = await supabase.from('subscriptions').select('*').order('created_at', { ascending: false });
-          if (error) throw error;
-
-          const rawSubs = subs || [];
-          allSubscribersData = rawSubs.filter(sub => sub.user_id && usersProfileMap[sub.user_id]);
-
-          let monthlyCount = 0, quarterlyCount = 0, annualCount = 0;
-          let monthlyRev = 0, quarterlyRev = 0, annualRev = 0;
-
-          allSubscribersData.forEach(sub => {
-            const plan = (sub.plan_name || '').toLowerCase();
-            const price = parseFloat(sub.price) || 0;
-            if (plan.includes('annual') || plan.includes('year')) { annualCount++; annualRev += price || 899; }
-            else if (plan.includes('quarter')) { quarterlyCount++; quarterlyRev += price || 249; }
-            else { monthlyCount++; monthlyRev += price || 99; }
-          });
-
-          document.getElementById('subCountMonthly').textContent = `${monthlyCount} Subscribers`;
-          document.getElementById('subRevenueMonthly').textContent = `₹${monthlyRev.toLocaleString('en-IN')}`;
-          document.getElementById('subCountQuarterly').textContent = `${quarterlyCount} Subscribers`;
-          document.getElementById('subRevenueQuarterly').textContent = `₹${quarterlyRev.toLocaleString('en-IN')}`;
-          document.getElementById('subCountAnnual').textContent = `${annualCount} Subscribers`;
-          document.getElementById('subRevenueAnnual').textContent = `₹${annualRev.toLocaleString('en-IN')}`;
-          document.getElementById('filteredSubscribersCount').textContent = `${allSubscribersData.length} Total`;
-
-          populateSubscriptionMonths(allSubscribersData);
-          renderSubscribersTable();
-        } catch (err) {
-          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">Failed to load subscriptions.</td></tr>`;
-        }
-      }
-
-      function renderSubscribersTable() {
-        const tbody = document.getElementById('subscribersTableBody');
-        const planFilter = document.getElementById('subPlanFilter')?.value || 'all';
-        const monthFilter = document.getElementById('subMonthFilter')?.value || 'all';
-
-        tbody.innerHTML = '';
-
-        const filtered = allSubscribersData.filter(sub => {
-          const plan = (sub.plan_name || '').toLowerCase();
-          let key = 'monthly';
-          if (plan.includes('annual') || plan.includes('year')) key = 'yearly';
-          else if (plan.includes('quarter')) key = 'quarterly';
-          else if (plan.includes('day') || plan.includes('week') || plan.includes('special')) key = 'special';
-
-          const matchesPlan = (planFilter === 'all' || key === planFilter);
-
-          let matchesMonth = true;
-          const rawDate = sub.activated_on || sub.created_at;
-          if (monthFilter !== 'all' && rawDate) {
-            const d = new Date(rawDate);
-            const subMonthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-            matchesMonth = (subMonthKey === monthFilter);
-          }
-
-          return matchesPlan && matchesMonth;
-        });
-
-        document.getElementById('filteredSubscribersCount').textContent = `${filtered.length} Total`;
-
-        if (filtered.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted fw-semibold">No active subscriptions found for this selection.</td></tr>`;
-          return;
-        }
-
-        const now = new Date();
-        filtered.forEach(sub => {
-          const plan = (sub.plan_name || '').toLowerCase();
-          let planBadge = `<span class="badge bg-secondary">Monthly</span>`;
-          if (plan.includes('annual') || plan.includes('year')) planBadge = `<span class="badge bg-warning text-dark">Yearly</span>`;
-          else if (plan.includes('quarter')) planBadge = `<span class="badge bg-info text-dark">Quarterly</span>`;
-          else if (plan.includes('day') || plan.includes('week') || plan.includes('special')) planBadge = `<span class="badge bg-primary">Special Pass</span>`;
-
-          const start = sub.activated_on ? new Date(sub.activated_on).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
-          const end = sub.valid_until ? new Date(sub.valid_until).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
-          const isExpired = sub.valid_until && new Date(sub.valid_until) < now;
-          const statusBadge = isExpired 
-            ? `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger">Expired</span>`
-            : `<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="fa-solid fa-circle-check me-1"></i>Active</span>`;
-
-          const userObj = usersProfileMap[sub.user_id] || {};
-          const userUid = userObj.user_uid || `SDL-${sub.user_id.substring(0, 6).toUpperCase()}`;
-          let subscriberName = userObj.full_name || `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || 'Reader';
-
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="ps-4 fw-bold text-primary">${sub.subscription_id || 'N/A'}</td>
-            <td>
-              <span class="uid-badge" title="Click to copy User ID">
-                <span>${userUid}</span>
-                <i class="fa-regular fa-copy copy-sub-uid-btn" data-uid="${userUid}"></i>
-              </span>
-            </td>
-            <td>
-              <div class="fw-semibold text-dark">${subscriberName}</div>
-              <small class="text-muted">${userObj.email || userObj.contact_email || ''}</small>
-            </td>
-            <td>${planBadge}</td>
-            <td class="small text-muted">${start} to <strong class="text-dark">${end}</strong></td>
-            <td class="fw-bold text-success">₹${sub.price || 0}</td>
-            <td class="pe-4">${statusBadge}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-
-        document.querySelectorAll('.copy-sub-uid-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const uid = e.target.getAttribute('data-uid');
-            navigator.clipboard.writeText(uid).then(() => showToast(`Copied User ID: ${uid}`));
-          });
-        });
-      }
-
-      document.getElementById('subPlanFilter')?.addEventListener('change', renderSubscribersTable);
-      document.getElementById('subMonthFilter')?.addEventListener('change', renderSubscribersTable);
-      document.getElementById('refreshSubsBtn')?.addEventListener('click', () => {
-        fetchSubscriptionDetails();
+      // Filter and Refresh Event Handlers for Author Analytics
+      document.getElementById('authorMonthYearFilter')?.addEventListener('change', renderAuthorAnalyticsTable);
+      document.getElementById('refreshAuthorAnalyticsBtn')?.addEventListener('click', () => {
+        showToast("Refreshing analytics data...");
         fetchDashboardStats();
       });
-
-      // 3. Dashboard Metrics & Author Analytics Aggregator
-      async function fetchDashboardStats() {
-        try {
-          await preloadProfiles();
-          const { data: subs } = await supabase.from('subscriptions').select('user_id, price, plan_name, valid_until');
-          let grossRev = 0, activeCount = 0;
-          const now = new Date();
-
-          (subs || []).forEach(s => {
-            if (s.user_id && usersProfileMap[s.user_id]) {
-              const p = parseFloat(s.price) || 0;
-              grossRev += p;
-              if (s.valid_until && new Date(s.valid_until) >= now) activeCount++;
-            }
-          });
-
-          const deductions = Math.round(grossRev * 0.05);
-          const netRev = Math.max(0, grossRev - deductions);
-          const authorPool = Math.round(netRev * 0.40);
-          const opsReserve = Math.round(netRev * 0.45);
-          const profit = Math.max(0, netRev - authorPool - opsReserve);
-
-          document.getElementById('totalSubscribersCount').textContent = activeCount.toLocaleString('en-IN');
-          document.getElementById('grossRevenueText').textContent = `₹${grossRev.toLocaleString('en-IN')}`;
-          document.getElementById('authorPoolText').textContent = `₹${authorPool.toLocaleString('en-IN')}`;
-          document.getElementById('platformProfitText').textContent = `₹${profit.toLocaleString('en-IN')}`;
-
-          document.getElementById('calcGross').textContent = `₹${grossRev.toLocaleString('en-IN')}`;
-          document.getElementById('calcDeductions').textContent = `- ₹${deductions.toLocaleString('en-IN')}`;
-          document.getElementById('calcNet').textContent = `₹${netRev.toLocaleString('en-IN')}`;
-          document.getElementById('calcAuthorPool').textContent = `₹${authorPool.toLocaleString('en-IN')}`;
-          document.getElementById('calcOps').textContent = `₹${opsReserve.toLocaleString('en-IN')}`;
-
-          // --- Aggregate Author Page Read Events ---
-          const { data: readEvents } = await supabase.from('page_read_events').select('user_id, author_name');
-          const authorMetrics = {};
-          let totalVerifiedPages = 0;
-
-          (readEvents || []).forEach(evt => {
-            const author = evt.author_name || 'Unknown Author';
-            totalVerifiedPages++;
-            if (!authorMetrics[author]) {
-              authorMetrics[author] = { totalPages: 0, users: new Set() };
-            }
-            authorMetrics[author].totalPages += 1;
-            if (evt.user_id) authorMetrics[author].users.add(evt.user_id);
-          });
-
-          const statsTableBody = document.getElementById('authorReadingStatsBody');
-          const totalBadge = document.getElementById('totalVerifiedPagesCount');
-          if (totalBadge) totalBadge.textContent = `${totalVerifiedPages.toLocaleString('en-IN')} Pages Read`;
-
-          if (totalVerifiedPages === 0) {
-            statsTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">No verified reads logged yet.</td></tr>`;
-          } else {
-            statsTableBody.innerHTML = '';
-            Object.keys(authorMetrics).forEach(author => {
-              const data = authorMetrics[author];
-              const share = totalVerifiedPages > 0 ? (data.totalPages / totalVerifiedPages) : 0;
-              const payout = Math.round(share * authorPool);
-
-              const tr = document.createElement('tr');
-              tr.innerHTML = `
-                <td class="ps-4 fw-bold text-dark">${author}</td>
-                <td>${data.users.size} Reader(s)</td>
-                <td><span class="badge bg-primary rounded-pill px-3 py-2">${data.totalPages} pages</span></td>
-                <td>${(share * 100).toFixed(1)}%</td>
-                <td class="pe-4 text-end fw-bold text-success">₹${payout.toLocaleString('en-IN')}</td>
-              `;
-              statsTableBody.appendChild(tr);
-            });
-          }
-
-        } catch (err) {
-          console.error("Stats Error:", err);
-        }
-      }
-
-      // 4. Book Pipeline
-      async function fetchApprovalBooks() {
-        const tbody = document.getElementById('approvalBooksList');
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading books...</td></tr>`;
-
-        try {
-          await preloadProfiles();
-          const { data: books, error } = await supabase.from('books').select('*').order('created_at', { ascending: false });
-          if (error) throw error;
-
-          const rawBooks = books || [];
-          allBooksData = rawBooks.filter(b => !b.user_id || usersProfileMap[b.user_id]);
-
-          populateMonthDropdown(allBooksData);
-          renderBooksTable();
-        } catch (err) {
-          tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger">Failed to load pipeline: ${err.message}</td></tr>`;
-        }
-      }
-
-      function populateMonthDropdown(books) {
-        const monthSelect = document.getElementById('bookMonthFilter');
-        if (!monthSelect) return;
-        monthSelect.innerHTML = `<option value="all">All Months</option>`;
-
-        const monthSet = new Set();
-        books.forEach(b => {
-          if (b.created_at) {
-            const d = new Date(b.created_at);
-            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-            const label = d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
-            monthSet.add(JSON.stringify({ key, label }));
-          }
-        });
-
-        Array.from(monthSet).forEach(itemStr => {
-          const { key, label } = JSON.parse(itemStr);
-          const opt = document.createElement('option');
-          opt.value = key;
-          opt.textContent = label;
-          monthSelect.appendChild(opt);
-        });
-      }
-
-      function renderBooksTable() {
-        const tbody = document.getElementById('approvalBooksList');
-        const searchVal = document.getElementById('bookSearchInput')?.value.trim().toLowerCase() || '';
-        const monthFilter = document.getElementById('bookMonthFilter')?.value || 'all';
-        const statusFilter = document.getElementById('bookStatusFilter')?.value || 'all';
-
-        document.getElementById('totalBooksCount').textContent = allBooksData.length;
-        let pendingCount = 0, selectedMonthUploads = 0;
-
-        const targetMonthKey = monthFilter !== 'all' 
-          ? monthFilter 
-          : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-
-        allBooksData.forEach(b => {
-          const status = (b.status || 'under review').toLowerCase();
-          if (status !== 'published') pendingCount++;
-          if (b.created_at) {
-            const d = new Date(b.created_at);
-            const bKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-            if (bKey === targetMonthKey) selectedMonthUploads++;
-          }
-        });
-
-        document.getElementById('pendingBooksCount').textContent = pendingCount;
-        document.getElementById('monthBooksCount').textContent = selectedMonthUploads;
-
-        const filtered = allBooksData.filter(book => {
-          const bookRefId = (book.book_id || `BK-${String(book.id).substring(0, 6)}` || '').toLowerCase();
-          const title = (book.title || '').toLowerCase();
-          const author = (book.author || '').toLowerCase();
-          const isPublished = (book.status || '').toLowerCase() === 'published';
-
-          const matchesSearch = !searchVal || bookRefId.includes(searchVal) || title.includes(searchVal) || author.includes(searchVal);
-          let matchesMonth = true;
-          if (monthFilter !== 'all' && book.created_at) {
-            const d = new Date(book.created_at);
-            const bKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-            matchesMonth = (bKey === monthFilter);
-          }
-
-          let matchesStatus = true;
-          if (statusFilter === 'published') matchesStatus = isPublished;
-          if (statusFilter === 'under_review') matchesStatus = !isPublished;
-
-          return matchesSearch && matchesMonth && matchesStatus;
-        });
-
-        if (filtered.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted fw-semibold">No books found matching search or filter criteria.</td></tr>`;
-          return;
-        }
-
-        tbody.innerHTML = '';
-        filtered.forEach((book, index) => {
-          const serialNo = index + 1;
-          const date = new Date(book.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-          const scriptBadge = book.language && book.language.includes('santali') 
-            ? `<span class="badge bg-secondary">Santali (Ol Chiki)</span>` 
-            : `<span class="badge bg-dark">${book.language || 'English'}</span>`;
-          
-          const isPublished = (book.status || '').toLowerCase() === 'published';
-          const statusBadge = isPublished
-            ? `<span class="badge bg-success">Published</span>`
-            : `<span class="badge bg-warning text-dark">Under Review</span>`;
-
-          const bookRefId = book.book_id || `BK-${String(book.id).substring(0, 6).toUpperCase()}`;
-          const isFeatured = book.is_featured === true;
-
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="ps-3 text-center fw-bold text-muted">${serialNo}</td>
-            <td>
-              <span class="book-id-badge" title="Click to copy Book ID">
-                <span>${bookRefId}</span>
-                <i class="fa-regular fa-copy copy-bookid-btn" data-id="${bookRefId}"></i>
-              </span>
-            </td>
-            <td>
-              <div class="d-flex align-items-center">
-                <img src="${book.cover_url || 'https://via.placeholder.com/40x55'}" class="book-cover-thumb me-3" onerror="this.src='https://via.placeholder.com/40x55'">
-                <div>
-                  <h6 class="fw-bold mb-0 text-dark">${book.title}</h6>
-                  <small class="text-muted">By ${book.author || 'Author'}</small>
-                </div>
-              </div>
-            </td>
-            <td>${scriptBadge}</td>
-            <td class="text-muted small">${date}</td>
-            <td>${statusBadge}</td>
-            <td>
-              <div class="form-check form-switch">
-                <input class="form-check-input toggle-featured-switch" type="checkbox" data-id="${book.id}" ${isFeatured ? 'checked' : ''}>
-                <label class="form-check-label small fw-semibold text-muted">${isFeatured ? 'In Marquee' : 'Off'}</label>
-              </div>
-            </td>
-            <td class="text-end pe-4">
-              ${!isPublished 
-                ? `<button class="btn btn-sm btn-success approve-book-btn me-1" data-id="${book.id}"><i class="fa-solid fa-check me-1"></i>Publish</button>` 
-                : `<button class="btn btn-sm btn-outline-secondary unpublish-book-btn me-1" data-id="${book.id}">Unpublish</button>`
-              }
-              <button class="btn btn-sm btn-outline-danger delete-book-btn" data-id="${book.id}" data-title="${book.title}">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-
-        document.querySelectorAll('.approve-book-btn').forEach(btn => {
-          btn.addEventListener('click', async function() {
-            const id = this.getAttribute('data-id');
-            await supabase.from('books').update({ status: 'Published' }).eq('id', id);
-            showToast("Book published to Catalog!");
-            fetchApprovalBooks();
-          });
-        });
-
-        document.querySelectorAll('.unpublish-book-btn').forEach(btn => {
-          btn.addEventListener('click', async function() {
-            const id = this.getAttribute('data-id');
-            await supabase.from('books').update({ status: 'Under Review' }).eq('id', id);
-            showToast("Book moved to Under Review.");
-            fetchApprovalBooks();
-          });
-        });
-
-        document.querySelectorAll('.toggle-featured-switch').forEach(switchEl => {
-          switchEl.addEventListener('change', async function() {
-            const id = this.getAttribute('data-id');
-            await supabase.from('books').update({ is_featured: this.checked }).eq('id', id);
-            showToast(this.checked ? "Book added to Home Slider!" : "Book removed from Home Slider.");
-          });
-        });
-
-        document.querySelectorAll('.delete-book-btn').forEach(btn => {
-          btn.addEventListener('click', async function() {
-            const id = this.getAttribute('data-id');
-            const title = this.getAttribute('data-title') || 'this book';
-            if (!confirm(`Delete "${title}" from the database?`)) return;
-            await supabase.from('books').delete().eq('id', id);
-            fetchApprovalBooks();
-          });
-        });
-      }
-
-      document.getElementById('bookSearchInput')?.addEventListener('input', renderBooksTable);
-      document.getElementById('bookMonthFilter')?.addEventListener('change', renderBooksTable);
-      document.getElementById('bookStatusFilter')?.addEventListener('change', renderBooksTable);
-      document.getElementById('refreshApprovalBtn')?.addEventListener('click', fetchApprovalBooks);
-
-      // 5. Load Settings from Supabase
-      async function loadSiteSettings() {
-        try {
-          const { data, error } = await supabase.from('site_settings').select('*');
-          if (error) throw error;
-          const map = {};
-          (data || []).forEach(row => { map[row.key] = parseValue(row.value); });
-
-          if (map.theme_colors) {
-            document.getElementById('settingPrimaryColor').value = map.theme_colors.primary || '#075e4d';
-            document.getElementById('settingPrimaryColorText').value = map.theme_colors.primary || '#075e4d';
-            document.getElementById('settingAccentColor').value = map.theme_colors.accent || '#ffb703';
-            document.getElementById('settingAccentColorText').value = map.theme_colors.accent || '#ffb703';
-          }
-        } catch (e) {
-          console.warn("Could not load dynamic settings:", e);
-        }
-      }
-
-      // 6. Financial Reports
-      async function fetchSalesReports() {
-        const tbody = document.getElementById('reportTableBody');
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Generating report...</td></tr>`;
-
-        try {
-          await preloadProfiles();
-          const { data: subs, error } = await supabase.from('subscriptions').select('*').order('created_at', { ascending: false });
-          if (error) throw error;
-
-          const validSubs = (subs || []).filter(s => s.user_id && usersProfileMap[s.user_id]);
-
-          if (validSubs.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted fw-semibold">No subscription transactions found.</td></tr>`;
-            return;
-          }
-
-          let totalRev = 0;
-          tbody.innerHTML = '';
-          validSubs.forEach(sub => {
-            const price = parseFloat(sub.price) || 0;
-            totalRev += price;
-            const date = sub.activated_on ? new Date(sub.activated_on).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
-            const userObj = usersProfileMap[sub.user_id] || {};
-            let subscriberName = userObj.full_name || `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || 'Reader';
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td class="ps-4 text-muted small">${sub.subscription_id || 'N/A'}</td>
-              <td class="small fw-semibold">${date}</td>
-              <td>${subscriberName}</td>
-              <td><span class="badge bg-light text-dark border">${sub.plan_name || 'Pass'}</span></td>
-              <td class="fw-bold text-success">₹${price}</td>
-              <td class="pe-4"><span class="badge bg-success bg-opacity-10 text-success border border-success">Completed</span></td>
-            `;
-            tbody.appendChild(tr);
-          });
-
-          document.getElementById('reportTotalRevenue').textContent = `₹${totalRev.toLocaleString('en-IN')}`;
-          document.getElementById('reportTotalOrders').textContent = validSubs.length.toLocaleString('en-IN');
-        } catch (err) {
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to generate reports.</td></tr>`;
-        }
-      }
-
-      // 7. Full User Management
-      async function fetchAdminUsers() {
-        const adminUsersList = document.getElementById('adminUsersList');
-        adminUsersList.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading users...</td></tr>`;
-        try {
-          const { data: users, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
-          if (error) throw error;
-          allUsersData = users || [];
-          renderUsersTable();
-        } catch (err) {
-          adminUsersList.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger">Failed to load users.</td></tr>`;
-        }
-      }
-
-      function renderUsersTable() {
-        const adminUsersList = document.getElementById('adminUsersList');
-        const searchVal = document.getElementById('userSearchInput').value.trim().toLowerCase();
-        const roleFilter = document.getElementById('userRoleFilter').value;
-        const totalBadge = document.getElementById('totalUsersCountBadge');
-
-        adminUsersList.innerHTML = '';
-
-        const filteredUsers = allUsersData.filter(user => {
-          const uid = (user.user_uid || `SDL-${user.id.substring(0, 6)}` || '').toLowerCase();
-          const fName = (user.first_name || '').toLowerCase();
-          const lName = (user.last_name || '').toLowerCase();
-          const fullName = (user.full_name || `${fName} ${lName}`).toLowerCase();
-          const email = (user.email || user.contact_email || '').toLowerCase();
-          const pincode = (user.pincode || user.postal_code || user.pin || '').toLowerCase();
-          
-          let role = (user.role || 'reader').toLowerCase();
-          if (role.includes('distributor') || role.includes('vendor')) role = 'distributor';
-          else if (role.includes('author') || role.includes('publisher')) role = 'author';
-
-          const matchesSearch = !searchVal || uid.includes(searchVal) || fullName.includes(searchVal) || email.includes(searchVal) || pincode.includes(searchVal);
-          const matchesRole = roleFilter === 'all' || role === roleFilter;
-          return matchesSearch && matchesRole;
-        });
-
-        if (totalBadge) totalBadge.textContent = `${filteredUsers.length} of ${allUsersData.length} Users`;
-
-        if (filteredUsers.length === 0) {
-          adminUsersList.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted fw-semibold">No users matching criteria.</td></tr>`;
-          return;
-        }
-
-        filteredUsers.forEach((user, index) => {
-          const serialNo = index + 1;
-          const userUid = user.user_uid || `SDL-${user.id.substring(0, 6).toUpperCase()}`;
-          
-          let currentRole = (user.role || 'reader').toLowerCase();
-          if (currentRole.includes('distributor') || currentRole.includes('vendor')) currentRole = 'distributor';
-          else if (currentRole.includes('author') || currentRole.includes('publisher')) currentRole = 'author';
-
-          const fName = user.first_name || (user.full_name ? user.full_name.split(' ')[0] : 'N/A');
-          const lName = user.last_name || (user.full_name ? user.full_name.split(' ').slice(1).join(' ') : '—');
-          const fullNameDisplay = `${fName} ${lName !== '—' ? lName : ''}`.trim();
-          const pincodeDisplay = user.pincode || user.postal_code || user.pin || '—';
-
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="ps-3 text-center fw-bold text-muted">${serialNo}</td>
-            <td>
-              <span class="uid-badge" title="Click to copy User ID">
-                <span>${userUid}</span>
-                <i class="fa-regular fa-copy copy-uid-btn" data-uid="${userUid}"></i>
-              </span>
-            </td>
-            <td><div class="fw-bold text-dark">${fullNameDisplay}</div></td>
-            <td class="text-muted small">${user.email || user.contact_email || 'N/A'}</td>
-            <td class="text-muted small">${user.phone || 'N/A'}</td>
-            <td><span class="badge bg-light text-dark border px-2 py-1">${pincodeDisplay}</span></td>
-            <td>
-              <select class="form-select form-select-sm role-select role-${currentRole}" data-userid="${user.id}">
-                <option value="reader" ${currentRole === 'reader' ? 'selected' : ''}>Reader</option>
-                <option value="author" ${currentRole === 'author' ? 'selected' : ''}>Author / Publisher</option>
-                <option value="distributor" ${currentRole === 'distributor' ? 'selected' : ''}>Distributor / Vendor</option>
-                <option value="admin" ${currentRole === 'admin' ? 'selected' : ''}>Admin</option>
-              </select>
-            </td>
-            <td class="text-end pe-3">
-              <button class="btn btn-sm btn-outline-danger delete-user-btn" data-userid="${user.id}" data-name="${fullNameDisplay}" title="Delete User and cascade all data">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </td>
-          `;
-          adminUsersList.appendChild(tr);
-        });
-
-        document.querySelectorAll('.delete-user-btn').forEach(btn => {
-          btn.addEventListener('click', async function() {
-            const userId = this.getAttribute('data-userid');
-            const userName = this.getAttribute('data-name') || 'this user';
-            if (!confirm(`Are you sure you want to delete user "${userName}"? This will also remove all their active subscriptions and uploaded books.`)) return;
-
-            try {
-              await supabase.from('subscriptions').delete().eq('user_id', userId);
-              await supabase.from('books').delete().or(`user_id.eq.${userId},author.eq."${userName}"`);
-              await supabase.from('profiles').delete().eq('id', userId);
-
-              allUsersData = allUsersData.filter(u => u.id !== userId);
-              delete usersProfileMap[userId];
-              renderUsersTable();
-              fetchSubscriptionDetails();
-              fetchApprovalBooks();
-              fetchDashboardStats();
-              showToast(`User "${userName}", their subscriptions, and books were deleted.`);
-            } catch (err) {
-              alert("Error deleting user: " + err.message);
-            }
-          });
-        });
-      }
-
-      document.getElementById('userSearchInput')?.addEventListener('input', renderUsersTable);
-      document.getElementById('userRoleFilter')?.addEventListener('change', renderUsersTable);
-      document.getElementById('refreshUsersBtn')?.addEventListener('click', fetchAdminUsers);
-
-      // 8. Contact Inquiries
-      async function fetchAdminMessages() {
-        const tbody = document.getElementById('adminMessagesList');
-        try {
-          const { data: messages } = await supabase.from('messages').select('*').order('created_at', { ascending: false });
-          globalMessages = messages || [];
-          tbody.innerHTML = globalMessages.map(msg => `
-            <tr>
-              <td class="ps-4 small text-muted">${new Date(msg.created_at).toLocaleDateString()}</td>
-              <td><strong>${msg.name}</strong><br><small>${msg.email}</small></td>
-              <td><span class="badge bg-secondary">${msg.subject}</span></td>
-              <td class="small">${msg.message}</td>
-              <td><span class="badge bg-warning text-dark">Unread</span></td>
-              <td class="text-end pe-4"><button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button></td>
-            </tr>
-          `).join('');
-        } catch(e) {}
-      }
 
       document.getElementById('logoutBtn')?.addEventListener('click', async () => {
         await supabase.auth.signOut();
         window.location.href = "admin-login.html";
       });
 
-      // Initial Data Load
       fetchDashboardStats();
       fetchSubscriptionDetails();
     });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

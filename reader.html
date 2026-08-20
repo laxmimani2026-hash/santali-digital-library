@@ -407,7 +407,8 @@
     let epubRendition = null;
     let currentUser = null;
     let resolvedBookId = null;
-    let currentAuthor = 'Unknown Author';
+    let currentAuthorId = null;
+    let currentAuthorName = 'Unknown Author';
     let currentFontSize = 100;
     let currentFontFamily = "'Lora', Georgia, serif";
     let currentThemeBg = '#ffffff';
@@ -555,7 +556,7 @@
       }
     }
 
-    // --- Verified Page Read Dispatcher (>10 seconds) ---
+    // --- Verified Page Read Logger (>10s Dwell) ---
     function startPageDwellTracker(pageNo) {
       if (pageDwellTimer) {
         clearTimeout(pageDwellTimer);
@@ -569,11 +570,12 @@
           await supabase.from('page_read_events').insert({
             user_id: currentUser.id,
             book_id: String(resolvedBookId),
-            author_name: currentAuthor,
+            author_id: String(currentAuthorId || ''),
+            author_name: currentAuthorName,
             page_number: activeTrackedPage,
             seconds_spent: MIN_DWELL_SECONDS
           });
-          console.info(`[Analytics] Verified page read recorded: Page ${activeTrackedPage} of ${currentAuthor}`);
+          console.info(`[Analytics] Verified page read recorded: Page ${activeTrackedPage} of Author: ${currentAuthorName} (${currentAuthorId})`);
         } catch (error) {
           console.error("Failed to log verified page read:", error);
         }
@@ -691,6 +693,8 @@
         if (!book) throw new Error("Book record not found in database.");
 
         resolvedBookId = book.book_id || book.id;
+        currentAuthorId = book.author_id || book.user_id || `AUTH-${String(book.author || '001').substring(0, 5).toUpperCase()}`;
+        currentAuthorName = book.author || book.author_name || 'Unknown Author';
 
         if (!resumePage && !resumeCfi) {
           const pastProgress = await fetchLastReadingProgress(resolvedBookId);
@@ -701,7 +705,6 @@
         }
 
         const title = book.title || book.book_name || 'Untitled Book';
-        currentAuthor = book.author || book.author_name || (book.author_id ? `Author #${book.author_id}` : 'Unknown Author');
         const description = book.description || book.summary || 'No description available.';
         const cover = book.cover_url || book.thumbnail_url || book.image_url || 'https://placehold.co/130x180/5c4bca/ffffff?text=eBook';
         const fileUrl = book.file_url || book.pdf_url || book.epub_url || book.download_url || book.book_url;
@@ -709,7 +712,7 @@
 
         document.getElementById('topBookTitle').textContent = title;
         document.getElementById('sidebarTitle').textContent = title;
-        document.getElementById('sidebarAuthor').textContent = `By ${currentAuthor}`;
+        document.getElementById('sidebarAuthor').textContent = `By ${currentAuthorName}`;
         document.getElementById('sidebarPanelContent').textContent = description;
         document.getElementById('sidebarFormatBadge').textContent = fileType.toUpperCase();
         document.getElementById('sidebarCover').src = cover;
