@@ -1193,7 +1193,7 @@
       }
     }
 
-    // 1. Dynamic Plan Pricing & Special Plan Logic
+    // Dynamic Plan Pricing & Special Plan Logic
     async function loadPlanConfiguration() {
       try {
         const { data } = await supabase.from('site_settings').select('*').eq('key', 'subscription_plans').maybeSingle();
@@ -1252,7 +1252,7 @@
       }
     });
 
-    // 2. Subscriptions Table
+    // Subscriptions Table
     function populateSubscriptionMonths(subs) {
       const monthSelect = document.getElementById('subMonthFilter');
       if (!monthSelect) return;
@@ -1793,6 +1793,19 @@
         showToast("Refreshing analytics data...");
         fetchDashboardStats();
       });
+
+      // Real-time listener for page read events
+      supabase
+        .channel('realtime_page_reads')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'page_read_events' },
+          (payload) => {
+            showToast(`New read recorded: ${payload.new.author_name} (Page ${payload.new.page_number})`);
+            fetchDashboardStats();
+          }
+        )
+        .subscribe();
 
       document.getElementById('logoutBtn')?.addEventListener('click', async () => {
         await supabase.auth.signOut();

@@ -350,6 +350,47 @@
     </aside>
   </div>
 
+  <!-- Feedback Modal -->
+  <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title fw-bold text-dark" id="feedbackModalLabel">
+            🎉 Congratulations! Book Completed!
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center px-4 py-3">
+          <p class="text-muted mb-3">You have finished reading this book. We'd love to know what you thought about it!</p>
+          
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary small text-uppercase">Your Rating</label>
+            <div class="star-rating d-flex justify-content-center gap-2" id="starContainer">
+              <i class="fa-solid fa-star" data-val="1"></i>
+              <i class="fa-solid fa-star" data-val="2"></i>
+              <i class="fa-solid fa-star" data-val="3"></i>
+              <i class="fa-solid fa-star" data-val="4"></i>
+              <i class="fa-solid fa-star" data-val="5"></i>
+            </div>
+          </div>
+
+          <div class="text-start mb-3">
+            <label for="feedbackComments" class="form-label fw-semibold text-secondary small text-uppercase">Your Feedback / Review</label>
+            <textarea class="form-control" id="feedbackComments" rows="4" placeholder="Write your thoughts, favorite takeaways, or review..."></textarea>
+          </div>
+
+          <div id="feedbackAlert" class="alert alert-success d-none py-2 small mb-0"></div>
+        </div>
+        <div class="modal-footer border-0 pt-0 d-flex justify-content-end gap-2 px-4 pb-4">
+          <button type="button" class="btn btn-light fw-semibold" data-bs-dismiss="modal">Later</button>
+          <button type="button" class="btn btn-primary fw-semibold px-4" id="submitFeedbackBtn">
+            <i class="fa-solid fa-paper-plane me-1"></i> Submit Feedback
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -372,9 +413,12 @@
     let currentFontFamily = "'Lora', Georgia, serif";
     let currentThemeBg = '#ffffff';
     let currentThemeText = '#1f2937';
+    let selectedRating = 5;
+    let hasPromptedFeedback = false;
     let resumeCfi = paramCfi;
     let resumePage = paramPage;
 
+    // 10-Second Page Dwell Tracker Variables
     let pageDwellTimer = null;
     let activeTrackedPage = null;
     const MIN_DWELL_SECONDS = 10;
@@ -512,7 +556,7 @@
       }
     }
 
-    // --- Verified Page Read Logger (>10s Dwell) ---
+    // Verified Page Read Logger (>10s Dwell)
     function startPageDwellTracker(pageNo) {
       if (pageDwellTimer) {
         clearTimeout(pageDwellTimer);
@@ -570,10 +614,80 @@
       } catch (err) {
         console.error("Sync error:", err);
       }
+
+      if (readingStatus === 'completed' && !hasPromptedFeedback) {
+        hasPromptedFeedback = true;
+        promptFeedbackModal();
+      }
     }
+
+    function promptFeedbackModal() {
+      const feedbackModalEl = document.getElementById('feedbackModal');
+      if (feedbackModalEl) {
+        const modal = new bootstrap.Modal(feedbackModalEl);
+        modal.show();
+      }
+    }
+
+    function initStarRating() {
+      const stars = document.querySelectorAll('#starContainer i');
+      const updateStars = (val) => {
+        stars.forEach(s => {
+          const sVal = parseInt(s.getAttribute('data-val'), 10);
+          if (sVal <= val) s.classList.add('active');
+          else s.classList.remove('active');
+        });
+      };
+
+      updateStars(selectedRating);
+
+      stars.forEach(star => {
+        star.addEventListener('click', (e) => {
+          selectedRating = parseInt(e.currentTarget.getAttribute('data-val'), 10);
+          updateStars(selectedRating);
+        });
+      });
+    }
+
+    document.getElementById('submitFeedbackBtn')?.addEventListener('click', async () => {
+      const comments = document.getElementById('feedbackComments').value.trim();
+      const alertBox = document.getElementById('feedbackAlert');
+      const submitBtn = document.getElementById('submitFeedbackBtn');
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Submitting...';
+
+      const feedbackData = {
+        user_id: currentUser?.id || null,
+        book_id: String(resolvedBookId),
+        rating: selectedRating,
+        feedback: comments,
+        review: comments,
+        created_at: new Date().toISOString()
+      };
+
+      try {
+        await supabase.from('reviews').insert(feedbackData);
+        alertBox.textContent = "Thank you! Your feedback has been submitted successfully.";
+        alertBox.className = "alert alert-success small mb-0";
+        alertBox.classList.remove('d-none');
+
+        setTimeout(() => {
+          const modalEl = document.getElementById('feedbackModal');
+          const modalInstance = bootstrap.Modal.getInstance(modalEl);
+          if (modalInstance) modalInstance.hide();
+        }, 1500);
+      } catch (err) {
+        console.error("Feedback submit error:", err);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> Submit Feedback';
+      }
+    });
 
     async function loadBookData() {
       await initUserSession();
+      initStarRating();
 
       if (!rawParamId) {
         alert("No book ID provided. Returning to dashboard.");
