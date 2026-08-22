@@ -674,6 +674,16 @@
       }
     }
 
+    function isPageActuallyVisible() {
+      // Use the Page Visibility API only. document.hasFocus() is unreliable
+      // here - it can report false when the reader is embedded in a preview
+      // pane/iframe or when focus briefly moves to a control like a select
+      // dropdown, even though the tab is fully visible and being read. Tab
+      // switches / minimizing are what we actually want to catch, and
+      // document.hidden covers that correctly on its own.
+      return !document.hidden;
+    }
+
     let dwellIndicatorState = 'counting'; // 'counting' | 'paused' | 'saving' | 'verified' | 'error'
 
     function renderDwellIndicator() {
@@ -748,11 +758,6 @@
         dwellIndicatorState = 'paused';
         renderDwellIndicator();
       }
-    });
-    window.addEventListener('blur', () => {
-      if (dwellIndicatorState !== 'counting') return;
-      dwellIndicatorState = 'paused';
-      renderDwellIndicator();
     });
 
     // Explicit database insertion with strict error handling and UI sync.
