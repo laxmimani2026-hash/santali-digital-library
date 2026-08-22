@@ -201,17 +201,14 @@
           </div>
 
           <div class="d-flex align-items-center gap-2">
-            <!-- Year & Month Filter -->
             <select id="authorMonthYearFilter" class="form-select form-select-sm border-secondary fw-semibold" style="width: 170px;">
               <option value="all">All Time Records</option>
             </select>
 
-            <!-- Refresh Button -->
             <button class="btn btn-sm btn-outline-primary fw-semibold" id="refreshAuthorAnalyticsBtn">
               <i class="fa-solid fa-rotate me-1"></i> Refresh
             </button>
 
-            <!-- Reset All Reads Button -->
             <button class="btn btn-sm btn-outline-danger fw-semibold" id="resetAllReadsBtn" title="Reset all page reads to 0">
               <i class="fa-solid fa-trash-can me-1"></i> Reset Reads
             </button>
@@ -406,7 +403,7 @@
       </div>
     </div>
 
-    <!-- SECTION 3: BOOK APPROVAL PIPELINE -->
+    <!-- SECTION 3: BOOK APPROVAL PIPELINE (With Author ID Column) -->
     <div id="approvalSection" class="content-section d-none">
       <div class="row g-3 mb-3">
         <div class="col-md-4">
@@ -442,7 +439,7 @@
         <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
           <div>
             <h5 class="fw-bold mb-0 text-dark">Book Approval & Catalog Pipeline</h5>
-            <p class="small text-muted mb-0">Search titles/IDs, filter by submission month, control publishing rights, and toggle home slider visibility.</p>
+            <p class="small text-muted mb-0">Search titles/IDs, filter by submission month, control publishing rights, and view uploader Author IDs.</p>
           </div>
 
           <div class="d-flex flex-wrap align-items-center gap-2">
@@ -471,17 +468,18 @@
                 <tr>
                   <th class="ps-3 text-center" style="width: 60px;">Sl. No.</th>
                   <th>Book ID</th>
+                  <th>Author ID</th>
                   <th>Book Info</th>
                   <th>Script</th>
                   <th>Submitted Date</th>
                   <th>Status</th>
-                  <th>Home Slider (Hover)</th>
+                  <th>Home Slider</th>
                   <th class="text-end pe-4">Actions</th>
                 </tr>
               </thead>
               <tbody id="approvalBooksList">
                 <tr>
-                  <td colspan="8" class="text-center py-5 text-muted">
+                  <td colspan="9" class="text-center py-5 text-muted">
                     <div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading pipeline...
                   </td>
                 </tr>
@@ -1415,7 +1413,7 @@
 
     async function fetchApprovalBooks() {
       const tbody = document.getElementById('approvalBooksList');
-      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading books...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading pipeline...</td></tr>`;
 
       try {
         await preloadProfiles();
@@ -1428,7 +1426,7 @@
         populateMonthDropdown(allBooksData);
         renderBooksTable();
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger">Failed to load pipeline: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-danger">Failed to load pipeline: ${err.message}</td></tr>`;
       }
     }
 
@@ -1484,11 +1482,12 @@
 
       const filtered = allBooksData.filter(book => {
         const bookRefId = (book.book_id || `BK-${String(book.id).substring(0, 6)}` || '').toLowerCase();
+        const authorId = (book.user_uid || book.author_id || '').toLowerCase();
         const title = (book.title || '').toLowerCase();
         const author = (book.author || '').toLowerCase();
         const isPublished = (book.status || '').toLowerCase() === 'published';
 
-        const matchesSearch = !searchVal || bookRefId.includes(searchVal) || title.includes(searchVal) || author.includes(searchVal);
+        const matchesSearch = !searchVal || bookRefId.includes(searchVal) || authorId.includes(searchVal) || title.includes(searchVal) || author.includes(searchVal);
         let matchesMonth = true;
         if (monthFilter !== 'all' && book.created_at) {
           const d = new Date(book.created_at);
@@ -1504,7 +1503,7 @@
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted fw-semibold">No books found matching search or filter criteria.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-5 text-muted fw-semibold">No books found matching search or filter criteria.</td></tr>`;
         return;
       }
 
@@ -1522,6 +1521,7 @@
           : `<span class="badge bg-warning text-dark">Under Review</span>`;
 
         const bookRefId = book.book_id || `BK-${String(book.id).substring(0, 6).toUpperCase()}`;
+        const authorRefId = book.user_uid || book.author_id || (book.user_id && usersProfileMap[book.user_id]?.user_uid) || `AUTH-${String(book.author || 'SDL').replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase()}`;
         const isFeatured = book.is_featured === true;
 
         const tr = document.createElement('tr');
@@ -1531,6 +1531,12 @@
             <span class="book-id-badge" title="Click to copy Book ID">
               <span>${bookRefId}</span>
               <i class="fa-regular fa-copy copy-bookid-btn" data-id="${bookRefId}"></i>
+            </span>
+          </td>
+          <td>
+            <span class="author-id-badge" title="Click to copy Author ID">
+              <span>${authorRefId}</span>
+              <i class="fa-regular fa-copy copy-approval-authorid-btn" data-id="${authorRefId}"></i>
             </span>
           </td>
           <td>
@@ -1564,11 +1570,18 @@
         tbody.appendChild(tr);
       });
 
+      document.querySelectorAll('.copy-approval-authorid-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.target.getAttribute('data-id');
+          navigator.clipboard.writeText(id).then(() => showToast(`Copied Author ID: ${id}`));
+        });
+      });
+
       document.querySelectorAll('.approve-book-btn').forEach(btn => {
         btn.addEventListener('click', async function() {
           const id = this.getAttribute('data-id');
           await supabase.from('books').update({ status: 'Published' }).eq('id', id);
-          showToast("Book published to Catalog!");
+          showToast("Book approved & published to catalog!");
           fetchApprovalBooks();
         });
       });
@@ -1577,7 +1590,7 @@
         btn.addEventListener('click', async function() {
           const id = this.getAttribute('data-id');
           await supabase.from('books').update({ status: 'Under Review' }).eq('id', id);
-          showToast("Book moved to Under Review.");
+          showToast("Book moved back to Under Review.");
           fetchApprovalBooks();
         });
       });
@@ -1792,15 +1805,14 @@
       });
 
       document.getElementById('authorMonthYearFilter')?.addEventListener('change', renderAuthorAnalyticsTable);
-      document.getElementById('refreshAuthorAnalyticsBtn')?.addEventListener('click', () => {
+      document.getElementById('refreshAuthorAnalyticsBtn')?.addEventListener('click', async () => {
         showToast("Refreshing analytics data...");
-        fetchDashboardStats();
+        await fetchDashboardStats();
       });
 
-      // Reset verified page reads to zero
+      // Reset All Page Reads
       document.getElementById('resetAllReadsBtn')?.addEventListener('click', async () => {
-        const confirmed = confirm("Are you sure you want to reset all author verified page reads to zero? This will clear all recorded read metrics.");
-        if (!confirmed) return;
+        if (!confirm("Are you sure you want to reset all verified page reads to zero?")) return;
 
         const btn = document.getElementById('resetAllReadsBtn');
         btn.disabled = true;
@@ -1810,7 +1822,7 @@
           const { error } = await supabase
             .from('page_read_events')
             .delete()
-            .neq('author_name', '___NON_EXISTENT_AUTHOR_NAME_SAFETY_FILTER___');
+            .neq('author_name', '___NON_EXISTENT_SAFETY_VALUE___');
 
           if (error) throw error;
 
@@ -1824,16 +1836,13 @@
         }
       });
 
-      // Realtime listener for page read events
+      // Realtime listener for read events updates & deletions
       supabase
         .channel('realtime_page_reads')
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'page_read_events' },
-          (payload) => {
-            if (payload.eventType === 'INSERT') {
-              showToast(`New read recorded: ${payload.new.author_name || 'Author'} (Page ${payload.new.page_number || ''})`);
-            }
+          () => {
             fetchDashboardStats();
           }
         )
