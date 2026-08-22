@@ -705,6 +705,7 @@
       }, 1000);
     }
 
+    // Explicitly forces database commit and checks for network response errors
     async function commitVerifiedReadEvent(pageNo) {
       const userRes = await supabase.auth.getUser();
       const activeUser = userRes.data?.user || currentUser;
@@ -724,19 +725,24 @@
       try {
         const { error } = await supabase.from('page_read_events').insert([basePayload]);
         if (error) {
-          console.warn("Retrying insert without optional user_id constraint:", error.message);
+          console.error("Supabase insert rejected event:", error.message);
+          // Retry without user_id if column type/constraint mismatch
           delete basePayload.user_id;
-          await supabase.from('page_read_events').insert([basePayload]);
+          const { error: retryErr } = await supabase.from('page_read_events').insert([basePayload]);
+          if (retryErr) {
+            console.error("Retry insert also failed:", retryErr.message);
+            return;
+          }
         }
         
         totalVerifiedReads += 1;
         updateVerifiedReadsDisplay();
+        console.info(`[Success] Verified page ${pageNo} committed to DB for Author ID: ${basePayload.author_id}`);
       } catch (err) {
-        console.error("Failed to commit verified page read:", err);
+        console.error("Network exception committing verified page read:", err);
       }
     }
 
-    // Enhanced recordProgress including author_id explicitly
     async function recordProgress(pageNo, totalPages, cfi = null) {
       if (!currentUser || !resolvedBookId) return;
 
