@@ -1,239 +1,462 @@
-<script type="module">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Publish eBook | Santali Digital Library</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    :root {
+      --bg-dark: #075e4d;
+      --primary-gold: #ffb703;
+      --primary-hover: #e08e0b;
+      --text-light: #ffffff;
+      --text-dark: #333333;
+      --text-muted: #666666;
+      --card-bg: #ffffff;
+      --bg-light: #f4f7f6;
+      --border-color: #e0e0e0;
+    }
+    body { background-color: var(--bg-light); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; }
+    header { background-color: var(--bg-dark); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+    .logo { display: flex; align-items: center; gap: 10px; color: #fff; font-size: 1.3rem; font-weight: 700; text-decoration: none; }
+    .logo i { color: var(--primary-gold); font-size: 1.5rem; }
+    .logo span span { color: var(--primary-gold); }
+    .nav-links { display: flex; list-style: none; gap: 25px; align-items: center; margin: 0; padding: 0; }
+    .nav-links a { color: rgba(255, 255, 255, 0.85); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: color 0.3s ease; }
+    .nav-links a:hover, .nav-links a.active { color: var(--primary-gold); }
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+    .user-menu-container { position: relative; padding: 8px 0; }
+    .user-btn { background: transparent; border: none; color: #fff; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 500; padding: 5px 10px; border-radius: 5px; }
+    .user-avatar-img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid rgba(255, 255, 255, 0.5); }
+    .author-badge { background-color: var(--primary-gold); color: #000; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; text-transform: uppercase; }
+    .dropdown-menu-custom { position: absolute; top: 100%; right: 0; width: 220px; background-color: #ffffff; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: none; flex-direction: column; overflow: hidden; z-index: 100; margin-top: 4px; }
+    .user-menu-container:hover .dropdown-menu-custom, .dropdown-menu-custom.active { display: flex; }
+    .dropdown-menu-custom a { padding: 12px 18px; text-decoration: none; color: var(--text-dark); font-size: 0.9rem; display: flex; align-items: center; gap: 12px; transition: background 0.2s; }
+    .dropdown-menu-custom a:hover { background-color: #f0f4f8; color: var(--bg-dark); }
+    .dropdown-menu-custom hr { border: none; border-top: 1px solid #eee; margin: 0; }
+    .dropdown-menu-custom a.logout { color: #e74c3c; font-weight: 600; }
+    .upload-card { border-radius: 14px; border: 1px solid var(--border-color); background-color: #ffffff; }
+    .file-drop-area { border: 2px dashed #075e4d; border-radius: 8px; padding: 2rem; text-align: center; background-color: #f8fbfb; cursor: pointer; }
+    .file-drop-area:hover { background-color: #eaf5f2; }
+    .btn-gold { background-color: var(--primary-gold); color: #000; font-weight: 700; border: none; padding: 10px 28px; border-radius: 8px; transition: all 0.2s ease; }
+    .btn-gold:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
+
+    .author-id-pill {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+      font-family: monospace;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="logo">
+      <i class="fa-solid fa-book-open-reader"></i>
+      <span>Santali Digital <span>Library</span></span>
+    </a>
+
+    <ul class="nav-links d-none d-md-flex">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="browse.html">Books</a></li>
+      <li><a href="categories.html">Categories</a></li>
+      <li><a href="author-dashboard.html">Dashboard</a></li>
+      <li><a href="upload.html" class="active">Publish</a></li>
+    </ul>
+
+    <div class="nav-right">
+      <div class="user-menu-container" id="userMenuContainer">
+        <button class="user-btn" id="userMenuBtn" type="button">
+          <img src="" alt="" class="user-avatar-img" id="navAvatar" style="display: none;">
+          <i class="fa-solid fa-circle-user" id="navAvatarPlaceholder" style="font-size: 1.3rem;"></i>
+          <span id="headerUserName">Hello, Author</span>
+          <span class="author-badge" id="headerUserBadge">Author</span>
+          <i class="fa-solid fa-caret-down"></i>
+        </button>
+        <div class="dropdown-menu-custom" id="dropdownMenu">
+          <a href="author-dashboard.html"><i class="fa-solid fa-gauge"></i> Author Dashboard</a>
+          <a href="upload.html"><i class="fa-solid fa-cloud-arrow-up"></i> Submit New Book</a>
+          <a href="profile.html"><i class="fa-solid fa-user-gear"></i> My Profile</a>
+          <hr>
+          <a href="#" id="logoutLink" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container my-5 flex-grow-1">
+    <div class="row mb-4">
+      <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <h2 class="fw-bold" style="color: var(--bg-dark);">
+            <i class="fa-solid fa-cloud-arrow-up me-2 text-warning"></i> Submit eBook for Approval
+          </h2>
+          <p class="text-muted mb-0">Fill in the book details to generate a unique Book ID and submit for admin publication review.</p>
+        </div>
+        <a href="author-dashboard.html" class="btn btn-outline-secondary btn-sm fw-semibold">
+          <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+        </a>
+      </div>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-11">
+        <div class="card shadow-sm upload-card">
+          <div class="card-body p-4 p-md-5">
+            <form id="uploadBookForm">
+              
+              <!-- Dynamic Author ID Preview Banner -->
+              <div class="p-3 mb-4 rounded-3 bg-light border d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="fa-solid fa-id-card text-warning fs-4"></i>
+                  <div>
+                    <span class="small text-muted d-block fw-semibold">Author Attribution:</span>
+                    <strong class="text-dark" id="displayAuthorFullName">Enter Author Name Below</strong>
+                  </div>
+                </div>
+                <div>
+                  <span class="small text-muted me-2 fw-semibold">Assigned Author ID:</span>
+                  <span class="author-id-pill" id="displayAuthorIdPill">
+                    <i class="fa-solid fa-user-pen"></i>
+                    <span id="displayAuthorIdText">--</span>
+                  </span>
+                </div>
+              </div>
+
+              <h5 class="fw-bold mb-4 border-bottom pb-2" style="color: var(--bg-dark);">Book Information</h5>
+              
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <label for="bookTitle" class="form-label fw-semibold">Book Title <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="bookTitle" placeholder="Enter book title" required>
+                </div>
+                
+                <div class="col-md-6">
+                  <label for="bookAuthor" class="form-label fw-semibold">Author Name <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="bookAuthor" placeholder="Enter author name" required>
+                  <small class="text-muted" style="font-size: 0.75rem;">Type author's name to automatically resolve their unique Author ID.</small>
+                </div>
+
+                <div class="col-md-4">
+                  <label for="bookCategory" class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+                  <select class="form-select" id="bookCategory" required>
+                    <option value="" selected disabled>Select Category...</option>
+                    <option value="fiction">Fiction</option>
+                    <option value="poetry">Poetry</option>
+                    <option value="education">Educational</option>
+                    <option value="history">History & Culture</option>
+                    <option value="children">Children's Books</option>
+                  </select>
+                </div>
+
+                <div class="col-md-4">
+                  <label for="bookLanguage" class="form-label fw-semibold">Language <span class="text-danger">*</span></label>
+                  <select class="form-select" id="bookLanguage" required>
+                    <option value="santali" selected>Santali (Ol Chiki)</option>
+                    <option value="santali_latin">Santali (Latin)</option>
+                    <option value="english">English</option>
+                    <option value="hindi">Hindi</option>
+                    <option value="odia">Odia</option>
+                    <option value="bengali">Bengali</option>
+                  </select>
+                </div>
+
+                <div class="col-md-4">
+                  <label for="fileFormatSelect" class="form-label fw-semibold">Book Format <span class="text-danger">*</span></label>
+                  <select class="form-select" id="fileFormatSelect" required>
+                    <option value="epub" selected>EPUB eBook (.epub)</option>
+                    <option value="pdf">PDF Document (.pdf)</option>
+                  </select>
+                </div>
+              </div>
+
+              <h5 class="fw-bold mb-4 border-bottom pb-2 mt-5" style="color: var(--bg-dark);">Files & Cover Media</h5>
+
+              <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                  <span class="form-label fw-semibold d-block mb-2">Book Cover Image <span class="text-danger">*</span></span>
+                  <label class="file-drop-area d-block w-100" for="coverImage">
+                    <i class="fa-regular fa-image fs-1 text-secondary mb-2"></i>
+                    <p class="mb-1 fw-bold">Click to upload cover</p>
+                    <p class="small text-muted mb-0">JPG, PNG (Max 2MB)</p>
+                    <input type="file" id="coverImage" class="d-none" accept="image/png, image/jpeg" required>
+                  </label>
+                  <div id="coverFileName" class="small text-success mt-2 fw-semibold"></div>
+                </div>
+
+                <div class="col-md-6">
+                  <span class="form-label fw-semibold d-block mb-2" id="fileUploadLabel">Book File (EPUB) <span class="text-danger">*</span></span>
+                  <label class="file-drop-area d-block w-100" for="bookFile">
+                    <i class="fa-solid fa-book-open fs-1 text-success mb-2" id="fileTypeIcon"></i>
+                    <p class="mb-1 fw-bold" id="fileTypePrompt">Click to upload EPUB</p>
+                    <p class="small text-muted mb-0" id="fileTypeHelper">EPUB only (Max 20MB)</p>
+                    <input type="file" id="bookFile" class="d-none" accept=".epub, application/epub+zip" required>
+                  </label>
+                  <div id="bookFileName" class="small text-success mt-2 fw-semibold"></div>
+                </div>
+              </div>
+
+              <h5 class="fw-bold mb-4 border-bottom pb-2 mt-5" style="color: var(--bg-dark);">Pricing & Description</h5>
+
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <label for="bookPricing" class="form-label fw-semibold">Pricing Option <span class="text-danger">*</span></label>
+                  <select class="form-select" id="bookPricing" required>
+                    <option value="free" selected>Free to Read</option>
+                    <option value="paid">Paid</option>
+                  </select>
+                </div>
+                
+                <div class="col-md-6 d-none" id="priceAmountDiv">
+                  <label for="bookPrice" class="form-label fw-semibold">Price (₹)</label>
+                  <input type="number" class="form-control" id="bookPrice" placeholder="e.g. 150" min="1">
+                </div>
+
+                <div class="col-12 mt-3">
+                  <label for="bookDescription" class="form-label fw-semibold">Book Summary / Description <span class="text-danger">*</span></label>
+                  <textarea class="form-control" id="bookDescription" rows="4" placeholder="Write a summary of the book..." required></textarea>
+                </div>
+              </div>
+
+              <div class="text-end mt-4">
+                <button type="submit" class="btn btn-gold shadow-sm">
+                  <i class="fa-solid fa-cloud-arrow-up me-2"></i> Submit for Review
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="text-center mt-auto py-3" style="background-color: var(--bg-dark);">
+    <div class="container">
+      <p class="mb-0 text-white" style="font-size: 0.9rem;">&copy; 2026 Santali Digital Library. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
     const SUPABASE_URL = 'https://qdzadypqtctjonnwgxoo.supabase.co'; 
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let currentUserId = null;
-    let currentAuthorUid = null;
-    let currentAuthorName = '';
+    let allProfiles = [];
+    let currentUploaderId = null;
+    let currentUploaderUid = null;
 
-    // 1. Initialize Auth and Fetch Exact Profile Match
-    async function initUploadPage() {
-      try {
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-        if (authError || !user) {
-          window.location.href = "login.html?redirect=upload.html";
-          return;
-        }
-
-        currentUserId = user.id;
-
-        // Fetch exact profile data just like the dashboard does
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('user_uid, first_name, last_name, full_name, role, avatar_url')
-          .eq('id', user.id)
-          .maybeSingle();
-
-        // Lock in the UID
-        currentAuthorUid = profile?.user_uid || `SDL-${user.id.substring(0, 6).toUpperCase()}`;
-        
-        // Resolve Name
-        let fullName = profile?.full_name || '';
-        if (!fullName && (profile?.first_name || profile?.last_name)) {
-          fullName = `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim();
-        }
-        if (!fullName) {
-          fullName = user.email.split('@')[0];
-          fullName = fullName.charAt(0).toUpperCase() + fullName.slice(1);
-        }
-        currentAuthorName = fullName;
-
-        // Update Header UI
-        let firstName = profile?.first_name || currentAuthorName.split(' ')[0];
-        document.getElementById('headerUserName').textContent = `Hello, ${firstName}`;
-        
-        if (profile?.role) {
-          document.getElementById('headerUserBadge').textContent = profile.role.toUpperCase();
-        }
-
-        if (profile?.avatar_url) {
-          const navAvatar = document.getElementById('navAvatar');
-          navAvatar.src = profile.avatar_url;
-          navAvatar.style.display = 'inline-block';
-          document.getElementById('navAvatarPlaceholder').style.display = 'none';
-        }
-
-        // Update Form Attribution UI
-        document.getElementById('displayAuthorFullName').textContent = currentAuthorName;
-        document.getElementById('displayAuthorIdText').textContent = currentAuthorUid;
-        document.getElementById('bookAuthor').value = currentAuthorName;
-
-      } catch (err) {
-        console.error("Init profile error:", err);
-      }
+    // MODIFIED: This function now forces the assigned ID to ALWAYS match the authenticated author's ID, 
+    // guaranteeing it matches the Author Dashboard regardless of what name is typed.
+    function resolveAuthorIdByName(authorName) {
+      if (currentUploaderUid) return currentUploaderUid;
+      if (currentUploaderId) return `SDL-${currentUploaderId.substring(0, 6).toUpperCase()}`;
+      return 'AUTH-SDL';
     }
 
-    // Call init immediately
-    initUploadPage();
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const { data: profiles } = await supabase.from('profiles').select('id, user_uid, first_name, last_name, full_name, username, role');
+        allProfiles = profiles || [];
 
-    // 2. Keep the Author ID locked even if they type a different name in the input
-    const authorInput = document.getElementById('bookAuthor');
-    authorInput?.addEventListener('input', function() {
-      document.getElementById('displayAuthorFullName').textContent = this.value.trim() || currentAuthorName;
-      // Force the ID to stay the same as the logged-in user
-      document.getElementById('displayAuthorIdText').textContent = currentAuthorUid; 
-    });
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          currentUploaderId = user.id;
+          const uploaderProfile = allProfiles.find(p => p.id === user.id);
 
-    // 3. Header Dropdown Logic
-    const userMenuBtn = document.getElementById('userMenuBtn');
-    const dropdownMenu = document.getElementById('dropdownMenu');
-    userMenuBtn?.addEventListener('click', (e) => { 
-      e.stopPropagation(); 
-      dropdownMenu.classList.toggle('active'); 
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!dropdownMenu.contains(e.target) && !userMenuBtn.contains(e.target)) {
-        dropdownMenu.classList.remove('active');
-      }
-    });
-
-    document.getElementById('logoutLink')?.addEventListener('click', async (e) => {
-      e.preventDefault();
-      await supabase.auth.signOut();
-      window.location.href = 'login.html';
-    });
-
-    // 4. Form Interactions (File Types, Pricing, Labels)
-    const fileFormatSelect = document.getElementById('fileFormatSelect');
-    const fileUploadLabel = document.getElementById('fileUploadLabel');
-    const fileTypeIcon = document.getElementById('fileTypeIcon');
-    const fileTypePrompt = document.getElementById('fileTypePrompt');
-    const fileTypeHelper = document.getElementById('fileTypeHelper');
-    const bookFileInput = document.getElementById('bookFile');
-    const bookFileName = document.getElementById('bookFileName');
-
-    fileFormatSelect?.addEventListener('change', function() {
-      bookFileInput.value = "";
-      bookFileName.innerText = "";
-      if (this.value === 'pdf') {
-        fileUploadLabel.innerHTML = 'Book File (PDF) <span class="text-danger">*</span>';
-        fileTypeIcon.className = 'fa-solid fa-file-pdf fs-1 text-danger mb-2';
-        fileTypePrompt.innerText = 'Click to upload PDF';
-        fileTypeHelper.innerText = 'PDF only (Max 20MB)';
-        bookFileInput.setAttribute('accept', 'application/pdf');
-      } else {
-        fileUploadLabel.innerHTML = 'Book File (EPUB) <span class="text-danger">*</span>';
-        fileTypeIcon.className = 'fa-solid fa-book-open fs-1 text-success mb-2';
-        fileTypePrompt.innerText = 'Click to upload EPUB';
-        fileTypeHelper.innerText = 'EPUB only (Max 20MB)';
-        bookFileInput.setAttribute('accept', '.epub, application/epub+zip');
-      }
-    });
-
-    document.getElementById('coverImage')?.addEventListener('change', function() {
-      if (this.files[0]) document.getElementById('coverFileName').innerText = "Selected: " + this.files[0].name;
-    });
-
-    bookFileInput?.addEventListener('change', function() {
-      if (this.files[0]) bookFileName.innerText = "Selected: " + this.files[0].name;
-    });
-
-    const pricingSelect = document.getElementById('bookPricing');
-    const priceDiv = document.getElementById('priceAmountDiv');
-    pricingSelect?.addEventListener('change', function() {
-      if (this.value === 'paid') {
-        priceDiv.classList.remove('d-none');
-        document.getElementById('bookPrice').setAttribute('required', 'true');
-      } else {
-        priceDiv.classList.add('d-none');
-        document.getElementById('bookPrice').removeAttribute('required');
-      }
-    });
-
-    // 5. Storage Upload Logic
-    async function uploadWithFallback(fileName, fileObject, preferredBuckets) {
-      let lastError = null;
-      for (const bucket of preferredBuckets) {
-        try {
-          const { data, error } = await supabase.storage.from(bucket).upload(fileName, fileObject, { upsert: true });
-          if (!error && data) {
-            const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(fileName);
-            return { bucket, publicUrl: publicUrlData.publicUrl };
+          if (uploaderProfile) {
+            currentUploaderUid = uploaderProfile.user_uid || `SDL-${user.id.substring(0, 6).toUpperCase()}`;
+            const name = uploaderProfile.full_name || uploaderProfile.first_name || user.email.split('@')[0];
+            document.getElementById('headerUserName').textContent = `Hello, ${name.split(' ')[0]}`;
+            document.getElementById('displayAuthorFullName').textContent = name;
+            document.getElementById('bookAuthor').value = name;
+            document.getElementById('displayAuthorIdText').textContent = currentUploaderUid;
+            if (uploaderProfile.role) document.getElementById('headerUserBadge').textContent = uploaderProfile.role.toUpperCase();
+          } else {
+            currentUploaderUid = `SDL-${user.id.substring(0, 6).toUpperCase()}`;
+            document.getElementById('displayAuthorIdText').textContent = currentUploaderUid;
           }
-          lastError = error;
-        } catch (err) { lastError = err; }
-      }
-      throw lastError || new Error("Storage upload failed.");
-    }
-
-    // 6. Final Form Submission
-    const uploadForm = document.getElementById("uploadBookForm");
-    uploadForm?.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      
-      // Safety check to ensure init finished
-      if (!currentUserId || !currentAuthorUid) {
-          alert("Still loading author profile... please wait a moment and try again.");
-          return;
+        }
+      } catch (err) {
+        console.warn("Init profile error:", err);
       }
 
-      const submitBtn = uploadForm.querySelector("button[type='submit']");
-      const originalBtnText = submitBtn.innerHTML;
-      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Uploading & Submitting...';
-      submitBtn.disabled = true;
+      const authorInput = document.getElementById('bookAuthor');
+      authorInput?.addEventListener('input', function() {
+        const resolved = resolveAuthorIdByName(this.value);
+        document.getElementById('displayAuthorFullName').textContent = this.value.trim() || 'Attribution Pending';
+        document.getElementById('displayAuthorIdText').textContent = resolved;
+      });
 
-      try {
-        const title = document.getElementById("bookTitle").value.trim();
-        const author = document.getElementById("bookAuthor").value.trim();
-        const category = document.getElementById("bookCategory").value;
-        const language = document.getElementById("bookLanguage").value;
-        const fileType = fileFormatSelect ? fileFormatSelect.value : 'epub';
-        const pricing = document.getElementById("bookPricing").value;
-        const description = document.getElementById("bookDescription").value.trim();
-        let price = pricing === "paid" ? parseFloat(document.getElementById("bookPrice").value) || 0 : 0;
+      const userMenuBtn = document.getElementById('userMenuBtn');
+      const dropdownMenu = document.getElementById('dropdownMenu');
+      userMenuBtn?.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('active'); });
+      document.addEventListener('click', (e) => {
+        if (!dropdownMenu.contains(e.target) && !userMenuBtn.contains(e.target)) dropdownMenu.classList.remove('active');
+      });
 
-        const coverFile = document.getElementById("coverImage").files[0];
-        const mainBookFile = bookFileInput.files[0];
-        if (!coverFile || !mainBookFile) throw new Error("Please select both a cover image and a book file.");
+      document.getElementById('logoutLink')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await supabase.auth.signOut();
+        window.location.href = 'login.html';
+      });
 
-        const timeStamp = Date.now();
-        const cleanCoverName = `${currentUserId}-${timeStamp}-${coverFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-        const cleanBookName = `${currentUserId}-${timeStamp}-${mainBookFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      const fileFormatSelect = document.getElementById('fileFormatSelect');
+      const fileUploadLabel = document.getElementById('fileUploadLabel');
+      const fileTypeIcon = document.getElementById('fileTypeIcon');
+      const fileTypePrompt = document.getElementById('fileTypePrompt');
+      const fileTypeHelper = document.getElementById('fileTypeHelper');
+      const bookFileInput = document.getElementById('bookFile');
+      const bookFileName = document.getElementById('bookFileName');
 
-        const coverResult = await uploadWithFallback(cleanCoverName, coverFile, ['book_covers', 'books']);
-        const targetBuckets = fileType === 'epub' ? ['book_epubs', 'books', 'book_pdfs'] : ['book_pdfs', 'books', 'book_epubs'];
-        const bookResult = await uploadWithFallback(cleanBookName, mainBookFile, targetBuckets);
+      fileFormatSelect?.addEventListener('change', function() {
+        bookFileInput.value = "";
+        bookFileName.innerText = "";
+        if (this.value === 'pdf') {
+          fileUploadLabel.innerHTML = 'Book File (PDF) <span class="text-danger">*</span>';
+          fileTypeIcon.className = 'fa-solid fa-file-pdf fs-1 text-danger mb-2';
+          fileTypePrompt.innerText = 'Click to upload PDF';
+          fileTypeHelper.innerText = 'PDF only (Max 20MB)';
+          bookFileInput.setAttribute('accept', 'application/pdf');
+        } else {
+          fileUploadLabel.innerHTML = 'Book File (EPUB) <span class="text-danger">*</span>';
+          fileTypeIcon.className = 'fa-solid fa-book-open fs-1 text-success mb-2';
+          fileTypePrompt.innerText = 'Click to upload EPUB';
+          fileTypeHelper.innerText = 'EPUB only (Max 20MB)';
+          bookFileInput.setAttribute('accept', '.epub, application/epub+zip');
+        }
+      });
 
-        const randomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-        const generatedBookId = `BK-${randomId}`;
+      document.getElementById('coverImage')?.addEventListener('change', function() {
+        if (this.files[0]) document.getElementById('coverFileName').innerText = "Selected: " + this.files[0].name;
+      });
+      bookFileInput?.addEventListener('change', function() {
+        if (this.files[0]) bookFileName.innerText = "Selected: " + this.files[0].name;
+      });
 
-        // Ensure payload links exactly to the authenticated user ID and correct UID
-        const insertPayload = {
-          book_id: generatedBookId,
-          author_id: currentUserId,
-          user_uid: currentAuthorUid, 
-          uploader_id: currentUserId, 
-          title: title,
-          author: author,
-          category: category,
-          language: language,
-          file_type: fileType,
-          pricing: pricing,
-          price: price,
-          description: description,
-          cover_url: coverResult.publicUrl,
-          pdf_url: bookResult.publicUrl,
-          status: 'Under Review',
-          is_featured: false
-        };
+      const pricingSelect = document.getElementById('bookPricing');
+      const priceDiv = document.getElementById('priceAmountDiv');
+      pricingSelect?.addEventListener('change', function() {
+        if (this.value === 'paid') {
+          priceDiv.classList.remove('d-none');
+          document.getElementById('bookPrice').setAttribute('required', 'true');
+        } else {
+          priceDiv.classList.add('d-none');
+          document.getElementById('bookPrice').removeAttribute('required');
+        }
+      });
 
-        const { error: dbError } = await supabase.from('books').insert([insertPayload]);
-
-        if (dbError) throw dbError;
-
-        alert(`🎉 Book submitted successfully!\n\nBook ID: ${generatedBookId}\nAuthor ID: ${currentAuthorUid}\nStatus: Under Review (Admin approval required).`);
-        window.location.href = "author-dashboard.html";
-
-      } catch (error) {
-        console.error("Upload Error:", error);
-        alert("Upload Error: " + (error.message || "Failed to submit book."));
-      } finally {
-        submitBtn.innerHTML = originalBtnText;
-        submitBtn.disabled = false;
+      async function uploadWithFallback(fileName, fileObject, preferredBuckets) {
+        let lastError = null;
+        for (const bucket of preferredBuckets) {
+          try {
+            const { data, error } = await supabase.storage.from(bucket).upload(fileName, fileObject, { upsert: true });
+            if (!error && data) {
+              const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(fileName);
+              return { bucket, publicUrl: publicUrlData.publicUrl };
+            }
+            lastError = error;
+          } catch (err) { lastError = err; }
+        }
+        throw lastError || new Error("Storage upload failed.");
       }
+
+      const uploadForm = document.getElementById("uploadBookForm");
+      uploadForm?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const submitBtn = uploadForm.querySelector("button[type='submit']");
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Uploading & Submitting...';
+        submitBtn.disabled = true;
+
+        try {
+          const title = document.getElementById("bookTitle").value.trim();
+          const author = document.getElementById("bookAuthor").value.trim();
+          const category = document.getElementById("bookCategory").value;
+          const language = document.getElementById("bookLanguage").value;
+          const fileType = fileFormatSelect ? fileFormatSelect.value : 'epub';
+          const pricing = document.getElementById("bookPricing").value;
+          const description = document.getElementById("bookDescription").value.trim();
+          let price = pricing === "paid" ? parseFloat(document.getElementById("bookPrice").value) || 0 : 0;
+
+          const coverFile = document.getElementById("coverImage").files[0];
+          const mainBookFile = bookFileInput.files[0];
+          if (!coverFile || !mainBookFile) throw new Error("Please select both a cover image and a book file.");
+
+          const finalAuthorId = resolveAuthorIdByName(author);
+
+          const timeStamp = Date.now();
+          const cleanCoverName = `${currentUploaderId || 'guest'}-${timeStamp}-${coverFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+          const cleanBookName = `${currentUploaderId || 'guest'}-${timeStamp}-${mainBookFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+
+          const coverResult = await uploadWithFallback(cleanCoverName, coverFile, ['book_covers', 'books']);
+          const targetBuckets = fileType === 'epub' ? ['book_epubs', 'books', 'book_pdfs'] : ['book_pdfs', 'books', 'book_epubs'];
+          const bookResult = await uploadWithFallback(cleanBookName, mainBookFile, targetBuckets);
+
+          const randomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+          const generatedBookId = `BK-${randomId}`;
+
+          // MODIFIED: This payload now strictly uses the logged-in user's exact ID and UID, fixing the dashboard issue.
+          const insertPayload = {
+            book_id: generatedBookId,
+            author_id: currentUploaderId, // Force strict tie to authenticated user
+            user_uid: currentUploaderUid, // Force strict tie to user's assigned author ID (e.g., SDL-XXXXXX)
+            title: title,
+            author: author,
+            category: category,
+            language: language,
+            file_type: fileType,
+            pricing: pricing,
+            price: price,
+            description: description,
+            cover_url: coverResult.publicUrl,
+            pdf_url: bookResult.publicUrl,
+            status: 'Under Review',
+            is_featured: false
+          };
+
+          if (currentUploaderId) {
+            insertPayload.uploader_id = currentUploaderId;
+          }
+
+          const { error: dbError } = await supabase
+            .from('books')
+            .insert([insertPayload]);
+
+          if (dbError) throw dbError;
+
+          alert(`🎉 Book submitted successfully!\n\nBook ID: ${generatedBookId}\nAuthor ID: ${currentUploaderUid}\nStatus: Under Review (Admin approval required).`);
+          window.location.href = "author-dashboard.html";
+
+        } catch (error) {
+          console.error("Upload Error:", error);
+          alert("Upload Error: " + (error.message || "Failed to submit book."));
+        } finally {
+          submitBtn.innerHTML = originalBtnText;
+          submitBtn.disabled = false;
+        }
+      });
     });
   </script>
+</body>
+</html>
