@@ -487,6 +487,7 @@
     let dwellSecondsLeft = 10;
     let activeTrackedPage = 1;
     let totalVerifiedReads = 0;
+    let dwellAlreadyCommittedForThisView = false;
     const MIN_DWELL_SECONDS = 10;
 
     const leftSidebar = document.getElementById('leftSidebar');
@@ -673,37 +674,73 @@
       }
     }
 
+    function isPageActuallyVisible() {
+      // A page only "counts" as being stayed-on if the tab is visible AND the
+      // window has focus. This stops the dwell timer from advancing while the
+      // user has switched tabs, minimized the browser, or alt-tabbed away.
+      return !document.hidden && document.hasFocus();
+    }
+
     function startPageDwellTracker(pageNo) {
       if (dwellInterval) clearInterval(dwellInterval);
       activeTrackedPage = parseInt(pageNo, 10) || 1;
       dwellSecondsLeft = 10;
+      dwellAlreadyCommittedForThisView = false;
 
       const indicator = document.getElementById('dwellActiveIndicator');
-      if (indicator) {
-        indicator.className = "live-dwell-pill";
-        indicator.innerHTML = `<span class="dwell-pulse"></span> Verifying: ${dwellSecondsLeft}s`;
-      }
+      const renderIndicator = () => {
+        if (!indicator) return;
+        if (dwellSecondsLeft <= 0) {
+          indicator.className = "live-dwell-pill bg-success text-white border-success";
+          indicator.innerHTML = `<i class="fa-solid fa-check text-white me-1"></i> Verified Read!`;
+        } else if (!isPageActuallyVisible()) {
+          indicator.className = "live-dwell-pill bg-warning bg-opacity-25 text-dark border-warning";
+          indicator.innerHTML = `<i class="fa-solid fa-pause me-1"></i> Paused: ${dwellSecondsLeft}s left`;
+        } else {
+          indicator.className = "live-dwell-pill";
+          indicator.innerHTML = `<span class="dwell-pulse"></span> Verifying: ${dwellSecondsLeft}s`;
+        }
+      };
+
+      renderIndicator();
 
       dwellInterval = setInterval(async () => {
-        dwellSecondsLeft--;
-
-        if (indicator) {
-          if (dwellSecondsLeft > 0) {
-            indicator.innerHTML = `<span class="dwell-pulse"></span> Verifying: ${dwellSecondsLeft}s`;
-          } else {
-            indicator.className = "live-dwell-pill bg-success text-white border-success";
-            indicator.innerHTML = `<i class="fa-solid fa-check text-white me-1"></i> Verified Read!`;
-          }
+        // Only count this tick toward the 10 seconds if the reader is actually
+        // in view. Otherwise, skip the tick entirely (timer effectively pauses).
+        if (!isPageActuallyVisible()) {
+          renderIndicator();
+          return;
         }
 
-        if (dwellSecondsLeft <= 0) {
+        dwellSecondsLeft--;
+        renderIndicator();
+
+        if (dwellSecondsLeft <= 0 && !dwellAlreadyCommittedForThisView) {
+          dwellAlreadyCommittedForThisView = true;
           clearInterval(dwellInterval);
           dwellInterval = null;
-          
+
           await commitVerifiedReadEvent(activeTrackedPage);
         }
       }, 1000);
     }
+
+    // Re-render the indicator immediately on visibility/focus changes so the
+    // "Paused" state shows up right away instead of waiting for the next tick.
+    document.addEventListener('visibilitychange', () => {
+      const indicator = document.getElementById('dwellActiveIndicator');
+      if (!indicator || dwellSecondsLeft <= 0) return;
+      if (!isPageActuallyVisible()) {
+        indicator.className = "live-dwell-pill bg-warning bg-opacity-25 text-dark border-warning";
+        indicator.innerHTML = `<i class="fa-solid fa-pause me-1"></i> Paused: ${dwellSecondsLeft}s left`;
+      }
+    });
+    window.addEventListener('blur', () => {
+      const indicator = document.getElementById('dwellActiveIndicator');
+      if (!indicator || dwellSecondsLeft <= 0) return;
+      indicator.className = "live-dwell-pill bg-warning bg-opacity-25 text-dark border-warning";
+      indicator.innerHTML = `<i class="fa-solid fa-pause me-1"></i> Paused: ${dwellSecondsLeft}s left`;
+    });
 
     // Explicit database insertion with strict error handling and UI sync
     async function commitVerifiedReadEvent(pageNo) {
