@@ -211,7 +211,7 @@
               <i class="fa-solid fa-rotate me-1"></i> Refresh
             </button>
 
-            <!-- Reset Reads Button -->
+            <!-- Reset All Reads Button -->
             <button class="btn btn-sm btn-outline-danger fw-semibold" id="resetAllReadsBtn" title="Reset all page reads to 0">
               <i class="fa-solid fa-trash-can me-1"></i> Reset Reads
             </button>
@@ -251,7 +251,7 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
             <h5 class="fw-bold mb-1 text-dark"><i class="fa-solid fa-tags text-warning me-2"></i>Membership Pricing & Special Plan Controls</h5>
-            <p class="text-muted small mb-0">Set pricing for users and toggle special promotional passes (Weekly, 15 Days, or custom duration).</p>
+            <p class="text-muted small mb-0">Set pricing for users and toggle special promotional passes.</p>
           </div>
           <button class="btn btn-primary btn-sm fw-bold px-3" id="savePlanConfigBtn">
             <i class="fa-solid fa-floppy-disk me-1"></i> Save Plan Prices
@@ -286,7 +286,7 @@
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex align-items-center gap-2">
               <i class="fa-solid fa-wand-magic-sparkles text-primary fs-5"></i>
-              <span class="fw-bold text-dark">Special Promotional Plan (Limited / Trial)</span>
+              <span class="fw-bold text-dark">Special Promotional Plan</span>
             </div>
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="cfgSpecialEnable" style="width: 2.8em; height: 1.4em; cursor: pointer;">
@@ -297,15 +297,14 @@
           <div class="row g-3">
             <div class="col-md-4">
               <label class="form-label small fw-semibold">Special Plan Title</label>
-              <input type="text" class="form-control form-control-sm" id="cfgSpecialTitle" placeholder="e.g. 15-Day Festive Pass">
+              <input type="text" class="form-control form-control-sm" id="cfgSpecialTitle" placeholder="e.g. 15-Day Pass">
             </div>
             <div class="col-md-4">
               <label class="form-label small fw-semibold">Validity Duration</label>
               <select class="form-select form-select-sm" id="cfgSpecialDuration">
-                <option value="7">7 Days (1 Week)</option>
+                <option value="7">7 Days</option>
                 <option value="15" selected>15 Days</option>
-                <option value="30">30 Days (Special Month)</option>
-                <option value="45">45 Days</option>
+                <option value="30">30 Days</option>
               </select>
             </div>
             <div class="col-md-4">
@@ -319,86 +318,16 @@
         </div>
       </div>
 
-      <div class="row g-4 mb-4">
-        <div class="col-md-4">
-          <div class="card stat-card p-4 border-start border-secondary border-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="text-muted text-uppercase fw-bold mb-0">Monthly Pass</h6>
-              <span class="badge bg-secondary">Monthly</span>
-            </div>
-            <h3 class="fw-bold text-dark mb-1" id="subCountMonthly">0 Subscribers</h3>
-            <p class="text-success fw-semibold small mb-0">Revenue: <span id="subRevenueMonthly">₹0</span></p>
-          </div>
-        </div>
-
-        <div class="col-md-4">
-          <div class="card stat-card p-4 border-start border-info border-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="text-info text-uppercase fw-bold mb-0">Quarterly Pass</h6>
-              <span class="badge bg-info text-dark">Quarterly</span>
-            </div>
-            <h3 class="fw-bold text-dark mb-1" id="subCountQuarterly">0 Subscribers</h3>
-            <p class="text-success fw-semibold small mb-0">Revenue: <span id="subRevenueQuarterly">₹0</span></p>
-          </div>
-        </div>
-
-        <div class="col-md-4">
-          <div class="card stat-card p-4 border-start border-warning border-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="text-warning text-uppercase fw-bold mb-0">Yearly Pass</h6>
-              <span class="badge bg-warning text-dark">Yearly</span>
-            </div>
-            <h3 class="fw-bold text-dark mb-1" id="subCountAnnual">0 Subscribers</h3>
-            <p class="text-success fw-semibold small mb-0">Revenue: <span id="subRevenueAnnual">₹0</span></p>
-          </div>
-        </div>
-      </div>
-
       <div class="card stat-card p-0 overflow-hidden">
-        <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
-          <div class="d-flex align-items-center gap-2">
-            <h5 class="fw-bold mb-0 text-dark">Subscriber Directory</h5>
-            <span class="badge bg-primary rounded-pill ms-2" id="filteredSubscribersCount">0 Total</span>
-          </div>
-
-          <div class="d-flex align-items-center gap-2">
-            <select id="subMonthFilter" class="form-select form-select-sm border-secondary fw-semibold">
-              <option value="all">All Months</option>
-            </select>
-
-            <select id="subPlanFilter" class="form-select form-select-sm border-secondary fw-semibold">
-              <option value="all">All Plans</option>
-              <option value="monthly">Monthly</option>
-              <option value="quarterly">Quarterly</option>
-              <option value="yearly">Yearly</option>
-              <option value="special">Special Pass</option>
-            </select>
-            <button class="btn btn-sm btn-outline-primary" id="refreshSubsBtn">
-              <i class="fa-solid fa-rotate-right me-1"></i> Refresh
-            </button>
-          </div>
+        <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold mb-0 text-dark">Subscriber Directory</h5>
+          <button class="btn btn-sm btn-outline-primary" id="refreshSubsBtn"><i class="fa-solid fa-rotate-right me-1"></i> Refresh</button>
         </div>
-
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-              <thead class="table-light text-secondary small">
-                <tr>
-                  <th class="ps-4">Subscription ID</th>
-                  <th>User ID</th>
-                  <th>Subscriber Name</th>
-                  <th>Plan Tier</th>
-                  <th>Subscription Period</th>
-                  <th>Amount</th>
-                  <th class="pe-4">Validity</th>
-                </tr>
-              </thead>
               <tbody id="subscribersTableBody">
-                <tr>
-                  <td colspan="7" class="text-center py-5 text-muted">
-                    <div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading subscription records...
-                  </td>
-                </tr>
+                <tr><td class="text-center py-4 text-muted">Loading subscriptions...</td></tr>
               </tbody>
             </table>
           </div>
@@ -408,391 +337,16 @@
 
     <!-- SECTION 3: BOOK APPROVAL PIPELINE -->
     <div id="approvalSection" class="content-section d-none">
-      <div class="row g-3 mb-3">
-        <div class="col-md-4">
-          <div class="card stat-card p-3 border-start border-primary border-4 d-flex flex-row align-items-center justify-content-between">
-            <div>
-              <span class="text-muted small fw-semibold">Total Submissions</span>
-              <h4 class="fw-bold mb-0 text-dark" id="totalBooksCount">0</h4>
-            </div>
-            <i class="fa-solid fa-book-bookmark text-primary fs-3 opacity-50"></i>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card stat-card p-3 border-start border-success border-4 d-flex flex-row align-items-center justify-content-between">
-            <div>
-              <span class="text-muted small fw-semibold" id="monthUploadTitle">Uploaded in Selected Month</span>
-              <h4 class="fw-bold mb-0 text-success" id="monthBooksCount">0</h4>
-            </div>
-            <i class="fa-solid fa-calendar-check text-success fs-3 opacity-50"></i>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card stat-card p-3 border-start border-warning border-4 d-flex flex-row align-items-center justify-content-between">
-            <div>
-              <span class="text-muted small fw-semibold">Pending Review</span>
-              <h4 class="fw-bold mb-0 text-warning" id="pendingBooksCount">0</h4>
-            </div>
-            <i class="fa-solid fa-hourglass-half text-warning fs-3 opacity-50"></i>
-          </div>
-        </div>
-      </div>
-
       <div class="card stat-card p-0 overflow-hidden">
-        <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
-          <div>
-            <h5 class="fw-bold mb-0 text-dark">Book Approval & Catalog Pipeline</h5>
-            <p class="small text-muted mb-0">Search titles/IDs, filter by submission month, control publishing rights, and toggle home slider visibility.</p>
-          </div>
-
-          <div class="d-flex flex-wrap align-items-center gap-2">
-            <input type="text" id="bookSearchInput" class="form-control form-control-sm" placeholder="Search Title, Author, ID..." style="width: 220px;">
-            
-            <select id="bookMonthFilter" class="form-select form-select-sm border-secondary fw-semibold" style="width: 160px;">
-              <option value="all">All Months</option>
-            </select>
-
-            <select id="bookStatusFilter" class="form-select form-select-sm border-secondary fw-semibold" style="width: 140px;">
-              <option value="all">All Status</option>
-              <option value="published">Published</option>
-              <option value="under_review">Under Review</option>
-            </select>
-
-            <button class="btn btn-sm btn-outline-primary" id="refreshApprovalBtn">
-              <i class="fa-solid fa-rotate-right me-1"></i> Refresh
-            </button>
-          </div>
+        <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold mb-0 text-dark">Book Approval Pipeline</h5>
+          <button class="btn btn-sm btn-outline-primary" id="refreshApprovalBtn"><i class="fa-solid fa-rotate-right me-1"></i> Refresh</button>
         </div>
-
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-              <thead class="table-light text-secondary small">
-                <tr>
-                  <th class="ps-3 text-center" style="width: 60px;">Sl. No.</th>
-                  <th>Book ID</th>
-                  <th>Book Info</th>
-                  <th>Script</th>
-                  <th>Submitted Date</th>
-                  <th>Status</th>
-                  <th>Home Slider (Hover)</th>
-                  <th class="text-end pe-4">Actions</th>
-                </tr>
-              </thead>
               <tbody id="approvalBooksList">
-                <tr>
-                  <td colspan="8" class="text-center py-5 text-muted">
-                    <div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading pipeline...
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION 4: VISUAL & PAGE SETTINGS MANAGER -->
-    <div id="settingsSection" class="content-section d-none">
-      <form id="siteSettingsForm">
-        <div class="card stat-card p-4 mb-4 border-start border-danger border-4">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="d-flex align-items-center gap-2">
-                <h5 class="fw-bold mb-1 text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i>Maintenance Mode & Emergency Banner</h5>
-                <span class="badge bg-secondary" id="maintenanceStatusBadge">SYSTEM LIVE</span>
-              </div>
-              <p class="small text-muted mb-0">When turned ON, an emergency alert bar will appear across the library and lock non-admin browsing/logins.</p>
-            </div>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="settingMaintenanceEnable" style="width: 3.2em; height: 1.6em; cursor: pointer;">
-            </div>
-          </div>
-          <div class="mt-3">
-            <label class="form-label small fw-semibold text-danger">Emergency Message Displayed on Index & Browse</label>
-            <input type="text" class="form-control" id="settingMaintenanceMsg" placeholder="e.g. 🛠️ Scheduled System Update: Platform is currently undergoing maintenance. Logins are paused.">
-          </div>
-        </div>
-
-        <div class="row g-4 mb-4">
-          <div class="col-lg-6">
-            <div class="card stat-card p-4 h-100">
-              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-palette text-primary me-2"></i>Theme & Brand Colors</h5>
-              <div class="mb-3">
-                <label class="form-label fw-semibold small">Primary Brand / Dark Theme</label>
-                <div class="input-group">
-                  <input type="color" class="form-control form-control-color" id="settingPrimaryColor" value="#075e4d">
-                  <input type="text" class="form-control" id="settingPrimaryColorText" value="#075e4d">
-                </div>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-semibold small">Accent & Gold Highlights</label>
-                <div class="input-group">
-                  <input type="color" class="form-control form-control-color" id="settingAccentColor" value="#ffb703">
-                  <input type="text" class="form-control" id="settingAccentColorText" value="#ffb703">
-                </div>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-semibold small">Navbar & Top Bar Background</label>
-                <div class="input-group">
-                  <input type="color" class="form-control form-control-color" id="settingHeaderBg" value="#005f73">
-                  <input type="text" class="form-control" id="settingHeaderBgText" value="#005f73">
-                </div>
-              </div>
-              <div class="mb-0">
-                <label class="form-label fw-semibold small">Footer Background</label>
-                <div class="input-group">
-                  <input type="color" class="form-control form-control-color" id="settingFooterBg" value="#005f73">
-                  <input type="text" class="form-control" id="settingFooterBgText" value="#005f73">
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-6">
-            <div class="card stat-card p-4 h-100">
-              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-font text-success me-2"></i>Typography & Sizing</h5>
-              <div class="mb-3">
-                <label class="form-label fw-semibold small">Primary Site Font Family</label>
-                <select class="form-select" id="settingFontFamily">
-                  <option value="'Poppins', sans-serif" selected>Poppins (Modern Sans)</option>
-                  <option value="'Inter', sans-serif">Inter (Clean & Minimal)</option>
-                  <option value="'Segoe UI', Tahoma, sans-serif">Segoe UI (System UI)</option>
-                  <option value="'Roboto', sans-serif">Roboto (Standard)</option>
-                  <option value="'Playfair Display', serif">Playfair Display (Editorial Serif)</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-semibold small">Global Base Font Scale</label>
-                <select class="form-select" id="settingFontScale">
-                  <option value="95%">Compact (95%)</option>
-                  <option value="100%" selected>Standard (100% - Default)</option>
-                  <option value="105%">Large / Accessible (105%)</option>
-                </select>
-              </div>
-              <div class="mb-0">
-                <label class="form-label fw-semibold small">Page Layout Density</label>
-                <select class="form-select" id="settingLayoutDensity">
-                  <option value="comfortable" selected>Comfortable (Spacious Cards & Paddings)</option>
-                  <option value="compact">Compact (Higher Data Density)</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-6">
-            <div class="card stat-card p-4 h-100">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-bullhorn text-warning me-2"></i>Promotional Announcement Bar</h5>
-                <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="settingAnnouncementEnable">
-                </div>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-semibold small">Notice Banner Text</label>
-                <textarea class="form-control" id="settingAnnouncementText" rows="2" placeholder="e.g. 📢 Special Discount: Read 100+ Santali Ol Chiki eBooks with our 50% off Quarterly Pass!"></textarea>
-              </div>
-              <div class="row g-2">
-                <div class="col-6">
-                  <label class="form-label fw-semibold small">Bar Background</label>
-                  <input type="color" class="form-control form-control-color w-100" id="settingAnnouncementBg" value="#ffb703">
-                </div>
-                <div class="col-6">
-                  <label class="form-label fw-semibold small">Text Color</label>
-                  <input type="color" class="form-control form-control-color w-100" id="settingAnnouncementTextColor" value="#000000">
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-6">
-            <div class="card stat-card p-4 h-100">
-              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-sliders text-info me-2"></i>Slider & Browse Behavior</h5>
-              <div class="row g-3 mb-3">
-                <div class="col-6">
-                  <label class="form-label fw-semibold small">Marquee Scroll Speed</label>
-                  <select class="form-select" id="settingMarqueeSpeed">
-                    <option value="20s">Fast (20s)</option>
-                    <option value="35s" selected>Balanced (35s)</option>
-                    <option value="50s">Slow & Relaxed (50s)</option>
-                  </select>
-                </div>
-                <div class="col-6">
-                  <label class="form-label fw-semibold small">Books Per Page (Browse)</label>
-                  <select class="form-select" id="settingBrowseLimit">
-                    <option value="8">8 Books</option>
-                    <option value="12" selected>12 Books</option>
-                    <option value="16">16 Books</option>
-                    <option value="24">24 Books</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-check form-switch mb-2">
-                <input class="form-check-input" type="checkbox" id="settingPauseOnHover" checked>
-                <label class="form-check-label small fw-semibold" for="settingPauseOnHover">Pause Marquee Slider on Mouse Hover</label>
-              </div>
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="settingShowPriceBadge" checked>
-                <label class="form-check-label small fw-semibold" for="settingShowPriceBadge">Show Floating Price Badges on Book Covers</label>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-12">
-            <div class="card stat-card p-4">
-              <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-heading text-primary me-2"></i>Homepage Hero Content & Contact Info</h5>
-              <div class="row g-3 mb-3">
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold small">Main Hero Headline</label>
-                  <input type="text" class="form-control" id="settingHeroTitle" value="Discover Thousands of Digital Books">
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold small">Hero Primary Action Button</label>
-                  <input type="text" class="form-control" id="settingHeroCta" value="View Membership">
-                </div>
-                <div class="col-12">
-                  <label class="form-label fw-semibold small">Hero Subtitle / Description</label>
-                  <textarea class="form-control" id="settingHeroSubtitle" rows="2">Read anywhere, anytime. Publish your own eBooks in Ol Chiki and multiple languages to reach readers worldwide.</textarea>
-                </div>
-              </div>
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold small">Support Email Address</label>
-                  <input type="email" class="form-control" id="settingSupportEmail" value="support@santalidigitallibrary.in">
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold small">Helpline Phone Number</label>
-                  <input type="text" class="form-control" id="settingSupportPhone" value="+91 98765 43210">
-                </div>
-                <div class="col-12">
-                  <label class="form-label fw-semibold small">Footer Copyright Tagline</label>
-                  <input type="text" class="form-control" id="settingFooterTagline" value="Made with ❤️ for Santali Authors & Digital Readers Worldwide">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center mb-5">
-          <button type="button" class="btn btn-outline-danger fw-semibold px-3" id="resetDefaultsBtn">
-            <i class="fa-solid fa-rotate-left me-1"></i> Reset to Factory Defaults
-          </button>
-          <button type="submit" class="btn btn-primary px-4 py-2 fw-bold" id="saveSettingsBtn">
-            <i class="fa-solid fa-floppy-disk me-2"></i> Save All Visual & Page Settings
-          </button>
-        </div>
-      </form>
-    </div>
-
-    <!-- SECTION 5: COPYRIGHT MANAGEMENT -->
-    <div id="copyrightSection" class="content-section d-none">
-      <div class="card stat-card p-0 overflow-hidden">
-        <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="fw-bold mb-0 text-dark">Copyright & Licensing Registry</h5>
-          <button class="btn btn-sm btn-primary" id="addLicenseBtn">
-            <i class="fa-solid fa-plus me-1"></i> Register License
-          </button>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-              <thead class="table-light text-secondary small">
-                <tr>
-                  <th class="ps-4">Book Title</th>
-                  <th>Copyright Owner</th>
-                  <th>License Period</th>
-                  <th>Rights</th>
-                  <th>Alert Status</th>
-                  <th class="text-end pe-4">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="copyrightList">
-                <tr>
-                  <td class="ps-4"><strong>Santali Folk Tales Vol. 1</strong></td>
-                  <td>Ramesh Murmu</td>
-                  <td>Jan 2024 - Jan 2029</td>
-                  <td><span class="badge bg-info text-dark">Digital + Audio</span></td>
-                  <td><span class="badge bg-success">Active</span></td>
-                  <td class="text-end pe-4">
-                    <button class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-file-contract"></i></button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION 6: ANTI-FRAUD LOGS -->
-    <div id="antifraudSection" class="content-section d-none">
-      <div class="card stat-card p-0 overflow-hidden">
-        <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="fw-bold mb-0 text-dark">Anti-Fraud Reading Activity Logs</h5>
-          <button class="btn btn-sm btn-outline-danger" id="clearFraudLogsBtn">
-            <i class="fa-solid fa-trash me-1"></i> Clear Flags
-          </button>
-        </div>
-        <div class="card-body p-3">
-          <div class="alert alert-warning d-flex justify-content-between align-items-center mb-3">
-            <div>
-              <strong><i class="fa-solid fa-triangle-exclamation me-2"></i>User Flagged</strong>
-              <div class="small text-muted">Rapid page turns detected on Ol Chiki Grammar.</div>
-            </div>
-            <button class="btn btn-sm btn-danger">Invalidate Activity</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION 7: SALES & FINANCIAL REPORTS -->
-    <div id="reportsSection" class="content-section d-none">
-      <div class="row g-4 mb-4">
-        <div class="col-md-6">
-          <div class="card stat-card p-4 border-start border-success border-4">
-            <h6 class="text-muted text-uppercase fw-semibold mb-1">Total Subscription Revenue</h6>
-            <h2 class="fw-bold text-success mb-0" id="reportTotalRevenue">₹0</h2>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="card stat-card p-4 border-start border-primary border-4">
-            <h6 class="text-muted text-uppercase fw-semibold mb-1">Total Subscriptions Processed</h6>
-            <h2 class="fw-bold text-primary mb-0" id="reportTotalOrders">0</h2>
-          </div>
-        </div>
-      </div>
-
-      <div class="card stat-card p-0 overflow-hidden">
-        <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="fw-bold mb-0 text-dark">Subscription Transaction History</h5>
-          <div>
-            <button class="btn btn-sm btn-outline-secondary me-2" onclick="window.print()">
-              <i class="fa-solid fa-print me-1"></i> Print
-            </button>
-            <button class="btn btn-sm btn-success" id="exportSalesCsvBtn">
-              <i class="fa-solid fa-file-csv me-1"></i> Export CSV
-            </button>
-          </div>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" id="salesReportTable">
-              <thead class="table-light text-secondary small">
-                <tr>
-                  <th class="ps-4">Subscription ID</th>
-                  <th>Date</th>
-                  <th>Subscriber</th>
-                  <th>Plan</th>
-                  <th>Amount</th>
-                  <th class="pe-4">Status</th>
-                </tr>
-              </thead>
-              <tbody id="reportTableBody">
-                <tr>
-                  <td colspan="6" class="text-center py-5 text-muted">
-                    <div class="spinner-border text-primary spinner-border-sm me-2"></div> Fetching reports...
-                  </td>
-                </tr>
+                <tr><td class="text-center py-4 text-muted">Loading catalog...</td></tr>
               </tbody>
             </table>
           </div>
@@ -803,108 +357,21 @@
     <!-- SECTION 8: USER MANAGEMENT -->
     <div id="usersSection" class="content-section d-none">
       <div class="card stat-card p-0 overflow-hidden">
-        <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
-          <div>
-            <div class="d-flex align-items-center gap-2">
-              <h5 class="fw-bold mb-0 text-dark">Registered Users & Accounts</h5>
-              <span class="badge bg-primary rounded-pill px-3 py-2 fw-semibold" id="totalUsersCountBadge">0 Total</span>
-            </div>
-            <p class="small text-muted mb-0 mt-1">Manage platform members, search by Name/UID/PIN, edit roles, and delete accounts.</p>
-          </div>
-          
-          <div class="d-flex flex-wrap align-items-center gap-2">
-            <div class="input-group input-group-sm" style="width: 280px;">
-              <span class="input-group-text bg-light"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-              <input type="text" id="userSearchInput" class="form-control" placeholder="Search Name, UID, PIN...">
-            </div>
-
-            <select id="userRoleFilter" class="form-select form-select-sm border-secondary fw-semibold" style="width: 170px;">
-              <option value="all">All Roles</option>
-              <option value="reader">Readers</option>
-              <option value="author">Authors / Publishers</option>
-              <option value="distributor">Distributors / Vendors</option>
-              <option value="admin">Admins</option>
-            </select>
-
-            <button class="btn btn-sm btn-outline-primary" id="refreshUsersBtn">
-              <i class="fa-solid fa-rotate-right me-1"></i> Refresh
-            </button>
-            <button class="btn btn-sm btn-success" id="exportUsersCsvBtn">
-              <i class="fa-solid fa-file-csv me-1"></i> Export CSV
-            </button>
-          </div>
-        </div>
-
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" id="usersReportTable">
-              <thead class="table-light text-secondary small">
-                <tr>
-                  <th class="ps-3 text-center" style="width: 50px;">Sl. No.</th>
-                  <th>User ID</th>
-                  <th>Full Name</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th>PIN Code</th>
-                  <th>Role Authorization</th>
-                  <th class="text-end pe-3" style="width: 80px;">Action</th>
-                </tr>
-              </thead>
-              <tbody id="adminUsersList">
-                <tr>
-                  <td colspan="8" class="text-center py-5 text-muted">
-                    <div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading users...
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION 9: MESSAGES / INQUIRIES -->
-    <div id="messagesSection" class="content-section d-none">
-      <div class="card stat-card p-0 overflow-hidden">
         <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="fw-bold mb-0 text-dark">Contact Inquiries</h5>
-          <div class="d-flex align-items-center gap-2">
-            <select id="msgFilter" class="form-select form-select-sm border-secondary text-secondary fw-semibold shadow-sm" style="width: 140px;">
-              <option value="all">All Inquiries</option>
-              <option value="unread">Unread</option>
-              <option value="resolved">Resolved</option>
-            </select>
-            <button class="btn btn-sm btn-outline-primary shadow-sm" id="refreshMessagesBtn">
-              <i class="fa-solid fa-rotate-right me-1"></i> Refresh
-            </button>
-          </div>
+          <h5 class="fw-bold mb-0 text-dark">User Management</h5>
+          <button class="btn btn-sm btn-outline-primary" id="refreshUsersBtn"><i class="fa-solid fa-rotate-right me-1"></i> Refresh</button>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-              <thead class="table-light text-secondary small">
-                <tr>
-                  <th class="ps-4">Date</th>
-                  <th>Sender Info</th>
-                  <th>Subject</th>
-                  <th>Message</th>
-                  <th>Status</th>
-                  <th class="text-end pe-4">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="adminMessagesList">
-                <tr>
-                  <td colspan="6" class="text-center py-5 text-muted">
-                    <div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading messages...
-                  </td>
-                </tr>
+              <tbody id="adminUsersList">
+                <tr><td class="text-center py-4 text-muted">Loading users...</td></tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
     </div>
-
   </div>
 
   <!-- Readers Inspector Modal -->
@@ -931,15 +398,10 @@
                 </tr>
               </thead>
               <tbody id="readerModalTableBody">
-                <tr>
-                  <td colspan="5" class="text-center py-4 text-muted">Loading reader breakdown...</td>
-                </tr>
+                <tr><td colspan="5" class="text-center py-4 text-muted">Loading readers...</td></tr>
               </tbody>
             </table>
           </div>
-        </div>
-        <div class="modal-footer border-top">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
@@ -955,9 +417,6 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let allSubscribersData = [];
-    let allUsersData = [];
-    let allBooksData = [];
     let usersProfileMap = {};
     let rawReadEventsData = [];
     let authorAnalyticsMap = {};
@@ -968,13 +427,6 @@
       toast.textContent = msg;
       toast.style.display = 'block';
       setTimeout(() => { toast.style.display = 'none'; }, 3000);
-    }
-
-    function parseValue(val) {
-      if (typeof val === 'string') {
-        try { return JSON.parse(val); } catch(e) { return val; }
-      }
-      return val || {};
     }
 
     async function preloadProfiles() {
@@ -1049,11 +501,11 @@
           authorAnalyticsMap[groupKey].readers[readerId] = {
             userId: readerId,
             pagesRead: 0,
-            lastReadAt: evt.created_at
+            lastReadAt: evt.created_at || new Date().toISOString()
           };
         }
         authorAnalyticsMap[groupKey].readers[readerId].pagesRead += 1;
-        if (new Date(evt.created_at) > new Date(authorAnalyticsMap[groupKey].readers[readerId].lastReadAt)) {
+        if (evt.created_at && new Date(evt.created_at) > new Date(authorAnalyticsMap[groupKey].readers[readerId].lastReadAt)) {
           authorAnalyticsMap[groupKey].readers[readerId].lastReadAt = evt.created_at;
         }
       });
@@ -1077,7 +529,7 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td class="ps-4">
-            <span class="author-id-badge" title="Click to copy Author ID">
+            <span class="author-id-badge">
               <span>${item.authorId}</span>
               <i class="fa-regular fa-copy copy-author-id" data-id="${item.authorId}"></i>
             </span>
@@ -1099,7 +551,7 @@
       document.querySelectorAll('.copy-author-id').forEach(btn => {
         btn.addEventListener('click', (e) => {
           const id = e.target.getAttribute('data-id');
-          navigator.clipboard.writeText(id).then(() => showToast(`Copied Author ID: ${id}`));
+          navigator.clipboard.writeText(id).then(() => showToast(`Copied: ${id}`));
         });
       });
 
@@ -1175,7 +627,7 @@
         document.getElementById('calcAuthorPool').textContent = `₹${globalAuthorPool.toLocaleString('en-IN')}`;
         document.getElementById('calcOps').textContent = `₹${opsReserve.toLocaleString('en-IN')}`;
 
-        // 1. Fetch valid book IDs from books table
+        // 1. Fetch active books
         const { data: activeBooks } = await supabase.from('books').select('id, book_id');
         const validBookSet = new Set(
           (activeBooks || []).flatMap(b => [String(b.id), b.book_id]).filter(Boolean)
@@ -1189,7 +641,7 @@
 
         if (error) throw error;
 
-        // 3. Keep read events for books that currently exist in the database
+        // 3. Filter reads that correspond to existing books
         rawReadEventsData = (readEvents || []).filter(evt => {
           if (!validBookSet.size) return true;
           return !evt.book_id || validBookSet.has(String(evt.book_id));
@@ -1202,545 +654,6 @@
         console.error("Dashboard Stats Error:", err);
       }
     }
-
-    async function loadPlanConfiguration() {
-      try {
-        const { data } = await supabase.from('site_settings').select('*').eq('key', 'subscription_plans').maybeSingle();
-        if (data && data.value) {
-          const cfg = parseValue(data.value);
-          document.getElementById('cfgMonthlyPrice').value = cfg.monthly_price || 99;
-          document.getElementById('cfgQuarterlyPrice').value = cfg.quarterly_price || 249;
-          document.getElementById('cfgYearlyPrice').value = cfg.yearly_price || 899;
-
-          const sp = cfg.special || {};
-          const isSpActive = sp.enabled === true;
-          document.getElementById('cfgSpecialEnable').checked = isSpActive;
-          document.getElementById('cfgSpecialLabel').textContent = isSpActive ? "Active" : "Disabled";
-          document.getElementById('cfgSpecialTitle').value = sp.title || "15-Day Special Pass";
-          document.getElementById('cfgSpecialDuration').value = sp.days || "15";
-          document.getElementById('cfgSpecialPrice').value = sp.price || "49";
-        }
-      } catch (e) {
-        console.warn("Could not load plan configuration:", e);
-      }
-    }
-
-    document.getElementById('cfgSpecialEnable')?.addEventListener('change', function() {
-      document.getElementById('cfgSpecialLabel').textContent = this.checked ? "Active" : "Disabled";
-    });
-
-    document.getElementById('savePlanConfigBtn')?.addEventListener('click', async () => {
-      const btn = document.getElementById('savePlanConfigBtn');
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Saving...';
-
-      const planConfig = {
-        monthly_price: parseFloat(document.getElementById('cfgMonthlyPrice').value) || 99,
-        quarterly_price: parseFloat(document.getElementById('cfgQuarterlyPrice').value) || 249,
-        yearly_price: parseFloat(document.getElementById('cfgYearlyPrice').value) || 899,
-        special: {
-          enabled: document.getElementById('cfgSpecialEnable').checked,
-          title: document.getElementById('cfgSpecialTitle').value.trim() || 'Special Pass',
-          days: parseInt(document.getElementById('cfgSpecialDuration').value) || 15,
-          price: parseFloat(document.getElementById('cfgSpecialPrice').value) || 49
-        }
-      };
-
-      try {
-        const { error } = await supabase.from('site_settings').upsert([{
-          key: 'subscription_plans',
-          value: planConfig
-        }]);
-        if (error) throw error;
-        showToast("Pricing and special promotional pass saved successfully!");
-      } catch (err) {
-        alert("Error saving plans: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-floppy-disk me-1"></i> Save Plan Prices';
-      }
-    });
-
-    function populateSubscriptionMonths(subs) {
-      const monthSelect = document.getElementById('subMonthFilter');
-      if (!monthSelect) return;
-      monthSelect.innerHTML = `<option value="all">All Months</option>`;
-
-      const monthSet = new Set();
-      subs.forEach(s => {
-        const rawDate = s.activated_on || s.created_at;
-        if (rawDate) {
-          const d = new Date(rawDate);
-          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-          const label = d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
-          monthSet.add(JSON.stringify({ key, label }));
-        }
-      });
-
-      Array.from(monthSet).forEach(itemStr => {
-        const { key, label } = JSON.parse(itemStr);
-        const opt = document.createElement('option');
-        opt.value = key;
-        opt.textContent = label;
-        monthSelect.appendChild(opt);
-      });
-    }
-
-    async function fetchSubscriptionDetails() {
-      const tbody = document.getElementById('subscribersTableBody');
-      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading subscriptions...</td></tr>`;
-
-      try {
-        await preloadProfiles();
-        const { data: subs, error } = await supabase.from('subscriptions').select('*').order('created_at', { ascending: false });
-        if (error) throw error;
-
-        const rawSubs = subs || [];
-        allSubscribersData = rawSubs.filter(sub => sub.user_id && usersProfileMap[sub.user_id]);
-
-        let monthlyCount = 0, quarterlyCount = 0, annualCount = 0;
-        let monthlyRev = 0, quarterlyRev = 0, annualRev = 0;
-
-        allSubscribersData.forEach(sub => {
-          const plan = (sub.plan_name || '').toLowerCase();
-          const price = parseFloat(sub.price) || 0;
-          if (plan.includes('annual') || plan.includes('year')) { annualCount++; annualRev += price || 899; }
-          else if (plan.includes('quarter')) { quarterlyCount++; quarterlyRev += price || 249; }
-          else { monthlyCount++; monthlyRev += price || 99; }
-        });
-
-        document.getElementById('subCountMonthly').textContent = `${monthlyCount} Subscribers`;
-        document.getElementById('subRevenueMonthly').textContent = `₹${monthlyRev.toLocaleString('en-IN')}`;
-        document.getElementById('subCountQuarterly').textContent = `${quarterlyCount} Subscribers`;
-        document.getElementById('subRevenueQuarterly').textContent = `₹${quarterlyRev.toLocaleString('en-IN')}`;
-        document.getElementById('subCountAnnual').textContent = `${annualCount} Subscribers`;
-        document.getElementById('subRevenueAnnual').textContent = `₹${annualRev.toLocaleString('en-IN')}`;
-        document.getElementById('filteredSubscribersCount').textContent = `${allSubscribersData.length} Total`;
-
-        populateSubscriptionMonths(allSubscribersData);
-        renderSubscribersTable();
-      } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">Failed to load subscriptions.</td></tr>`;
-      }
-    }
-
-    function renderSubscribersTable() {
-      const tbody = document.getElementById('subscribersTableBody');
-      const planFilter = document.getElementById('subPlanFilter')?.value || 'all';
-      const monthFilter = document.getElementById('subMonthFilter')?.value || 'all';
-
-      tbody.innerHTML = '';
-
-      const filtered = allSubscribersData.filter(sub => {
-        const plan = (sub.plan_name || '').toLowerCase();
-        let key = 'monthly';
-        if (plan.includes('annual') || plan.includes('year')) key = 'yearly';
-        else if (plan.includes('quarter')) key = 'quarterly';
-        else if (plan.includes('day') || plan.includes('week') || plan.includes('special')) key = 'special';
-
-        const matchesPlan = (planFilter === 'all' || key === planFilter);
-
-        let matchesMonth = true;
-        const rawDate = sub.activated_on || sub.created_at;
-        if (monthFilter !== 'all' && rawDate) {
-          const d = new Date(rawDate);
-          const subMonthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-          matchesMonth = (subMonthKey === monthFilter);
-        }
-
-        return matchesPlan && matchesMonth;
-      });
-
-      document.getElementById('filteredSubscribersCount').textContent = `${filtered.length} Total`;
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted fw-semibold">No active subscriptions found for this selection.</td></tr>`;
-        return;
-      }
-
-      const now = new Date();
-      filtered.forEach(sub => {
-        const plan = (sub.plan_name || '').toLowerCase();
-        let planBadge = `<span class="badge bg-secondary">Monthly</span>`;
-        if (plan.includes('annual') || plan.includes('year')) planBadge = `<span class="badge bg-warning text-dark">Yearly</span>`;
-        else if (plan.includes('quarter')) planBadge = `<span class="badge bg-info text-dark">Quarterly</span>`;
-        else if (plan.includes('day') || plan.includes('week') || plan.includes('special')) planBadge = `<span class="badge bg-primary">Special Pass</span>`;
-
-        const start = sub.activated_on ? new Date(sub.activated_on).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
-        const end = sub.valid_until ? new Date(sub.valid_until).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
-        const isExpired = sub.valid_until && new Date(sub.valid_until) < now;
-        const statusBadge = isExpired 
-          ? `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger">Expired</span>`
-          : `<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="fa-solid fa-circle-check me-1"></i>Active</span>`;
-
-        const userObj = usersProfileMap[sub.user_id] || {};
-        const userUid = userObj.user_uid || `SDL-${sub.user_id.substring(0, 6).toUpperCase()}`;
-        let subscriberName = userObj.full_name || `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || 'Reader';
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="ps-4 fw-bold text-primary">${sub.subscription_id || 'N/A'}</td>
-          <td>
-            <span class="uid-badge" title="Click to copy User ID">
-              <span>${userUid}</span>
-              <i class="fa-regular fa-copy copy-sub-uid-btn" data-uid="${userUid}"></i>
-            </span>
-          </td>
-          <td>
-            <div class="fw-semibold text-dark">${subscriberName}</div>
-            <small class="text-muted">${userObj.email || userObj.contact_email || ''}</small>
-          </td>
-          <td>${planBadge}</td>
-          <td class="small text-muted">${start} to <strong class="text-dark">${end}</strong></td>
-          <td class="fw-bold text-success">₹${sub.price || 0}</td>
-          <td class="pe-4">${statusBadge}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      document.querySelectorAll('.copy-sub-uid-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const uid = e.target.getAttribute('data-uid');
-          navigator.clipboard.writeText(uid).then(() => showToast(`Copied User ID: ${uid}`));
-        });
-      });
-    }
-
-    document.getElementById('subPlanFilter')?.addEventListener('change', renderSubscribersTable);
-    document.getElementById('subMonthFilter')?.addEventListener('change', renderSubscribersTable);
-    document.getElementById('refreshSubsBtn')?.addEventListener('click', () => {
-      fetchSubscriptionDetails();
-      fetchDashboardStats();
-    });
-
-    async function fetchApprovalBooks() {
-      const tbody = document.getElementById('approvalBooksList');
-      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading books...</td></tr>`;
-
-      try {
-        await preloadProfiles();
-        const { data: books, error } = await supabase.from('books').select('*').order('created_at', { ascending: false });
-        if (error) throw error;
-
-        const rawBooks = books || [];
-        allBooksData = rawBooks.filter(b => !b.user_id || usersProfileMap[b.user_id]);
-
-        populateMonthDropdown(allBooksData);
-        renderBooksTable();
-      } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger">Failed to load pipeline: ${err.message}</td></tr>`;
-      }
-    }
-
-    function populateMonthDropdown(books) {
-      const monthSelect = document.getElementById('bookMonthFilter');
-      if (!monthSelect) return;
-      monthSelect.innerHTML = `<option value="all">All Months</option>`;
-
-      const monthSet = new Set();
-      books.forEach(b => {
-        if (b.created_at) {
-          const d = new Date(b.created_at);
-          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-          const label = d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
-          monthSet.add(JSON.stringify({ key, label }));
-        }
-      });
-
-      Array.from(monthSet).forEach(itemStr => {
-        const { key, label } = JSON.parse(itemStr);
-        const opt = document.createElement('option');
-        opt.value = key;
-        opt.textContent = label;
-        monthSelect.appendChild(opt);
-      });
-    }
-
-    function renderBooksTable() {
-      const tbody = document.getElementById('approvalBooksList');
-      const searchVal = document.getElementById('bookSearchInput')?.value.trim().toLowerCase() || '';
-      const monthFilter = document.getElementById('bookMonthFilter')?.value || 'all';
-      const statusFilter = document.getElementById('bookStatusFilter')?.value || 'all';
-
-      document.getElementById('totalBooksCount').textContent = allBooksData.length;
-      let pendingCount = 0, selectedMonthUploads = 0;
-
-      const targetMonthKey = monthFilter !== 'all' 
-        ? monthFilter 
-        : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-
-      allBooksData.forEach(b => {
-        const status = (b.status || 'under review').toLowerCase();
-        if (status !== 'published') pendingCount++;
-        if (b.created_at) {
-          const d = new Date(b.created_at);
-          const bKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-          if (bKey === targetMonthKey) selectedMonthUploads++;
-        }
-      });
-
-      document.getElementById('pendingBooksCount').textContent = pendingCount;
-      document.getElementById('monthBooksCount').textContent = selectedMonthUploads;
-
-      const filtered = allBooksData.filter(book => {
-        const bookRefId = (book.book_id || `BK-${String(book.id).substring(0, 6)}` || '').toLowerCase();
-        const title = (book.title || '').toLowerCase();
-        const author = (book.author || '').toLowerCase();
-        const isPublished = (book.status || '').toLowerCase() === 'published';
-
-        const matchesSearch = !searchVal || bookRefId.includes(searchVal) || title.includes(searchVal) || author.includes(searchVal);
-        let matchesMonth = true;
-        if (monthFilter !== 'all' && book.created_at) {
-          const d = new Date(book.created_at);
-          const bKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-          matchesMonth = (bKey === monthFilter);
-        }
-
-        let matchesStatus = true;
-        if (statusFilter === 'published') matchesStatus = isPublished;
-        if (statusFilter === 'under_review') matchesStatus = !isPublished;
-
-        return matchesSearch && matchesMonth && matchesStatus;
-      });
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted fw-semibold">No books found matching search or filter criteria.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = '';
-      filtered.forEach((book, index) => {
-        const serialNo = index + 1;
-        const date = new Date(book.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-        const scriptBadge = book.language && book.language.includes('santali') 
-          ? `<span class="badge bg-secondary">Santali (Ol Chiki)</span>` 
-          : `<span class="badge bg-dark">${book.language || 'English'}</span>`;
-        
-        const isPublished = (book.status || '').toLowerCase() === 'published';
-        const statusBadge = isPublished
-          ? `<span class="badge bg-success">Published</span>`
-          : `<span class="badge bg-warning text-dark">Under Review</span>`;
-
-        const bookRefId = book.book_id || `BK-${String(book.id).substring(0, 6).toUpperCase()}`;
-        const isFeatured = book.is_featured === true;
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="ps-3 text-center fw-bold text-muted">${serialNo}</td>
-          <td>
-            <span class="book-id-badge" title="Click to copy Book ID">
-              <span>${bookRefId}</span>
-              <i class="fa-regular fa-copy copy-bookid-btn" data-id="${bookRefId}"></i>
-            </span>
-          </td>
-          <td>
-            <div class="d-flex align-items-center">
-              <img src="${book.cover_url || 'https://via.placeholder.com/40x55'}" class="book-cover-thumb me-3" onerror="this.src='https://via.placeholder.com/40x55'">
-              <div>
-                <h6 class="fw-bold mb-0 text-dark">${book.title}</h6>
-                <small class="text-muted">By ${book.author || 'Author'}</small>
-              </div>
-            </div>
-          </td>
-          <td>${scriptBadge}</td>
-          <td class="text-muted small">${date}</td>
-          <td>${statusBadge}</td>
-          <td>
-            <div class="form-check form-switch">
-              <input class="form-check-input toggle-featured-switch" type="checkbox" data-id="${book.id}" ${isFeatured ? 'checked' : ''}>
-              <label class="form-check-label small fw-semibold text-muted">${isFeatured ? 'In Marquee' : 'Off'}</label>
-            </div>
-          </td>
-          <td class="text-end pe-4">
-            ${!isPublished 
-              ? `<button class="btn btn-sm btn-success approve-book-btn me-1" data-id="${book.id}"><i class="fa-solid fa-check me-1"></i>Publish</button>` 
-              : `<button class="btn btn-sm btn-outline-secondary unpublish-book-btn me-1" data-id="${book.id}">Unpublish</button>`
-            }
-            <button class="btn btn-sm btn-outline-danger delete-book-btn" data-id="${book.id}" data-title="${book.title}">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      document.querySelectorAll('.approve-book-btn').forEach(btn => {
-        btn.addEventListener('click', async function() {
-          const id = this.getAttribute('data-id');
-          await supabase.from('books').update({ status: 'Published' }).eq('id', id);
-          showToast("Book published to Catalog!");
-          fetchApprovalBooks();
-        });
-      });
-
-      document.querySelectorAll('.unpublish-book-btn').forEach(btn => {
-        btn.addEventListener('click', async function() {
-          const id = this.getAttribute('data-id');
-          await supabase.from('books').update({ status: 'Under Review' }).eq('id', id);
-          showToast("Book moved to Under Review.");
-          fetchApprovalBooks();
-        });
-      });
-
-      document.querySelectorAll('.toggle-featured-switch').forEach(switchEl => {
-        switchEl.addEventListener('change', async function() {
-          const id = this.getAttribute('data-id');
-          await supabase.from('books').update({ is_featured: this.checked }).eq('id', id);
-          showToast(this.checked ? "Book added to Home Slider!" : "Book removed from Home Slider.");
-        });
-      });
-
-      document.querySelectorAll('.delete-book-btn').forEach(btn => {
-        btn.addEventListener('click', async function() {
-          const id = this.getAttribute('data-id');
-          const title = this.getAttribute('data-title') || 'this book';
-          if (!confirm(`Delete "${title}" from the database?`)) return;
-          await supabase.from('books').delete().eq('id', id);
-          fetchApprovalBooks();
-          fetchDashboardStats();
-        });
-      });
-    }
-
-    document.getElementById('bookSearchInput')?.addEventListener('input', renderBooksTable);
-    document.getElementById('bookMonthFilter')?.addEventListener('change', renderBooksTable);
-    document.getElementById('bookStatusFilter')?.addEventListener('change', renderBooksTable);
-    document.getElementById('refreshApprovalBtn')?.addEventListener('click', fetchApprovalBooks);
-
-    async function loadSiteSettings() {
-      try {
-        const { data, error } = await supabase.from('site_settings').select('*');
-        if (error) throw error;
-        const map = {};
-        (data || []).forEach(row => { map[row.key] = parseValue(row.value); });
-
-        if (map.theme_colors) {
-          document.getElementById('settingPrimaryColor').value = map.theme_colors.primary || '#075e4d';
-          document.getElementById('settingPrimaryColorText').value = map.theme_colors.primary || '#075e4d';
-          document.getElementById('settingAccentColor').value = map.theme_colors.accent || '#ffb703';
-          document.getElementById('settingAccentColorText').value = map.theme_colors.accent || '#ffb703';
-        }
-      } catch (e) {
-        console.warn("Could not load dynamic settings:", e);
-      }
-    }
-
-    async function fetchAdminUsers() {
-      const adminUsersList = document.getElementById('adminUsersList');
-      adminUsersList.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading users...</td></tr>`;
-      try {
-        const { data: users, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
-        if (error) throw error;
-        allUsersData = users || [];
-        renderUsersTable();
-      } catch (err) {
-        adminUsersList.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger">Failed to load users.</td></tr>`;
-      }
-    }
-
-    function renderUsersTable() {
-      const adminUsersList = document.getElementById('adminUsersList');
-      const searchVal = document.getElementById('userSearchInput').value.trim().toLowerCase();
-      const roleFilter = document.getElementById('userRoleFilter').value;
-      const totalBadge = document.getElementById('totalUsersCountBadge');
-
-      adminUsersList.innerHTML = '';
-
-      const filteredUsers = allUsersData.filter(user => {
-        const uid = (user.user_uid || `SDL-${user.id.substring(0, 6)}` || '').toLowerCase();
-        const fName = (user.first_name || '').toLowerCase();
-        const lName = (user.last_name || '').toLowerCase();
-        const fullName = (user.full_name || `${fName} ${lName}`).toLowerCase();
-        const email = (user.email || user.contact_email || '').toLowerCase();
-        const pincode = (user.pincode || user.postal_code || user.pin || '').toLowerCase();
-        
-        let role = (user.role || 'reader').toLowerCase();
-        if (role.includes('distributor') || role.includes('vendor')) role = 'distributor';
-        else if (role.includes('author') || role.includes('publisher')) role = 'author';
-
-        const matchesSearch = !searchVal || uid.includes(searchVal) || fullName.includes(searchVal) || email.includes(searchVal) || pincode.includes(searchVal);
-        const matchesRole = roleFilter === 'all' || role === roleFilter;
-        return matchesSearch && matchesRole;
-      });
-
-      if (totalBadge) totalBadge.textContent = `${filteredUsers.length} of ${allUsersData.length} Users`;
-
-      if (filteredUsers.length === 0) {
-        adminUsersList.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted fw-semibold">No users matching criteria.</td></tr>`;
-        return;
-      }
-
-      filteredUsers.forEach((user, index) => {
-        const serialNo = index + 1;
-        const userUid = user.user_uid || `SDL-${user.id.substring(0, 6).toUpperCase()}`;
-        
-        let currentRole = (user.role || 'reader').toLowerCase();
-        if (currentRole.includes('distributor') || currentRole.includes('vendor')) currentRole = 'distributor';
-        else if (currentRole.includes('author') || currentRole.includes('publisher')) currentRole = 'author';
-
-        const fName = user.first_name || (user.full_name ? user.full_name.split(' ')[0] : 'N/A');
-        const lName = user.last_name || (user.full_name ? user.full_name.split(' ').slice(1).join(' ') : '—');
-        const fullNameDisplay = `${fName} ${lName !== '—' ? lName : ''}`.trim();
-        const pincodeDisplay = user.pincode || user.postal_code || user.pin || '—';
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="ps-3 text-center fw-bold text-muted">${serialNo}</td>
-          <td>
-            <span class="uid-badge" title="Click to copy User ID">
-              <span>${userUid}</span>
-              <i class="fa-regular fa-copy copy-uid-btn" data-uid="${userUid}"></i>
-            </span>
-          </td>
-          <td><div class="fw-bold text-dark">${fullNameDisplay}</div></td>
-          <td class="text-muted small">${user.email || user.contact_email || 'N/A'}</td>
-          <td class="text-muted small">${user.phone || 'N/A'}</td>
-          <td><span class="badge bg-light text-dark border px-2 py-1">${pincodeDisplay}</span></td>
-          <td>
-            <select class="form-select form-select-sm role-select role-${currentRole}" data-userid="${user.id}">
-              <option value="reader" ${currentRole === 'reader' ? 'selected' : ''}>Reader</option>
-              <option value="author" ${currentRole === 'author' ? 'selected' : ''}>Author / Publisher</option>
-              <option value="distributor" ${currentRole === 'distributor' ? 'selected' : ''}>Distributor / Vendor</option>
-              <option value="admin" ${currentRole === 'admin' ? 'selected' : ''}>Admin</option>
-            </select>
-          </td>
-          <td class="text-end pe-3">
-            <button class="btn btn-sm btn-outline-danger delete-user-btn" data-userid="${user.id}" data-name="${fullNameDisplay}" title="Delete User and cascade all data">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </td>
-        `;
-        adminUsersList.appendChild(tr);
-      });
-
-      document.querySelectorAll('.delete-user-btn').forEach(btn => {
-        btn.addEventListener('click', async function() {
-          const userId = this.getAttribute('data-userid');
-          const userName = this.getAttribute('data-name') || 'this user';
-          if (!confirm(`Are you sure you want to delete user "${userName}"? This will also remove all their active subscriptions and uploaded books.`)) return;
-
-          try {
-            await supabase.from('subscriptions').delete().eq('user_id', userId);
-            await supabase.from('books').delete().or(`user_id.eq.${userId},author.eq."${userName}"`);
-            await supabase.from('profiles').delete().eq('id', userId);
-
-            allUsersData = allUsersData.filter(u => u.id !== userId);
-            delete usersProfileMap[userId];
-            renderUsersTable();
-            fetchSubscriptionDetails();
-            fetchApprovalBooks();
-            fetchDashboardStats();
-            showToast(`User "${userName}", their subscriptions, and books were deleted.`);
-          } catch (err) {
-            alert("Error deleting user: " + err.message);
-          }
-        });
-      });
-    }
-
-    document.getElementById('userSearchInput')?.addEventListener('input', renderUsersTable);
-    document.getElementById('userRoleFilter')?.addEventListener('change', renderUsersTable);
-    document.getElementById('refreshUsersBtn')?.addEventListener('click', fetchAdminUsers);
 
     document.addEventListener("DOMContentLoaded", async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -1757,50 +670,15 @@
 
       document.getElementById('adminEmailDisplay').innerText = `Admin: ${session.user.email}`;
 
-      const navLinks = document.querySelectorAll('.nav-link-item');
-      const sections = document.querySelectorAll('.content-section');
-      const pageTitle = document.getElementById('pageTitle');
-
-      navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          navLinks.forEach(l => l.classList.remove('active'));
-          link.classList.add('active');
-
-          const targetId = link.getAttribute('data-target');
-          sections.forEach(sec => sec.classList.add('d-none'));
-          document.getElementById(targetId).classList.remove('d-none');
-
-          if (targetId === 'overviewSection') {
-            pageTitle.textContent = "Dashboard Overview";
-            fetchDashboardStats();
-          } else if (targetId === 'subscriptionsSection') {
-            pageTitle.textContent = "Subscriptions & Plans";
-            loadPlanConfiguration();
-            fetchSubscriptionDetails();
-          } else if (targetId === 'approvalSection') {
-            pageTitle.textContent = "Book Approvals & Catalog Pipeline";
-            fetchApprovalBooks();
-          } else if (targetId === 'settingsSection') {
-            pageTitle.textContent = "Visual & Page Settings Manager";
-            loadSiteSettings();
-          } else if (targetId === 'usersSection') {
-            pageTitle.textContent = "User Management";
-            fetchAdminUsers();
-          }
-        });
-      });
-
       document.getElementById('authorMonthYearFilter')?.addEventListener('change', renderAuthorAnalyticsTable);
-      document.getElementById('refreshAuthorAnalyticsBtn')?.addEventListener('click', () => {
+      document.getElementById('refreshAuthorAnalyticsBtn')?.addEventListener('click', async () => {
         showToast("Refreshing analytics data...");
-        fetchDashboardStats();
+        await fetchDashboardStats();
       });
 
-      // Reset verified page reads to zero
+      // Reset All Page Reads
       document.getElementById('resetAllReadsBtn')?.addEventListener('click', async () => {
-        const confirmed = confirm("Are you sure you want to reset all author verified page reads to zero? This will clear all recorded read metrics.");
-        if (!confirmed) return;
+        if (!confirm("Are you sure you want to reset all verified page reads to zero?")) return;
 
         const btn = document.getElementById('resetAllReadsBtn');
         btn.disabled = true;
@@ -1810,7 +688,7 @@
           const { error } = await supabase
             .from('page_read_events')
             .delete()
-            .not('id', 'is', null);
+            .neq('author_name', '___NON_EXISTENT_AUTHOR_NAME_SAFETY_FILTER___');
 
           if (error) throw error;
 
@@ -1830,10 +708,7 @@
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'page_read_events' },
-          (payload) => {
-            if (payload.eventType === 'INSERT') {
-              showToast(`New read recorded: ${payload.new.author_name || 'Author'} (Page ${payload.new.page_number || ''})`);
-            }
+          () => {
             fetchDashboardStats();
           }
         )
@@ -1845,7 +720,6 @@
       });
 
       fetchDashboardStats();
-      fetchSubscriptionDetails();
     });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

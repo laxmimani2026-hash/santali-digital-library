@@ -18,7 +18,6 @@
   <style>
     :root {
       --brand-primary: #5c4bca;
-      --brand-light: #f3f0ff;
       --topbar-bg: #151623;
       --topbar-text: #ffffff;
       --panel-bg: #ffffff;
@@ -42,7 +41,7 @@
       margin: 0;
       display: flex;
       flex-direction: column;
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       overflow: hidden;
     }
 
@@ -82,7 +81,6 @@
       display: flex;
       flex-direction: column;
       overflow-y: auto;
-      transition: all 0.3s ease;
       z-index: 1020;
     }
 
@@ -170,30 +168,6 @@
       border-radius: 8px;
     }
 
-    .control-label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; }
-    .custom-select, .form-control {
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      background-color: var(--card-bg);
-      color: var(--text-main);
-    }
-
-    .theme-swatch {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid #ccc;
-      transition: transform 0.15s, border-color 0.15s;
-    }
-    .theme-swatch:hover {
-      transform: scale(1.12);
-    }
-    .theme-swatch.active {
-      border-color: var(--brand-primary) !important;
-      box-shadow: 0 0 0 3px rgba(92, 75, 202, 0.3);
-    }
-
     #loadingOverlay {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -204,28 +178,6 @@
       justify-content: center;
       z-index: 50;
     }
-
-    .star-rating i {
-      font-size: 1.6rem;
-      cursor: pointer;
-      color: #cbd5e1;
-      transition: color 0.15s ease-in-out;
-    }
-    .star-rating i.active {
-      color: #f59e0b;
-    }
-
-    @media (max-width: 991.98px) {
-      .left-sidebar, .right-sidebar {
-        position: absolute;
-        top: 0; bottom: 0; height: 100%;
-        box-shadow: 0 0 20px rgba(0,0,0,0.3);
-      }
-      .left-sidebar { left: -320px; }
-      .left-sidebar.show { left: 0; }
-      .right-sidebar { right: -340px; }
-      .right-sidebar.show { right: 0; }
-    }
   </style>
 </head>
 <body oncontextmenu="return false;">
@@ -233,22 +185,13 @@
   <nav class="top-navbar position-relative">
     <div class="d-flex align-items-center gap-2">
       <a href="reader-dashboard.html" class="btn btn-sm btn-outline-light border-0" id="backToLibraryBtn">
-        <i class="fa-solid fa-arrow-left me-1"></i> <span class="d-none d-sm-inline">Dashboard</span>
+        <i class="fa-solid fa-arrow-left me-1"></i> Dashboard
       </a>
-      <button class="btn btn-sm btn-outline-light border-0 d-lg-none" id="toggleLeftDrawerBtn">
-        <i class="fa-solid fa-book-open"></i>
-      </button>
     </div>
 
     <div class="text-center px-2 text-truncate" style="max-width: 50%;">
       <h1 id="topBookTitle" class="fs-6 m-0 fw-bold text-truncate text-white">Loading...</h1>
       <small class="text-white-50" id="topPageIndicator">Page <span id="topPageNum">1</span> of <span id="topTotalPages">--</span> (<span id="topPercent">0%</span>)</small>
-    </div>
-
-    <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-sm btn-outline-light border-0 d-lg-none" id="toggleRightDrawerBtn">
-        <i class="fa-solid fa-sliders"></i>
-      </button>
     </div>
 
     <div class="progress-bar-container">
@@ -263,7 +206,7 @@
         <div class="reader-avatar" id="userAvatar">U</div>
         <div class="overflow-hidden">
           <div class="fw-bold small text-truncate" id="userName">Checking user...</div>
-          <div class="text-muted" style="font-size: 0.72rem;"><i class="fa-solid fa-circle text-success me-1" style="font-size: 0.5rem;"></i>Currently Reading</div>
+          <div class="text-muted" style="font-size: 0.72rem;"><i class="fa-solid fa-circle text-success me-1" style="font-size: 0.5rem;"></i>Reading</div>
         </div>
       </div>
 
@@ -273,12 +216,6 @@
         </div>
         <h2 id="sidebarTitle" class="fs-6 fw-bold mb-1 text-truncate">Loading...</h2>
         <p id="sidebarAuthor" class="small text-muted mb-2">-</p>
-        <span class="badge bg-secondary" id="sidebarFormatBadge">EPUB</span>
-      </div>
-
-      <div id="sidebarDynamicPanel" class="p-3 border-top">
-        <div class="control-label">Description</div>
-        <div id="sidebarPanelContent" class="small text-muted" style="line-height: 1.5;">Fetching details...</div>
       </div>
     </aside>
 
@@ -297,98 +234,6 @@
         <iframe id="pdf-viewer-frame" class="d-none" title="PDF Viewer"></iframe>
       </div>
     </main>
-
-    <!-- Right Settings Sidebar -->
-    <aside class="sidebar right-sidebar" id="rightSidebar">
-      <h6 class="fw-bold mb-3 d-flex justify-content-between align-items-center">
-        <span>Settings</span>
-        <button class="btn btn-sm btn-close d-lg-none" id="closeRightSidebar"></button>
-      </h6>
-
-      <div class="mb-4">
-        <div class="control-label">Background Theme</div>
-        <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light border">
-          <button type="button" class="theme-swatch active" data-bg="#ffffff" data-text="#1f2937" style="background-color: #ffffff;" title="Pure White"></button>
-          <button type="button" class="theme-swatch" data-bg="#fbf0d9" data-text="#5f4b32" style="background-color: #fbf0d9;" title="Warm Sepia"></button>
-          <button type="button" class="theme-swatch" data-bg="#e8f0fe" data-text="#1a237e" style="background-color: #e8f0fe;" title="Soft Blue"></button>
-          <button type="button" class="theme-swatch" data-bg="#2d3748" data-text="#f7fafc" style="background-color: #2d3748;" title="Slate Gray"></button>
-          <button type="button" class="theme-swatch" data-bg="#121212" data-text="#e0e0e0" style="background-color: #121212;" title="Deep Night"></button>
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <div class="control-label">Font Family</div>
-        <select class="form-select form-select-sm custom-select" id="fontFamilySelect">
-          <option value="'Lora', Georgia, serif" selected>Lora (Serif)</option>
-          <option value="'Noto Sans Ol Chiki', sans-serif">Ol Chiki (ᱚᱞ ᱪᱤᱠᱤ)</option>
-          <option value="'Merriweather', serif">Merriweather</option>
-          <option value="'Georgia', serif">Georgia</option>
-          <option value="'Open Sans', sans-serif">Open Sans</option>
-          <option value="'Bitter', serif">Bitter</option>
-          <option value="'Roboto', sans-serif">Roboto</option>
-        </select>
-      </div>
-
-      <div class="mb-3">
-        <div class="control-label">Font Size</div>
-        <div class="input-group input-group-sm">
-          <button class="btn btn-outline-secondary" id="fontSizeDecBtn"><i class="fa-solid fa-minus"></i></button>
-          <input type="text" class="form-control text-center" id="fontSizeLabel" value="100%" readonly>
-          <button class="btn btn-outline-secondary" id="fontSizeIncBtn"><i class="fa-solid fa-plus"></i></button>
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <div class="control-label">Page Spread</div>
-        <div class="btn-group btn-group-sm w-100" role="group">
-          <input type="radio" class="btn-check" name="spreadOpt" id="spreadAuto" autocomplete="off" checked>
-          <label class="btn btn-outline-secondary" for="spreadAuto">Auto</label>
-          <input type="radio" class="btn-check" name="spreadOpt" id="spreadSingle" autocomplete="off">
-          <label class="btn btn-outline-secondary" for="spreadSingle">Single</label>
-        </div>
-      </div>
-    </aside>
-  </div>
-
-  <!-- Feedback Modal -->
-  <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-0 shadow-lg rounded-4">
-        <div class="modal-header border-0 pb-0">
-          <h5 class="modal-title fw-bold text-dark" id="feedbackModalLabel">
-            🎉 Congratulations! Book Completed!
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-center px-4 py-3">
-          <p class="text-muted mb-3">You have finished reading this book. We'd love to know what you thought about it!</p>
-          
-          <div class="mb-3">
-            <label class="form-label fw-semibold text-secondary small text-uppercase">Your Rating</label>
-            <div class="star-rating d-flex justify-content-center gap-2" id="starContainer">
-              <i class="fa-solid fa-star" data-val="1"></i>
-              <i class="fa-solid fa-star" data-val="2"></i>
-              <i class="fa-solid fa-star" data-val="3"></i>
-              <i class="fa-solid fa-star" data-val="4"></i>
-              <i class="fa-solid fa-star" data-val="5"></i>
-            </div>
-          </div>
-
-          <div class="text-start mb-3">
-            <label for="feedbackComments" class="form-label fw-semibold text-secondary small text-uppercase">Your Feedback / Review</label>
-            <textarea class="form-control" id="feedbackComments" rows="4" placeholder="Write your thoughts, favorite takeaways, or review..."></textarea>
-          </div>
-
-          <div id="feedbackAlert" class="alert alert-success d-none py-2 small mb-0"></div>
-        </div>
-        <div class="modal-footer border-0 pt-0 d-flex justify-content-end gap-2 px-4 pb-4">
-          <button type="button" class="btn btn-light fw-semibold" data-bs-dismiss="modal">Later</button>
-          <button type="button" class="btn btn-primary fw-semibold px-4" id="submitFeedbackBtn">
-            <i class="fa-solid fa-paper-plane me-1"></i> Submit Feedback
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 
   <script type="module">
@@ -409,102 +254,10 @@
     let resolvedBookId = null;
     let currentAuthorId = urlParams.get('author_id') || null;
     let currentAuthorName = urlParams.get('author') || 'Unknown Author';
-    let currentFontSize = 100;
-    let currentFontFamily = "'Lora', Georgia, serif";
-    let currentThemeBg = '#ffffff';
-    let currentThemeText = '#1f2937';
-    let selectedRating = 5;
-    let hasPromptedFeedback = false;
-    let resumeCfi = paramCfi;
-    let resumePage = paramPage;
 
-    // 10-Second Page Dwell Tracking Variables
     let pageDwellTimer = null;
     let activeTrackedPage = null;
     const MIN_DWELL_SECONDS = 10;
-
-    const leftSidebar = document.getElementById('leftSidebar');
-    const rightSidebar = document.getElementById('rightSidebar');
-    document.getElementById('toggleLeftDrawerBtn')?.addEventListener('click', () => leftSidebar.classList.toggle('show'));
-    document.getElementById('toggleRightDrawerBtn')?.addEventListener('click', () => rightSidebar.classList.toggle('show'));
-    document.getElementById('closeRightSidebar')?.addEventListener('click', () => rightSidebar.classList.remove('show'));
-
-    function refreshIframeStyles() {
-      const viewer = document.getElementById('epub-viewer');
-      if (viewer) viewer.style.backgroundColor = currentThemeBg;
-
-      const iframes = document.querySelectorAll('#epub-viewer iframe');
-      iframes.forEach(iframe => {
-        try {
-          const doc = iframe.contentDocument || iframe.contentWindow.document;
-          if (!doc) return;
-
-          let styleTag = doc.getElementById('custom-reader-injected-style');
-          if (!styleTag) {
-            styleTag = doc.createElement('style');
-            styleTag.id = 'custom-reader-injected-style';
-            doc.head.appendChild(styleTag);
-          }
-
-          styleTag.textContent = `
-            html, body, p, div, span, h1, h2, h3, h4, h5, h6, li, a, blockquote {
-              background-color: ${currentThemeBg} !important;
-              color: ${currentThemeText} !important;
-              font-family: ${currentFontFamily} !important;
-            }
-            body {
-              font-size: ${currentFontSize}% !important;
-            }
-            * {
-              -webkit-user-select: none !important;
-              user-select: none !important;
-            }
-          `;
-        } catch (e) {
-          console.warn("Iframe styling notice:", e);
-        }
-      });
-    }
-
-    document.getElementById('fontFamilySelect').addEventListener('change', (e) => {
-      currentFontFamily = e.target.value;
-      refreshIframeStyles();
-    });
-
-    document.querySelectorAll('.theme-swatch').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        document.querySelectorAll('.theme-swatch').forEach(b => b.classList.remove('active'));
-        const target = e.currentTarget;
-        target.classList.add('active');
-
-        currentThemeBg = target.getAttribute('data-bg');
-        currentThemeText = target.getAttribute('data-text');
-        refreshIframeStyles();
-      });
-    });
-
-    document.getElementById('fontSizeIncBtn').addEventListener('click', () => {
-      if (currentFontSize < 180) {
-        currentFontSize += 10;
-        document.getElementById('fontSizeLabel').value = `${currentFontSize}%`;
-        refreshIframeStyles();
-      }
-    });
-
-    document.getElementById('fontSizeDecBtn').addEventListener('click', () => {
-      if (currentFontSize > 70) {
-        currentFontSize -= 10;
-        document.getElementById('fontSizeLabel').value = `${currentFontSize}%`;
-        refreshIframeStyles();
-      }
-    });
-
-    document.getElementById('spreadAuto').addEventListener('change', () => {
-      if (epubRendition) epubRendition.spread('auto');
-    });
-    document.getElementById('spreadSingle').addEventListener('change', () => {
-      if (epubRendition) epubRendition.spread('none');
-    });
 
     function hideLoader() {
       const overlay = document.getElementById('loadingOverlay');
@@ -512,259 +265,109 @@
     }
 
     async function initUserSession() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        currentUser = user;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        currentUser = session.user;
         const { data: profile } = await supabase
           .from('profiles')
-          .select('full_name, first_name, username')
-          .eq('id', user.id)
+          .select('full_name, first_name')
+          .eq('id', currentUser.id)
           .maybeSingle();
 
-        const name = profile?.full_name || profile?.first_name || profile?.username || user.email.split('@')[0];
+        const name = profile?.full_name || profile?.first_name || currentUser.email.split('@')[0];
         document.getElementById('userName').textContent = name;
         document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
-      } else {
-        document.getElementById('userName').textContent = "Guest Reader";
-        document.getElementById('userAvatar').textContent = "G";
       }
     }
 
     async function fetchBookRecord(paramId) {
-      let { data } = await supabase.from('books').select('*').eq('book_id', paramId).maybeSingle();
-      if (data) return data;
+      if (!paramId) return null;
+      let { data: b1 } = await supabase.from('books').select('*').eq('id', paramId).maybeSingle();
+      if (b1) return b1;
 
-      let res2 = await supabase.from('books').select('*').eq('id', paramId).maybeSingle();
-      if (res2.data) return res2.data;
+      let { data: b2 } = await supabase.from('books').select('*').eq('book_id', paramId).maybeSingle();
+      if (b2) return b2;
 
       return null;
     }
 
-    async function fetchLastReadingProgress(bookId) {
-      if (!currentUser) return null;
-      try {
-        const { data } = await supabase
-          .from('reading_progress')
-          .select('*')
-          .eq('user_id', currentUser.id)
-          .eq('book_id', String(bookId))
-          .maybeSingle();
-        return data;
-      } catch (err) {
-        console.warn("Could not retrieve past progress:", err);
-        return null;
-      }
-    }
-
-    // Verified Page Read Logger (>10s Dwell with standard fields)
+    // Records page reads that exceed the 10-second dwell time threshold
     function startPageDwellTracker(pageNo) {
-      if (pageDwellTimer) {
-        clearTimeout(pageDwellTimer);
-      }
-      activeTrackedPage = pageNo;
+      if (pageDwellTimer) clearTimeout(pageDwellTimer);
+      activeTrackedPage = pageNo || 1;
+
+      console.log(`[Dwell Timer] Started tracking Page ${activeTrackedPage}. Will commit in ${MIN_DWELL_SECONDS}s.`);
 
       pageDwellTimer = setTimeout(async () => {
         if (!resolvedBookId) return;
 
-        const uId = currentUser ? currentUser.id : null;
+        const { data: { session } } = await supabase.auth.getSession();
+        const uId = session?.user?.id || currentUser?.id || null;
+
+        const payload = {
+          book_id: String(resolvedBookId),
+          author_id: String(currentAuthorId || ''),
+          author_name: String(currentAuthorName || 'Unknown Author'),
+          page_number: parseInt(activeTrackedPage, 10) || 1,
+          seconds_spent: MIN_DWELL_SECONDS
+        };
+        if (uId) {
+          payload.user_id = uId;
+        }
 
         try {
-          const { error } = await supabase.from('page_read_events').insert({
-            user_id: uId,
-            book_id: String(resolvedBookId),
-            author_id: String(currentAuthorId || ''),
-            author_name: currentAuthorName,
-            page_number: activeTrackedPage,
-            seconds_spent: MIN_DWELL_SECONDS
-          });
-          
-          if (error) {
-            console.error("Supabase insert error:", error.message);
+          const { error } = await supabase.from('page_read_events').insert([payload]);
+          if (!error) {
+            console.info(`[Analytics] Successfully logged verified read for Page ${activeTrackedPage} by Author ${currentAuthorName}`);
           } else {
-            console.info(`[Analytics] Verified read logged: Page ${activeTrackedPage} for Author: ${currentAuthorName}`);
+            console.error("[Analytics Error] Insert failed:", error.message);
           }
-        } catch (error) {
-          console.error("Failed to log verified page read:", error);
+        } catch (e) {
+          console.error("Read logging exception:", e);
         }
       }, MIN_DWELL_SECONDS * 1000);
     }
 
-    async function recordProgress(pageNo, totalPages, cfi = null) {
-      if (!currentUser || !resolvedBookId) return;
-
-      const p = Math.max(1, parseInt(pageNo, 10) || 1);
-      const t = Math.max(1, parseInt(totalPages, 10) || 1);
-      const readingStatus = p >= t ? 'completed' : 'in_progress';
-
-      const payload = {
-        user_id: currentUser.id,
-        book_id: String(resolvedBookId),
-        author_id: String(currentAuthorId || ''),
-        author_name: currentAuthorName,
-        pages_read: p,
-        total_pages: t,
-        status: readingStatus,
-        last_read_at: new Date().toISOString()
-      };
-
-      if (cfi) payload.last_cfi = cfi;
-
-      try {
-        await supabase
-          .from('reading_progress')
-          .upsert(payload, { onConflict: 'user_id,book_id' });
-      } catch (err) {
-        console.error("Sync error:", err);
-      }
-
-      if (readingStatus === 'completed' && !hasPromptedFeedback) {
-        hasPromptedFeedback = true;
-        promptFeedbackModal();
-      }
-    }
-
-    function promptFeedbackModal() {
-      const feedbackModalEl = document.getElementById('feedbackModal');
-      if (feedbackModalEl) {
-        const modal = new bootstrap.Modal(feedbackModalEl);
-        modal.show();
-      }
-    }
-
-    function initStarRating() {
-      const stars = document.querySelectorAll('#starContainer i');
-      const updateStars = (val) => {
-        stars.forEach(s => {
-          const sVal = parseInt(s.getAttribute('data-val'), 10);
-          if (sVal <= val) s.classList.add('active');
-          else s.classList.remove('active');
-        });
-      };
-
-      updateStars(selectedRating);
-
-      stars.forEach(star => {
-        star.addEventListener('click', (e) => {
-          selectedRating = parseInt(e.currentTarget.getAttribute('data-val'), 10);
-          updateStars(selectedRating);
-        });
-      });
-    }
-
-    document.getElementById('submitFeedbackBtn')?.addEventListener('click', async () => {
-      const comments = document.getElementById('feedbackComments').value.trim();
-      const alertBox = document.getElementById('feedbackAlert');
-      const submitBtn = document.getElementById('submitFeedbackBtn');
-
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Submitting...';
-
-      const feedbackData = {
-        user_id: currentUser?.id || null,
-        book_id: String(resolvedBookId),
-        rating: selectedRating,
-        feedback: comments,
-        review: comments,
-        created_at: new Date().toISOString()
-      };
-
-      try {
-        await supabase.from('reviews').insert(feedbackData);
-        alertBox.textContent = "Thank you! Your feedback has been submitted successfully.";
-        alertBox.className = "alert alert-success small mb-0";
-        alertBox.classList.remove('d-none');
-
-        setTimeout(() => {
-          const modalEl = document.getElementById('feedbackModal');
-          const modalInstance = bootstrap.Modal.getInstance(modalEl);
-          if (modalInstance) modalInstance.hide();
-        }, 1500);
-      } catch (err) {
-        console.error("Feedback submit error:", err);
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> Submit Feedback';
-      }
-    });
-
     async function loadBookData() {
       await initUserSession();
-      initStarRating();
 
       if (!rawParamId) {
-        alert("No book ID provided. Returning to dashboard.");
         window.location.href = "reader-dashboard.html";
         return;
       }
 
       try {
         const book = await fetchBookRecord(rawParamId);
-        if (!book) throw new Error("Book record not found in database.");
+        if (!book) throw new Error("Book record not found.");
 
         resolvedBookId = book.book_id || book.id;
-        currentAuthorName = book.author || book.author_name || currentAuthorName || 'Unknown Author';
-        currentAuthorId = book.author_id || book.user_id || currentAuthorId || `AUTH-${String(currentAuthorName).replace(/\s+/g, '').substring(0, 6).toUpperCase()}`;
+        currentAuthorName = book.author || currentAuthorName || 'Unknown Author';
+        currentAuthorId = book.author_id || currentAuthorId || `AUTH-${String(currentAuthorName).replace(/\s+/g, '').substring(0, 6).toUpperCase()}`;
 
-        if (!resumePage && !resumeCfi) {
-          const pastProgress = await fetchLastReadingProgress(resolvedBookId);
-          if (pastProgress) {
-            resumePage = pastProgress.pages_read || 1;
-            resumeCfi = pastProgress.last_cfi || null;
-          }
-        }
-
-        const title = book.title || book.book_name || 'Untitled Book';
-        const description = book.description || book.summary || 'No description available.';
-        const cover = book.cover_url || book.thumbnail_url || book.image_url || 'https://placehold.co/130x180/5c4bca/ffffff?text=eBook';
-        const fileUrl = book.file_url || book.pdf_url || book.epub_url || book.download_url || book.book_url;
-        const fileType = (book.file_type || book.format || (fileUrl && fileUrl.endsWith('.pdf') ? 'pdf' : 'epub')).toLowerCase();
+        const title = book.title || 'Untitled Book';
+        const cover = book.cover_url || 'https://placehold.co/130x180/5c4bca/ffffff?text=eBook';
+        const fileUrl = book.file_url || book.pdf_url || book.epub_url;
+        const fileType = (book.file_type || (fileUrl && fileUrl.endsWith('.pdf') ? 'pdf' : 'epub')).toLowerCase();
 
         document.getElementById('topBookTitle').textContent = title;
         document.getElementById('sidebarTitle').textContent = title;
         document.getElementById('sidebarAuthor').textContent = `By ${currentAuthorName}`;
-        document.getElementById('sidebarPanelContent').textContent = description;
-        document.getElementById('sidebarFormatBadge').textContent = fileType.toUpperCase();
         document.getElementById('sidebarCover').src = cover;
 
-        if (!fileUrl) throw new Error("No readable book file available.");
-
-        if (fileType === 'pdf' || fileUrl.toLowerCase().endsWith('.pdf')) {
-          renderPdf(fileUrl, resumePage);
+        if (fileType === 'pdf' || (fileUrl && fileUrl.toLowerCase().endsWith('.pdf'))) {
+          renderPdf(fileUrl, paramPage || 1);
         } else {
-          renderEpub(fileUrl, resumeCfi, resumePage);
+          renderEpub(fileUrl, paramCfi, paramPage);
         }
-
       } catch (err) {
-        console.error("Reader Load Error:", err);
         hideLoader();
-        document.getElementById('sidebarPanelContent').innerHTML = `<span class="text-danger">${err.message}</span>`;
         document.getElementById('topBookTitle').textContent = 'Error Loading Book';
       }
     }
 
     function renderEpub(url, targetCfi = null, targetPage = null) {
       epubBook = ePub(url);
-      epubRendition = epubBook.renderTo("epub-viewer", { 
-        width: "100%", 
-        height: "100%",
-        spread: "auto"
-      });
-
-      epubRendition.hooks.content.register((contents) => {
-        const doc = contents.document;
-        const fontLink = doc.createElement('link');
-        fontLink.rel = 'stylesheet';
-        fontLink.href = 'https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,700;1,400&family=Georgia&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Noto+Sans+Ol+Chiki:wght@400;600;700&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,300;0,400;0,700;1,300&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap';
-        doc.head.appendChild(fontLink);
-
-        refreshIframeStyles();
-
-        doc.addEventListener('click', (e) => {
-          const width = doc.documentElement.clientWidth;
-          if (e.clientX < width * 0.25) goPrev();
-          else if (e.clientX > width * 0.75) goNext();
-        });
-      });
+      epubRendition = epubBook.renderTo("epub-viewer", { width: "100%", height: "100%", spread: "auto" });
 
       const goPrev = () => epubRendition && epubRendition.prev();
       const goNext = () => epubRendition && epubRendition.next();
@@ -772,13 +375,7 @@
       document.getElementById('tapLeft').addEventListener('click', goPrev);
       document.getElementById('tapRight').addEventListener('click', goNext);
 
-      document.addEventListener('keyup', (e) => {
-        if (e.key === 'ArrowLeft') goPrev();
-        if (e.key === 'ArrowRight') goNext();
-      });
-
-      const initialTarget = targetCfi || undefined;
-      epubRendition.display(initialTarget).then(() => {
+      epubRendition.display(targetCfi || undefined).then(() => {
         hideLoader();
         startPageDwellTracker(targetPage || 1);
       });
@@ -791,22 +388,13 @@
         .then(() => {
           totalGeneratedPages = epubBook.locations.total || 100;
           document.getElementById('topTotalPages').textContent = totalGeneratedPages;
-
-          if (!targetCfi && targetPage && targetPage > 1 && epubBook.locations) {
-            const calculatedCfi = epubBook.locations.cfiFromLocation(targetPage);
-            if (calculatedCfi) epubRendition.display(calculatedCfi);
-          }
         });
 
       epubRendition.on('relocated', (location) => {
-        refreshIframeStyles();
-
         let currentCfi = location.start.cfi;
         if (epubBook.locations && epubBook.locations.total) {
           currentGeneratedPage = epubBook.locations.locationFromCfi(currentCfi) || 1;
           totalGeneratedPages = epubBook.locations.total || 100;
-        } else {
-          currentGeneratedPage = Math.min(totalGeneratedPages, currentGeneratedPage + 1);
         }
 
         const pct = Math.min(100, Math.max(1, Math.round((currentGeneratedPage / totalGeneratedPages) * 100)));
@@ -815,7 +403,6 @@
         document.getElementById('topPercent').textContent = `${pct}%`;
         document.getElementById('readingProgressBar').style.width = `${pct}%`;
 
-        recordProgress(currentGeneratedPage, totalGeneratedPages, currentCfi);
         startPageDwellTracker(currentGeneratedPage);
       });
     }
@@ -823,21 +410,18 @@
     function renderPdf(url, targetPage = 1) {
       hideLoader();
       document.getElementById('epub-viewer').classList.add('d-none');
-      document.getElementById('rightSidebar').classList.add('d-none');
       document.getElementById('tapLeft').classList.add('d-none');
       document.getElementById('tapRight').classList.add('d-none');
 
-      const initialPage = targetPage || 1;
       const pdfFrame = document.getElementById('pdf-viewer-frame');
       pdfFrame.classList.remove('d-none');
-      pdfFrame.src = `${url}#page=${initialPage}&toolbar=0&navpanes=0&scrollbar=1`;
+      pdfFrame.src = `${url}#page=${targetPage}&toolbar=0`;
 
-      document.getElementById('topPageNum').textContent = initialPage;
-      startPageDwellTracker(initialPage);
+      document.getElementById('topPageNum').textContent = targetPage;
+      startPageDwellTracker(targetPage);
     }
 
     document.addEventListener("DOMContentLoaded", loadBookData);
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
