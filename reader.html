@@ -77,7 +77,7 @@
     .app-body { display: flex; flex-grow: 1; overflow: hidden; position: relative; }
 
     .sidebar {
-      width: 300px;
+      width: 310px;
       background-color: var(--panel-bg);
       display: flex;
       flex-direction: column;
@@ -122,6 +122,42 @@
       box-shadow: 0 6px 16px rgba(0,0,0,0.12); 
     }
     .cover-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+
+    .meta-id-badge {
+      font-family: monospace;
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .live-dwell-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+    .dwell-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulseAnim 1.5s infinite;
+    }
+    @keyframes pulseAnim {
+      0% { transform: scale(0.9); opacity: 0.7; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.7; }
+    }
 
     .center-workspace {
       flex-grow: 1;
@@ -221,7 +257,7 @@
         top: 0; bottom: 0; height: 100%;
         box-shadow: 0 0 20px rgba(0,0,0,0.3);
       }
-      .left-sidebar { left: -320px; }
+      .left-sidebar { left: -330px; }
       .left-sidebar.show { left: 0; }
       .right-sidebar { right: -340px; }
       .right-sidebar.show { right: 0; }
@@ -273,6 +309,31 @@
         </div>
         <h2 id="sidebarTitle" class="fs-6 fw-bold mb-1 text-truncate">Loading...</h2>
         <p id="sidebarAuthor" class="small text-muted mb-2">-</p>
+
+        <!-- Visible Book ID & Author ID Badges -->
+        <div class="d-flex flex-column gap-1 mb-3">
+          <div>
+            <span class="meta-id-badge bg-light text-dark border" title="Unique Book ID">
+              <i class="fa-solid fa-barcode text-primary me-1"></i><span id="sidebarBookId">BK-ID: --</span>
+            </span>
+          </div>
+          <div>
+            <span class="meta-id-badge bg-warning bg-opacity-25 text-dark border border-warning" title="Author ID">
+              <i class="fa-solid fa-user-pen text-warning me-1"></i><span id="sidebarAuthorId">AUTH-ID: --</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Authentic Verified Read Count Card -->
+        <div class="p-2 rounded bg-light border text-center mb-2">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="text-muted fw-bold small text-uppercase" style="font-size: 0.68rem;">Verified Page Reads</span>
+            <span class="live-dwell-pill" id="dwellActiveIndicator"><span class="dwell-pulse"></span>&gt;10s Active</span>
+          </div>
+          <div class="fw-bold fs-5 text-success" id="sidebarVerifiedReadsCount">0 Pages Read</div>
+          <small class="text-muted" style="font-size: 0.7rem;">Counts toward the 40% author pool</small>
+        </div>
+
         <span class="badge bg-secondary" id="sidebarFormatBadge">EPUB</span>
       </div>
 
@@ -418,9 +479,10 @@
     let resumeCfi = paramCfi;
     let resumePage = paramPage;
 
-    // 10-Second Page Dwell Tracking Variables
+    // Verified Read Analytics Tracker
     let pageDwellTimer = null;
-    let activeTrackedPage = null;
+    let activeTrackedPage = 1;
+    let totalVerifiedReads = 0;
     const MIN_DWELL_SECONDS = 10;
 
     const leftSidebar = document.getElementById('leftSidebar');
@@ -557,14 +619,30 @@
       }
     }
 
+    // Fetch and display authentic read count for this book
+    async function loadAuthenticReadCount() {
+      if (!resolvedBookId) return;
+      try {
+        const { count, error } = await supabase
+          .from('page_read_events')
+          .select('*', { count: 'exact', head: true })
+          .eq('book_id', String(resolvedBookId));
+
+        if (!error && count !== null) {
+          totalVerifiedReads = count;
+          document.getElementById('sidebarVerifiedReadsCount').textContent = `${totalVerifiedReads.toLocaleString('en-IN')} Pages Read`;
+        }
+      } catch (err) {
+        console.warn("Could not fetch read events count:", err);
+      }
+    }
+
     // Verified Page Read Logger (>10s Dwell with standard schema fields)
     function startPageDwellTracker(pageNo) {
       if (pageDwellTimer) {
         clearTimeout(pageDwellTimer);
       }
       activeTrackedPage = pageNo || 1;
-
-      console.log(`[Dwell Tracker] Tracking Page ${activeTrackedPage}. Logging event in ${MIN_DWELL_SECONDS}s.`);
 
       pageDwellTimer = setTimeout(async () => {
         if (!resolvedBookId) return;
@@ -586,6 +664,8 @@
         try {
           const { error } = await supabase.from('page_read_events').insert([payload]);
           if (!error) {
+            totalVerifiedReads++;
+            document.getElementById('sidebarVerifiedReadsCount').textContent = `${totalVerifiedReads.toLocaleString('en-IN')} Pages Read`;
             console.info(`[Analytics] Verified read logged: Page ${activeTrackedPage} for Author: ${currentAuthorName}`);
           } else {
             console.error("[Analytics Error] Insert failed:", error.message);
@@ -712,6 +792,12 @@
         currentAuthorName = book.author || book.author_name || currentAuthorName || 'Unknown Author';
         currentAuthorId = book.author_id || book.user_id || currentAuthorId || `AUTH-${String(currentAuthorName).replace(/\s+/g, '').substring(0, 6).toUpperCase()}`;
 
+        const bookDisplayId = book.book_id || `BK-${String(book.id).substring(0, 6).toUpperCase()}`;
+
+        // Populate visible Book ID and Author ID in sidebar
+        document.getElementById('sidebarBookId').textContent = bookDisplayId;
+        document.getElementById('sidebarAuthorId').textContent = currentAuthorId;
+
         if (!resumePage && !resumeCfi) {
           const pastProgress = await fetchLastReadingProgress(resolvedBookId);
           if (pastProgress) {
@@ -732,6 +818,9 @@
         document.getElementById('sidebarPanelContent').textContent = description;
         document.getElementById('sidebarFormatBadge').textContent = fileType.toUpperCase();
         document.getElementById('sidebarCover').src = cover;
+
+        // Fetch and show existing authentic verified reads
+        await loadAuthenticReadCount();
 
         if (!fileUrl) throw new Error("No readable book file available.");
 
