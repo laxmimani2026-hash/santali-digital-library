@@ -41,7 +41,6 @@
       flex-direction: column;
     }
 
-    /* --- Top Navigation --- */
     header {
       background-color: var(--bg-dark);
       padding: 14px 5%;
@@ -94,7 +93,6 @@
       color: var(--primary-gold);
     }
 
-    /* User Profile Dropdown */
     .user-menu-container {
       position: relative;
     }
@@ -177,7 +175,6 @@
       width: 16px;
     }
 
-    /* --- Breadcrumb Bar --- */
     .breadcrumb-bar {
       background-color: #ffffff;
       border-bottom: 1px solid var(--border-color);
@@ -200,7 +197,6 @@
       font-weight: 600;
     }
 
-    /* --- Main Showcase Card --- */
     .book-detail-card {
       background: var(--surface-card);
       border-radius: var(--radius-xl);
@@ -255,7 +251,6 @@
       pointer-events: none;
     }
 
-    /* Meta Badges */
     .meta-tag {
       font-size: 0.75rem;
       font-weight: 700;
@@ -271,7 +266,6 @@
     .meta-tag-category { background: #e0f2fe; color: #0284c7; }
     .meta-tag-lang { background: #fef3c7; color: #d97706; }
 
-    /* Specification Pills */
     .specs-row {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -303,7 +297,6 @@
       color: var(--text-dark);
     }
 
-    /* Pricing Section */
     .price-box {
       background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
       border: 1px solid var(--border-color);
@@ -322,7 +315,6 @@
       line-height: 1;
     }
 
-    /* Buttons */
     .action-btn-group {
       display: flex;
       flex-wrap: wrap;
@@ -390,7 +382,6 @@
       transform: translateY(-2px);
     }
 
-    /* Skeleton Placeholder */
     .skeleton {
       background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
       background-size: 200% 100%;
@@ -594,7 +585,7 @@
       const readBookBtn = document.getElementById('readBookBtn');
       const authorDashboardNav = document.getElementById('authorDashboardNav');
 
-      // 1. Authenticate user, display header & apply role restrictions
+      // 1. Authenticate user & display header
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
@@ -610,7 +601,6 @@
             document.getElementById('headerUserName').textContent = `Hello, ${firstName}`;
             document.getElementById('headerUserBadge').textContent = userRole.toUpperCase();
 
-            // Role-based visibility: hide Author Dashboard for Readers
             if (userRole === 'reader' && authorDashboardNav) {
               authorDashboardNav.style.display = 'none';
             } else if (authorDashboardNav) {
@@ -652,17 +642,29 @@
         return;
       }
 
-      // 2. Fetch specific book metadata
+      // 2. Fetch specific book metadata with safe multi-stage fallback
       try {
-        let query = supabase.from('books').select('*');
-        if (!isNaN(bookId)) {
-          query = query.eq('id', bookId);
-        } else {
-          query = query.or(`id.eq.${bookId},book_id.eq.${bookId}`);
+        let book = null;
+
+        // Stage A: Try integer lookup if purely numeric
+        if (!isNaN(bookId) && Number.isInteger(Number(bookId))) {
+          const { data: bById } = await supabase.from('books').select('*').eq('id', Number(bookId)).maybeSingle();
+          if (bById) book = bById;
         }
 
-        const { data: book, error } = await query.maybeSingle();
-        if (error || !book) throw error || new Error("Book not found.");
+        // Stage B: Try exact book_id match (string identifier)
+        if (!book) {
+          const { data: bByBookId } = await supabase.from('books').select('*').eq('book_id', String(bookId)).maybeSingle();
+          if (bByBookId) book = bByBookId;
+        }
+
+        // Stage C: Try title match fallback
+        if (!book) {
+          const { data: bByTitle } = await supabase.from('books').select('*').eq('title', String(bookId)).maybeSingle();
+          if (bByTitle) book = bByTitle;
+        }
+
+        if (!book) throw new Error("Book record not found in library catalog.");
 
         coverEl.src = book.cover_url || 'https://via.placeholder.com/240x350?text=No+Cover';
         coverEl.classList.remove('skeleton');
@@ -691,14 +693,11 @@
         if (isFree) {
           priceEl.textContent = "FREE";
           priceEl.style.color = "#10b981";
-          
-          // Hide purchase buttons for free books
           buyNowBtn.style.display = "none";
           addToCartBtn.style.display = "none";
         } else {
           priceEl.textContent = `₹${book.price}`;
           priceEl.style.color = "#005f73";
-          
           buyNowBtn.style.display = "inline-flex";
           addToCartBtn.style.display = "inline-flex";
           buyNowBtn.disabled = false;
@@ -711,49 +710,39 @@
 
         // Button Click Handlers
         buyNowBtn.addEventListener('click', () => {
-          window.location.href = `checkout.html?id=${book.id || book.book_id}`;
+          window.location.href = `checkout.html?id=${encodeURIComponent(book.book_id || book.id)}`;
         });
 
-        // Update Reading List in reading_progress upon clicking "Read Book"
+        // Click Handler for "Read Book" -> Navigates cleanly to reader.html
         readBookBtn.addEventListener('click', async () => {
-          const targetBookId = String(book.book_id || book.id);
-          const targetParamId = book.id || book.book_id;
-          
-          // Construct normalized Author ID and Author Name
+          const targetParamId = book.book_id || book.id;
           const targetAuthorName = book.author || 'Unknown Author';
           const targetAuthorId = book.author_id && book.author_id !== 'null' && book.author_id !== ''
             ? book.author_id 
-            : `AUTH-${targetAuthorName.replace(/\s+/g, '').substring(0, 6).toUpperCase()}`;
+            : (book.user_uid || book.user_id || `AUTH-${String(targetAuthorName).replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase() || 'SDL'}`);
 
+          // Register in user reading list if signed in
           try {
             const { data: { user } } = await supabase.auth.getUser();
-
             if (user) {
-              // Check existing record
               const { data: existing } = await supabase
                 .from('reading_progress')
-                .select('id, pages_read, total_pages')
+                .select('id')
                 .eq('user_id', user.id)
-                .eq('book_id', targetBookId)
+                .eq('book_id', String(targetParamId))
                 .maybeSingle();
 
               if (!existing) {
-                // Initialize reading progress with author metadata
                 await supabase.from('reading_progress').insert({
                   user_id: user.id,
-                  book_id: targetBookId,
-                  author_id: targetAuthorId,
-                  author_name: targetAuthorName,
+                  book_id: String(targetParamId),
                   pages_read: 1,
                   total_pages: 100,
                   status: 'in_progress',
                   last_read_at: new Date().toISOString()
                 });
               } else {
-                // Refresh timestamp and backfill author metadata if needed
                 await supabase.from('reading_progress').update({
-                  author_id: targetAuthorId,
-                  author_name: targetAuthorName,
                   last_read_at: new Date().toISOString()
                 }).eq('id', existing.id);
               }
@@ -762,9 +751,8 @@
             console.warn("Could not pre-register reading list progress:", err);
           }
 
-          // Navigate to Reader Mode with Author parameters passed in URL query
-          const redirectUrl = `reader.html?id=${encodeURIComponent(targetParamId)}&author_id=${encodeURIComponent(targetAuthorId)}&author=${encodeURIComponent(targetAuthorName)}`;
-          window.location.href = redirectUrl;
+          // Direct redirect to Reader Mode
+          window.location.href = `reader.html?id=${encodeURIComponent(targetParamId)}&author_id=${encodeURIComponent(targetAuthorId)}&author=${encodeURIComponent(targetAuthorName)}`;
         });
 
         let isAdded = false;

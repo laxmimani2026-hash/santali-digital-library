@@ -606,15 +606,15 @@
 
     async function fetchBookRecord(paramId) {
       if (!paramId) return null;
-      if (!isNaN(paramId)) {
+      if (!isNaN(paramId) && Number.isInteger(Number(paramId))) {
         const { data } = await supabase.from('books').select('*').eq('id', Number(paramId)).maybeSingle();
         if (data) return data;
       }
-      const { data } = await supabase.from('books').select('*').eq('book_id', String(paramId)).maybeSingle();
-      if (data) return data;
+      const { data: byBookId } = await supabase.from('books').select('*').eq('book_id', String(paramId)).maybeSingle();
+      if (byBookId) return byBookId;
 
-      const { data: allMatch } = await supabase.from('books').select('*').or(`book_id.eq.${paramId},title.eq.${paramId}`).maybeSingle();
-      return allMatch;
+      const { data: byTitle } = await supabase.from('books').select('*').eq('title', String(paramId)).maybeSingle();
+      return byTitle;
     }
 
     async function fetchLastReadingProgress(bookId) {
@@ -862,7 +862,7 @@
         
         currentAuthorId = book.author_id && book.author_id !== 'null' && book.author_id !== ''
           ? book.author_id
-          : (book.user_id || `AUTH-${String(currentAuthorName).replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase() || 'SDL'}`);
+          : (book.user_uid || book.user_id || `AUTH-${String(currentAuthorName).replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase() || 'SDL'}`);
 
         const bookDisplayId = book.book_id || `BK-${String(book.id).substring(0, 6).toUpperCase()}`;
 
