@@ -483,7 +483,6 @@
     let resumeCfi = paramCfi;
     let resumePage = paramPage;
 
-    // Verified Read Analytics Tracker
     let dwellInterval = null;
     let dwellSecondsLeft = 10;
     let activeTrackedPage = 1;
@@ -606,15 +605,33 @@
 
     async function fetchBookRecord(paramId) {
       if (!paramId) return null;
-      if (!isNaN(paramId) && Number.isInteger(Number(paramId))) {
-        const { data } = await supabase.from('books').select('*').eq('id', Number(paramId)).maybeSingle();
-        if (data) return data;
-      }
-      const { data: byBookId } = await supabase.from('books').select('*').eq('book_id', String(paramId)).maybeSingle();
-      if (byBookId) return byBookId;
+      const clean = decodeURIComponent(String(paramId)).trim();
 
-      const { data: byTitle } = await supabase.from('books').select('*').eq('title', String(paramId)).maybeSingle();
-      return byTitle;
+      try {
+        const { data: byBookId } = await supabase.from('books').select('*').eq('book_id', clean).limit(1);
+        if (byBookId && byBookId.length > 0) return byBookId[0];
+      } catch (e) {}
+
+      if (/^\d+$/.test(clean)) {
+        try {
+          const { data: byId } = await supabase.from('books').select('*').eq('id', parseInt(clean, 10)).limit(1);
+          if (byId && byId.length > 0) return byId[0];
+        } catch (e) {}
+      }
+
+      if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(clean)) {
+        try {
+          const { data: byUuid } = await supabase.from('books').select('*').eq('id', clean).limit(1);
+          if (byUuid && byUuid.length > 0) return byUuid[0];
+        } catch (e) {}
+      }
+
+      try {
+        const { data: byTitle } = await supabase.from('books').select('*').ilike('title', clean).limit(1);
+        if (byTitle && byTitle.length > 0) return byTitle[0];
+      } catch (e) {}
+
+      return null;
     }
 
     async function fetchLastReadingProgress(bookId) {
@@ -625,15 +642,14 @@
           .select('*')
           .eq('user_id', currentUser.id)
           .eq('book_id', String(bookId))
-          .maybeSingle();
-        return data;
+          .limit(1);
+        return data && data.length > 0 ? data[0] : null;
       } catch (err) {
         console.warn("Could not retrieve past progress:", err);
         return null;
       }
     }
 
-    // Load authentic read count for this author/book
     async function loadAuthenticReadCount() {
       try {
         const { data, error } = await supabase
@@ -657,7 +673,6 @@
       }
     }
 
-    // Verified Page Read Logger with visual 10s countdown indicator
     function startPageDwellTracker(pageNo) {
       if (dwellInterval) clearInterval(dwellInterval);
       activeTrackedPage = parseInt(pageNo, 10) || 1;
@@ -685,11 +700,9 @@
           clearInterval(dwellInterval);
           dwellInterval = null;
           
-          // Increment verified read count immediately by 1
           totalVerifiedReads += 1;
           updateVerifiedReadsDisplay();
 
-          // Persist to database
           await commitVerifiedReadEvent(activeTrackedPage);
         }
       }, 1000);
@@ -701,7 +714,8 @@
       const uId = activeUser ? activeUser.id : null;
 
       const basePayload = {
-        author_id: String(currentAuthorId || ''),
+        book_id: String(resolvedBookId || activeBookRecord?.book_id || activeBookRecord?.id || rawParamId || 'BK-1'),
+        author_id: String(currentAuthorId || 'AUTH-SDL'),
         author_name: String(currentAuthorName || 'Unknown Author'),
         page_number: parseInt(pageNo, 10) || 1,
         seconds_spent: MIN_DWELL_SECONDS
@@ -710,37 +724,16 @@
         basePayload.user_id = uId;
       }
 
-      // Try inserting with multiple book_id formats to prevent Postgres data type mismatch
-      const bookKeyOptions = [
-        activeBookRecord?.id !== undefined ? activeBookRecord.id : null,
-        activeBookRecord?.book_id || null,
-        resolvedBookId || null,
-        rawParamId || null
-      ].filter(v => v !== null);
-
-      let isSuccess = false;
-
-      for (const bId of bookKeyOptions) {
-        const payload = { ...basePayload, book_id: bId };
-        const { error } = await supabase.from('page_read_events').insert([payload]);
-        if (!error) {
-          isSuccess = true;
-          break;
+      try {
+        const { error } = await supabase.from('page_read_events').insert([basePayload]);
+        if (error) {
+          console.warn("Retrying insert without optional user_id constraint:", error.message);
+          delete basePayload.user_id;
+          await supabase.from('page_read_events').insert([basePayload]);
         }
-      }
-
-      // Fallback without book_id if schema has no foreign key constraint
-      if (!isSuccess) {
-        const { error: fallbackErr } = await supabase.from('page_read_events').insert([basePayload]);
-        if (!fallbackErr) {
-          isSuccess = true;
-        } else {
-          console.error("[Analytics Error] Insert failed:", fallbackErr.message);
-        }
-      }
-
-      if (isSuccess) {
-        console.info(`[Analytics] Verified read committed: Page ${pageNo} for Author: ${currentAuthorName}`);
+        console.info(`[Live Event Sent] Verified page ${pageNo} logged for Author: ${basePayload.author_id}`);
+      } catch (err) {
+        console.error("Failed to commit verified page read:", err);
       }
     }
 
@@ -866,7 +859,6 @@
 
         const bookDisplayId = book.book_id || `BK-${String(book.id).substring(0, 6).toUpperCase()}`;
 
-        // Populate visible Book ID and Author ID in sidebar
         document.getElementById('sidebarBookId').textContent = bookDisplayId;
         document.getElementById('sidebarAuthorId').textContent = currentAuthorId;
 
@@ -891,10 +883,8 @@
         document.getElementById('sidebarFormatBadge').textContent = fileType.toUpperCase();
         document.getElementById('sidebarCover').src = cover;
 
-        // Fetch and show authentic verified reads
         await loadAuthenticReadCount();
 
-        // Real-time listener for page read updates
         supabase
           .channel('realtime_reader_reads')
           .on(

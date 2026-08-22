@@ -193,7 +193,7 @@
           <div>
             <div class="d-flex align-items-center gap-2">
               <h5 class="fw-bold mb-0 text-dark">
-                <i class="fa-solid fa-book-reader text-success me-2"></i>Author Page Consumption Analytics (&gt;10s Verified Reads)
+                <i class="fa-solid fa-book-reader text-success me-2"></i>Author Page Consumption Analytics (&gt;10s Verified Reads)[cite: 13]
               </h5>
               <span class="badge bg-success rounded-pill px-3 py-2" id="totalVerifiedPagesCount">0 Pages Read</span>
             </div>
@@ -201,17 +201,14 @@
           </div>
 
           <div class="d-flex align-items-center gap-2">
-            <!-- Year & Month Filter -->
             <select id="authorMonthYearFilter" class="form-select form-select-sm border-secondary fw-semibold" style="width: 170px;">
               <option value="all">All Time Records</option>
             </select>
 
-            <!-- Refresh Button -->
             <button class="btn btn-sm btn-outline-primary fw-semibold" id="refreshAuthorAnalyticsBtn">
               <i class="fa-solid fa-rotate me-1"></i> Refresh
             </button>
 
-            <!-- Reset Reads Button -->
             <button class="btn btn-sm btn-outline-danger fw-semibold" id="resetAllReadsBtn" title="Reset all page reads to 0">
               <i class="fa-solid fa-trash-can me-1"></i> Reset Reads
             </button>
@@ -251,7 +248,7 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
             <h5 class="fw-bold mb-1 text-dark"><i class="fa-solid fa-tags text-warning me-2"></i>Membership Pricing & Special Plan Controls</h5>
-            <p class="text-muted small mb-0">Set pricing for users and toggle special promotional passes (Weekly, 15 Days, or custom duration).</p>
+            <p class="text-muted small mb-0">Set pricing for users and toggle special promotional passes.</p>
           </div>
           <button class="btn btn-primary btn-sm fw-bold px-3" id="savePlanConfigBtn">
             <i class="fa-solid fa-floppy-disk me-1"></i> Save Plan Prices
@@ -286,7 +283,7 @@
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex align-items-center gap-2">
               <i class="fa-solid fa-wand-magic-sparkles text-primary fs-5"></i>
-              <span class="fw-bold text-dark">Special Promotional Plan (Limited / Trial)</span>
+              <span class="fw-bold text-dark">Special Promotional Plan</span>
             </div>
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="cfgSpecialEnable" style="width: 2.8em; height: 1.4em; cursor: pointer;">
@@ -302,10 +299,9 @@
             <div class="col-md-4">
               <label class="form-label small fw-semibold">Validity Duration</label>
               <select class="form-select form-select-sm" id="cfgSpecialDuration">
-                <option value="7">7 Days (1 Week)</option>
+                <option value="7">7 Days</option>
                 <option value="15" selected>15 Days</option>
-                <option value="30">30 Days (Special Month)</option>
-                <option value="45">45 Days</option>
+                <option value="30">30 Days</option>
               </select>
             </div>
             <div class="col-md-4">
@@ -319,86 +315,16 @@
         </div>
       </div>
 
-      <div class="row g-4 mb-4">
-        <div class="col-md-4">
-          <div class="card stat-card p-4 border-start border-secondary border-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="text-muted text-uppercase fw-bold mb-0">Monthly Pass</h6>
-              <span class="badge bg-secondary">Monthly</span>
-            </div>
-            <h3 class="fw-bold text-dark mb-1" id="subCountMonthly">0 Subscribers</h3>
-            <p class="text-success fw-semibold small mb-0">Revenue: <span id="subRevenueMonthly">₹0</span></p>
-          </div>
-        </div>
-
-        <div class="col-md-4">
-          <div class="card stat-card p-4 border-start border-info border-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="text-info text-uppercase fw-bold mb-0">Quarterly Pass</h6>
-              <span class="badge bg-info text-dark">Quarterly</span>
-            </div>
-            <h3 class="fw-bold text-dark mb-1" id="subCountQuarterly">0 Subscribers</h3>
-            <p class="text-success fw-semibold small mb-0">Revenue: <span id="subRevenueQuarterly">₹0</span></p>
-          </div>
-        </div>
-
-        <div class="col-md-4">
-          <div class="card stat-card p-4 border-start border-warning border-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="text-warning text-uppercase fw-bold mb-0">Yearly Pass</h6>
-              <span class="badge bg-warning text-dark">Yearly</span>
-            </div>
-            <h3 class="fw-bold text-dark mb-1" id="subCountAnnual">0 Subscribers</h3>
-            <p class="text-success fw-semibold small mb-0">Revenue: <span id="subRevenueAnnual">₹0</span></p>
-          </div>
-        </div>
-      </div>
-
       <div class="card stat-card p-0 overflow-hidden">
-        <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
-          <div class="d-flex align-items-center gap-2">
-            <h5 class="fw-bold mb-0 text-dark">Subscriber Directory</h5>
-            <span class="badge bg-primary rounded-pill ms-2" id="filteredSubscribersCount">0 Total</span>
-          </div>
-
-          <div class="d-flex align-items-center gap-2">
-            <select id="subMonthFilter" class="form-select form-select-sm border-secondary fw-semibold">
-              <option value="all">All Months</option>
-            </select>
-
-            <select id="subPlanFilter" class="form-select form-select-sm border-secondary fw-semibold">
-              <option value="all">All Plans</option>
-              <option value="monthly">Monthly</option>
-              <option value="quarterly">Quarterly</option>
-              <option value="yearly">Yearly</option>
-              <option value="special">Special Pass</option>
-            </select>
-            <button class="btn btn-sm btn-outline-primary" id="refreshSubsBtn">
-              <i class="fa-solid fa-rotate-right me-1"></i> Refresh
-            </button>
-          </div>
+        <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold mb-0 text-dark">Subscriber Directory</h5>
+          <button class="btn btn-sm btn-outline-primary" id="refreshSubsBtn"><i class="fa-solid fa-rotate-right me-1"></i> Refresh</button>
         </div>
-
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-              <thead class="table-light text-secondary small">
-                <tr>
-                  <th class="ps-4">Subscription ID</th>
-                  <th>User ID</th>
-                  <th>Subscriber Name</th>
-                  <th>Plan Tier</th>
-                  <th>Subscription Period</th>
-                  <th>Amount</th>
-                  <th class="pe-4">Validity</th>
-                </tr>
-              </thead>
               <tbody id="subscribersTableBody">
-                <tr>
-                  <td colspan="7" class="text-center py-5 text-muted">
-                    <div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading subscription records...
-                  </td>
-                </tr>
+                <tr><td class="text-center py-4 text-muted">Loading subscriptions...</td></tr>
               </tbody>
             </table>
           </div>
@@ -408,62 +334,20 @@
 
     <!-- SECTION 3: BOOK APPROVAL PIPELINE -->
     <div id="approvalSection" class="content-section d-none">
-      <div class="row g-3 mb-3">
-        <div class="col-md-4">
-          <div class="card stat-card p-3 border-start border-primary border-4 d-flex flex-row align-items-center justify-content-between">
-            <div>
-              <span class="text-muted small fw-semibold">Total Submissions</span>
-              <h4 class="fw-bold mb-0 text-dark" id="totalBooksCount">0</h4>
-            </div>
-            <i class="fa-solid fa-book-bookmark text-primary fs-3 opacity-50"></i>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card stat-card p-3 border-start border-success border-4 d-flex flex-row align-items-center justify-content-between">
-            <div>
-              <span class="text-muted small fw-semibold" id="monthUploadTitle">Uploaded in Selected Month</span>
-              <h4 class="fw-bold mb-0 text-success" id="monthBooksCount">0</h4>
-            </div>
-            <i class="fa-solid fa-calendar-check text-success fs-3 opacity-50"></i>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card stat-card p-3 border-start border-warning border-4 d-flex flex-row align-items-center justify-content-between">
-            <div>
-              <span class="text-muted small fw-semibold">Pending Review</span>
-              <h4 class="fw-bold mb-0 text-warning" id="pendingBooksCount">0</h4>
-            </div>
-            <i class="fa-solid fa-hourglass-half text-warning fs-3 opacity-50"></i>
-          </div>
-        </div>
-      </div>
-
       <div class="card stat-card p-0 overflow-hidden">
         <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
           <div>
             <h5 class="fw-bold mb-0 text-dark">Book Approval & Catalog Pipeline</h5>
-            <p class="small text-muted mb-0">Search titles/IDs, filter by submission month, control publishing rights, and view uploader Author IDs.</p>
+            <p class="small text-muted mb-0">Manage published books, verify Author IDs, and control publication rights.</p>
           </div>
-
-          <div class="d-flex flex-wrap align-items-center gap-2">
+          <div class="d-flex gap-2">
             <input type="text" id="bookSearchInput" class="form-control form-control-sm" placeholder="Search Title, Author, ID..." style="width: 220px;">
-            
             <select id="bookMonthFilter" class="form-select form-select-sm border-secondary fw-semibold" style="width: 160px;">
               <option value="all">All Months</option>
             </select>
-
-            <select id="bookStatusFilter" class="form-select form-select-sm border-secondary fw-semibold" style="width: 140px;">
-              <option value="all">All Status</option>
-              <option value="published">Published</option>
-              <option value="under_review">Under Review</option>
-            </select>
-
-            <button class="btn btn-sm btn-outline-primary" id="refreshApprovalBtn">
-              <i class="fa-solid fa-rotate-right me-1"></i> Refresh
-            </button>
+            <button class="btn btn-sm btn-outline-primary" id="refreshApprovalBtn"><i class="fa-solid fa-rotate-right me-1"></i> Refresh</button>
           </div>
         </div>
-
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
@@ -481,11 +365,7 @@
                 </tr>
               </thead>
               <tbody id="approvalBooksList">
-                <tr>
-                  <td colspan="9" class="text-center py-5 text-muted">
-                    <div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading pipeline...
-                  </td>
-                </tr>
+                <tr><td colspan="9" class="text-center py-4 text-muted">Loading pipeline...</td></tr>
               </tbody>
             </table>
           </div>
@@ -570,7 +450,6 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let allBooksData = [];
-    let allSubscribersData = [];
     let usersProfileMap = {};
     let rawReadEventsData = [];
     let authorAnalyticsMap = {};
@@ -785,7 +664,6 @@
         document.getElementById('calcAuthorPool').textContent = `₹${globalAuthorPool.toLocaleString('en-IN')}`;
         document.getElementById('calcOps').textContent = `₹${opsReserve.toLocaleString('en-IN')}`;
 
-        // Fetch all verified page read events
         const { data: readEvents, error } = await supabase
           .from('page_read_events')
           .select('*')
@@ -949,7 +827,7 @@
         fetchDashboardStats();
       });
 
-      // Real-time listener for page read events
+      // Realtime listener for read events updates
       supabase
         .channel('realtime_admin_page_reads')
         .on(
