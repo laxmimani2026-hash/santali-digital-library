@@ -211,7 +211,7 @@
               <i class="fa-solid fa-rotate me-1"></i> Refresh
             </button>
 
-            <!-- Reset All Reads Button -->
+            <!-- Reset Reads Button -->
             <button class="btn btn-sm btn-outline-danger fw-semibold" id="resetAllReadsBtn" title="Reset all page reads to 0">
               <i class="fa-solid fa-trash-can me-1"></i> Reset Reads
             </button>
@@ -959,7 +959,6 @@
     let allUsersData = [];
     let allBooksData = [];
     let usersProfileMap = {};
-    let globalMessages = [];
     let rawReadEventsData = [];
     let authorAnalyticsMap = {};
     let globalAuthorPool = 0;
@@ -1176,7 +1175,7 @@
         document.getElementById('calcAuthorPool').textContent = `₹${globalAuthorPool.toLocaleString('en-IN')}`;
         document.getElementById('calcOps').textContent = `₹${opsReserve.toLocaleString('en-IN')}`;
 
-        // 1. Fetch valid book IDs from books table to eliminate phantom statistics
+        // 1. Fetch valid book IDs from books table
         const { data: activeBooks } = await supabase.from('books').select('id, book_id');
         const validBookSet = new Set(
           (activeBooks || []).flatMap(b => [String(b.id), b.book_id]).filter(Boolean)
@@ -1811,7 +1810,7 @@
           const { error } = await supabase
             .from('page_read_events')
             .delete()
-            .gte('seconds_spent', 0);
+            .not('id', 'is', null);
 
           if (error) throw error;
 
@@ -1825,14 +1824,16 @@
         }
       });
 
-      // Realtime page read events listener
+      // Realtime listener for read events updates & deletions
       supabase
         .channel('realtime_page_reads')
         .on(
           'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'page_read_events' },
+          { event: '*', schema: 'public', table: 'page_read_events' },
           (payload) => {
-            showToast(`New read recorded: ${payload.new.author_name} (Page ${payload.new.page_number})`);
+            if (payload.eventType === 'INSERT') {
+              showToast(`New read recorded: ${payload.new.author_name || 'Author'} (Page ${payload.new.page_number || ''})`);
+            }
             fetchDashboardStats();
           }
         )

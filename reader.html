@@ -581,7 +581,7 @@
           if (error) {
             console.error("Supabase insert error:", error.message);
           } else {
-            console.info(`[Analytics] Verified page read recorded: Page ${activeTrackedPage} for Author: ${currentAuthorName}`);
+            console.info(`[Analytics] Verified read logged: Page ${activeTrackedPage} for Author: ${currentAuthorName}`);
           }
         } catch (error) {
           console.error("Failed to log verified page read:", error);
@@ -599,6 +599,8 @@
       const payload = {
         user_id: currentUser.id,
         book_id: String(resolvedBookId),
+        author_id: String(currentAuthorId || ''),
+        author_name: currentAuthorName,
         pages_read: p,
         total_pages: t,
         status: readingStatus,
@@ -776,7 +778,10 @@
       });
 
       const initialTarget = targetCfi || undefined;
-      epubRendition.display(initialTarget).then(() => hideLoader());
+      epubRendition.display(initialTarget).then(() => {
+        hideLoader();
+        startPageDwellTracker(targetPage || 1);
+      });
 
       let currentGeneratedPage = targetPage || 1;
       let totalGeneratedPages = 100;
