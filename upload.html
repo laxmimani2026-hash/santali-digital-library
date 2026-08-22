@@ -280,14 +280,14 @@
 
         lockedUserId = user.id;
 
-        // 2. Fetch profile EXACTLY like author-dashboard.html does[cite: 1]
+        // 2. Fetch profile EXACTLY like author-dashboard.html does
         const { data: profile } = await supabase
           .from('profiles')
           .select('user_uid, first_name, last_name, full_name, role, avatar_url')
           .eq('id', user.id)
           .maybeSingle();
 
-        // 3. Lock the UID globally[cite: 1]
+        // 3. Lock the UID globally
         lockedUserUid = profile?.user_uid || `SDL-${user.id.substring(0, 6).toUpperCase()}`;
 
         // 4. Determine Name
@@ -462,12 +462,12 @@
         const randomId = Math.random().toString(36).substring(2, 8).toUpperCase();
         const generatedBookId = `BK-${randomId}`;
 
-        // Send locked IDs directly to the DB to ensure dashboard visibility
+        // GUARANTEED FIX: Ensure the Admin Dashboard sees the string ID
         const insertPayload = {
           book_id: generatedBookId,
-          author_id: lockedUserId, // Ties to user's auth ID
-          user_uid: lockedUserUid, // Ties to user's assigned ID string (e.g., SDL-3M4LMA)
-          uploader_id: lockedUserId,
+          author_id: lockedUserUid,  // <--- CHANGED: Now sends the short string ID (e.g. SDL-3M4LMA)
+          user_uid: lockedUserUid,   // <--- Sends the short string ID here too
+          uploader_id: lockedUserId, // Keeps the database UUID for strict system tracking
           title: title,
           author: author,
           category: category,
