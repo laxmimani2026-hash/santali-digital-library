@@ -154,27 +154,39 @@
     /* Hero Banner */
     .hero-teal {
       background: linear-gradient(150deg, #08362c 0%, var(--bg-dark) 45%, var(--bg-dark-light) 100%);
+      background-size: 220% 220%;
+      animation: heroGradientDrift 20s ease-in-out infinite;
       color: #ffffff;
-      padding: 100px 0 130px;
+      padding: 100px 0 140px;
       text-align: center;
       position: relative;
       overflow: hidden;
       transition: background 0.3s ease;
     }
+    @keyframes heroGradientDrift {
+      0%, 100% { background-position: 0% 30%; }
+      50% { background-position: 100% 70%; }
+    }
     .hero-teal::before {
       content: "";
       position: absolute;
-      inset: 0;
+      inset: -30px;
       background-image: radial-gradient(rgba(255,255,255,.09) 1.5px, transparent 1.5px);
       background-size: 26px 26px;
+      animation: dotsDrift 32s linear infinite;
       pointer-events: none;
+    }
+    @keyframes dotsDrift {
+      from { background-position: 0 0; }
+      to { background-position: 260px 130px; }
     }
     .hero-teal::after {
       content: "ᱚᱲᱟᱜ";
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -55%);
+      transform: translate(-50%, -55%) scale(1);
+      transform-origin: center;
       font-family: 'Playfair Display', serif;
       font-size: 34vw;
       font-weight: 700;
@@ -182,6 +194,11 @@
       pointer-events: none;
       white-space: nowrap;
       line-height: 1;
+      animation: watermarkBreathe 12s ease-in-out infinite;
+    }
+    @keyframes watermarkBreathe {
+      0%, 100% { transform: translate(-50%, -55%) scale(1) rotate(0deg); }
+      50% { transform: translate(-50%, -53%) scale(1.035) rotate(.6deg); }
     }
     .hero-glow {
       position: absolute;
@@ -192,8 +209,16 @@
       filter: blur(10px);
       pointer-events: none;
     }
-    .hero-glow.glow-1 { top: -160px; left: -120px; }
-    .hero-glow.glow-2 { bottom: -200px; right: -140px; background: radial-gradient(circle, rgba(18,113,92,.5), transparent 70%); }
+    .hero-glow.glow-1 { top: -160px; left: -120px; animation: floatBlob1 14s ease-in-out infinite; }
+    .hero-glow.glow-2 { bottom: -200px; right: -140px; background: radial-gradient(circle, rgba(18,113,92,.5), transparent 70%); animation: floatBlob2 17s ease-in-out infinite; }
+    @keyframes floatBlob1 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(40px, 30px) scale(1.08); }
+    }
+    @keyframes floatBlob2 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-35px, -25px) scale(1.06); }
+    }
     .hero-teal .container { position: relative; z-index: 1; }
     .hero-eyebrow {
       display: inline-flex;
@@ -226,9 +251,15 @@
     .search-btn { background: var(--primary-gold); color: #1c2b27; border: none; font-weight: 700; padding: 0 26px; border-radius: 999px !important; }
     .search-btn:hover { background: var(--gold-dark); color: #fff; }
 
-    /* Hero-to-page wave transition */
-    .hero-wave { position: absolute; left: 0; bottom: -1px; width: 100%; line-height: 0; z-index: 2; pointer-events: none; }
-    .hero-wave svg { width: 100%; height: 64px; display: block; }
+    /* Hero-to-page wave transition — two looping layers for a gentle living motion */
+    .hero-wave { position: absolute; left: 0; bottom: -1px; width: 100%; height: 76px; overflow: hidden; line-height: 0; z-index: 2; pointer-events: none; }
+    .wave-layer { position: absolute; left: 0; bottom: 0; width: 200%; height: 76px; display: block; }
+    .wave-back { animation: waveFlow 30s linear infinite; opacity: .55; }
+    .wave-front { animation: waveFlow 18s linear infinite reverse; }
+    @keyframes waveFlow {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
 
     /* Professional Marquee (Slider) Styles */
     .marquee-wrapper {
@@ -592,8 +623,13 @@
       </div>
     </div>
     <div class="hero-wave">
-      <svg viewBox="0 0 1440 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0,40 C240,90 480,0 720,30 C960,60 1200,100 1440,50 L1440,100 L0,100 Z" fill="#ffffff"></path>
+      <svg class="wave-layer wave-back" viewBox="0 0 2880 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path id="waveBackPath" d="M0,75 C240,30 480,115 720,70 C960,25 1200,100 1440,60 L1440,120 L0,120 Z" fill="rgba(255,255,255,.55)"></path>
+        <use href="#waveBackPath" x="1440"></use>
+      </svg>
+      <svg class="wave-layer wave-front" viewBox="0 0 2880 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path id="waveFrontPath" d="M0,95 C300,50 600,130 900,85 C1140,50 1300,105 1440,80 L1440,120 L0,120 Z" fill="#ffffff"></path>
+        <use href="#waveFrontPath" x="1440"></use>
       </svg>
     </div>
   </header>
