@@ -402,13 +402,16 @@
     const rawParamId = urlParams.get('id') || urlParams.get('book_id');
     const paramPage = parseInt(urlParams.get('page'), 10) || null;
     const paramCfi = urlParams.get('cfi') || null;
+    const paramAuthorId = urlParams.get('author_id') || null;
+    const paramAuthorName = urlParams.get('author') || null;
 
     let epubBook = null;
     let epubRendition = null;
     let currentUser = null;
     let resolvedBookId = null;
-    let currentAuthorId = null;
-    let currentAuthorName = 'Unknown Author';
+    let resolvedBookTitle = '';
+    let currentAuthorId = paramAuthorId;
+    let currentAuthorName = paramAuthorName || 'Unknown Author';
     let currentFontSize = 100;
     let currentFontFamily = "'Lora', Georgia, serif";
     let currentThemeBg = '#ffffff';
@@ -418,9 +421,10 @@
     let resumeCfi = paramCfi;
     let resumePage = paramPage;
 
-    // 10-Second Page Dwell Tracker Variables
+    // 10-Second Page Dwell Tracking Variables
     let pageDwellTimer = null;
     let activeTrackedPage = null;
+    const recordedPagesSet = new Set();
     const MIN_DWELL_SECONDS = 10;
 
     const leftSidebar = document.getElementById('leftSidebar');
@@ -556,7 +560,7 @@
       }
     }
 
-    // Verified Page Read Logger (>10s Dwell)
+    // Verified Page Read Logger (>10s Dwell with anti-skew guard)
     function startPageDwellTracker(pageNo) {
       if (pageDwellTimer) {
         clearTimeout(pageDwellTimer);
@@ -567,11 +571,18 @@
         if (!resolvedBookId) return;
 
         const uId = currentUser ? currentUser.id : null;
+        const uniqueKey = `${resolvedBookId}-${activeTrackedPage}-${uId || 'guest'}`;
+
+        // Ensure the exact same page is not logged multiple times in the same session
+        if (recordedPagesSet.has(uniqueKey)) {
+          return;
+        }
 
         try {
           const { error } = await supabase.from('page_read_events').insert({
             user_id: uId,
             book_id: String(resolvedBookId),
+            book_title: resolvedBookTitle,
             author_id: String(currentAuthorId || ''),
             author_name: currentAuthorName,
             page_number: activeTrackedPage,
@@ -581,7 +592,8 @@
           if (error) {
             console.error("Supabase insert error:", error.message);
           } else {
-            console.info(`[Analytics] Verified page read recorded: Page ${activeTrackedPage} for Author: ${currentAuthorName}`);
+            recordedPagesSet.add(uniqueKey);
+            console.info(`[Analytics] Verified read (>10s) recorded for "${resolvedBookTitle}", Page ${activeTrackedPage} -> Author: ${currentAuthorName}`);
           }
         } catch (error) {
           console.error("Failed to log verified page read:", error);
@@ -599,6 +611,8 @@
       const payload = {
         user_id: currentUser.id,
         book_id: String(resolvedBookId),
+        author_id: String(currentAuthorId || ''),
+        author_name: currentAuthorName,
         pages_read: p,
         total_pages: t,
         status: readingStatus,
@@ -700,8 +714,11 @@
         if (!book) throw new Error("Book record not found in database.");
 
         resolvedBookId = book.book_id || book.id;
-        currentAuthorId = book.author_id || book.user_id || `AUTH-${String(book.author || '001').substring(0, 5).toUpperCase()}`;
-        currentAuthorName = book.author || book.author_name || 'Unknown Author';
+        resolvedBookTitle = book.title || book.book_name || 'Untitled Book';
+        
+        // Ensure author fields are cleanly populated
+        currentAuthorName = book.author || book.author_name || paramAuthorName || 'Unknown Author';
+        currentAuthorId = book.author_id || book.user_id || paramAuthorId || `AUTH-${currentAuthorName.replace(/\s+/g, '').substring(0, 6).toUpperCase()}`;
 
         if (!resumePage && !resumeCfi) {
           const pastProgress = await fetchLastReadingProgress(resolvedBookId);
@@ -711,7 +728,7 @@
           }
         }
 
-        const title = book.title || book.book_name || 'Untitled Book';
+        const title = resolvedBookTitle;
         const description = book.description || book.summary || 'No description available.';
         const cover = book.cover_url || book.thumbnail_url || book.image_url || 'https://placehold.co/130x180/5c4bca/ffffff?text=eBook';
         const fileUrl = book.file_url || book.pdf_url || book.epub_url || book.download_url || book.book_url;
