@@ -655,19 +655,19 @@
       try {
         const { data, error } = await supabase
           .from('page_read_events')
-          .select('id, book_id, author_name, author_id');
+          .select('id, book_id');
 
         if (!error && Array.isArray(data)) {
           const matching = data.filter(evt => {
             const matchBook = resolvedBookId && String(evt.book_id) === String(resolvedBookId);
             const matchNumeric = activeBookRecord?.id && String(evt.book_id) === String(activeBookRecord.id);
-            const matchAuthor = currentAuthorName && evt.author_name && evt.author_name.toLowerCase() === currentAuthorName.toLowerCase();
-            const matchAuthId = currentAuthorId && evt.author_id && String(evt.author_id) === String(currentAuthorId);
-            return matchBook || matchNumeric || matchAuthor || matchAuthId;
+            return matchBook || matchNumeric;
           });
 
           totalVerifiedReads = Math.max(totalVerifiedReads, matching.length);
           updateVerifiedReadsDisplay();
+        } else if (error) {
+          console.error("Could not fetch read events count:", error.message);
         }
       } catch (err) {
         console.warn("Could not fetch read events count:", err);
@@ -767,8 +767,6 @@
     async function commitVerifiedReadEvent(pageNo) {
       const basePayload = {
         book_id: String(resolvedBookId || activeBookRecord?.book_id || activeBookRecord?.id || rawParamId || 'BK-1'),
-        author_id: String(currentAuthorId || 'AUTH-SDL'),
-        author_name: String(currentAuthorName || 'Unknown Author'),
         page_number: parseInt(pageNo, 10) || 1,
         seconds_spent: MIN_DWELL_SECONDS
       };
@@ -794,7 +792,7 @@
 
         totalVerifiedReads += 1;
         updateVerifiedReadsDisplay();
-        console.info(`[Success] Verified page ${pageNo} committed to DB for Author ID: ${basePayload.author_id}`, data);
+        console.info(`[Success] Verified page ${pageNo} committed to DB for book: ${basePayload.book_id}`, data);
         return true;
       } catch (err) {
         console.error("Network exception committing verified page read:", err);
@@ -813,7 +811,6 @@
         user_id: currentUser.id,
         book_id: String(resolvedBookId),
         author_id: String(currentAuthorId || ''),
-        author_name: currentAuthorName,
         pages_read: p,
         total_pages: t,
         status: readingStatus,
@@ -828,7 +825,16 @@
           .upsert(payload, { onConflict: 'user_id,book_id' });
 
         if (error) {
-          console.error("Reading progress sync error details:", error.message);
+          console.error("Reading progress sync error:", error.message, error.details || '');
+          // Retry without author_id too, in case that column also doesn't exist
+          // on this table (only pages_read/total_pages/status are essential).
+          delete payload.author_id;
+          const { error: retryErr } = await supabase
+            .from('reading_progress')
+            .upsert(payload, { onConflict: 'user_id,book_id' });
+          if (retryErr) {
+            console.error("Retry reading progress sync failed:", retryErr.message, retryErr.details || '');
+          }
         }
       } catch (err) {
         console.error("Network exception during progress save:", err);
