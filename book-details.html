@@ -456,7 +456,7 @@
     <div class="book-detail-card">
       <div class="row g-0">
         
-        <!-- Left Stage: 3D Cover Display -->
+        <!-- Left Stage: Cover Display -->
         <div class="col-lg-5 col-md-5">
           <div class="cover-panel">
             <div class="book-cover-container">
@@ -567,7 +567,7 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const bookId = urlParams.get('id');
+      const rawBookId = urlParams.get('id');
 
       const pageAlert = document.getElementById('pageAlert');
       const coverEl = document.getElementById('detailCover');
@@ -637,33 +637,62 @@
         window.location.href = 'login.html';
       });
 
-      if (!bookId) {
+      if (!rawBookId) {
         showPageAlert("No book ID provided in URL.", "danger");
         return;
       }
 
-      // 2. Fetch specific book metadata with safe multi-stage fallback
+      // Safe multi-stage book lookup function
+      async function retrieveBook(paramVal) {
+        const clean = decodeURIComponent(String(paramVal)).trim();
+
+        // 1. Check exact book_id match (string identifier, e.g. "BK-AY5WKO")
+        try {
+          const { data: b1, error: err1 } = await supabase.from('books').select('*').eq('book_id', clean).maybeSingle();
+          if (!err1 && b1) return b1;
+        } catch (e) {}
+
+        // 2. Check integer id match if numeric
+        if (/^\d+$/.test(clean)) {
+          try {
+            const { data: b2, error: err2 } = await supabase.from('books').select('*').eq('id', parseInt(clean, 10)).maybeSingle();
+            if (!err2 && b2) return b2;
+          } catch (e) {}
+        }
+
+        // 3. Check UUID id match if valid UUID format
+        if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(clean)) {
+          try {
+            const { data: b3, error: err3 } = await supabase.from('books').select('*').eq('id', clean).maybeSingle();
+            if (!err3 && b3) return b3;
+          } catch (e) {}
+        }
+
+        // 4. Check title match
+        try {
+          const { data: b4, error: err4 } = await supabase.from('books').select('*').ilike('title', clean).maybeSingle();
+          if (!err4 && b4) return b4;
+        } catch (e) {}
+
+        // 5. Fallback scan to guarantee match across catalog
+        try {
+          const { data: allList, error: err5 } = await supabase.from('books').select('*').limit(100);
+          if (!err5 && allList) {
+            const matched = allList.find(b => 
+              String(b.id) === clean || 
+              String(b.book_id) === clean || 
+              (b.title && b.title.toLowerCase() === clean.toLowerCase())
+            );
+            if (matched) return matched;
+          }
+        } catch (e) {}
+
+        return null;
+      }
+
+      // Fetch book metadata and populate UI
       try {
-        let book = null;
-
-        // Stage A: Try integer lookup if purely numeric
-        if (/^\d+$/.test(bookId)) {
-          const { data: bById } = await supabase.from('books').select('*').eq('id', parseInt(bookId, 10)).maybeSingle();
-          if (bById) book = bById;
-        }
-
-        // Stage B: Try exact book_id match (string identifier)
-        if (!book) {
-          const { data: bByBookId } = await supabase.from('books').select('*').eq('book_id', String(bookId)).maybeSingle();
-          if (bByBookId) book = bByBookId;
-        }
-
-        // Stage C: Try title match fallback
-        if (!book) {
-          const { data: bByTitle } = await supabase.from('books').select('*').ilike('title', String(bookId)).maybeSingle();
-          if (bByTitle) book = bByTitle;
-        }
-
+        const book = await retrieveBook(rawBookId);
         if (!book) throw new Error("Book record not found in library catalog.");
 
         coverEl.src = book.cover_url || 'https://via.placeholder.com/240x350?text=No+Cover';
