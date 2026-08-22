@@ -629,18 +629,24 @@
     // Fetch and display authentic read count for this author/book
     async function loadAuthenticReadCount() {
       try {
-        let query = supabase.from('page_read_events').select('*', { count: 'exact', head: true });
-        
-        if (currentAuthorName && currentAuthorName !== 'Unknown Author') {
-          query = query.eq('author_name', currentAuthorName);
-        } else if (resolvedBookId) {
-          query = query.eq('book_id', String(resolvedBookId));
-        }
+        const { data, error } = await supabase
+          .from('page_read_events')
+          .select('id, book_id, author_name, author_id');
 
-        const { count, error } = await query;
-        if (!error && count !== null) {
-          totalVerifiedReads = count;
-          document.getElementById('sidebarVerifiedReadsCount').textContent = `${totalVerifiedReads.toLocaleString('en-IN')} Pages Read`;
+        if (!error && data) {
+          const matching = data.filter(evt => {
+            const matchBook = resolvedBookId && String(evt.book_id) === String(resolvedBookId);
+            const matchNumeric = activeBookRecord?.id && String(evt.book_id) === String(activeBookRecord.id);
+            const matchAuthor = currentAuthorName && evt.author_name && evt.author_name.toLowerCase() === currentAuthorName.toLowerCase();
+            const matchAuthId = currentAuthorId && evt.author_id && String(evt.author_id) === String(currentAuthorId);
+            return matchBook || matchNumeric || matchAuthor || matchAuthId;
+          });
+
+          totalVerifiedReads = matching.length;
+          const countEl = document.getElementById('sidebarVerifiedReadsCount');
+          if (countEl) {
+            countEl.textContent = `${totalVerifiedReads.toLocaleString('en-IN')} Pages Read`;
+          }
         }
       } catch (err) {
         console.warn("Could not fetch read events count:", err);
@@ -684,7 +690,6 @@
       const activeUser = userRes.data?.user || currentUser;
       const uId = activeUser ? activeUser.id : null;
 
-      // Base payload
       const basePayload = {
         author_id: String(currentAuthorId || ''),
         author_name: String(currentAuthorName || 'Unknown Author'),
@@ -725,8 +730,7 @@
       }
 
       if (isSuccess) {
-        totalVerifiedReads++;
-        document.getElementById('sidebarVerifiedReadsCount').textContent = `${totalVerifiedReads.toLocaleString('en-IN')} Pages Read`;
+        await loadAuthenticReadCount();
         console.info(`[Analytics] Verified read committed: Page ${pageNo} for Author: ${currentAuthorName}`);
       }
     }
@@ -846,7 +850,11 @@
 
         resolvedBookId = book.book_id || String(book.id);
         currentAuthorName = book.author || book.author_name || currentAuthorName || 'Unknown Author';
-        currentAuthorId = book.author_id || book.user_id || currentAuthorId || `AUTH-${String(currentAuthorName).replace(/\s+/g, '').substring(0, 6).toUpperCase()}`;
+        
+        // Clean Author ID
+        currentAuthorId = book.author_id && book.author_id !== 'null' && book.author_id !== ''
+          ? book.author_id
+          : (book.user_id || `AUTH-${String(currentAuthorName).replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase() || 'SDL'}`);
 
         const bookDisplayId = book.book_id || `BK-${String(book.id).substring(0, 6).toUpperCase()}`;
 
