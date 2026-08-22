@@ -36,9 +36,10 @@
     .meta-val { font-size: 0.95rem; font-weight: 700; color: var(--primary-gold); }
     
     .pricing-card { background: #ffffff; border: 1px solid var(--border-color); border-radius: 16px; padding: 32px 24px; transition: all 0.3s ease; height: 100%; display: flex; flex-direction: column; position: relative; }
-    .pricing-card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.08); border-color: #075e4d; }
+    .pricing-card:hover:not(.disabled-card) { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.08); border-color: #075e4d; }
     .pricing-card.featured { border: 2px solid var(--primary-gold); box-shadow: 0 8px 20px rgba(255, 183, 3, 0.2); }
     .pricing-card.special-card { border: 2px solid #0284c7; background: #f0f9ff; box-shadow: 0 8px 20px rgba(2, 132, 199, 0.15); }
+    .pricing-card.disabled-card { opacity: 0.65; background-color: #fafbfc; border-color: #e2e8f0; cursor: not-allowed; }
     
     .popular-tag { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--primary-gold); color: #000; font-size: 0.72rem; font-weight: 700; padding: 3px 14px; border-radius: 20px; text-transform: uppercase; }
     .special-tag { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #0284c7; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 3px 14px; border-radius: 20px; text-transform: uppercase; }
@@ -51,7 +52,7 @@
     
     .btn-plan { background-color: var(--primary-gold); color: #000; font-weight: 700; border: none; padding: 12px; border-radius: 8px; width: 100%; transition: all 0.2s ease; }
     .btn-plan:hover:not(:disabled) { background-color: var(--primary-hover); }
-    .btn-plan:disabled { background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+    .btn-plan:disabled { background-color: #e2e8f0; color: #64748b; font-weight: 600; cursor: not-allowed; border: 1px solid #cbd5e1; }
   </style>
 </head>
 <body>
@@ -115,6 +116,27 @@
     <!-- Pricing Grid (Dynamically updated from Admin Settings) -->
     <div class="row g-4 justify-content-center" id="pricingGrid">
       
+      <!-- Special Promotional Plan (Tier 0: Weekly/15-Day trial) -->
+      <div class="col-lg-4 col-md-6 d-none" id="colSpecial">
+        <div class="pricing-card special-card" id="cardSpecial">
+          <span class="special-tag"><i class="fa-solid fa-fire me-1"></i> Special Deal</span>
+          <h4 class="fw-bold mb-2" id="displaySpecialTitle">15-Day Special Pass</h4>
+          <p class="text-muted small mb-3">Special promotional reading pass.</p>
+          <div class="mb-3">
+            <span class="price-text" id="displaySpecialPrice">₹49</span>
+            <span class="price-period" id="displaySpecialPeriod">/ 15 days</span>
+          </div>
+          <ul class="plan-features">
+            <li><i class="fa-solid fa-check"></i> Full Access to all Ol Chiki Books</li>
+            <li><i class="fa-solid fa-check"></i> Short-Term Special Access</li>
+            <li><i class="fa-solid fa-check"></i> Instant Online Activation</li>
+          </ul>
+          <button class="btn-plan open-pay-btn" id="btnSpecial" data-tier="0" data-plan="Special Pass" data-days="15" data-price="49" style="background:#0284c7; color:#fff;">
+            Get Special Pass
+          </button>
+        </div>
+      </div>
+
       <!-- Tier 1: Monthly -->
       <div class="col-lg-4 col-md-6" id="colMonthly">
         <div class="pricing-card" id="cardMonthly">
@@ -176,27 +198,6 @@
         </div>
       </div>
 
-      <!-- Special Promotional Plan (Weekly/15-Day trial) -->
-      <div class="col-lg-4 col-md-6 d-none" id="colSpecial">
-        <div class="pricing-card special-card" id="cardSpecial">
-          <span class="special-tag"><i class="fa-solid fa-fire me-1"></i> Special Deal</span>
-          <h4 class="fw-bold mb-2" id="displaySpecialTitle">15-Day Special Pass</h4>
-          <p class="text-muted small mb-3">Special promotional reading pass.</p>
-          <div class="mb-3">
-            <span class="price-text" id="displaySpecialPrice">₹49</span>
-            <span class="price-period" id="displaySpecialPeriod">/ 15 days</span>
-          </div>
-          <ul class="plan-features">
-            <li><i class="fa-solid fa-check"></i> Full Access to all Ol Chiki Books</li>
-            <li><i class="fa-solid fa-check"></i> Short-Term Special Access</li>
-            <li><i class="fa-solid fa-check"></i> Instant Online Activation</li>
-          </ul>
-          <button class="btn-plan open-pay-btn" id="btnSpecial" data-tier="1" data-plan="Special Pass" data-days="15" data-price="49" style="background:#0284c7; color:#fff;">
-            Get Special Pass
-          </button>
-        </div>
-      </div>
-
     </div>
   </main>
 
@@ -239,6 +240,7 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
+    let currentActiveTier = -1; // -1 means no active subscription
     let selectedPlanData = null;
 
     const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
@@ -248,6 +250,17 @@
         try { return JSON.parse(val); } catch(e) { return val; }
       }
       return val || {};
+    }
+
+    // Helper: Determine tier number from plan name string
+    function getTierFromPlanName(name) {
+      if (!name) return -1;
+      const lower = name.toLowerCase();
+      if (lower.includes('annual') || lower.includes('year')) return 3;
+      if (lower.includes('quarter')) return 2;
+      if (lower.includes('month')) return 1;
+      if (lower.includes('special') || lower.includes('day') || lower.includes('week')) return 0;
+      return 1;
     }
 
     async function loadDynamicPricing() {
@@ -281,11 +294,45 @@
             btnSp.setAttribute('data-plan', sp.title || 'Special Pass');
             btnSp.setAttribute('data-days', sp.days || 15);
             btnSp.setAttribute('data-price', sp.price || 49);
+            btnSp.setAttribute('data-tier', '0');
           }
         }
       } catch (e) {
         console.warn("Could not load dynamic prices:", e);
       }
+    }
+
+    // Apply strict hierarchy restrictions (Higher tier only)
+    function enforceTierRestrictions() {
+      const planButtons = document.querySelectorAll('.open-pay-btn');
+
+      planButtons.forEach(btn => {
+        const tier = parseInt(btn.getAttribute('data-tier'), 10);
+        const card = btn.closest('.pricing-card');
+
+        if (currentActiveTier !== -1) {
+          if (tier < currentActiveTier) {
+            // Lower tier -> completely disabled
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-ban me-1"></i> Lower Tier (Disabled)`;
+            if (card) card.classList.add('disabled-card');
+          } else if (tier === currentActiveTier) {
+            // Current tier -> active
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-circle-check me-1"></i> Current Plan`;
+            if (card) card.classList.add('disabled-card');
+          } else {
+            // Higher tier -> allow upgrade
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-arrow-up me-1"></i> Upgrade Plan`;
+            if (card) card.classList.remove('disabled-card');
+          }
+        } else {
+          // No active plan -> all are available
+          btn.disabled = false;
+          if (card) card.classList.remove('disabled-card');
+        }
+      });
     }
 
     async function loadSubscriptionState() {
@@ -302,26 +349,35 @@
         document.getElementById('headerUserBadge').textContent = (profile.role || 'reader').toUpperCase();
       }
 
-      const { data: sub } = await supabase.from('subscriptions').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+      const { data: sub } = await supabase.from('subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (sub && new Date(sub.valid_until) > new Date()) {
+        currentActiveTier = getTierFromPlanName(sub.plan_name);
         document.getElementById('bannerPlanTitle').textContent = sub.plan_name || 'Active Membership Pass';
         document.getElementById('bannerSubId').textContent = sub.subscription_id || 'SUB-ACTIVE';
         document.getElementById('bannerStartDate').textContent = new Date(sub.activated_on || sub.created_at).toLocaleDateString();
         document.getElementById('bannerEndDate').textContent = new Date(sub.valid_until).toLocaleDateString();
       } else {
+        currentActiveTier = -1;
         document.getElementById('bannerPlanTitle').textContent = 'No Active Subscription';
         document.getElementById('bannerMetaRow').style.display = 'none';
       }
+
+      enforceTierRestrictions();
     }
 
     document.addEventListener('click', function(e) {
-      if (e.target.classList.contains('open-pay-btn')) {
+      if (e.target.classList.contains('open-pay-btn') && !e.target.disabled) {
         const btn = e.target;
         selectedPlanData = {
-          tier: parseInt(btn.getAttribute('data-tier')),
+          tier: parseInt(btn.getAttribute('data-tier'), 10),
           planName: btn.getAttribute('data-plan'),
-          days: parseInt(btn.getAttribute('data-days')),
+          days: parseInt(btn.getAttribute('data-days'), 10),
           price: btn.getAttribute('data-price')
         };
 
