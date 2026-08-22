@@ -369,7 +369,7 @@
         <button class="btn btn-sm btn-close d-lg-none" id="closeRightSidebar"></button>
       </h6>
 
-      <!-- Santali Text-to-Speech Widget -->
+      <!-- Santali Text-to-Speech Widget with Phonetic Fallback Support -->
       <div class="mb-4">
         <div class="control-label"><i class="fa-solid fa-volume-high me-1 text-primary"></i> Santali Text-to-Speech</div>
         <div class="d-flex gap-2">
@@ -505,7 +505,18 @@
     document.getElementById('toggleRightDrawerBtn')?.addEventListener('click', () => rightSidebar.classList.toggle('show'));
     document.getElementById('closeRightSidebar')?.addEventListener('click', () => rightSidebar.classList.remove('show'));
 
-    // Santali Text-to-Speech Handler with Voice Fallback
+    // Ol Chiki Character to Phonetic Devanagari/Latin Mapping Map for Browser Fallback Speech Engine
+    const olChikiPhoneticMap = {
+      'ᱚ': 'अ', 'ᱛ': 'त', 'ᱜ': 'ग', 'ᱝ': 'ङ', 'ᱞ': 'ल', 'ᱟ': 'ा', 'ᱠ': 'क', 'ᱡ': 'ज', 'ᱢ': 'म', 'ᱣ': 'व',
+      'ᱤ': 'इ', 'ᱥ': 'स', 'ᱦ': 'ह', 'ᱧ': 'ञ', 'ᱨ': 'र', 'ᱩ': 'उ', 'ᱪ': 'च', 'ᱫ': 'द', 'ᱬ': 'ण', 'ᱭ': 'य',
+      'ᱮ': 'ए', 'ᱯ': 'प', 'ᱰ': 'ड', 'ᱱ': 'न', 'ᱲ': 'ड़', 'ᱳ': 'ओ', 'ᱴ': 'ट', 'ᱵ': 'ब', 'ᱶ': 'व', 'ᱷ': 'ह'
+    };
+
+    function transliterateOlChikiToPhonetic(text) {
+      return text.split('').map(char => olChikiPhoneticMap[char] || char).join('');
+    }
+
+    // Santali Text-to-Speech Handler with Phonetic Fallback
     const ttsPlayBtn = document.getElementById('ttsPlayBtn');
     const ttsStopBtn = document.getElementById('ttsStopBtn');
 
@@ -536,22 +547,21 @@
         return;
       }
 
-      const utterance = new SpeechSynthesisUtterance(textToSpeak);
-      const voices = window.speechSynthesis.getVoices();
-      const santaliVoice = voices.find(v => v.lang.toLowerCase().includes('sat') || v.lang.toLowerCase().includes('santali'));
-      const regionalVoice = voices.find(v => v.lang.toLowerCase().includes('bn') || v.lang.toLowerCase().includes('hi') || v.lang.toLowerCase().includes('in'));
+      // Convert Ol Chiki script characters into a readable phonetic script form for browser synthesis
+      const processedText = transliterateOlChikiToPhonetic(textToSpeak);
 
-      if (santaliVoice) {
-        utterance.voice = santaliVoice;
-        utterance.lang = santaliVoice.lang;
-      } else if (regionalVoice) {
-        utterance.voice = regionalVoice;
-        utterance.lang = regionalVoice.lang;
+      const utterance = new SpeechSynthesisUtterance(processedText);
+      const voices = window.speechSynthesis.getVoices();
+      const hindiOrIndianVoice = voices.find(v => v.lang.toLowerCase().includes('hi') || v.lang.toLowerCase().includes('bn') || v.lang.toLowerCase().includes('in'));
+
+      if (hindiOrIndianVoice) {
+        utterance.voice = hindiOrIndianVoice;
+        utterance.lang = hindiOrIndianVoice.lang;
       } else {
         utterance.lang = 'hi-IN';
       }
 
-      utterance.rate = 0.9;
+      utterance.rate = 0.85; // Slow down slightly for clarity
 
       utterance.onend = () => {
         if (ttsPlayBtn) ttsPlayBtn.innerHTML = '<i class="fa-solid fa-play me-1"></i> Play';
