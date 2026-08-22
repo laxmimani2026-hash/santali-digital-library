@@ -469,6 +469,7 @@
     let epubBook = null;
     let epubRendition = null;
     let currentUser = null;
+    let activeBookRecord = null;
     let resolvedBookId = null;
     let currentAuthorId = urlParams.get('author_id') || null;
     let currentAuthorName = urlParams.get('author') || 'Unknown Author';
@@ -577,9 +578,9 @@
     }
 
     async function initUserSession() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        currentUser = session.user;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        currentUser = user;
         const { data: profile } = await supabase
           .from('profiles')
           .select('full_name, first_name, username')
@@ -597,13 +598,15 @@
 
     async function fetchBookRecord(paramId) {
       if (!paramId) return null;
-      let { data: b1 } = await supabase.from('books').select('*').eq('id', paramId).maybeSingle();
-      if (b1) return b1;
+      if (!isNaN(paramId)) {
+        const { data } = await supabase.from('books').select('*').eq('id', Number(paramId)).maybeSingle();
+        if (data) return data;
+      }
+      const { data } = await supabase.from('books').select('*').eq('book_id', String(paramId)).maybeSingle();
+      if (data) return data;
 
-      let { data: b2 } = await supabase.from('books').select('*').eq('book_id', paramId).maybeSingle();
-      if (b2) return b2;
-
-      return null;
+      const { data: allMatch } = await supabase.from('books').select('*').or(`book_id.eq.${paramId},title.eq.${paramId}`).maybeSingle();
+      return allMatch;
     }
 
     async function fetchLastReadingProgress(bookId) {
@@ -622,15 +625,18 @@
       }
     }
 
-    // Fetch and display authentic read count for this book
+    // Fetch and display authentic read count for this author/book
     async function loadAuthenticReadCount() {
-      if (!resolvedBookId) return;
       try {
-        const { count, error } = await supabase
-          .from('page_read_events')
-          .select('*', { count: 'exact', head: true })
-          .in('book_id', [String(resolvedBookId), String(rawParamId)].filter(Boolean));
+        let query = supabase.from('page_read_events').select('*', { count: 'exact', head: true });
+        
+        if (currentAuthorName && currentAuthorName !== 'Unknown Author') {
+          query = query.eq('author_name', currentAuthorName);
+        } else if (resolvedBookId) {
+          query = query.eq('book_id', String(resolvedBookId));
+        }
 
+        const { count, error } = await query;
         if (!error && count !== null) {
           totalVerifiedReads = count;
           document.getElementById('sidebarVerifiedReadsCount').textContent = `${totalVerifiedReads.toLocaleString('en-IN')} Pages Read`;
@@ -648,6 +654,7 @@
 
       const indicator = document.getElementById('dwellActiveIndicator');
       if (indicator) {
+        indicator.className = "live-dwell-pill";
         indicator.innerHTML = `<span class="dwell-pulse"></span> Verifying: ${dwellSecondsLeft}s`;
       }
 
@@ -658,7 +665,8 @@
           if (dwellSecondsLeft > 0) {
             indicator.innerHTML = `<span class="dwell-pulse"></span> Verifying: ${dwellSecondsLeft}s`;
           } else {
-            indicator.innerHTML = `<i class="fa-solid fa-check text-success me-1"></i> Verified Read!`;
+            indicator.className = "live-dwell-pill bg-success text-white border-success";
+            indicator.innerHTML = `<i class="fa-solid fa-check text-white me-1"></i> Verified Read!`;
           }
         }
 
@@ -671,18 +679,18 @@
     }
 
     async function commitVerifiedReadEvent(pageNo) {
-      if (!resolvedBookId) return;
-
-      const { data: { session } } = await supabase.auth.getSession();
-      const uId = session?.user?.id || currentUser?.id || null;
+      const userRes = await supabase.auth.getUser();
+      const activeUser = userRes.data?.user || currentUser;
+      const uId = activeUser ? activeUser.id : null;
 
       const payload = {
-        book_id: String(resolvedBookId),
+        book_id: String(resolvedBookId || activeBookRecord?.id || activeBookRecord?.book_id || rawParamId || '1'),
         author_id: String(currentAuthorId || ''),
         author_name: String(currentAuthorName || 'Unknown Author'),
         page_number: parseInt(pageNo, 10) || 1,
         seconds_spent: MIN_DWELL_SECONDS
       };
+
       if (uId) {
         payload.user_id = uId;
       }
@@ -692,12 +700,12 @@
         if (!error) {
           totalVerifiedReads++;
           document.getElementById('sidebarVerifiedReadsCount').textContent = `${totalVerifiedReads.toLocaleString('en-IN')} Pages Read`;
-          console.info(`[Analytics] Verified read logged: Page ${pageNo} for Author: ${currentAuthorName}`);
+          console.info(`[Analytics] Verified read committed: Page ${pageNo} for Author: ${currentAuthorName}`);
         } else {
-          console.error("[Analytics Error] Insert failed:", error.message);
+          console.error("[Analytics Error] Supabase Insert Failed:", error.message);
         }
       } catch (error) {
-        console.error("Failed to log verified page read:", error);
+        console.error("Failed to commit verified page read:", error);
       }
     }
 
@@ -812,8 +820,9 @@
       try {
         const book = await fetchBookRecord(rawParamId);
         if (!book) throw new Error("Book record not found in database.");
+        activeBookRecord = book;
 
-        resolvedBookId = book.book_id || book.id;
+        resolvedBookId = book.book_id || String(book.id);
         currentAuthorName = book.author || book.author_name || currentAuthorName || 'Unknown Author';
         currentAuthorId = book.author_id || book.user_id || currentAuthorId || `AUTH-${String(currentAuthorName).replace(/\s+/g, '').substring(0, 6).toUpperCase()}`;
 
@@ -846,6 +855,18 @@
 
         // Fetch and show authentic verified reads
         await loadAuthenticReadCount();
+
+        // Real-time listener for page read updates
+        supabase
+          .channel('realtime_reader_reads')
+          .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'page_read_events' },
+            () => {
+              loadAuthenticReadCount();
+            }
+          )
+          .subscribe();
 
         if (!fileUrl) throw new Error("No readable book file available.");
 
