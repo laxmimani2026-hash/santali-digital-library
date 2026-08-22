@@ -705,7 +705,6 @@
       }, 1000);
     }
 
-    // Fully fortified writer with fallback mechanisms
     async function commitVerifiedReadEvent(pageNo) {
       const userRes = await supabase.auth.getUser();
       const activeUser = userRes.data?.user || currentUser;
@@ -730,16 +729,14 @@
           await supabase.from('page_read_events').insert([basePayload]);
         }
         
-        // Refresh local UI counter only after successful database commit
         totalVerifiedReads += 1;
         updateVerifiedReadsDisplay();
-
-        console.info(`[Live Event Sent] Verified page ${pageNo} logged for Author: ${basePayload.author_id}`);
       } catch (err) {
         console.error("Failed to commit verified page read:", err);
       }
     }
 
+    // Enhanced recordProgress including author_id explicitly
     async function recordProgress(pageNo, totalPages, cfi = null) {
       if (!currentUser || !resolvedBookId) return;
 
