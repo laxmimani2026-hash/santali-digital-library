@@ -137,8 +137,10 @@
 
     /* Header Nav */
     .navbar-teal {
-      background-color: var(--header-bg) !important;
-      box-shadow: 0 2px 16px rgba(0,0,0,.1);
+      background-color: rgba(11,74,61,.92) !important;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 2px 20px rgba(0,0,0,.14);
       padding-top: 14px;
       padding-bottom: 14px;
       transition: background-color 0.3s ease;
@@ -224,16 +226,9 @@
     .search-btn { background: var(--primary-gold); color: #1c2b27; border: none; font-weight: 700; padding: 0 26px; border-radius: 999px !important; }
     .search-btn:hover { background: var(--gold-dark); color: #fff; }
 
-    /* Signature thread divider — nods to Santali handloom weaving */
-    .thread-divider {
-      height: 14px;
-      background:
-        repeating-linear-gradient(90deg, var(--primary-gold) 0 18px, transparent 18px 26px),
-        repeating-linear-gradient(90deg, var(--bg-dark) 0 8px, transparent 8px 26px);
-      background-position: 0 0, 0 8px;
-      background-size: 26px 4px, 26px 4px;
-      opacity: .85;
-    }
+    /* Hero-to-page wave transition */
+    .hero-wave { position: absolute; left: 0; bottom: -1px; width: 100%; line-height: 0; z-index: 2; pointer-events: none; }
+    .hero-wave svg { width: 100%; height: 64px; display: block; }
 
     /* Professional Marquee (Slider) Styles */
     .marquee-wrapper {
@@ -331,7 +326,18 @@
       border-radius: var(--radius-lg);
       padding: 46px;
       box-shadow: 0 18px 42px rgba(7,60,49,.22);
+      position: relative;
+      overflow: hidden;
     }
+    .sdm-cta::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,.08) 1.5px, transparent 1.5px);
+      background-size: 24px 24px;
+      pointer-events: none;
+    }
+    .sdm-cta > * { position: relative; z-index: 1; }
     .sdm-cta h2 { color: #fff; }
 
     /* Section headings (fallback if external stylesheet is unavailable) */
@@ -341,7 +347,18 @@
       color: var(--ink);
       text-align: center;
       margin-bottom: .5rem;
+      position: relative;
     }
+    .section-title::after {
+      content: "";
+      display: block;
+      width: 56px;
+      height: 3px;
+      margin: 16px auto 0;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--primary-gold), var(--gold-dark));
+    }
+    .section-title.text-start::after { margin: 16px 0 0; }
     .section-title.text-start { text-align: left; }
     .section-subtitle {
       color: var(--muted);
@@ -386,7 +403,38 @@
       transition: transform .22s ease, box-shadow .22s ease;
       box-shadow: 0 8px 24px rgba(11,74,61,.05);
     }
-    .feature-card-pro:hover { transform: translateY(-5px); box-shadow: 0 16px 34px rgba(11,74,61,.09); }
+    .feature-card-pro:hover { transform: translateY(-5px); box-shadow: 0 18px 38px rgba(201,151,46,.16), 0 8px 18px rgba(11,74,61,.08); border-color: rgba(201,151,46,.35); }
+    .category-card:hover { box-shadow: 0 14px 28px rgba(201,151,46,.18); }
+
+    /* Ambient decorative blobs for depth */
+    .ambient-section { position: relative; overflow: hidden; }
+    .ambient-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(50px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: .55;
+    }
+    .ambient-blob.gold { background: radial-gradient(circle, rgba(201,151,46,.22), transparent 70%); width: 360px; height: 360px; }
+    .ambient-blob.teal { background: radial-gradient(circle, rgba(11,74,61,.14), transparent 70%); width: 420px; height: 420px; }
+    .ambient-section > .container { position: relative; z-index: 1; }
+
+    /* Spotlight behind the featured-books marquee */
+    #bookSection { position: relative; }
+    #bookSection::before {
+      content: "";
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 900px;
+      height: 420px;
+      background: radial-gradient(ellipse, rgba(11,74,61,.06), transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    #bookSection .container { position: relative; z-index: 1; }
     .feature-icon-circle {
       width: 64px;
       height: 64px;
@@ -543,8 +591,12 @@
         </a>
       </div>
     </div>
+    <div class="hero-wave">
+      <svg viewBox="0 0 1440 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,40 C240,90 480,0 720,30 C960,60 1200,100 1440,50 L1440,100 L0,100 Z" fill="#ffffff"></path>
+      </svg>
+    </div>
   </header>
-  <div class="thread-divider"></div>
 
   <!-- Featured / Search Results Section -->
   <section class="py-5 overflow-hidden" id="bookSection">
@@ -569,7 +621,9 @@
   </section>
 
   <!-- Categories Section -->
-  <section class="py-5 bg-white border-top border-bottom">
+  <section class="py-5 bg-white border-top border-bottom ambient-section">
+    <div class="ambient-blob gold" style="top:-120px; right:-100px;"></div>
+    <div class="ambient-blob teal" style="bottom:-160px; left:-140px;"></div>
     <div class="container">
       <h2 class="section-title" data-i18n="catTitle">Categories</h2>
       <p class="section-subtitle" data-i18n="catSub">Browse books across popular genres and learning material</p>
@@ -648,7 +702,9 @@
   </section>
 
   <!-- Reader Subscription & Revenue Model -->
-  <section class="sdm-section sdm-section-alt" id="membership">
+  <section class="sdm-section sdm-section-alt ambient-section" id="membership">
+    <div class="ambient-blob gold" style="top:-100px; left:-120px;"></div>
+    <div class="ambient-blob teal" style="bottom:-140px; right:-120px;"></div>
     <div class="container">
       <div class="text-center mb-5">
         <span class="sdm-eyebrow"><i class="fa-solid fa-crown"></i> Reader Membership</span>
