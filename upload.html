@@ -34,8 +34,11 @@
     .nav-links a { color: rgba(255, 255, 255, 0.85); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: color 0.3s ease; }
     .nav-links a:hover, .nav-links a.active { color: var(--primary-gold); }
     .nav-right { display: flex; align-items: center; gap: 20px; }
+    
+    /* User Menu Dropdown Styles */
     .user-menu-container { position: relative; padding: 8px 0; }
-    .user-btn { background: transparent; border: none; color: #fff; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 500; padding: 5px 10px; border-radius: 5px; }
+    .user-btn { background: transparent; border: none; color: #fff; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 500; padding: 5px 10px; border-radius: 5px; transition: background-color 0.2s ease; }
+    .user-menu-container:hover .user-btn { background-color: rgba(255, 255, 255, 0.08); }
     .user-avatar-img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid rgba(255, 255, 255, 0.5); }
     .author-badge { background-color: var(--primary-gold); color: #000; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; text-transform: uppercase; }
     .dropdown-menu-custom { position: absolute; top: 100%; right: 0; width: 220px; background-color: #ffffff; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: none; flex-direction: column; overflow: hidden; z-index: 100; margin-top: 4px; }
@@ -44,6 +47,7 @@
     .dropdown-menu-custom a:hover { background-color: #f0f4f8; color: var(--bg-dark); }
     .dropdown-menu-custom hr { border: none; border-top: 1px solid #eee; margin: 0; }
     .dropdown-menu-custom a.logout { color: #e74c3c; font-weight: 600; }
+    
     .upload-card { border-radius: 14px; border: 1px solid var(--border-color); background-color: #ffffff; }
     .file-drop-area { border: 2px dashed #075e4d; border-radius: 8px; padding: 2rem; text-align: center; background-color: #f8fbfb; cursor: pointer; }
     .file-drop-area:hover { background-color: #eaf5f2; }
@@ -128,7 +132,7 @@
                   <i class="fa-solid fa-id-card text-warning fs-4"></i>
                   <div>
                     <span class="small text-muted d-block fw-semibold">Author Attribution:</span>
-                    <strong class="text-dark" id="displayAuthorFullName">Enter Author Name Below</strong>
+                    <strong class="text-dark" id="displayAuthorFullName">Loading Author...</strong>
                   </div>
                 </div>
                 <div>
@@ -151,7 +155,7 @@
                 <div class="col-md-6">
                   <label for="bookAuthor" class="form-label fw-semibold">Author Name <span class="text-danger">*</span></label>
                   <input type="text" class="form-control" id="bookAuthor" placeholder="Enter author name" required>
-                  <small class="text-muted" style="font-size: 0.75rem;">Type author's name to automatically resolve their unique Author ID.</small>
+                  <small class="text-muted" style="font-size: 0.75rem;">This name will be displayed, but the book will remain tied to your Author ID.</small>
                 </div>
 
                 <div class="col-md-4">
@@ -262,65 +266,93 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let allProfiles = [];
     let currentUploaderId = null;
     let currentUploaderUid = null;
-
-    // MODIFIED: This function now forces the assigned ID to ALWAYS match the authenticated author's ID, 
-    // guaranteeing it matches the Author Dashboard regardless of what name is typed.
-    function resolveAuthorIdByName(authorName) {
-      if (currentUploaderUid) return currentUploaderUid;
-      if (currentUploaderId) return `SDL-${currentUploaderId.substring(0, 6).toUpperCase()}`;
-      return 'AUTH-SDL';
-    }
+    let defaultAuthorName = '';
 
     document.addEventListener("DOMContentLoaded", async () => {
       try {
-        const { data: profiles } = await supabase.from('profiles').select('id, user_uid, first_name, last_name, full_name, username, role');
-        allProfiles = profiles || [];
-
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          currentUploaderId = user.id;
-          const uploaderProfile = allProfiles.find(p => p.id === user.id);
-
-          if (uploaderProfile) {
-            currentUploaderUid = uploaderProfile.user_uid || `SDL-${user.id.substring(0, 6).toUpperCase()}`;
-            const name = uploaderProfile.full_name || uploaderProfile.first_name || user.email.split('@')[0];
-            document.getElementById('headerUserName').textContent = `Hello, ${name.split(' ')[0]}`;
-            document.getElementById('displayAuthorFullName').textContent = name;
-            document.getElementById('bookAuthor').value = name;
-            document.getElementById('displayAuthorIdText').textContent = currentUploaderUid;
-            if (uploaderProfile.role) document.getElementById('headerUserBadge').textContent = uploaderProfile.role.toUpperCase();
-          } else {
-            currentUploaderUid = `SDL-${user.id.substring(0, 6).toUpperCase()}`;
-            document.getElementById('displayAuthorIdText').textContent = currentUploaderUid;
-          }
+        // 1. Check Authentication
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError || !user) {
+          window.location.href = "login.html?redirect=upload.html";
+          return;
         }
+        currentUploaderId = user.id;
+
+        // 2. Fetch Exact Profile Data (Matches author-dashboard logic)
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('user_uid, first_name, last_name, full_name, role, avatar_url')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        // 3. Set Author ID and Defaults
+        currentUploaderUid = profile?.user_uid || `SDL-${user.id.substring(0, 6).toUpperCase()}`;
+
+        defaultAuthorName = profile?.full_name || '';
+        if (!defaultAuthorName && (profile?.first_name || profile?.last_name)) {
+          defaultAuthorName = `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim();
+        }
+        if (!defaultAuthorName) {
+          defaultAuthorName = user.email.split('@')[0];
+          defaultAuthorName = defaultAuthorName.charAt(0).toUpperCase() + defaultAuthorName.slice(1);
+        }
+
+        // 4. Populate Dropdown Menu Profile Data
+        const firstName = profile?.first_name || defaultAuthorName.split(' ')[0];
+        document.getElementById('headerUserName').textContent = `Hello, ${firstName}`;
+        
+        if (profile?.role) {
+          document.getElementById('headerUserBadge').textContent = profile.role.toUpperCase();
+        }
+
+        if (profile?.avatar_url) {
+          const navAvatar = document.getElementById('navAvatar');
+          navAvatar.src = profile.avatar_url;
+          navAvatar.style.display = 'inline-block';
+          document.getElementById('navAvatarPlaceholder').style.display = 'none';
+        }
+
+        // 5. Populate Upload Form Attribution Data
+        document.getElementById('displayAuthorFullName').textContent = defaultAuthorName;
+        document.getElementById('displayAuthorIdText').textContent = currentUploaderUid;
+        document.getElementById('bookAuthor').value = defaultAuthorName;
+
       } catch (err) {
-        console.warn("Init profile error:", err);
+        console.error("Init profile error:", err);
       }
 
+      // 6. Handle Author Input changes (Locks the ID)
       const authorInput = document.getElementById('bookAuthor');
       authorInput?.addEventListener('input', function() {
-        const resolved = resolveAuthorIdByName(this.value);
-        document.getElementById('displayAuthorFullName').textContent = this.value.trim() || 'Attribution Pending';
-        document.getElementById('displayAuthorIdText').textContent = resolved;
+        document.getElementById('displayAuthorFullName').textContent = this.value.trim() || defaultAuthorName;
+        // The ID is strictly locked to the authenticated user's ID
+        document.getElementById('displayAuthorIdText').textContent = currentUploaderUid;
       });
 
+      // 7. Dropdown Menu Toggle Logic
       const userMenuBtn = document.getElementById('userMenuBtn');
       const dropdownMenu = document.getElementById('dropdownMenu');
-      userMenuBtn?.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('active'); });
-      document.addEventListener('click', (e) => {
-        if (!dropdownMenu.contains(e.target) && !userMenuBtn.contains(e.target)) dropdownMenu.classList.remove('active');
+      userMenuBtn?.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        dropdownMenu.classList.toggle('active'); 
       });
 
+      document.addEventListener('click', (e) => {
+        if (!dropdownMenu.contains(e.target) && !userMenuBtn.contains(e.target)) {
+          dropdownMenu.classList.remove('active');
+        }
+      });
+
+      // 8. Logout Functionality
       document.getElementById('logoutLink')?.addEventListener('click', async (e) => {
         e.preventDefault();
         await supabase.auth.signOut();
         window.location.href = 'login.html';
       });
 
+      // 9. File Selection and Pricing Logic
       const fileFormatSelect = document.getElementById('fileFormatSelect');
       const fileUploadLabel = document.getElementById('fileUploadLabel');
       const fileTypeIcon = document.getElementById('fileTypeIcon');
@@ -366,6 +398,7 @@
         }
       });
 
+      // 10. File Upload Helper
       async function uploadWithFallback(fileName, fileObject, preferredBuckets) {
         let lastError = null;
         for (const bucket of preferredBuckets) {
@@ -381,9 +414,16 @@
         throw lastError || new Error("Storage upload failed.");
       }
 
+      // 11. Form Submission
       const uploadForm = document.getElementById("uploadBookForm");
       uploadForm?.addEventListener("submit", async (e) => {
         e.preventDefault();
+        
+        if (!currentUploaderId || !currentUploaderUid) {
+            alert("Please wait a moment while we authenticate your author profile.");
+            return;
+        }
+
         const submitBtn = uploadForm.querySelector("button[type='submit']");
         const originalBtnText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Uploading & Submitting...';
@@ -403,11 +443,9 @@
           const mainBookFile = bookFileInput.files[0];
           if (!coverFile || !mainBookFile) throw new Error("Please select both a cover image and a book file.");
 
-          const finalAuthorId = resolveAuthorIdByName(author);
-
           const timeStamp = Date.now();
-          const cleanCoverName = `${currentUploaderId || 'guest'}-${timeStamp}-${coverFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-          const cleanBookName = `${currentUploaderId || 'guest'}-${timeStamp}-${mainBookFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+          const cleanCoverName = `${currentUploaderId}-${timeStamp}-${coverFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+          const cleanBookName = `${currentUploaderId}-${timeStamp}-${mainBookFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 
           const coverResult = await uploadWithFallback(cleanCoverName, coverFile, ['book_covers', 'books']);
           const targetBuckets = fileType === 'epub' ? ['book_epubs', 'books', 'book_pdfs'] : ['book_pdfs', 'books', 'book_epubs'];
@@ -416,11 +454,12 @@
           const randomId = Math.random().toString(36).substring(2, 8).toUpperCase();
           const generatedBookId = `BK-${randomId}`;
 
-          // MODIFIED: This payload now strictly uses the logged-in user's exact ID and UID, fixing the dashboard issue.
+          // Guaranteed Database Mapping
           const insertPayload = {
             book_id: generatedBookId,
-            author_id: currentUploaderId, // Force strict tie to authenticated user
-            user_uid: currentUploaderUid, // Force strict tie to user's assigned author ID (e.g., SDL-XXXXXX)
+            author_id: currentUploaderId, // Locks the Supabase user UUID
+            user_uid: currentUploaderUid, // Locks the public assigned ID (e.g., SDL-3M4LMA)
+            uploader_id: currentUploaderId, // Used for logging who uploaded it
             title: title,
             author: author,
             category: category,
@@ -434,10 +473,6 @@
             status: 'Under Review',
             is_featured: false
           };
-
-          if (currentUploaderId) {
-            insertPayload.uploader_id = currentUploaderId;
-          }
 
           const { error: dbError } = await supabase
             .from('books')
