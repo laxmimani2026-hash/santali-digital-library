@@ -340,27 +340,6 @@
       gap: 12px;
     }
 
-    .btn-action-buy {
-      background-color: #10b981;
-      color: #ffffff;
-      font-weight: 700;
-      font-size: 0.92rem;
-      padding: 12px 24px;
-      border-radius: 10px;
-      border: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-    }
-
-    .btn-action-buy:hover:not(:disabled) {
-      background-color: #059669;
-      transform: translateY(-2px);
-      color: #ffffff;
-    }
-
     .btn-action-cart {
       background-color: #ffffff;
       color: var(--bg-dark);
@@ -549,9 +528,7 @@
           <!-- Action Buttons -->
           <div class="pt-4 border-top">
             <div class="action-btn-group">
-              <button class="btn btn-action-buy" id="buyNowBtn" disabled>
-                <i class="fa-solid fa-bolt"></i> Buy Now
-              </button>
+              <!-- Buy Now option removed -->
               <button class="btn btn-action-cart" id="addToCartBtn" disabled>
                 <i class="fa-solid fa-cart-plus"></i> Add to Cart
               </button>
@@ -606,7 +583,6 @@
       const langEl = document.getElementById('detailLanguage');
       const specFormat = document.getElementById('specFormat');
 
-      const buyNowBtn = document.getElementById('buyNowBtn');
       const addToCartBtn = document.getElementById('addToCartBtn');
       const readBookBtn = document.getElementById('readBookBtn');
       const authorDashboardNav = document.getElementById('authorDashboardNav');
@@ -764,14 +740,11 @@
         if (isFree) {
           priceEl.textContent = "FREE";
           priceEl.style.color = "#10b981";
-          buyNowBtn.style.display = "none";
           addToCartBtn.style.display = "none";
         } else {
           priceEl.textContent = `₹${book.price}`;
           priceEl.style.color = "#005f73";
-          buyNowBtn.style.display = "inline-flex";
           addToCartBtn.style.display = "inline-flex";
-          buyNowBtn.disabled = false;
           addToCartBtn.disabled = false;
         }
         priceEl.classList.remove('skeleton');
@@ -779,51 +752,68 @@
         // Enable Read Book button
         readBookBtn.disabled = false;
 
-        // Button Click Handlers
-        buyNowBtn.addEventListener('click', () => {
-          window.location.href = `checkout.html?id=${encodeURIComponent(book.book_id || book.id)}`;
-        });
-
-        // Click Handler for "Read Book" -> Navigates cleanly to reader.html
+        // Click Handler for "Read Book" -> Checks subscription and navigates
         readBookBtn.addEventListener('click', async () => {
           const targetParamId = book.book_id || book.id;
 
-          // Register in user reading list if signed in
           try {
             const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-              const { data: existing } = await supabase
-                .from('reading_progress')
-                .select('id')
+            
+            if (!user) {
+               showPageAlert("Please log in to read books.", "warning");
+               setTimeout(() => window.location.href = "login.html", 2000);
+               return;
+            }
+
+            // Check if user has an active subscription if the book is not free
+            if (!isFree) {
+              const { data: subData } = await supabase
+                .from('subscriptions')
+                .select('valid_until')
                 .eq('user_id', user.id)
-                .eq('book_id', String(targetParamId))
+                .gte('valid_until', new Date().toISOString())
                 .limit(1);
 
-              if (!existing || existing.length === 0) {
-                await supabase.from('reading_progress').insert({
-                  user_id: user.id,
-                  book_id: String(targetParamId),
-                  author_id: String(targetAuthorId),
-                  author_name: targetAuthorName,
-                  pages_read: 1,
-                  total_pages: 100,
-                  status: 'in_progress',
-                  last_read_at: new Date().toISOString()
-                });
-              } else {
-                await supabase.from('reading_progress').update({
-                  author_id: String(targetAuthorId),
-                  author_name: targetAuthorName,
-                  last_read_at: new Date().toISOString()
-                }).eq('id', existing[0].id);
+              if (!subData || subData.length === 0) {
+                 // User is not subscribed -> Redirect to subscription page
+                 window.location.href = "subscription.html";
+                 return;
               }
             }
-          } catch (err) {
-            console.warn("Could not pre-register reading list progress:", err);
-          }
 
-          // Direct redirect to Reader Mode
-          window.location.href = `reader.html?id=${encodeURIComponent(targetParamId)}&author_id=${encodeURIComponent(targetAuthorId)}&author=${encodeURIComponent(targetAuthorName)}`;
+            // If subscribed (or free book), track progress and open reader
+            const { data: existing } = await supabase
+              .from('reading_progress')
+              .select('id')
+              .eq('user_id', user.id)
+              .eq('book_id', String(targetParamId))
+              .limit(1);
+
+            if (!existing || existing.length === 0) {
+              await supabase.from('reading_progress').insert({
+                user_id: user.id,
+                book_id: String(targetParamId),
+                author_id: String(targetAuthorId),
+                author_name: targetAuthorName,
+                pages_read: 1,
+                total_pages: 100,
+                status: 'in_progress',
+                last_read_at: new Date().toISOString()
+              });
+            } else {
+              await supabase.from('reading_progress').update({
+                author_id: String(targetAuthorId),
+                author_name: targetAuthorName,
+                last_read_at: new Date().toISOString()
+              }).eq('id', existing[0].id);
+            }
+
+            // Direct redirect to Reader Mode
+            window.location.href = `reader.html?id=${encodeURIComponent(targetParamId)}&author_id=${encodeURIComponent(targetAuthorId)}&author=${encodeURIComponent(targetAuthorName)}`;
+
+          } catch (err) {
+            console.warn("Could not check subscription or register reading progress:", err);
+          }
         });
 
         let isAdded = false;
