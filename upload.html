@@ -229,7 +229,7 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     document.addEventListener("DOMContentLoaded", async () => {
-      let currentUserId = 'anonymous_user';
+      let currentUserId = null;
       let currentUserUid = null;
 
       try {
@@ -253,9 +253,13 @@
               navAvatar.style.display = 'inline-block';
               document.getElementById('navAvatarPlaceholder').style.display = 'none';
             }
+          } else {
+            currentUserUid = `SDL-${user.id.substring(0, 6).toUpperCase()}`;
           }
         }
-      } catch (err) {}
+      } catch (err) {
+        console.warn("User profile fetch error:", err);
+      }
 
       const userMenuBtn = document.getElementById('userMenuBtn');
       const dropdownMenu = document.getElementById('dropdownMenu');
@@ -352,9 +356,12 @@
           const mainBookFile = bookFileInput.files[0];
           if (!coverFile || !mainBookFile) throw new Error("Please select both a cover image and a book file.");
 
+          const activeUserId = currentUserId || 'anonymous_user';
+          const resolvedAuthorId = currentUserUid || (currentUserId ? `SDL-${currentUserId.substring(0, 6).toUpperCase()}` : `AUTH-${author.replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase() || 'SDL'}`);
+
           const timeStamp = Date.now();
-          const cleanCoverName = `${currentUserId}-${timeStamp}-${coverFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-          const cleanBookName = `${currentUserId}-${timeStamp}-${mainBookFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+          const cleanCoverName = `${activeUserId}-${timeStamp}-${coverFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+          const cleanBookName = `${activeUserId}-${timeStamp}-${mainBookFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 
           const coverResult = await uploadWithFallback(cleanCoverName, coverFile, ['book_covers', 'books']);
           const targetBuckets = fileType === 'epub' ? ['book_epubs', 'books', 'book_pdfs'] : ['book_pdfs', 'books', 'book_epubs'];
@@ -363,14 +370,14 @@
           const randomId = Math.random().toString(36).substring(2, 8).toUpperCase();
           const generatedBookId = `BK-${randomId}`;
 
-          // Stored as 'Under Review' so it does not appear in browse.html until admin approves
           const { error: dbError } = await supabase
             .from('books')
             .insert([{
                 book_id: generatedBookId,
-                author_id: currentUserId,
-                user_uid: currentUserUid,
-                uploader_id: currentUserId,
+                author_id: resolvedAuthorId,      // Correct formatted Author ID (e.g. SDL-XXXXXX)
+                user_uid: resolvedAuthorId,       // Clean user UID
+                uploader_id: currentUserId,       // Internal UUID
+                user_id: currentUserId,           // Internal UUID
                 title: title,
                 author: author,
                 category: category,
@@ -387,7 +394,7 @@
 
           if (dbError) throw dbError;
 
-          alert(`🎉 Book submitted successfully!\n\nBook ID: ${generatedBookId}\nStatus: Under Review (Admin approval required before publication).`);
+          alert(`🎉 Book submitted successfully!\n\nBook ID: ${generatedBookId}\nAuthor ID: ${resolvedAuthorId}\nStatus: Under Review (Admin approval required before publication).`);
           window.location.href = "author-dashboard.html";
 
         } catch (error) {
