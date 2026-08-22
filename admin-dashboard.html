@@ -956,10 +956,36 @@
     let allSubscribersData = [];
     let allUsersData = [];
     let allBooksData = [];
+    let booksMapByBookId = {}; // book_id (e.g. 'BK-AY5WKO') -> full book record, used to resolve the real author for a page_read_events row
     let usersProfileMap = {};
     let rawReadEventsData = [];
     let authorAnalyticsMap = {};
     let globalAuthorPool = 0;
+
+    function rebuildBooksMap() {
+      booksMapByBookId = {};
+      allBooksData.forEach(book => {
+        const key = book.book_id || `BK-${String(book.id).substring(0, 6).toUpperCase()}`;
+        booksMapByBookId[key] = book;
+        // Also index by raw numeric/uuid id, since page_read_events.book_id
+        // may have been stored as either the human-readable book_id or the id.
+        if (book.id) booksMapByBookId[String(book.id)] = book;
+      });
+    }
+
+    async function loadBooksData() {
+      try {
+        const { data: books, error } = await supabase.from('books').select('*').order('created_at', { ascending: false });
+        if (error) {
+          console.warn("Could not load books for author lookup:", error.message);
+          return;
+        }
+        allBooksData = books || [];
+        rebuildBooksMap();
+      } catch (err) {
+        console.warn("Network exception loading books:", err);
+      }
+    }
 
     function showToast(msg) {
       const toast = document.getElementById('adminToast');
@@ -1027,11 +1053,29 @@
       });
 
       filteredEvents.forEach(evt => {
-        const aName = evt.author_name || 'Unknown Author';
-        
-        let aId = evt.author_id && evt.author_id !== 'null' && String(evt.author_id).trim() !== '' 
-          ? evt.author_id 
-          : (usersProfileMap[evt.user_id]?.user_uid || `AUTH-${String(aName).replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase() || 'SDL'}`);
+        const book = booksMapByBookId[evt.book_id];
+
+        const aName = evt.author_name
+          || book?.author
+          || book?.author_name
+          || 'Unknown Author';
+
+        // Resolve the real author ID with this priority:
+        // 1) the event's own author_id, if the column exists and is populated
+        // 2) the author_id recorded on the book itself (via book_id lookup)
+        // 3) the author's own account uid, if the book record has one
+        // 4) only as a last resort, a generated placeholder derived from the name
+        // IMPORTANT: this must never fall back to the READER's user id/uid -
+        // that was the bug (reader id showing up in the Author ID column).
+        const bookAuthorId = book?.author_id && book.author_id !== 'null' && String(book.author_id).trim() !== ''
+          ? book.author_id
+          : null;
+
+        let aId = (evt.author_id && evt.author_id !== 'null' && String(evt.author_id).trim() !== '')
+          ? evt.author_id
+          : (bookAuthorId
+              || book?.user_uid
+              || `AUTH-${String(aName).replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase() || 'SDL'}`);
 
         totalVerifiedPages++;
 
@@ -1145,9 +1189,12 @@
       modal.show();
     }
 
-    async function fetchDashboardStats() {
+    async function fetchDashboardStats(forceBooksReload = false) {
       try {
-        await preloadProfiles();
+        await Promise.all([
+          preloadProfiles(),
+          (forceBooksReload || allBooksData.length === 0) ? loadBooksData() : Promise.resolve()
+        ]);
         const { data: subs } = await supabase.from('subscriptions').select('user_id, price, valid_until');
         let grossRev = 0, activeCount = 0;
         const now = new Date();
@@ -1517,6 +1564,7 @@
         if (error) throw error;
 
         allBooksData = books || [];
+        rebuildBooksMap();
         renderBooksTable();
       } catch (err) {
         tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-danger">Failed to load pipeline: ${err.message}</td></tr>`;
@@ -1809,7 +1857,7 @@
       
       document.getElementById('refreshAuthorAnalyticsBtn')?.addEventListener('click', () => {
         showToast("Refreshing analytics...");
-        fetchDashboardStats();
+        fetchDashboardStats(true);
       });
 
       // Fixed Reset Analytics Logic using unconstrained ID matching
