@@ -674,11 +674,32 @@
       }
     }
 
-    function isPageActuallyVisible() {
-      // A page only "counts" as being stayed-on if the tab is visible AND the
-      // window has focus. This stops the dwell timer from advancing while the
-      // user has switched tabs, minimized the browser, or alt-tabbed away.
-      return !document.hidden && document.hasFocus();
+    let dwellIndicatorState = 'counting'; // 'counting' | 'paused' | 'saving' | 'verified' | 'error'
+
+    function renderDwellIndicator() {
+      const indicator = document.getElementById('dwellActiveIndicator');
+      if (!indicator) return;
+      switch (dwellIndicatorState) {
+        case 'saving':
+          indicator.className = "live-dwell-pill";
+          indicator.innerHTML = `<span class="spinner-border spinner-border-sm me-1" style="width:0.65rem;height:0.65rem;"></span> Saving...`;
+          break;
+        case 'verified':
+          indicator.className = "live-dwell-pill bg-success text-white border-success";
+          indicator.innerHTML = `<i class="fa-solid fa-check text-white me-1"></i> Verified Read!`;
+          break;
+        case 'error':
+          indicator.className = "live-dwell-pill bg-danger bg-opacity-10 text-danger border-danger";
+          indicator.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i> Save failed - retrying`;
+          break;
+        case 'paused':
+          indicator.className = "live-dwell-pill bg-warning bg-opacity-25 text-dark border-warning";
+          indicator.innerHTML = `<i class="fa-solid fa-pause me-1"></i> Paused: ${dwellSecondsLeft}s left`;
+          break;
+        default: // 'counting'
+          indicator.className = "live-dwell-pill";
+          indicator.innerHTML = `<span class="dwell-pulse"></span> Verifying: ${dwellSecondsLeft}s`;
+      }
     }
 
     function startPageDwellTracker(pageNo) {
@@ -686,63 +707,58 @@
       activeTrackedPage = parseInt(pageNo, 10) || 1;
       dwellSecondsLeft = 10;
       dwellAlreadyCommittedForThisView = false;
+      dwellIndicatorState = 'counting';
 
-      const indicator = document.getElementById('dwellActiveIndicator');
-      const renderIndicator = () => {
-        if (!indicator) return;
-        if (dwellSecondsLeft <= 0) {
-          indicator.className = "live-dwell-pill bg-success text-white border-success";
-          indicator.innerHTML = `<i class="fa-solid fa-check text-white me-1"></i> Verified Read!`;
-        } else if (!isPageActuallyVisible()) {
-          indicator.className = "live-dwell-pill bg-warning bg-opacity-25 text-dark border-warning";
-          indicator.innerHTML = `<i class="fa-solid fa-pause me-1"></i> Paused: ${dwellSecondsLeft}s left`;
-        } else {
-          indicator.className = "live-dwell-pill";
-          indicator.innerHTML = `<span class="dwell-pulse"></span> Verifying: ${dwellSecondsLeft}s`;
-        }
-      };
-
-      renderIndicator();
+      renderDwellIndicator();
 
       dwellInterval = setInterval(async () => {
         // Only count this tick toward the 10 seconds if the reader is actually
         // in view. Otherwise, skip the tick entirely (timer effectively pauses).
         if (!isPageActuallyVisible()) {
-          renderIndicator();
+          dwellIndicatorState = 'paused';
+          renderDwellIndicator();
           return;
         }
 
         dwellSecondsLeft--;
-        renderIndicator();
+        dwellIndicatorState = 'counting';
+        renderDwellIndicator();
 
         if (dwellSecondsLeft <= 0 && !dwellAlreadyCommittedForThisView) {
           dwellAlreadyCommittedForThisView = true;
           clearInterval(dwellInterval);
           dwellInterval = null;
 
-          await commitVerifiedReadEvent(activeTrackedPage);
+          dwellIndicatorState = 'saving';
+          renderDwellIndicator();
+
+          const success = await commitVerifiedReadEvent(activeTrackedPage);
+          dwellIndicatorState = success ? 'verified' : 'error';
+          renderDwellIndicator();
         }
       }, 1000);
     }
 
     // Re-render the indicator immediately on visibility/focus changes so the
     // "Paused" state shows up right away instead of waiting for the next tick.
+    // Only relevant while we're still counting - once saving/verified/error, leave it alone.
     document.addEventListener('visibilitychange', () => {
-      const indicator = document.getElementById('dwellActiveIndicator');
-      if (!indicator || dwellSecondsLeft <= 0) return;
+      if (dwellIndicatorState !== 'counting') return;
       if (!isPageActuallyVisible()) {
-        indicator.className = "live-dwell-pill bg-warning bg-opacity-25 text-dark border-warning";
-        indicator.innerHTML = `<i class="fa-solid fa-pause me-1"></i> Paused: ${dwellSecondsLeft}s left`;
+        dwellIndicatorState = 'paused';
+        renderDwellIndicator();
       }
     });
     window.addEventListener('blur', () => {
-      const indicator = document.getElementById('dwellActiveIndicator');
-      if (!indicator || dwellSecondsLeft <= 0) return;
-      indicator.className = "live-dwell-pill bg-warning bg-opacity-25 text-dark border-warning";
-      indicator.innerHTML = `<i class="fa-solid fa-pause me-1"></i> Paused: ${dwellSecondsLeft}s left`;
+      if (dwellIndicatorState !== 'counting') return;
+      dwellIndicatorState = 'paused';
+      renderDwellIndicator();
     });
 
-    // Explicit database insertion with strict error handling and UI sync
+    // Explicit database insertion with strict error handling and UI sync.
+    // Returns true only if the row was actually confirmed written to Supabase -
+    // the "Verified Read!" badge and the page count are only ever updated
+    // after this returns true, so the UI can never claim success on a failed write.
     async function commitVerifiedReadEvent(pageNo) {
       const basePayload = {
         book_id: String(resolvedBookId || activeBookRecord?.book_id || activeBookRecord?.id || rawParamId || 'BK-1'),
@@ -758,23 +774,26 @@
 
       try {
         const { data, error } = await supabase.from('page_read_events').insert([basePayload]).select();
-        
+
         if (error) {
-          console.error("Supabase insert rejected event:", error.message);
-          // Fallback retry without user_id if column mismatch occurs
+          console.error("Supabase insert rejected event:", error.message, error.details || '', error.hint || '');
+          // Fallback retry without user_id if column mismatch or FK violation occurs
           delete basePayload.user_id;
           const { error: retryErr } = await supabase.from('page_read_events').insert([basePayload]);
           if (retryErr) {
-            console.error("Retry insert failed:", retryErr.message);
-            return;
+            console.error("Retry insert failed:", retryErr.message, retryErr.details || '', retryErr.hint || '');
+            console.error("If both inserts failed, check Supabase RLS policies on 'page_read_events' - the anon/authenticated role likely lacks INSERT permission, or a NOT NULL / FK column is missing from basePayload:", basePayload);
+            return false;
           }
         }
-        
+
         totalVerifiedReads += 1;
         updateVerifiedReadsDisplay();
         console.info(`[Success] Verified page ${pageNo} committed to DB for Author ID: ${basePayload.author_id}`, data);
+        return true;
       } catch (err) {
         console.error("Network exception committing verified page read:", err);
+        return false;
       }
     }
 
