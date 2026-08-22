@@ -9,9 +9,9 @@
     let currentAuthorUid = null;
     let currentAuthorName = '';
 
-    document.addEventListener("DOMContentLoaded", async () => {
+    // 1. Initialize Auth and Fetch Exact Profile Match
+    async function initUploadPage() {
       try {
-        // 1. Get authenticated user
         const { data: { user }, error: authError } = await supabase.auth.getUser();
         if (authError || !user) {
           window.location.href = "login.html?redirect=upload.html";
@@ -20,16 +20,17 @@
 
         currentUserId = user.id;
 
-        // 2. Fetch profile directly matching author-dashboard.html logic
+        // Fetch exact profile data just like the dashboard does
         const { data: profile } = await supabase
           .from('profiles')
           .select('user_uid, first_name, last_name, full_name, role, avatar_url')
           .eq('id', user.id)
           .maybeSingle();
 
-        // 3. Resolve exact matching Author UID and Name
+        // Lock in the UID
         currentAuthorUid = profile?.user_uid || `SDL-${user.id.substring(0, 6).toUpperCase()}`;
         
+        // Resolve Name
         let fullName = profile?.full_name || '';
         if (!fullName && (profile?.first_name || profile?.last_name)) {
           fullName = `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim();
@@ -40,8 +41,8 @@
         }
         currentAuthorName = fullName;
 
-        // 4. Update Header & Attribution Elements
-        let firstName = profile?.first_name || fullName.split(' ')[0];
+        // Update Header UI
+        let firstName = profile?.first_name || currentAuthorName.split(' ')[0];
         document.getElementById('headerUserName').textContent = `Hello, ${firstName}`;
         
         if (profile?.role) {
@@ -55,175 +56,184 @@
           document.getElementById('navAvatarPlaceholder').style.display = 'none';
         }
 
-        // Set matching Author Name and Author ID
+        // Update Form Attribution UI
         document.getElementById('displayAuthorFullName').textContent = currentAuthorName;
         document.getElementById('displayAuthorIdText').textContent = currentAuthorUid;
         document.getElementById('bookAuthor').value = currentAuthorName;
 
       } catch (err) {
-        console.warn("Init profile error:", err);
+        console.error("Init profile error:", err);
       }
+    }
 
-      // Keep Author ID consistent if name field is edited
-      const authorInput = document.getElementById('bookAuthor');
-      authorInput?.addEventListener('input', function() {
-        document.getElementById('displayAuthorFullName').textContent = this.value.trim() || currentAuthorName;
-        document.getElementById('displayAuthorIdText').textContent = currentAuthorUid;
-      });
+    // Call init immediately
+    initUploadPage();
 
-      // Navigation Dropdown
-      const userMenuBtn = document.getElementById('userMenuBtn');
-      const dropdownMenu = document.getElementById('dropdownMenu');
-      userMenuBtn?.addEventListener('click', (e) => { 
-        e.stopPropagation(); 
-        dropdownMenu.classList.toggle('active'); 
-      });
+    // 2. Keep the Author ID locked even if they type a different name in the input
+    const authorInput = document.getElementById('bookAuthor');
+    authorInput?.addEventListener('input', function() {
+      document.getElementById('displayAuthorFullName').textContent = this.value.trim() || currentAuthorName;
+      // Force the ID to stay the same as the logged-in user
+      document.getElementById('displayAuthorIdText').textContent = currentAuthorUid; 
+    });
 
-      document.addEventListener('click', (e) => {
-        if (!dropdownMenu.contains(e.target) && !userMenuBtn.contains(e.target)) {
-          dropdownMenu.classList.remove('active');
-        }
-      });
+    // 3. Header Dropdown Logic
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    userMenuBtn?.addEventListener('click', (e) => { 
+      e.stopPropagation(); 
+      dropdownMenu.classList.toggle('active'); 
+    });
 
-      document.getElementById('logoutLink')?.addEventListener('click', async (e) => {
-        e.preventDefault();
-        await supabase.auth.signOut();
-        window.location.href = 'login.html';
-      });
-
-      // Format Selection Handling
-      const fileFormatSelect = document.getElementById('fileFormatSelect');
-      const fileUploadLabel = document.getElementById('fileUploadLabel');
-      const fileTypeIcon = document.getElementById('fileTypeIcon');
-      const fileTypePrompt = document.getElementById('fileTypePrompt');
-      const fileTypeHelper = document.getElementById('fileTypeHelper');
-      const bookFileInput = document.getElementById('bookFile');
-      const bookFileName = document.getElementById('bookFileName');
-
-      fileFormatSelect?.addEventListener('change', function() {
-        bookFileInput.value = "";
-        bookFileName.innerText = "";
-        if (this.value === 'pdf') {
-          fileUploadLabel.innerHTML = 'Book File (PDF) <span class="text-danger">*</span>';
-          fileTypeIcon.className = 'fa-solid fa-file-pdf fs-1 text-danger mb-2';
-          fileTypePrompt.innerText = 'Click to upload PDF';
-          fileTypeHelper.innerText = 'PDF only (Max 20MB)';
-          bookFileInput.setAttribute('accept', 'application/pdf');
-        } else {
-          fileUploadLabel.innerHTML = 'Book File (EPUB) <span class="text-danger">*</span>';
-          fileTypeIcon.className = 'fa-solid fa-book-open fs-1 text-success mb-2';
-          fileTypePrompt.innerText = 'Click to upload EPUB';
-          fileTypeHelper.innerText = 'EPUB only (Max 20MB)';
-          bookFileInput.setAttribute('accept', '.epub, application/epub+zip');
-        }
-      });
-
-      document.getElementById('coverImage')?.addEventListener('change', function() {
-        if (this.files[0]) document.getElementById('coverFileName').innerText = "Selected: " + this.files[0].name;
-      });
-
-      bookFileInput?.addEventListener('change', function() {
-        if (this.files[0]) bookFileName.innerText = "Selected: " + this.files[0].name;
-      });
-
-      // Pricing Toggle
-      const pricingSelect = document.getElementById('bookPricing');
-      const priceDiv = document.getElementById('priceAmountDiv');
-      pricingSelect?.addEventListener('change', function() {
-        if (this.value === 'paid') {
-          priceDiv.classList.remove('d-none');
-          document.getElementById('bookPrice').setAttribute('required', 'true');
-        } else {
-          priceDiv.classList.add('d-none');
-          document.getElementById('bookPrice').removeAttribute('required');
-        }
-      });
-
-      // Storage Upload Helper
-      async function uploadWithFallback(fileName, fileObject, preferredBuckets) {
-        let lastError = null;
-        for (const bucket of preferredBuckets) {
-          try {
-            const { data, error } = await supabase.storage.from(bucket).upload(fileName, fileObject, { upsert: true });
-            if (!error && data) {
-              const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(fileName);
-              return { bucket, publicUrl: publicUrlData.publicUrl };
-            }
-            lastError = error;
-          } catch (err) { lastError = err; }
-        }
-        throw lastError || new Error("Storage upload failed.");
+    document.addEventListener('click', (e) => {
+      if (!dropdownMenu.contains(e.target) && !userMenuBtn.contains(e.target)) {
+        dropdownMenu.classList.remove('active');
       }
+    });
 
-      // Form Submission
-      const uploadForm = document.getElementById("uploadBookForm");
-      uploadForm?.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const submitBtn = uploadForm.querySelector("button[type='submit']");
-        const originalBtnText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Uploading & Submitting...';
-        submitBtn.disabled = true;
+    document.getElementById('logoutLink')?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      await supabase.auth.signOut();
+      window.location.href = 'login.html';
+    });
 
+    // 4. Form Interactions (File Types, Pricing, Labels)
+    const fileFormatSelect = document.getElementById('fileFormatSelect');
+    const fileUploadLabel = document.getElementById('fileUploadLabel');
+    const fileTypeIcon = document.getElementById('fileTypeIcon');
+    const fileTypePrompt = document.getElementById('fileTypePrompt');
+    const fileTypeHelper = document.getElementById('fileTypeHelper');
+    const bookFileInput = document.getElementById('bookFile');
+    const bookFileName = document.getElementById('bookFileName');
+
+    fileFormatSelect?.addEventListener('change', function() {
+      bookFileInput.value = "";
+      bookFileName.innerText = "";
+      if (this.value === 'pdf') {
+        fileUploadLabel.innerHTML = 'Book File (PDF) <span class="text-danger">*</span>';
+        fileTypeIcon.className = 'fa-solid fa-file-pdf fs-1 text-danger mb-2';
+        fileTypePrompt.innerText = 'Click to upload PDF';
+        fileTypeHelper.innerText = 'PDF only (Max 20MB)';
+        bookFileInput.setAttribute('accept', 'application/pdf');
+      } else {
+        fileUploadLabel.innerHTML = 'Book File (EPUB) <span class="text-danger">*</span>';
+        fileTypeIcon.className = 'fa-solid fa-book-open fs-1 text-success mb-2';
+        fileTypePrompt.innerText = 'Click to upload EPUB';
+        fileTypeHelper.innerText = 'EPUB only (Max 20MB)';
+        bookFileInput.setAttribute('accept', '.epub, application/epub+zip');
+      }
+    });
+
+    document.getElementById('coverImage')?.addEventListener('change', function() {
+      if (this.files[0]) document.getElementById('coverFileName').innerText = "Selected: " + this.files[0].name;
+    });
+
+    bookFileInput?.addEventListener('change', function() {
+      if (this.files[0]) bookFileName.innerText = "Selected: " + this.files[0].name;
+    });
+
+    const pricingSelect = document.getElementById('bookPricing');
+    const priceDiv = document.getElementById('priceAmountDiv');
+    pricingSelect?.addEventListener('change', function() {
+      if (this.value === 'paid') {
+        priceDiv.classList.remove('d-none');
+        document.getElementById('bookPrice').setAttribute('required', 'true');
+      } else {
+        priceDiv.classList.add('d-none');
+        document.getElementById('bookPrice').removeAttribute('required');
+      }
+    });
+
+    // 5. Storage Upload Logic
+    async function uploadWithFallback(fileName, fileObject, preferredBuckets) {
+      let lastError = null;
+      for (const bucket of preferredBuckets) {
         try {
-          const title = document.getElementById("bookTitle").value.trim();
-          const author = document.getElementById("bookAuthor").value.trim();
-          const category = document.getElementById("bookCategory").value;
-          const language = document.getElementById("bookLanguage").value;
-          const fileType = fileFormatSelect ? fileFormatSelect.value : 'epub';
-          const pricing = document.getElementById("bookPricing").value;
-          const description = document.getElementById("bookDescription").value.trim();
-          let price = pricing === "paid" ? parseFloat(document.getElementById("bookPrice").value) || 0 : 0;
+          const { data, error } = await supabase.storage.from(bucket).upload(fileName, fileObject, { upsert: true });
+          if (!error && data) {
+            const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(fileName);
+            return { bucket, publicUrl: publicUrlData.publicUrl };
+          }
+          lastError = error;
+        } catch (err) { lastError = err; }
+      }
+      throw lastError || new Error("Storage upload failed.");
+    }
 
-          const coverFile = document.getElementById("coverImage").files[0];
-          const mainBookFile = bookFileInput.files[0];
-          if (!coverFile || !mainBookFile) throw new Error("Please select both a cover image and a book file.");
+    // 6. Final Form Submission
+    const uploadForm = document.getElementById("uploadBookForm");
+    uploadForm?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      // Safety check to ensure init finished
+      if (!currentUserId || !currentAuthorUid) {
+          alert("Still loading author profile... please wait a moment and try again.");
+          return;
+      }
 
-          const timeStamp = Date.now();
-          const cleanCoverName = `${currentUserId}-${timeStamp}-${coverFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-          const cleanBookName = `${currentUserId}-${timeStamp}-${mainBookFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      const submitBtn = uploadForm.querySelector("button[type='submit']");
+      const originalBtnText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Uploading & Submitting...';
+      submitBtn.disabled = true;
 
-          const coverResult = await uploadWithFallback(cleanCoverName, coverFile, ['book_covers', 'books']);
-          const targetBuckets = fileType === 'epub' ? ['book_epubs', 'books', 'book_pdfs'] : ['book_pdfs', 'books', 'book_epubs'];
-          const bookResult = await uploadWithFallback(cleanBookName, mainBookFile, targetBuckets);
+      try {
+        const title = document.getElementById("bookTitle").value.trim();
+        const author = document.getElementById("bookAuthor").value.trim();
+        const category = document.getElementById("bookCategory").value;
+        const language = document.getElementById("bookLanguage").value;
+        const fileType = fileFormatSelect ? fileFormatSelect.value : 'epub';
+        const pricing = document.getElementById("bookPricing").value;
+        const description = document.getElementById("bookDescription").value.trim();
+        let price = pricing === "paid" ? parseFloat(document.getElementById("bookPrice").value) || 0 : 0;
 
-          const randomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-          const generatedBookId = `BK-${randomId}`;
+        const coverFile = document.getElementById("coverImage").files[0];
+        const mainBookFile = bookFileInput.files[0];
+        if (!coverFile || !mainBookFile) throw new Error("Please select both a cover image and a book file.");
 
-          const insertPayload = {
-            book_id: generatedBookId,
-            author_id: currentUserId,
-            user_uid: currentAuthorUid,
-            uploader_id: currentUserId,
-            title: title,
-            author: author,
-            category: category,
-            language: language,
-            file_type: fileType,
-            pricing: pricing,
-            price: price,
-            description: description,
-            cover_url: coverResult.publicUrl,
-            pdf_url: bookResult.publicUrl,
-            status: 'Under Review',
-            is_featured: false
-          };
+        const timeStamp = Date.now();
+        const cleanCoverName = `${currentUserId}-${timeStamp}-${coverFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+        const cleanBookName = `${currentUserId}-${timeStamp}-${mainBookFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 
-          const { error: dbError } = await supabase
-            .from('books')
-            .insert([insertPayload]);
+        const coverResult = await uploadWithFallback(cleanCoverName, coverFile, ['book_covers', 'books']);
+        const targetBuckets = fileType === 'epub' ? ['book_epubs', 'books', 'book_pdfs'] : ['book_pdfs', 'books', 'book_epubs'];
+        const bookResult = await uploadWithFallback(cleanBookName, mainBookFile, targetBuckets);
 
-          if (dbError) throw dbError;
+        const randomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const generatedBookId = `BK-${randomId}`;
 
-          alert(`🎉 Book submitted successfully!\n\nBook ID: ${generatedBookId}\nAuthor ID: ${currentAuthorUid}\nStatus: Under Review (Admin approval required).`);
-          window.location.href = "author-dashboard.html";
+        // Ensure payload links exactly to the authenticated user ID and correct UID
+        const insertPayload = {
+          book_id: generatedBookId,
+          author_id: currentUserId,
+          user_uid: currentAuthorUid, 
+          uploader_id: currentUserId, 
+          title: title,
+          author: author,
+          category: category,
+          language: language,
+          file_type: fileType,
+          pricing: pricing,
+          price: price,
+          description: description,
+          cover_url: coverResult.publicUrl,
+          pdf_url: bookResult.publicUrl,
+          status: 'Under Review',
+          is_featured: false
+        };
 
-        } catch (error) {
-          console.error("Upload Error:", error);
-          alert("Upload Error: " + (error.message || "Failed to submit book."));
-        } finally {
-          submitBtn.innerHTML = originalBtnText;
-          submitBtn.disabled = false;
-        }
-      });
+        const { error: dbError } = await supabase.from('books').insert([insertPayload]);
+
+        if (dbError) throw dbError;
+
+        alert(`🎉 Book submitted successfully!\n\nBook ID: ${generatedBookId}\nAuthor ID: ${currentAuthorUid}\nStatus: Under Review (Admin approval required).`);
+        window.location.href = "author-dashboard.html";
+
+      } catch (error) {
+        console.error("Upload Error:", error);
+        alert("Upload Error: " + (error.message || "Failed to submit book."));
+      } finally {
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+      }
     });
   </script>
