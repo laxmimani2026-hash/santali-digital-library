@@ -211,8 +211,8 @@
               <i class="fa-solid fa-rotate me-1"></i> Refresh
             </button>
 
-            <!-- Reset Reads Button -->
-            <button class="btn btn-sm btn-outline-danger fw-semibold" id="resetAllReadsBtn" title="Reset all verified read records to 0">
+            <!-- Reset All Reads Button -->
+            <button class="btn btn-sm btn-outline-danger fw-semibold" id="resetAllReadsBtn" title="Reset all page reads to 0">
               <i class="fa-solid fa-trash-can me-1"></i> Reset Reads
             </button>
           </div>
@@ -984,7 +984,6 @@
       (profiles || []).forEach(p => { usersProfileMap[p.id] = p; });
     }
 
-    // Populate Year and Month Filters dynamically for Author Analytics
     function populateAnalyticsMonthFilter(events) {
       const filterSelect = document.getElementById('authorMonthYearFilter');
       if (!filterSelect) return;
@@ -1011,7 +1010,6 @@
       });
     }
 
-    // Render Author Aggregated Reading Table with accurate shares & royalty breakdown
     function renderAuthorAnalyticsTable() {
       const tbody = document.getElementById('authorReadingStatsBody');
       const totalBadge = document.getElementById('totalVerifiedPagesCount');
@@ -1099,7 +1097,6 @@
         tbody.appendChild(tr);
       });
 
-      // Copy Author ID
       document.querySelectorAll('.copy-author-id').forEach(btn => {
         btn.addEventListener('click', (e) => {
           const id = e.target.getAttribute('data-id');
@@ -1107,7 +1104,6 @@
         });
       });
 
-      // Show Reader Details Modal
       document.querySelectorAll('.view-readers-btn').forEach(btn => {
         btn.addEventListener('click', function() {
           const aId = this.getAttribute('data-authorid');
@@ -1148,7 +1144,6 @@
       modal.show();
     }
 
-    // Dashboard Overview Metrics & Verified Page Reads Sync
     async function fetchDashboardStats() {
       try {
         await preloadProfiles();
@@ -1181,13 +1176,13 @@
         document.getElementById('calcAuthorPool').textContent = `₹${globalAuthorPool.toLocaleString('en-IN')}`;
         document.getElementById('calcOps').textContent = `₹${opsReserve.toLocaleString('en-IN')}`;
 
-        // 1. Fetch valid active books from database to prevent phantom analytics
-        const { data: activeBooks } = await supabase.from('books').select('id, book_id, title, author');
+        // 1. Fetch valid book IDs from books table to eliminate phantom statistics
+        const { data: activeBooks } = await supabase.from('books').select('id, book_id');
         const validBookSet = new Set(
-          (activeBooks || []).flatMap(b => [String(b.id), b.book_id, b.title]).filter(Boolean)
+          (activeBooks || []).flatMap(b => [String(b.id), b.book_id]).filter(Boolean)
         );
 
-        // 2. Fetch Page Read Events
+        // 2. Fetch page read events
         const { data: readEvents, error } = await supabase
           .from('page_read_events')
           .select('*')
@@ -1195,11 +1190,10 @@
 
         if (error) throw error;
 
-        // 3. Keep only read events whose books currently exist in the database
+        // 3. Keep read events for books that currently exist in the database
         rawReadEventsData = (readEvents || []).filter(evt => {
-          const bookMatch = evt.book_id && validBookSet.has(String(evt.book_id));
-          const titleMatch = evt.book_title && validBookSet.has(evt.book_title);
-          return bookMatch || titleMatch || (!evt.book_id && !evt.book_title);
+          if (!validBookSet.size) return true;
+          return !evt.book_id || validBookSet.has(String(evt.book_id));
         });
 
         populateAnalyticsMonthFilter(rawReadEventsData);
@@ -1210,7 +1204,6 @@
       }
     }
 
-    // Dynamic Plan Pricing & Special Plan Logic
     async function loadPlanConfiguration() {
       try {
         const { data } = await supabase.from('site_settings').select('*').eq('key', 'subscription_plans').maybeSingle();
@@ -1269,7 +1262,6 @@
       }
     });
 
-    // Subscriptions Table
     function populateSubscriptionMonths(subs) {
       const monthSelect = document.getElementById('subMonthFilter');
       if (!monthSelect) return;
@@ -1422,7 +1414,6 @@
       fetchDashboardStats();
     });
 
-    // 3. Book Pipeline
     async function fetchApprovalBooks() {
       const tbody = document.getElementById('approvalBooksList');
       tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading books...</td></tr>`;
@@ -1617,7 +1608,6 @@
     document.getElementById('bookStatusFilter')?.addEventListener('change', renderBooksTable);
     document.getElementById('refreshApprovalBtn')?.addEventListener('click', fetchApprovalBooks);
 
-    // 4. Site Settings
     async function loadSiteSettings() {
       try {
         const { data, error } = await supabase.from('site_settings').select('*');
@@ -1636,7 +1626,6 @@
       }
     }
 
-    // 5. User Management
     async function fetchAdminUsers() {
       const adminUsersList = document.getElementById('adminUsersList');
       adminUsersList.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading users...</td></tr>`;
@@ -1754,7 +1743,6 @@
     document.getElementById('userRoleFilter')?.addEventListener('change', renderUsersTable);
     document.getElementById('refreshUsersBtn')?.addEventListener('click', fetchAdminUsers);
 
-    // Initial Dashboard Setup & Event Binding
     document.addEventListener("DOMContentLoaded", async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -1770,7 +1758,6 @@
 
       document.getElementById('adminEmailDisplay').innerText = `Admin: ${session.user.email}`;
 
-      // Navigation Logic
       const navLinks = document.querySelectorAll('.nav-link-item');
       const sections = document.querySelectorAll('.content-section');
       const pageTitle = document.getElementById('pageTitle');
@@ -1805,16 +1792,15 @@
         });
       });
 
-      // Filter and Refresh Handlers for Author Analytics
       document.getElementById('authorMonthYearFilter')?.addEventListener('change', renderAuthorAnalyticsTable);
       document.getElementById('refreshAuthorAnalyticsBtn')?.addEventListener('click', () => {
         showToast("Refreshing analytics data...");
         fetchDashboardStats();
       });
 
-      // Reset All Page Reads to Zero
+      // Reset verified page reads to zero
       document.getElementById('resetAllReadsBtn')?.addEventListener('click', async () => {
-        const confirmed = confirm("Are you sure you want to reset all author verified page reads to zero? This action will permanently clear logged reading events.");
+        const confirmed = confirm("Are you sure you want to reset all author verified page reads to zero? This will clear all recorded read metrics.");
         if (!confirmed) return;
 
         const btn = document.getElementById('resetAllReadsBtn');
@@ -1825,21 +1811,21 @@
           const { error } = await supabase
             .from('page_read_events')
             .delete()
-            .neq('id', '00000000-0000-0000-0000-000000000000');
+            .gte('seconds_spent', 0);
 
           if (error) throw error;
 
           showToast("All verified page reads have been reset to 0.");
           await fetchDashboardStats();
         } catch (err) {
-          alert("Failed to reset page reads: " + err.message);
+          alert("Reset failed: " + err.message);
         } finally {
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-trash-can me-1"></i> Reset Reads';
         }
       });
 
-      // Real-time listener for page read events
+      // Realtime page read events listener
       supabase
         .channel('realtime_page_reads')
         .on(
