@@ -1029,7 +1029,7 @@
       filteredEvents.forEach(evt => {
         const aName = evt.author_name || 'Unknown Author';
         
-        let aId = evt.author_id && evt.author_id !== 'null' && evt.author_id !== '' 
+        let aId = evt.author_id && evt.author_id !== 'null' && String(evt.author_id).trim() !== '' 
           ? evt.author_id 
           : (usersProfileMap[evt.user_id]?.user_uid || `AUTH-${String(aName).replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase() || 'SDL'}`);
 
@@ -1177,26 +1177,17 @@
         document.getElementById('calcAuthorPool').textContent = `₹${globalAuthorPool.toLocaleString('en-IN')}`;
         document.getElementById('calcOps').textContent = `₹${opsReserve.toLocaleString('en-IN')}`;
 
-        // 1. Fetch active books
-        const { data: activeBooks } = await supabase.from('books').select('id, book_id');
-        const validBookSet = new Set(
-          (activeBooks || []).flatMap(b => [String(b.id), String(b.book_id)]).filter(Boolean)
-        );
-
-        // 2. Fetch page read events
+        // Robust unconstrained fetch of all recorded page reading events
         const { data: readEvents, error } = await supabase
           .from('page_read_events')
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        if (error) {
+          console.warn("Could not retrieve reading events:", error.message);
+        }
 
-        // 3. Filter reads that correspond to existing books safely
-        rawReadEventsData = (readEvents || []).filter(evt => {
-          if (!validBookSet.size) return true;
-          return !evt.book_id || validBookSet.has(String(evt.book_id));
-        });
-
+        rawReadEventsData = readEvents || [];
         populateAnalyticsMonthFilter(rawReadEventsData);
         renderAuthorAnalyticsTable();
 
@@ -1204,6 +1195,107 @@
         console.error("Dashboard Stats Error:", err);
       }
     }
+
+    async function fetchFinancialReports() {
+      const tbody = document.getElementById('reportTableBody');
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading sales reports...</td></tr>`;
+
+      try {
+        const { data: subs, error } = await supabase.from('subscriptions').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+
+        let totalRev = 0;
+        (subs || []).forEach(s => { totalRev += parseFloat(s.price) || 0; });
+        document.getElementById('reportTotalRevenue').textContent = `₹${totalRev.toLocaleString('en-IN')}`;
+        document.getElementById('reportTotalOrders').textContent = (subs || []).length;
+
+        if (!subs || subs.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">No sales records available.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = '';
+        subs.forEach(s => {
+          const userObj = usersProfileMap[s.user_id] || {};
+          const name = userObj.full_name || `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || 'Reader';
+          const date = s.created_at ? new Date(s.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+          
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="ps-4 fw-bold text-primary">${s.subscription_id || 'N/A'}</td>
+            <td class="small text-muted">${date}</td>
+            <td class="fw-semibold text-dark">${name}</td>
+            <td><span class="badge bg-secondary text-uppercase">${s.plan_name || 'Standard'}</span></td>
+            <td class="fw-bold text-success">₹${s.price || 0}</td>
+            <td class="pe-4"><span class="badge bg-success bg-opacity-10 text-success border border-success">Completed</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load reports.</td></tr>`;
+      }
+    }
+
+    async function fetchMessages() {
+      const tbody = document.getElementById('adminMessagesList');
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading messages...</td></tr>`;
+
+      try {
+        const { data: msgs, error } = await supabase.from('messages').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+
+        if (!msgs || msgs.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">No inquiries received yet.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = '';
+        msgs.forEach(m => {
+          const date = m.created_at ? new Date(m.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+          const isResolved = m.status === 'resolved';
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="ps-4 small text-muted">${date}</td>
+            <td>
+              <div class="fw-bold text-dark">${m.name || 'Anonymous'}</div>
+              <small class="text-muted">${m.email || '—'}</small>
+            </td>
+            <td class="fw-semibold text-dark">${m.subject || 'Inquiry'}</td>
+            <td class="small text-muted" style="max-width: 250px;">${m.message || ''}</td>
+            <td><span class="badge ${isResolved ? 'bg-success' : 'bg-warning text-dark'}">${m.status || 'Unread'}</span></td>
+            <td class="pe-4 text-end">
+              <button class="btn btn-sm btn-outline-success resolve-msg-btn me-1" data-id="${m.id}"><i class="fa-solid fa-check"></i></button>
+              <button class="btn btn-sm btn-outline-danger delete-msg-btn" data-id="${m.id}"><i class="fa-solid fa-trash-can"></i></button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        document.querySelectorAll('.resolve-msg-btn').forEach(btn => {
+          btn.addEventListener('click', async function() {
+            const id = this.getAttribute('data-id');
+            await supabase.from('messages').update({ status: 'resolved' }).eq('id', id);
+            showToast("Inquiry marked as resolved.");
+            fetchMessages();
+          });
+        });
+
+        document.querySelectorAll('.delete-msg-btn').forEach(btn => {
+          btn.addEventListener('click', async function() {
+            const id = this.getAttribute('data-id');
+            if (!confirm("Delete this inquiry?")) return;
+            await supabase.from('messages').delete().eq('id', id);
+            showToast("Inquiry deleted.");
+            fetchMessages();
+          });
+        });
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load messages.</td></tr>`;
+      }
+    }
+
+    document.getElementById('refreshMessagesBtn')?.addEventListener('click', fetchMessages);
 
     async function loadPlanConfiguration() {
       try {
@@ -1417,7 +1509,7 @@
 
     async function fetchApprovalBooks() {
       const tbody = document.getElementById('approvalBooksList');
-      tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading books...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading pipeline...</td></tr>`;
 
       try {
         await preloadProfiles();
@@ -1425,35 +1517,10 @@
         if (error) throw error;
 
         allBooksData = books || [];
-        populateMonthDropdown(allBooksData);
         renderBooksTable();
       } catch (err) {
         tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-danger">Failed to load pipeline: ${err.message}</td></tr>`;
       }
-    }
-
-    function populateMonthDropdown(books) {
-      const monthSelect = document.getElementById('bookMonthFilter');
-      if (!monthSelect) return;
-      monthSelect.innerHTML = `<option value="all">All Months</option>`;
-
-      const monthSet = new Set();
-      books.forEach(b => {
-        if (b.created_at) {
-          const d = new Date(b.created_at);
-          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-          const label = d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
-          monthSet.add(JSON.stringify({ key, label }));
-        }
-      });
-
-      Array.from(monthSet).forEach(itemStr => {
-        const { key, label } = JSON.parse(itemStr);
-        const opt = document.createElement('option');
-        opt.value = key;
-        opt.textContent = label;
-        monthSelect.appendChild(opt);
-      });
     }
 
     function renderBooksTable() {
@@ -1462,66 +1529,26 @@
       const monthFilter = document.getElementById('bookMonthFilter')?.value || 'all';
       const statusFilter = document.getElementById('bookStatusFilter')?.value || 'all';
 
-      document.getElementById('totalBooksCount').textContent = allBooksData.length;
-      let pendingCount = 0, selectedMonthUploads = 0;
-
-      const targetMonthKey = monthFilter !== 'all' 
-        ? monthFilter 
-        : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-
-      allBooksData.forEach(b => {
-        const status = (b.status || 'under review').toLowerCase();
-        if (status !== 'published') pendingCount++;
-        if (b.created_at) {
-          const d = new Date(b.created_at);
-          const bKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-          if (bKey === targetMonthKey) selectedMonthUploads++;
-        }
-      });
-
-      document.getElementById('pendingBooksCount').textContent = pendingCount;
-      document.getElementById('monthBooksCount').textContent = selectedMonthUploads;
+      tbody.innerHTML = '';
 
       const filtered = allBooksData.filter(book => {
         const bookRefId = (book.book_id || `BK-${String(book.id).substring(0, 6)}` || '').toLowerCase();
         const authorId = (book.author_id || book.user_uid || '').toLowerCase();
         const title = (book.title || '').toLowerCase();
         const author = (book.author || '').toLowerCase();
-        const isPublished = (book.status || '').toLowerCase() === 'published';
-
-        const matchesSearch = !searchVal || bookRefId.includes(searchVal) || authorId.includes(searchVal) || title.includes(searchVal) || author.includes(searchVal);
-        let matchesMonth = true;
-        if (monthFilter !== 'all' && book.created_at) {
-          const d = new Date(book.created_at);
-          const bKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-          matchesMonth = (bKey === monthFilter);
-        }
-
-        let matchesStatus = true;
-        if (statusFilter === 'published') matchesStatus = isPublished;
-        if (statusFilter === 'under_review') matchesStatus = !isPublished;
-
-        return matchesSearch && matchesMonth && matchesStatus;
+        
+        return !searchVal || bookRefId.includes(searchVal) || authorId.includes(searchVal) || title.includes(searchVal) || author.includes(searchVal);
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-5 text-muted fw-semibold">No books found matching search or filter criteria.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-5 text-muted fw-semibold">No books found matching criteria.</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = '';
       filtered.forEach((book, index) => {
         const serialNo = index + 1;
         const date = new Date(book.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-        const scriptBadge = book.language && book.language.includes('santali') 
-          ? `<span class="badge bg-secondary">Santali (Ol Chiki)</span>` 
-          : `<span class="badge bg-dark">${book.language || 'English'}</span>`;
-        
         const isPublished = (book.status || '').toLowerCase() === 'published';
-        const statusBadge = isPublished
-          ? `<span class="badge bg-success">Published</span>`
-          : `<span class="badge bg-warning text-dark">Under Review</span>`;
-
         const bookRefId = book.book_id || `BK-${String(book.id).substring(0, 6).toUpperCase()}`;
         const authorRefId = book.author_id || book.user_uid || `AUTH-${String(book.author || 'SDL').replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase()}`;
         const isFeatured = book.is_featured === true;
@@ -1529,18 +1556,8 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td class="ps-3 text-center fw-bold text-muted">${serialNo}</td>
-          <td>
-            <span class="book-id-badge" title="Click to copy Book ID">
-              <span>${bookRefId}</span>
-              <i class="fa-regular fa-copy copy-bookid-btn" data-id="${bookRefId}"></i>
-            </span>
-          </td>
-          <td>
-            <span class="author-id-badge" title="Click to copy Author ID">
-              <span>${authorRefId}</span>
-              <i class="fa-regular fa-copy copy-approval-authorid-btn" data-id="${authorRefId}"></i>
-            </span>
-          </td>
+          <td><span class="book-id-badge"><span>${bookRefId}</span></span></td>
+          <td><span class="author-id-badge"><span>${authorRefId}</span></span></td>
           <td>
             <div class="d-flex align-items-center">
               <img src="${book.cover_url || 'https://via.placeholder.com/40x55'}" class="book-cover-thumb me-3" onerror="this.src='https://via.placeholder.com/40x55'">
@@ -1550,9 +1567,9 @@
               </div>
             </div>
           </td>
-          <td>${scriptBadge}</td>
+          <td><span class="badge bg-secondary">${book.language || 'English'}</span></td>
           <td class="text-muted small">${date}</td>
-          <td>${statusBadge}</td>
+          <td><span class="badge ${isPublished ? 'bg-success' : 'bg-warning text-dark'}">${book.status || 'Under Review'}</span></td>
           <td>
             <div class="form-check form-switch">
               <input class="form-check-input toggle-featured-switch" type="checkbox" data-id="${book.id}" ${isFeatured ? 'checked' : ''}>
@@ -1563,26 +1580,9 @@
               ? `<button class="btn btn-sm btn-success approve-book-btn me-1" data-id="${book.id}"><i class="fa-solid fa-check me-1"></i>Publish</button>` 
               : `<button class="btn btn-sm btn-outline-secondary unpublish-book-btn me-1" data-id="${book.id}">Unpublish</button>`
             }
-            <button class="btn btn-sm btn-outline-danger delete-book-btn" data-id="${book.id}" data-title="${book.title}">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
           </td>
         `;
         tbody.appendChild(tr);
-      });
-
-      document.querySelectorAll('.copy-bookid-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const id = e.target.getAttribute('data-id');
-          navigator.clipboard.writeText(id).then(() => showToast(`Copied Book ID: ${id}`));
-        });
-      });
-
-      document.querySelectorAll('.copy-approval-authorid-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const id = e.target.getAttribute('data-id');
-          navigator.clipboard.writeText(id).then(() => showToast(`Copied Author ID: ${id}`));
-        });
       });
 
       document.querySelectorAll('.approve-book-btn').forEach(btn => {
@@ -1602,7 +1602,7 @@
           fetchApprovalBooks();
         });
       });
-
+      
       document.querySelectorAll('.toggle-featured-switch').forEach(switchEl => {
         switchEl.addEventListener('change', async function() {
           const id = this.getAttribute('data-id');
@@ -1610,22 +1610,9 @@
           showToast(this.checked ? "Added to Home Slider!" : "Removed from Home Slider.");
         });
       });
-
-      document.querySelectorAll('.delete-book-btn').forEach(btn => {
-        btn.addEventListener('click', async function() {
-          const id = this.getAttribute('data-id');
-          const title = this.getAttribute('data-title') || 'this book';
-          if (!confirm(`Delete "${title}" from the database?`)) return;
-          await supabase.from('books').delete().eq('id', id);
-          fetchApprovalBooks();
-          fetchDashboardStats();
-        });
-      });
     }
 
     document.getElementById('bookSearchInput')?.addEventListener('input', renderBooksTable);
-    document.getElementById('bookMonthFilter')?.addEventListener('change', renderBooksTable);
-    document.getElementById('bookStatusFilter')?.addEventListener('change', renderBooksTable);
     document.getElementById('refreshApprovalBtn')?.addEventListener('click', fetchApprovalBooks);
 
     async function loadSiteSettings() {
@@ -1763,107 +1750,6 @@
     document.getElementById('userRoleFilter')?.addEventListener('change', renderUsersTable);
     document.getElementById('refreshUsersBtn')?.addEventListener('click', fetchAdminUsers);
 
-    async function fetchFinancialReports() {
-      const tbody = document.getElementById('reportTableBody');
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading sales reports...</td></tr>`;
-
-      try {
-        const { data: subs, error } = await supabase.from('subscriptions').select('*').order('created_at', { ascending: false });
-        if (error) throw error;
-
-        let totalRev = 0;
-        (subs || []).forEach(s => { totalRev += parseFloat(s.price) || 0; });
-        document.getElementById('reportTotalRevenue').textContent = `₹${totalRev.toLocaleString('en-IN')}`;
-        document.getElementById('reportTotalOrders').textContent = (subs || []).length;
-
-        if (!subs || subs.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">No sales records available.</td></tr>`;
-          return;
-        }
-
-        tbody.innerHTML = '';
-        subs.forEach(s => {
-          const userObj = usersProfileMap[s.user_id] || {};
-          const name = userObj.full_name || `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || 'Reader';
-          const date = s.created_at ? new Date(s.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
-          
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="ps-4 fw-bold text-primary">${s.subscription_id || 'N/A'}</td>
-            <td class="small text-muted">${date}</td>
-            <td class="fw-semibold text-dark">${name}</td>
-            <td><span class="badge bg-secondary text-uppercase">${s.plan_name || 'Standard'}</span></td>
-            <td class="fw-bold text-success">₹${s.price || 0}</td>
-            <td class="pe-4"><span class="badge bg-success bg-opacity-10 text-success border border-success">Completed</span></td>
-          `;
-          tbody.appendChild(tr);
-        });
-      } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load reports.</td></tr>`;
-      }
-    }
-
-    async function fetchMessages() {
-      const tbody = document.getElementById('adminMessagesList');
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading messages...</td></tr>`;
-
-      try {
-        const { data: msgs, error } = await supabase.from('messages').select('*').order('created_at', { ascending: false });
-        if (error) throw error;
-
-        if (!msgs || msgs.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">No inquiries received yet.</td></tr>`;
-          return;
-        }
-
-        tbody.innerHTML = '';
-        msgs.forEach(m => {
-          const date = m.created_at ? new Date(m.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
-          const isResolved = m.status === 'resolved';
-
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="ps-4 small text-muted">${date}</td>
-            <td>
-              <div class="fw-bold text-dark">${m.name || 'Anonymous'}</div>
-              <small class="text-muted">${m.email || '—'}</small>
-            </td>
-            <td class="fw-semibold text-dark">${m.subject || 'Inquiry'}</td>
-            <td class="small text-muted" style="max-width: 250px;">${m.message || ''}</td>
-            <td><span class="badge ${isResolved ? 'bg-success' : 'bg-warning text-dark'}">${m.status || 'Unread'}</span></td>
-            <td class="pe-4 text-end">
-              <button class="btn btn-sm btn-outline-success resolve-msg-btn me-1" data-id="${m.id}"><i class="fa-solid fa-check"></i></button>
-              <button class="btn btn-sm btn-outline-danger delete-msg-btn" data-id="${m.id}"><i class="fa-solid fa-trash-can"></i></button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-
-        document.querySelectorAll('.resolve-msg-btn').forEach(btn => {
-          btn.addEventListener('click', async function() {
-            const id = this.getAttribute('data-id');
-            await supabase.from('messages').update({ status: 'resolved' }).eq('id', id);
-            showToast("Inquiry marked as resolved.");
-            fetchMessages();
-          });
-        });
-
-        document.querySelectorAll('.delete-msg-btn').forEach(btn => {
-          btn.addEventListener('click', async function() {
-            const id = this.getAttribute('data-id');
-            if (!confirm("Delete this inquiry?")) return;
-            await supabase.from('messages').delete().eq('id', id);
-            showToast("Inquiry deleted.");
-            fetchMessages();
-          });
-        });
-      } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load messages.</td></tr>`;
-      }
-    }
-
-    document.getElementById('refreshMessagesBtn')?.addEventListener('click', fetchMessages);
-
     document.addEventListener("DOMContentLoaded", async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -1920,37 +1806,40 @@
       });
 
       document.getElementById('authorMonthYearFilter')?.addEventListener('change', renderAuthorAnalyticsTable);
+      
       document.getElementById('refreshAuthorAnalyticsBtn')?.addEventListener('click', () => {
         showToast("Refreshing analytics...");
         fetchDashboardStats();
       });
 
+      // Fixed Reset Analytics Logic using unconstrained ID matching
       document.getElementById('resetAllReadsBtn')?.addEventListener('click', async () => {
-        if (!confirm("Are you sure you want to reset all verified page reads to zero?")) return;
+        if (!confirm("Are you sure you want to completely reset all verified page reads to zero? This cannot be undone.")) return;
 
         const btn = document.getElementById('resetAllReadsBtn');
         btn.disabled = true;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Resetting...';
 
         try {
+          // Bypasses the Postgres empty delete block by checking where id is not null
           const { error } = await supabase
             .from('page_read_events')
             .delete()
-            .neq('author_name', '___NON_EXISTENT_SAFETY_VALUE___');
+            .not('id', 'is', null);
 
           if (error) throw error;
 
-          showToast("All verified page reads have been reset to 0.");
+          showToast("All verified page reads have been wiped successfully.");
           await fetchDashboardStats();
         } catch (err) {
-          alert("Reset failed: " + err.message);
+          alert("Reset blocked by database rule: Please ensure you have RLS access to DELETE from page_read_events.");
         } finally {
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-trash-can me-1"></i> Reset Reads';
         }
       });
 
-      // Real-time listener for page read events
+      // Realtime listener for page read events
       supabase
         .channel('realtime_admin_page_reads')
         .on(
@@ -1967,6 +1856,7 @@
         window.location.href = "admin-login.html";
       });
 
+      // Execute on load
       fetchDashboardStats();
       fetchSubscriptionDetails();
     });
