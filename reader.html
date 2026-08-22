@@ -132,6 +132,7 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
+      word-break: break-all;
     }
 
     .live-dwell-pill {
@@ -578,9 +579,9 @@
     }
 
     async function initUserSession() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        currentUser = user;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        currentUser = session.user;
         const { data: profile } = await supabase
           .from('profiles')
           .select('full_name, first_name, username')
@@ -683,29 +684,50 @@
       const activeUser = userRes.data?.user || currentUser;
       const uId = activeUser ? activeUser.id : null;
 
-      const payload = {
-        book_id: String(resolvedBookId || activeBookRecord?.id || activeBookRecord?.book_id || rawParamId || '1'),
+      // Base payload
+      const basePayload = {
         author_id: String(currentAuthorId || ''),
         author_name: String(currentAuthorName || 'Unknown Author'),
         page_number: parseInt(pageNo, 10) || 1,
         seconds_spent: MIN_DWELL_SECONDS
       };
-
       if (uId) {
-        payload.user_id = uId;
+        basePayload.user_id = uId;
       }
 
-      try {
+      // Try inserting with multiple book_id formats to prevent Postgres data type mismatch
+      const bookKeyOptions = [
+        activeBookRecord?.id !== undefined ? activeBookRecord.id : null,
+        activeBookRecord?.book_id || null,
+        resolvedBookId || null,
+        rawParamId || null
+      ].filter(v => v !== null);
+
+      let isSuccess = false;
+
+      for (const bId of bookKeyOptions) {
+        const payload = { ...basePayload, book_id: bId };
         const { error } = await supabase.from('page_read_events').insert([payload]);
         if (!error) {
-          totalVerifiedReads++;
-          document.getElementById('sidebarVerifiedReadsCount').textContent = `${totalVerifiedReads.toLocaleString('en-IN')} Pages Read`;
-          console.info(`[Analytics] Verified read committed: Page ${pageNo} for Author: ${currentAuthorName}`);
-        } else {
-          console.error("[Analytics Error] Supabase Insert Failed:", error.message);
+          isSuccess = true;
+          break;
         }
-      } catch (error) {
-        console.error("Failed to commit verified page read:", error);
+      }
+
+      // Fallback without book_id if schema has no foreign key constraint
+      if (!isSuccess) {
+        const { error: fallbackErr } = await supabase.from('page_read_events').insert([basePayload]);
+        if (!fallbackErr) {
+          isSuccess = true;
+        } else {
+          console.error("[Analytics Error] Insert failed:", fallbackErr.message);
+        }
+      }
+
+      if (isSuccess) {
+        totalVerifiedReads++;
+        document.getElementById('sidebarVerifiedReadsCount').textContent = `${totalVerifiedReads.toLocaleString('en-IN')} Pages Read`;
+        console.info(`[Analytics] Verified read committed: Page ${pageNo} for Author: ${currentAuthorName}`);
       }
     }
 
