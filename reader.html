@@ -369,15 +369,6 @@
         <button class="btn btn-sm btn-close d-lg-none" id="closeRightSidebar"></button>
       </h6>
 
-      <!-- Santali Text-to-Speech Feature Widget -->
-      <div class="mb-4">
-        <div class="control-label"><i class="fa-solid fa-volume-high me-1 text-primary"></i> Santali Text-to-Speech</div>
-        <div class="d-flex gap-2">
-          <button type="button" class="btn btn-sm btn-primary w-50" id="ttsPlayBtn"><i class="fa-solid fa-play me-1"></i> Play</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary w-50" id="ttsStopBtn"><i class="fa-solid fa-stop me-1"></i> Stop</button>
-        </div>
-      </div>
-
       <div class="mb-4">
         <div class="control-label">Background Theme</div>
         <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light border">
@@ -504,54 +495,6 @@
     document.getElementById('toggleLeftDrawerBtn')?.addEventListener('click', () => leftSidebar.classList.toggle('show'));
     document.getElementById('toggleRightDrawerBtn')?.addEventListener('click', () => rightSidebar.classList.toggle('show'));
     document.getElementById('closeRightSidebar')?.addEventListener('click', () => rightSidebar.classList.remove('show'));
-
-    // Santali Text-to-Speech Handler Integration
-    const ttsPlayBtn = document.getElementById('ttsPlayBtn');
-    const ttsStopBtn = document.getElementById('ttsStopBtn');
-
-    ttsPlayBtn?.addEventListener('click', () => {
-      if (!('speechSynthesis' in window)) {
-        alert('Text-to-speech is not supported by your browser.');
-        return;
-      }
-      window.speechSynthesis.cancel();
-
-      let textToSpeak = '';
-      const activeIframe = document.querySelector('#epub-viewer iframe');
-      if (activeIframe) {
-        try {
-          const doc = activeIframe.contentDocument || activeIframe.contentWindow.document;
-          textToSpeak = doc.body ? doc.body.innerText : '';
-        } catch (e) {
-          console.warn("Could not read iframe text for TTS", e);
-        }
-      }
-
-      if (!textToSpeak.trim()) {
-        textToSpeak = document.getElementById('topBookTitle')?.innerText || 'No text found to read.';
-      }
-
-      const utterance = new SpeechSynthesisUtterance(textToSpeak);
-      utterance.lang = 'sat-IN'; // Santali language code locale
-      utterance.rate = 1.0;
-
-      utterance.onend = () => {
-        if (ttsPlayBtn) ttsPlayBtn.innerHTML = '<i class="fa-solid fa-play me-1"></i> Play';
-      };
-      utterance.onerror = () => {
-        if (ttsPlayBtn) ttsPlayBtn.innerHTML = '<i class="fa-solid fa-play me-1"></i> Play';
-      };
-
-      window.speechSynthesis.speak(utterance);
-      if (ttsPlayBtn) ttsPlayBtn.innerHTML = '<i class="fa-solid fa-volume-high me-1"></i> Speaking...';
-    });
-
-    ttsStopBtn?.addEventListener('click', () => {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        if (ttsPlayBtn) ttsPlayBtn.innerHTML = '<i class="fa-solid fa-play me-1"></i> Play';
-      }
-    });
 
     function refreshIframeStyles() {
       const viewer = document.getElementById('epub-viewer');
@@ -732,10 +675,16 @@
     }
 
     function isPageActuallyVisible() {
+      // Use the Page Visibility API only. document.hasFocus() is unreliable
+      // here - it can report false when the reader is embedded in a preview
+      // pane/iframe or when focus briefly moves to a control like a select
+      // dropdown, even though the tab is fully visible and being read. Tab
+      // switches / minimizing are what we actually want to catch, and
+      // document.hidden covers that correctly on its own.
       return !document.hidden;
     }
 
-    let dwellIndicatorState = 'counting';
+    let dwellIndicatorState = 'counting'; // 'counting' | 'paused' | 'saving' | 'verified' | 'error'
 
     function renderDwellIndicator() {
       const indicator = document.getElementById('dwellActiveIndicator');
@@ -757,7 +706,7 @@
           indicator.className = "live-dwell-pill bg-warning bg-opacity-25 text-dark border-warning";
           indicator.innerHTML = `<i class="fa-solid fa-pause me-1"></i> Paused: ${dwellSecondsLeft}s left`;
           break;
-        default:
+        default: // 'counting'
           indicator.className = "live-dwell-pill";
           indicator.innerHTML = `<span class="dwell-pulse"></span> Verifying: ${dwellSecondsLeft}s`;
       }
@@ -773,6 +722,8 @@
       renderDwellIndicator();
 
       dwellInterval = setInterval(async () => {
+        // Only count this tick toward the 10 seconds if the reader is actually
+        // in view. Otherwise, skip the tick entirely (timer effectively pauses).
         if (!isPageActuallyVisible()) {
           dwellIndicatorState = 'paused';
           renderDwellIndicator();
@@ -798,6 +749,9 @@
       }, 1000);
     }
 
+    // Re-render the indicator immediately on visibility/focus changes so the
+    // "Paused" state shows up right away instead of waiting for the next tick.
+    // Only relevant while we're still counting - once saving/verified/error, leave it alone.
     document.addEventListener('visibilitychange', () => {
       if (dwellIndicatorState !== 'counting') return;
       if (!isPageActuallyVisible()) {
@@ -806,6 +760,10 @@
       }
     });
 
+    // Explicit database insertion with strict error handling and UI sync.
+    // Returns true only if the row was actually confirmed written to Supabase -
+    // the "Verified Read!" badge and the page count are only ever updated
+    // after this returns true, so the UI can never claim success on a failed write.
     async function commitVerifiedReadEvent(pageNo) {
       const basePayload = {
         book_id: String(resolvedBookId || activeBookRecord?.book_id || activeBookRecord?.id || rawParamId || 'BK-1'),
@@ -818,6 +776,8 @@
         basePayload.user_id = currentUser.id;
       }
 
+      // Known fallback values we can auto-fill if Supabase reports a NOT NULL
+      // violation on a column we recognize but didn't originally include/kept empty.
       const knownFieldValues = {
         author_name: String(currentAuthorName || 'Unknown Author'),
         author_id: String(currentAuthorId || 'AUTH-SDL'),
@@ -826,6 +786,10 @@
         seconds_spent: basePayload.seconds_spent
       };
 
+      // Self-healing against schema drift: if PostgREST reports a column
+      // doesn't exist, drop it and retry. If it reports a NOT NULL violation
+      // on a column we have a known value for, fill it in and retry. book_id/
+      // page_number are never dropped - the row is meaningless without them.
       let attemptsLeft = 6;
       while (attemptsLeft > 0) {
         attemptsLeft--;
@@ -835,28 +799,38 @@
           if (!error) {
             totalVerifiedReads += 1;
             updateVerifiedReadsDisplay();
+            console.info(`[Success] Verified page ${pageNo} committed to DB for book: ${basePayload.book_id}`, data);
             return true;
           }
 
           const missingColMatch = /Could not find the '([^']+)' column/i.exec(error.message || '');
           if (missingColMatch && missingColMatch[1] in basePayload && missingColMatch[1] !== 'book_id' && missingColMatch[1] !== 'page_number') {
+            console.warn(`page_read_events is missing column '${missingColMatch[1]}' - dropping it and retrying.`);
             delete basePayload[missingColMatch[1]];
             continue;
           }
 
           const notNullMatch = /null value in column "([^"]+)"/i.exec(error.message || '');
           if (notNullMatch && !(notNullMatch[1] in basePayload) && notNullMatch[1] in knownFieldValues) {
+            console.warn(`page_read_events requires '${notNullMatch[1]}' - filling it in and retrying.`);
             basePayload[notNullMatch[1]] = knownFieldValues[notNullMatch[1]];
             continue;
           }
 
+          // Different failure shape (e.g. foreign key violation because user_id
+          // doesn't match an auth.users row - common for guest sessions).
+          // Drop user_id once and retry before giving up.
           if ('user_id' in basePayload) {
+            console.warn("page_read_events insert failed with user_id set - retrying without it:", error.message);
             delete basePayload.user_id;
             continue;
           }
 
+          console.error("Supabase insert rejected event:", error.message, error.details || '', error.hint || '');
+          console.error("Check Supabase RLS policies on 'page_read_events' (anon/authenticated INSERT), or a NOT NULL / FK constraint on:", basePayload);
           return false;
         } catch (err) {
+          console.error("Network exception committing verified page read:", err);
           return false;
         }
       }
@@ -882,6 +856,11 @@
 
       if (cfi) payload.last_cfi = cfi;
 
+      // Some deployments' 'reading_progress' table doesn't have every column
+      // the app tries to write (e.g. author_id, last_cfi). Rather than hardcode
+      // which ones to drop, parse the missing column straight out of
+      // PostgREST's error message and retry without it - self-healing against
+      // schema drift instead of failing outright.
       let attemptsLeft = 5;
       while (attemptsLeft > 0) {
         attemptsLeft--;
@@ -890,15 +869,19 @@
             .from('reading_progress')
             .upsert(payload, { onConflict: 'user_id,book_id' });
 
-          if (!error) break;
+          if (!error) break; // success
 
           const missingColMatch = /Could not find the '([^']+)' column/i.exec(error.message || '');
           if (missingColMatch && missingColMatch[1] in payload) {
+            console.warn(`reading_progress is missing column '${missingColMatch[1]}' - dropping it and retrying.`);
             delete payload[missingColMatch[1]];
-            continue;
+            continue; // retry with that column stripped
           }
-          break;
+
+          console.error("Reading progress sync error:", error.message, error.details || '');
+          break; // not a column-missing error (or nothing left to strip) - stop
         } catch (err) {
+          console.error("Network exception during progress save:", err);
           break;
         }
       }
