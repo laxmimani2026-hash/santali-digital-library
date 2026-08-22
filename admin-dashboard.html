@@ -141,35 +141,35 @@
           <div class="card stat-card p-4 text-center border-start border-success border-4">
             <i class="fa-solid fa-indian-rupee-sign text-success fs-2 mb-2"></i>
             <h2 class="fw-bold mb-0" id="grossRevenueText">₹0</h2>
-            <p class="text-muted small mb-0">Gross Subscription Revenue</p>
+            <p class="text-muted small mb-0">Monthly Amortized Revenue</p>
           </div>
         </div>
         <div class="col-md-3">
           <div class="card stat-card p-4 text-center border-start border-warning border-4">
             <i class="fa-solid fa-sack-dollar text-warning fs-2 mb-2"></i>
             <h2 class="fw-bold mb-0" id="authorPoolText">₹0</h2>
-            <p class="text-muted small mb-0">Author Royalty Pool (40%)</p>
+            <p class="text-muted small mb-0">Monthly Author Pool (40%)</p>
           </div>
         </div>
         <div class="col-md-3">
           <div class="card stat-card p-4 text-center border-start border-info border-4">
             <i class="fa-solid fa-chart-line text-info fs-2 mb-2"></i>
             <h2 class="fw-bold mb-0" id="platformProfitText">₹0</h2>
-            <p class="text-muted small mb-0">Net Platform Profit</p>
+            <p class="text-muted small mb-0">Net Monthly Profit</p>
           </div>
         </div>
       </div>
 
       <!-- Financial Calculation Summary Card -->
       <div class="card stat-card p-4 mb-4">
-        <h5 class="fw-bold mb-3"><i class="fa-solid fa-calculator me-2 text-primary"></i>Royalty & Operating Breakdown Model</h5>
+        <h5 class="fw-bold mb-3"><i class="fa-solid fa-calculator me-2 text-primary"></i>Monthly Amortization & Royalty Model</h5>
         <div class="row g-3 text-center">
           <div class="col-md-2 border-end">
-            <small class="text-muted d-block">Gross Revenue</small>
+            <small class="text-muted d-block">Monthly Pool (Amortized)</small>
             <strong class="fs-5 text-dark" id="calcGross">₹0</strong>
           </div>
           <div class="col-md-2 border-end">
-            <small class="text-muted d-block">Deductions (Taxes/Gateway)</small>
+            <small class="text-muted d-block">Deductions (5%)</small>
             <strong class="fs-5 text-danger" id="calcDeductions">- ₹0</strong>
           </div>
           <div class="col-md-2 border-end">
@@ -181,28 +181,28 @@
             <strong class="fs-5 text-warning" id="calcAuthorPool">₹0</strong>
           </div>
           <div class="col-md-3">
-            <small class="text-muted d-block">Ops Expense & Reserve</small>
+            <small class="text-muted d-block">Platform Ops & Profit (55%)</small>
             <strong class="fs-5 text-secondary" id="calcOps">₹0</strong>
           </div>
         </div>
       </div>
 
-      <!-- Author Page Consumption Analytics Table -->
+      <!-- Author Page Consumption Analytics & Payout Management Table -->
       <div class="card stat-card p-0 overflow-hidden mb-4 shadow-sm">
         <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
           <div>
             <div class="d-flex align-items-center gap-2">
               <h5 class="fw-bold mb-0 text-dark">
-                <i class="fa-solid fa-book-reader text-success me-2"></i>Author Page Consumption Analytics (&gt;10s Verified Reads)
+                <i class="fa-solid fa-book-reader text-success me-2"></i>Author Page Consumption & Monthly Payouts
               </h5>
               <span class="badge bg-success rounded-pill px-3 py-2" id="totalVerifiedPagesCount">0 Pages Read</span>
             </div>
-            <small class="text-muted">Calculates verified reads per author to distribute the 40% author royalty pool.</small>
+            <small class="text-muted">Calculates amortized royalties and tracks paid vs. remaining balance per author.</small>
           </div>
 
           <div class="d-flex align-items-center gap-2">
             <select id="authorMonthYearFilter" class="form-select form-select-sm border-secondary fw-semibold" style="width: 170px;">
-              <option value="all">All Time Records</option>
+              <option value="all">Current Active Month</option>
             </select>
 
             <button class="btn btn-sm btn-outline-primary fw-semibold" id="refreshAuthorAnalyticsBtn">
@@ -222,16 +222,17 @@
                 <tr>
                   <th class="ps-4">Author ID</th>
                   <th>Author Name</th>
-                  <th>Total Verified Pages</th>
-                  <th>Unique Readers</th>
-                  <th>Share of Total Pool</th>
-                  <th>Est. Author Royalty</th>
-                  <th class="pe-4 text-end">Inspect Reader Details</th>
+                  <th>Verified Pages</th>
+                  <th>Pool Share</th>
+                  <th>Earned Royalty</th>
+                  <th>Paid Amount</th>
+                  <th>Remaining Balance</th>
+                  <th class="pe-4 text-end">Actions</th>
                 </tr>
               </thead>
               <tbody id="authorReadingStatsBody">
                 <tr>
-                  <td colspan="7" class="text-center py-4 text-muted">
+                  <td colspan="8" class="text-center py-4 text-muted">
                     <div class="spinner-border text-primary spinner-border-sm me-2"></div> Calculating reading metrics...
                   </td>
                 </tr>
@@ -905,7 +906,7 @@
 
   </div>
 
-  <!-- Readers Inspector Modal -->
+  <!-- Modal 1: Readers Inspector -->
   <div class="modal fade" id="readerDetailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content rounded-4 border-0 shadow">
@@ -943,6 +944,51 @@
     </div>
   </div>
 
+  <!-- Modal 2: Author Payout Settlement -->
+  <div class="modal fade" id="payoutModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0 shadow">
+        <div class="modal-header border-bottom bg-light">
+          <h5 class="modal-title fw-bold text-dark mb-0">Record Royalty Payout</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="payoutForm">
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <label class="small text-muted fw-bold">Author</label>
+              <div class="fw-bold fs-6 text-dark" id="modalAuthorName">--</div>
+              <small class="text-muted" id="modalAuthorId">--</small>
+            </div>
+            <div class="row g-2 mb-3 bg-light p-2 rounded-3 border">
+              <div class="col-6">
+                <small class="text-muted d-block">Earned Royalty</small>
+                <strong class="text-dark" id="modalEarnedAmount">₹0</strong>
+              </div>
+              <div class="col-6">
+                <small class="text-muted d-block">Pending Balance</small>
+                <strong class="text-danger fs-6" id="modalRemainingAmount">₹0</strong>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Amount to Pay (₹) <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="payoutAmountInput" min="1" step="0.01" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Payment Reference / Transaction ID</label>
+              <input type="text" class="form-control" id="payoutTxRefInput" placeholder="e.g. UPI / IMPS Ref ID">
+            </div>
+          </div>
+          <div class="modal-footer border-top">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-success btn-sm fw-bold px-3" id="confirmPayoutBtn">
+              <i class="fa-solid fa-check me-1"></i> Record & Deduct
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <div id="adminToast">Action Completed</div>
 
   <!-- Supabase Logic -->
@@ -960,6 +1006,7 @@
     let usersProfileMap = {};
     let rawReadEventsData = [];
     let authorAnalyticsMap = {};
+    let authorPayoutsHistory = [];
     let globalAuthorPool = 0;
 
     function rebuildBooksMap() {
@@ -974,10 +1021,7 @@
     async function loadBooksData() {
       try {
         const { data: books, error } = await supabase.from('books').select('*').order('created_at', { ascending: false });
-        if (error) {
-          console.warn("Could not load books for author lookup:", error.message);
-          return;
-        }
+        if (error) return;
         allBooksData = books || [];
         rebuildBooksMap();
       } catch (err) {
@@ -1008,13 +1052,24 @@
       });
     }
 
+    // Populate dynamic month filter based on read events
     function populateAnalyticsMonthFilter(events) {
       const filterSelect = document.getElementById('authorMonthYearFilter');
       if (!filterSelect) return;
-      const currentSelection = filterSelect.value;
-      filterSelect.innerHTML = `<option value="all">All Time Records</option>`;
+      
+      const now = new Date();
+      const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const currentSelection = filterSelect.value || currentMonthKey;
+      
+      filterSelect.innerHTML = '';
 
       const monthYearSet = new Set();
+      // Always include current month
+      monthYearSet.add(JSON.stringify({ 
+        key: currentMonthKey, 
+        label: now.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }) 
+      }));
+
       events.forEach(evt => {
         if (evt.created_at) {
           const d = new Date(evt.created_at);
@@ -1034,16 +1089,74 @@
       });
     }
 
-    function renderAuthorAnalyticsTable() {
+    // 1. Calculate Amortized Monthly Revenue Pool for the Selected Month
+    function calculateMonthlyAmortizedPool(selectedMonthKey) {
+      let monthlyGross = 0;
+      const targetDate = new Date(selectedMonthKey + "-01");
+      const targetYear = targetDate.getFullYear();
+      const targetMonth = targetDate.getMonth();
+
+      allSubscribersData.forEach(sub => {
+        const start = new Date(sub.activated_on || sub.created_at);
+        const end = sub.valid_until ? new Date(sub.valid_until) : new Date(start.getTime() + 30*24*60*60*1000);
+        
+        const subStartMonth = new Date(start.getFullYear(), start.getMonth(), 1);
+        const subEndMonth = new Date(end.getFullYear(), end.getMonth(), 1);
+
+        // Check if subscription was active during the target month
+        if (targetDate >= subStartMonth && targetDate <= subEndMonth) {
+          const plan = (sub.plan_name || '').toLowerCase();
+          const price = parseFloat(sub.price) || 0;
+
+          if (plan.includes('year') || plan.includes('annual')) {
+            monthlyGross += (price / 12);
+          } else if (plan.includes('quarter')) {
+            monthlyGross += (price / 3);
+          } else {
+            monthlyGross += price;
+          }
+        }
+      });
+
+      const deductions = Math.round(monthlyGross * 0.05);
+      const netDistributable = Math.max(0, monthlyGross - deductions);
+      globalAuthorPool = Math.round(netDistributable * 0.40);
+      const opsReserve = Math.round(netDistributable * 0.55);
+
+      document.getElementById('calcGross').textContent = `₹${Math.round(monthlyGross).toLocaleString('en-IN')}`;
+      document.getElementById('calcDeductions').textContent = `- ₹${deductions.toLocaleString('en-IN')}`;
+      document.getElementById('calcNet').textContent = `₹${Math.round(netDistributable).toLocaleString('en-IN')}`;
+      document.getElementById('calcAuthorPool').textContent = `₹${globalAuthorPool.toLocaleString('en-IN')}`;
+      document.getElementById('calcOps').textContent = `₹${opsReserve.toLocaleString('en-IN')}`;
+      
+      document.getElementById('grossRevenueText').textContent = `₹${Math.round(monthlyGross).toLocaleString('en-IN')}`;
+      document.getElementById('authorPoolText').textContent = `₹${globalAuthorPool.toLocaleString('en-IN')}`;
+      document.getElementById('platformProfitText').textContent = `₹${opsReserve.toLocaleString('en-IN')}`;
+    }
+
+    // 2. Render Author Reading Analytics & Settlement Balance
+    async function renderAuthorAnalyticsTable() {
       const tbody = document.getElementById('authorReadingStatsBody');
       const totalBadge = document.getElementById('totalVerifiedPagesCount');
-      const selectedMonthYear = document.getElementById('authorMonthYearFilter')?.value || 'all';
+      
+      const now = new Date();
+      const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const selectedMonthYear = document.getElementById('authorMonthYearFilter')?.value || currentMonthKey;
+
+      calculateMonthlyAmortizedPool(selectedMonthYear);
+
+      // Fetch recorded payouts
+      try {
+        const { data: payouts } = await supabase.from('author_payouts').select('*');
+        authorPayoutsHistory = payouts || [];
+      } catch (e) {
+        authorPayoutsHistory = [];
+      }
 
       authorAnalyticsMap = {};
       let totalVerifiedPages = 0;
 
       const filteredEvents = rawReadEventsData.filter(evt => {
-        if (selectedMonthYear === 'all') return true;
         if (!evt.created_at) return false;
         const d = new Date(evt.created_at);
         const evtKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
@@ -1052,21 +1165,13 @@
 
       filteredEvents.forEach(evt => {
         const book = booksMapByBookId[evt.book_id];
-
-        const aName = evt.author_name
-          || book?.author
-          || book?.author_name
-          || 'Unknown Author';
+        const aName = evt.author_name || book?.author || book?.author_name || 'Unknown Author';
 
         const bookAuthorId = book?.author_id && book.author_id !== 'null' && String(book.author_id).trim() !== ''
-          ? book.author_id
-          : null;
+          ? book.author_id : null;
 
         let aId = (evt.author_id && evt.author_id !== 'null' && String(evt.author_id).trim() !== '')
-          ? evt.author_id
-          : (bookAuthorId
-              || book?.user_uid
-              || `AUTH-${String(aName).replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase() || 'SDL'}`);
+          ? evt.author_id : (bookAuthorId || book?.user_uid || `AUTH-${String(aName).replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase() || 'SDL'}`);
 
         totalVerifiedPages++;
 
@@ -1100,16 +1205,22 @@
       }
 
       if (totalVerifiedPages === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted fw-semibold">No verified reads found for this timeframe.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted fw-semibold">No verified reads found for ${selectedMonthYear}.</td></tr>`;
         return;
       }
 
       tbody.innerHTML = '';
       Object.keys(authorAnalyticsMap).forEach(authorKey => {
         const item = authorAnalyticsMap[authorKey];
-        const uniqueReaderCount = Object.keys(item.readers).length;
         const share = totalVerifiedPages > 0 ? (item.totalPages / totalVerifiedPages) : 0;
-        const payout = Math.round(share * globalAuthorPool);
+        const earned = Math.round(share * globalAuthorPool);
+
+        // Sum payouts for this author in this month
+        const totalPaid = authorPayoutsHistory
+          .filter(p => p.author_id === item.authorId && p.payout_month === selectedMonthYear)
+          .reduce((sum, p) => sum + parseFloat(p.amount_paid || 0), 0);
+
+        const remainingBalance = Math.max(0, earned - totalPaid);
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -1121,12 +1232,24 @@
           </td>
           <td class="fw-bold text-dark">${item.authorName}</td>
           <td><span class="badge bg-primary rounded-pill px-3 py-2">${item.totalPages} Pages</span></td>
-          <td><i class="fa-solid fa-users text-muted me-1"></i>${uniqueReaderCount} Reader(s)</td>
           <td>${(share * 100).toFixed(1)}%</td>
-          <td class="fw-bold text-success">₹${payout.toLocaleString('en-IN')}</td>
+          <td class="fw-bold text-dark">₹${earned.toLocaleString('en-IN')}</td>
+          <td class="fw-semibold text-success">₹${Math.round(totalPaid).toLocaleString('en-IN')}</td>
+          <td class="fw-bold ${remainingBalance > 0 ? 'text-danger' : 'text-muted'}">
+            ₹${Math.round(remainingBalance).toLocaleString('en-IN')}
+          </td>
           <td class="pe-4 text-end">
-            <button class="btn btn-sm btn-outline-primary view-readers-btn" data-authorid="${item.authorId}">
-              <i class="fa-solid fa-magnifying-glass me-1"></i> View Readers
+            <button class="btn btn-sm btn-outline-primary view-readers-btn me-1" data-authorid="${item.authorId}">
+              <i class="fa-solid fa-users"></i>
+            </button>
+            <button class="btn btn-sm btn-success pay-author-btn" 
+              data-authorid="${item.authorId}" 
+              data-authorname="${item.authorName}" 
+              data-earned="${earned}" 
+              data-remaining="${remainingBalance}"
+              data-month="${selectedMonthYear}"
+              ${remainingBalance <= 0 ? 'disabled' : ''}>
+              <i class="fa-solid fa-indian-rupee-sign me-1"></i> Pay
             </button>
           </td>
         `;
@@ -1142,11 +1265,73 @@
 
       document.querySelectorAll('.view-readers-btn').forEach(btn => {
         btn.addEventListener('click', function() {
+          openReaderInspectionModal(this.getAttribute('data-authorid'));
+        });
+      });
+
+      // Bind Pay Author Modal
+      document.querySelectorAll('.pay-author-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
           const aId = this.getAttribute('data-authorid');
-          openReaderInspectionModal(aId);
+          const aName = this.getAttribute('data-authorname');
+          const earned = this.getAttribute('data-earned');
+          const remaining = this.getAttribute('data-remaining');
+          const month = this.getAttribute('data-month');
+
+          document.getElementById('modalAuthorName').textContent = aName;
+          document.getElementById('modalAuthorId').textContent = `ID: ${aId} | Month: ${month}`;
+          document.getElementById('modalEarnedAmount').textContent = `₹${earned}`;
+          document.getElementById('modalRemainingAmount').textContent = `₹${remaining}`;
+          document.getElementById('payoutAmountInput').value = remaining;
+          document.getElementById('payoutAmountInput').max = remaining;
+
+          document.getElementById('payoutForm').setAttribute('data-authorid', aId);
+          document.getElementById('payoutForm').setAttribute('data-month', month);
+
+          const payoutModal = new bootstrap.Modal(document.getElementById('payoutModal'));
+          payoutModal.show();
         });
       });
     }
+
+    // Submit Payout Record
+    document.getElementById('payoutForm')?.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form = this;
+      const authorId = form.getAttribute('data-authorid');
+      const month = form.getAttribute('data-month');
+      const amount = parseFloat(document.getElementById('payoutAmountInput').value);
+      const txRef = document.getElementById('payoutTxRefInput').value.trim() || 'Direct Transfer';
+
+      if (!amount || amount <= 0) {
+        alert("Please enter a valid payout amount.");
+        return;
+      }
+
+      const submitBtn = document.getElementById('confirmPayoutBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing...`;
+
+      try {
+        const { error } = await supabase.from('author_payouts').insert([{
+          author_id: authorId,
+          payout_month: month,
+          amount_paid: amount,
+          transaction_ref: txRef
+        }]);
+
+        if (error) throw error;
+
+        bootstrap.Modal.getInstance(document.getElementById('payoutModal')).hide();
+        showToast(`Successfully recorded payout of ₹${amount} for ${authorId}`);
+        renderAuthorAnalyticsTable();
+      } catch (err) {
+        alert("Payout record failed: " + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i class="fa-solid fa-check me-1"></i> Record & Deduct`;
+      }
+    });
 
     function openReaderInspectionModal(authorId) {
       const authorData = authorAnalyticsMap[authorId];
@@ -1186,43 +1371,21 @@
           preloadProfiles(),
           (forceBooksReload || allBooksData.length === 0) ? loadBooksData() : Promise.resolve()
         ]);
-        const { data: subs } = await supabase.from('subscriptions').select('user_id, price, valid_until');
-        let grossRev = 0, activeCount = 0;
-        const now = new Date();
+        const { data: subs } = await supabase.from('subscriptions').select('*');
+        allSubscribersData = (subs || []).filter(sub => sub.user_id && usersProfileMap[sub.user_id]);
 
-        (subs || []).forEach(s => {
-          if (s.user_id && usersProfileMap[s.user_id]) {
-            const p = parseFloat(s.price) || 0;
-            grossRev += p;
-            if (s.valid_until && new Date(s.valid_until) >= now) activeCount++;
-          }
+        let activeCount = 0;
+        const now = new Date();
+        allSubscribersData.forEach(s => {
+          if (s.valid_until && new Date(s.valid_until) >= now) activeCount++;
         });
 
-        const deductions = Math.round(grossRev * 0.05);
-        const netRev = Math.max(0, grossRev - deductions);
-        globalAuthorPool = Math.round(netRev * 0.40);
-        const opsReserve = Math.round(netRev * 0.45);
-        const profit = Math.max(0, netRev - globalAuthorPool - opsReserve);
-
         document.getElementById('totalSubscribersCount').textContent = activeCount.toLocaleString('en-IN');
-        document.getElementById('grossRevenueText').textContent = `₹${grossRev.toLocaleString('en-IN')}`;
-        document.getElementById('authorPoolText').textContent = `₹${globalAuthorPool.toLocaleString('en-IN')}`;
-        document.getElementById('platformProfitText').textContent = `₹${profit.toLocaleString('en-IN')}`;
 
-        document.getElementById('calcGross').textContent = `₹${grossRev.toLocaleString('en-IN')}`;
-        document.getElementById('calcDeductions').textContent = `- ₹${deductions.toLocaleString('en-IN')}`;
-        document.getElementById('calcNet').textContent = `₹${netRev.toLocaleString('en-IN')}`;
-        document.getElementById('calcAuthorPool').textContent = `₹${globalAuthorPool.toLocaleString('en-IN')}`;
-        document.getElementById('calcOps').textContent = `₹${opsReserve.toLocaleString('en-IN')}`;
-
-        const { data: readEvents, error } = await supabase
+        const { data: readEvents } = await supabase
           .from('page_read_events')
           .select('*')
           .order('created_at', { ascending: false });
-
-        if (error) {
-          console.warn("Could not retrieve reading events:", error.message);
-        }
 
         rawReadEventsData = readEvents || [];
         populateAnalyticsMonthFilter(rawReadEventsData);
@@ -1544,8 +1707,7 @@
       fetchDashboardStats();
     });
 
-
-    // --- BOOK APPROVAL & CATALOG LOGIC REVISED ---
+    // --- BOOK APPROVAL & CATALOG LOGIC ---
     async function fetchApprovalBooks() {
       const tbody = document.getElementById('approvalBooksList');
       tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading pipeline...</td></tr>`;
@@ -1598,12 +1760,10 @@
 
       tbody.innerHTML = '';
 
-      // Applying all 3 filters
       const filtered = allBooksData.filter(book => {
         const bookRefId = (book.book_id || `BK-${String(book.id).substring(0, 6)}` || '').toLowerCase();
         
         let rawAuthorId = book.user_uid || book.author_id || '';
-        // Safe check to ensure we only search against short ID, not the DB UUID
         if (rawAuthorId.length > 20) {
             rawAuthorId = book.user_uid || `AUTH-${String(book.author || 'SDL').replace(/[^a-zA-Z0-9]/g, '').substring(0, 6)}`;
         }
@@ -1629,7 +1789,6 @@
         return matchesSearch && matchesStatus && matchesMonth;
       });
 
-      // Update Dynamic Statistic Cards on top
       document.getElementById('totalBooksCount').textContent = allBooksData.length;
       document.getElementById('pendingBooksCount').textContent = allBooksData.filter(b => (b.status || '').toLowerCase() !== 'published').length;
       
@@ -1649,7 +1808,6 @@
       }
       document.getElementById('monthBooksCount').textContent = monthCount;
 
-
       if (filtered.length === 0) {
         tbody.innerHTML = `<tr><td colspan="9" class="text-center py-5 text-muted fw-semibold">No books found matching criteria.</td></tr>`;
         return;
@@ -1661,7 +1819,6 @@
         const isPublished = (book.status || '').toLowerCase() === 'published';
         const bookRefId = book.book_id || `BK-${String(book.id).substring(0, 6).toUpperCase()}`;
         
-        // Strictly avoid rendering the long UUID for the user display
         let authorRefId = book.user_uid;
         if (!authorRefId || authorRefId.length > 20) {
              authorRefId = `AUTH-${String(book.author || 'SDL').replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase()}`;
@@ -1702,7 +1859,6 @@
         tbody.appendChild(tr);
       });
 
-      // Actions Bindings
       document.querySelectorAll('.approve-book-btn').forEach(btn => {
         btn.addEventListener('click', async function() {
           const id = this.getAttribute('data-id');
@@ -1729,7 +1885,6 @@
         });
       });
 
-      // Delete Button Logic Added
       document.querySelectorAll('.delete-pipeline-book-btn').forEach(btn => {
         btn.addEventListener('click', async function() {
           const id = this.getAttribute('data-id');
@@ -1747,14 +1902,12 @@
       });
     }
 
-    // Attach Pipeline Event Listeners
     document.getElementById('bookSearchInput')?.addEventListener('input', renderBooksTable);
     document.getElementById('bookMonthFilter')?.addEventListener('change', renderBooksTable);
     document.getElementById('bookStatusFilter')?.addEventListener('change', renderBooksTable);
     document.getElementById('refreshApprovalBtn')?.addEventListener('click', fetchApprovalBooks);
 
-
-    // Admin Settings and Configs Logic continues normally
+    // Visual Settings
     async function loadSiteSettings() {
       try {
         const { data, error } = await supabase.from('site_settings').select('*');
@@ -1773,6 +1926,7 @@
       }
     }
 
+    // User Management
     async function fetchAdminUsers() {
       const adminUsersList = document.getElementById('adminUsersList');
       adminUsersList.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading users...</td></tr>`;
@@ -1994,7 +2148,7 @@
         window.location.href = "admin-login.html";
       });
 
-      // Execute on load
+      // Initial execute
       fetchDashboardStats();
       fetchSubscriptionDetails();
     });
