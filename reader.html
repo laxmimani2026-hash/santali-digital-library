@@ -705,11 +705,8 @@
       }, 1000);
     }
 
+    // Explicit database insertion with strict error handling and UI sync
     async function commitVerifiedReadEvent(pageNo) {
-      const userRes = await supabase.auth.getUser();
-      const activeUser = userRes.data?.user || currentUser;
-      const uId = activeUser ? activeUser.id : null;
-
       const basePayload = {
         book_id: String(resolvedBookId || activeBookRecord?.book_id || activeBookRecord?.id || rawParamId || 'BK-1'),
         author_id: String(currentAuthorId || 'AUTH-SDL'),
@@ -717,14 +714,17 @@
         page_number: parseInt(pageNo, 10) || 1,
         seconds_spent: MIN_DWELL_SECONDS
       };
-      if (uId) {
-        basePayload.user_id = uId;
+
+      if (currentUser && currentUser.id) {
+        basePayload.user_id = currentUser.id;
       }
 
       try {
-        const { error } = await supabase.from('page_read_events').insert([basePayload]);
+        const { data, error } = await supabase.from('page_read_events').insert([basePayload]).select();
+        
         if (error) {
           console.error("Supabase insert rejected event:", error.message);
+          // Fallback retry without user_id if column mismatch occurs
           delete basePayload.user_id;
           const { error: retryErr } = await supabase.from('page_read_events').insert([basePayload]);
           if (retryErr) {
@@ -735,7 +735,7 @@
         
         totalVerifiedReads += 1;
         updateVerifiedReadsDisplay();
-        console.info(`[Success] Verified page ${pageNo} committed to DB for Author ID: ${basePayload.author_id}`);
+        console.info(`[Success] Verified page ${pageNo} committed to DB for Author ID: ${basePayload.author_id}`, data);
       } catch (err) {
         console.error("Network exception committing verified page read:", err);
       }
