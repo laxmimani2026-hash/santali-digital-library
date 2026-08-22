@@ -210,6 +210,11 @@
             <button class="btn btn-sm btn-outline-primary fw-semibold" id="refreshAuthorAnalyticsBtn">
               <i class="fa-solid fa-rotate me-1"></i> Refresh
             </button>
+
+            <!-- Reset Reads Button -->
+            <button class="btn btn-sm btn-outline-danger fw-semibold" id="resetAllReadsBtn" title="Reset all verified read records to 0">
+              <i class="fa-solid fa-trash-can me-1"></i> Reset Reads
+            </button>
           </div>
         </div>
 
@@ -1006,7 +1011,7 @@
       });
     }
 
-    // Render Author Aggregated Reading Table with ID and Reader Identity Inspect
+    // Render Author Aggregated Reading Table with accurate shares & royalty breakdown
     function renderAuthorAnalyticsTable() {
       const tbody = document.getElementById('authorReadingStatsBody');
       const totalBadge = document.getElementById('totalVerifiedPagesCount');
@@ -1143,7 +1148,7 @@
       modal.show();
     }
 
-    // Dashboard Overview Metrics
+    // Dashboard Overview Metrics & Verified Page Reads Sync
     async function fetchDashboardStats() {
       try {
         await preloadProfiles();
@@ -1176,14 +1181,26 @@
         document.getElementById('calcAuthorPool').textContent = `₹${globalAuthorPool.toLocaleString('en-IN')}`;
         document.getElementById('calcOps').textContent = `₹${opsReserve.toLocaleString('en-IN')}`;
 
-        // Fetch Page Read Events
+        // 1. Fetch valid active books from database to prevent phantom analytics
+        const { data: activeBooks } = await supabase.from('books').select('id, book_id, title, author');
+        const validBookSet = new Set(
+          (activeBooks || []).flatMap(b => [String(b.id), b.book_id, b.title]).filter(Boolean)
+        );
+
+        // 2. Fetch Page Read Events
         const { data: readEvents, error } = await supabase
           .from('page_read_events')
           .select('*')
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-        rawReadEventsData = readEvents || [];
+
+        // 3. Keep only read events whose books currently exist in the database
+        rawReadEventsData = (readEvents || []).filter(evt => {
+          const bookMatch = evt.book_id && validBookSet.has(String(evt.book_id));
+          const titleMatch = evt.book_title && validBookSet.has(evt.book_title);
+          return bookMatch || titleMatch || (!evt.book_id && !evt.book_title);
+        });
 
         populateAnalyticsMonthFilter(rawReadEventsData);
         renderAuthorAnalyticsTable();
@@ -1590,6 +1607,7 @@
           if (!confirm(`Delete "${title}" from the database?`)) return;
           await supabase.from('books').delete().eq('id', id);
           fetchApprovalBooks();
+          fetchDashboardStats();
         });
       });
     }
@@ -1787,11 +1805,38 @@
         });
       });
 
-      // Filter and Refresh Event Handlers for Author Analytics
+      // Filter and Refresh Handlers for Author Analytics
       document.getElementById('authorMonthYearFilter')?.addEventListener('change', renderAuthorAnalyticsTable);
       document.getElementById('refreshAuthorAnalyticsBtn')?.addEventListener('click', () => {
         showToast("Refreshing analytics data...");
         fetchDashboardStats();
+      });
+
+      // Reset All Page Reads to Zero
+      document.getElementById('resetAllReadsBtn')?.addEventListener('click', async () => {
+        const confirmed = confirm("Are you sure you want to reset all author verified page reads to zero? This action will permanently clear logged reading events.");
+        if (!confirmed) return;
+
+        const btn = document.getElementById('resetAllReadsBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Resetting...';
+
+        try {
+          const { error } = await supabase
+            .from('page_read_events')
+            .delete()
+            .neq('id', '00000000-0000-0000-0000-000000000000');
+
+          if (error) throw error;
+
+          showToast("All verified page reads have been reset to 0.");
+          await fetchDashboardStats();
+        } catch (err) {
+          alert("Failed to reset page reads: " + err.message);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-trash-can me-1"></i> Reset Reads';
+        }
       });
 
       // Real-time listener for page read events
