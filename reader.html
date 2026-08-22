@@ -705,7 +705,6 @@
       }, 1000);
     }
 
-    // Explicitly forces database commit and checks for network response errors
     async function commitVerifiedReadEvent(pageNo) {
       const userRes = await supabase.auth.getUser();
       const activeUser = userRes.data?.user || currentUser;
@@ -726,11 +725,10 @@
         const { error } = await supabase.from('page_read_events').insert([basePayload]);
         if (error) {
           console.error("Supabase insert rejected event:", error.message);
-          // Retry without user_id if column type/constraint mismatch
           delete basePayload.user_id;
           const { error: retryErr } = await supabase.from('page_read_events').insert([basePayload]);
           if (retryErr) {
-            console.error("Retry insert also failed:", retryErr.message);
+            console.error("Retry insert failed:", retryErr.message);
             return;
           }
         }
