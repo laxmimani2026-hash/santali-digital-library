@@ -700,14 +700,12 @@
           clearInterval(dwellInterval);
           dwellInterval = null;
           
-          totalVerifiedReads += 1;
-          updateVerifiedReadsDisplay();
-
           await commitVerifiedReadEvent(activeTrackedPage);
         }
       }, 1000);
     }
 
+    // Fully fortified writer with fallback mechanisms
     async function commitVerifiedReadEvent(pageNo) {
       const userRes = await supabase.auth.getUser();
       const activeUser = userRes.data?.user || currentUser;
@@ -731,6 +729,11 @@
           delete basePayload.user_id;
           await supabase.from('page_read_events').insert([basePayload]);
         }
+        
+        // Refresh local UI counter only after successful database commit
+        totalVerifiedReads += 1;
+        updateVerifiedReadsDisplay();
+
         console.info(`[Live Event Sent] Verified page ${pageNo} logged for Author: ${basePayload.author_id}`);
       } catch (err) {
         console.error("Failed to commit verified page read:", err);
@@ -758,11 +761,15 @@
       if (cfi) payload.last_cfi = cfi;
 
       try {
-        await supabase
+        const { error } = await supabase
           .from('reading_progress')
           .upsert(payload, { onConflict: 'user_id,book_id' });
+
+        if (error) {
+          console.error("Reading progress sync error details:", error.message);
+        }
       } catch (err) {
-        console.error("Sync error:", err);
+        console.error("Network exception during progress save:", err);
       }
 
       if (readingStatus === 'completed' && !hasPromptedFeedback) {
