@@ -403,7 +403,7 @@
       </div>
     </div>
 
-    <!-- SECTION 3: BOOK APPROVAL PIPELINE (With Author ID Column) -->
+    <!-- SECTION 3: BOOK APPROVAL PIPELINE -->
     <div id="approvalSection" class="content-section d-none">
       <div class="row g-3 mb-3">
         <div class="col-md-4">
@@ -1570,6 +1570,13 @@
         tbody.appendChild(tr);
       });
 
+      document.querySelectorAll('.copy-bookid-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.target.getAttribute('data-id');
+          navigator.clipboard.writeText(id).then(() => showToast(`Copied Book ID: ${id}`));
+        });
+      });
+
       document.querySelectorAll('.copy-approval-authorid-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
           const id = e.target.getAttribute('data-id');
@@ -1580,9 +1587,31 @@
       document.querySelectorAll('.approve-book-btn').forEach(btn => {
         btn.addEventListener('click', async function() {
           const id = this.getAttribute('data-id');
-          await supabase.from('books').update({ status: 'Published' }).eq('id', id);
-          showToast("Book approved & published to catalog!");
+          const book = allBooksData.find(b => String(b.id) === String(id));
+          
+          // Resolve permanent Author ID
+          const resolvedAuthorId = book?.user_uid 
+            || book?.author_id 
+            || (book?.user_id && usersProfileMap[book.user_id]?.user_uid) 
+            || `AUTH-${String(book?.author || 'SDL').replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase()}`;
+
+          // Persist both status and author_id into Supabase
+          const { error } = await supabase
+            .from('books')
+            .update({ 
+              status: 'Published',
+              author_id: resolvedAuthorId 
+            })
+            .eq('id', id);
+
+          if (error) {
+            alert("Error approving book: " + error.message);
+            return;
+          }
+
+          showToast(`Book approved & published to catalog! Author ID: ${resolvedAuthorId}`);
           fetchApprovalBooks();
+          fetchDashboardStats();
         });
       });
 
@@ -1592,6 +1621,7 @@
           await supabase.from('books').update({ status: 'Under Review' }).eq('id', id);
           showToast("Book moved back to Under Review.");
           fetchApprovalBooks();
+          fetchDashboardStats();
         });
       });
 
