@@ -1031,7 +1031,7 @@
         
         let aId = evt.author_id && evt.author_id !== 'null' && evt.author_id !== '' 
           ? evt.author_id 
-          : (usersProfileMap[evt.user_id]?.user_uid || `AUTH-${aName.replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase() || 'SDL'}`);
+          : (usersProfileMap[evt.user_id]?.user_uid || `AUTH-${String(aName).replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase() || 'SDL'}`);
 
         totalVerifiedPages++;
 
@@ -1177,7 +1177,13 @@
         document.getElementById('calcAuthorPool').textContent = `₹${globalAuthorPool.toLocaleString('en-IN')}`;
         document.getElementById('calcOps').textContent = `₹${opsReserve.toLocaleString('en-IN')}`;
 
-        // Fetch verified page read events directly
+        // 1. Fetch active books
+        const { data: activeBooks } = await supabase.from('books').select('id, book_id');
+        const validBookSet = new Set(
+          (activeBooks || []).flatMap(b => [String(b.id), String(b.book_id)]).filter(Boolean)
+        );
+
+        // 2. Fetch page read events
         const { data: readEvents, error } = await supabase
           .from('page_read_events')
           .select('*')
@@ -1185,7 +1191,12 @@
 
         if (error) throw error;
 
-        rawReadEventsData = readEvents || [];
+        // 3. Filter reads that correspond to existing books safely
+        rawReadEventsData = (readEvents || []).filter(evt => {
+          if (!validBookSet.size) return true;
+          return !evt.book_id || validBookSet.has(String(evt.book_id));
+        });
+
         populateAnalyticsMonthFilter(rawReadEventsData);
         renderAuthorAnalyticsTable();
 
@@ -1545,7 +1556,6 @@
           <td>
             <div class="form-check form-switch">
               <input class="form-check-input toggle-featured-switch" type="checkbox" data-id="${book.id}" ${isFeatured ? 'checked' : ''}>
-              <label class="form-check-label small fw-semibold text-muted">${isFeatured ? 'In Marquee' : 'Off'}</label>
             </div>
           </td>
           <td class="text-end pe-4">
@@ -1579,9 +1589,8 @@
         btn.addEventListener('click', async function() {
           const id = this.getAttribute('data-id');
           await supabase.from('books').update({ status: 'Published' }).eq('id', id);
-          showToast("Book approved & published to catalog!");
+          showToast("Book approved and published!");
           fetchApprovalBooks();
-          fetchDashboardStats();
         });
       });
 
@@ -1589,9 +1598,8 @@
         btn.addEventListener('click', async function() {
           const id = this.getAttribute('data-id');
           await supabase.from('books').update({ status: 'Under Review' }).eq('id', id);
-          showToast("Book moved back to Under Review.");
+          showToast("Book moved to Under Review.");
           fetchApprovalBooks();
-          fetchDashboardStats();
         });
       });
 
@@ -1599,7 +1607,7 @@
         switchEl.addEventListener('change', async function() {
           const id = this.getAttribute('data-id');
           await supabase.from('books').update({ is_featured: this.checked }).eq('id', id);
-          showToast(this.checked ? "Book added to Home Slider!" : "Book removed from Home Slider.");
+          showToast(this.checked ? "Added to Home Slider!" : "Removed from Home Slider.");
         });
       });
 
@@ -1918,13 +1926,31 @@
       });
 
       document.getElementById('resetAllReadsBtn')?.addEventListener('click', async () => {
-        if (!confirm("Reset all verified page reads to zero?")) return;
-        await supabase.from('page_read_events').delete().neq('author_name', '___SAFETY_FILTER___');
-        showToast("All page reads reset to 0.");
-        fetchDashboardStats();
+        if (!confirm("Are you sure you want to reset all verified page reads to zero?")) return;
+
+        const btn = document.getElementById('resetAllReadsBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Resetting...';
+
+        try {
+          const { error } = await supabase
+            .from('page_read_events')
+            .delete()
+            .neq('author_name', '___NON_EXISTENT_SAFETY_VALUE___');
+
+          if (error) throw error;
+
+          showToast("All verified page reads have been reset to 0.");
+          await fetchDashboardStats();
+        } catch (err) {
+          alert("Reset failed: " + err.message);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-trash-can me-1"></i> Reset Reads';
+        }
       });
 
-      // Realtime listener for page read events
+      // Real-time listener for page read events
       supabase
         .channel('realtime_admin_page_reads')
         .on(
