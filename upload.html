@@ -122,20 +122,20 @@
           <div class="card-body p-4 p-md-5">
             <form id="uploadBookForm">
               
-              <!-- Author ID Display Banner -->
+              <!-- Dynamic Author ID Preview Banner -->
               <div class="p-3 mb-4 rounded-3 bg-light border d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div class="d-flex align-items-center gap-2">
                   <i class="fa-solid fa-id-card text-warning fs-4"></i>
                   <div>
-                    <span class="small text-muted d-block fw-semibold">Publishing under Author Account:</span>
-                    <strong class="text-dark" id="displayAuthorFullName">Loading account...</strong>
+                    <span class="small text-muted d-block fw-semibold">Author Attribution:</span>
+                    <strong class="text-dark" id="displayAuthorFullName">Enter Author Name Below</strong>
                   </div>
                 </div>
                 <div>
-                  <span class="small text-muted me-2 fw-semibold">Author ID:</span>
+                  <span class="small text-muted me-2 fw-semibold">Assigned Author ID:</span>
                   <span class="author-id-pill" id="displayAuthorIdPill">
                     <i class="fa-solid fa-user-pen"></i>
-                    <span id="displayAuthorIdText">Checking...</span>
+                    <span id="displayAuthorIdText">--</span>
                   </span>
                 </div>
               </div>
@@ -151,6 +151,7 @@
                 <div class="col-md-6">
                   <label for="bookAuthor" class="form-label fw-semibold">Author Name <span class="text-danger">*</span></label>
                   <input type="text" class="form-control" id="bookAuthor" placeholder="Enter author name" required>
+                  <small class="text-muted" style="font-size: 0.75rem;">Type author's name to automatically resolve their unique Author ID.</small>
                 </div>
 
                 <div class="col-md-4">
@@ -261,44 +262,68 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    document.addEventListener("DOMContentLoaded", async () => {
-      let currentUserId = null;
-      let currentUserUid = null;
+    let allProfiles = [];
+    let currentUploaderId = null;
+    let currentUploaderUid = null;
 
+    function resolveAuthorIdByName(authorName) {
+      if (!authorName || !authorName.trim()) {
+        return currentUploaderUid || (currentUploaderId ? `SDL-${currentUploaderId.substring(0, 6).toUpperCase()}` : 'AUTH-SDL');
+      }
+      
+      const cleanName = authorName.trim().toLowerCase();
+      
+      const matchedProfile = allProfiles.find(p => {
+        const full = (p.full_name || `${p.first_name || ''} ${p.last_name || ''}`).trim().toLowerCase();
+        const first = (p.first_name || '').trim().toLowerCase();
+        const user = (p.username || '').trim().toLowerCase();
+        return full === cleanName || user === cleanName || first === cleanName;
+      });
+
+      if (matchedProfile && matchedProfile.user_uid) {
+        return matchedProfile.user_uid;
+      }
+
+      if (currentUploaderUid && cleanName.length > 0) {
+        return currentUploaderUid;
+      }
+
+      return `AUTH-${cleanName.replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase() || 'SDL'}`;
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
       try {
+        const { data: profiles } = await supabase.from('profiles').select('id, user_uid, first_name, last_name, full_name, username, role');
+        allProfiles = profiles || [];
+
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          currentUserId = user.id;
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('user_uid, first_name, full_name, role, avatar_url')
-            .eq('id', user.id)
-            .maybeSingle();
+          currentUploaderId = user.id;
+          const uploaderProfile = allProfiles.find(p => p.id === user.id);
 
-          if (profile) {
-            currentUserUid = profile.user_uid || `SDL-${user.id.substring(0, 6).toUpperCase()}`;
-            let fullName = profile.full_name || profile.first_name || user.email.split('@')[0];
-            let firstName = profile.first_name || (profile.full_name ? profile.full_name.split(' ')[0] : user.email.split('@')[0]);
-            
-            document.getElementById('headerUserName').textContent = `Hello, ${firstName}`;
-            document.getElementById('displayAuthorFullName').textContent = fullName;
-            document.getElementById('displayAuthorIdText').textContent = currentUserUid;
-
-            if (profile.role) document.getElementById('headerUserBadge').textContent = profile.role.toUpperCase();
-            if (profile.avatar_url) {
-              const navAvatar = document.getElementById('navAvatar');
-              navAvatar.src = profile.avatar_url;
-              navAvatar.style.display = 'inline-block';
-              document.getElementById('navAvatarPlaceholder').style.display = 'none';
-            }
+          if (uploaderProfile) {
+            currentUploaderUid = uploaderProfile.user_uid || `SDL-${user.id.substring(0, 6).toUpperCase()}`;
+            const name = uploaderProfile.full_name || uploaderProfile.first_name || user.email.split('@')[0];
+            document.getElementById('headerUserName').textContent = `Hello, ${name.split(' ')[0]}`;
+            document.getElementById('displayAuthorFullName').textContent = name;
+            document.getElementById('bookAuthor').value = name;
+            document.getElementById('displayAuthorIdText').textContent = currentUploaderUid;
+            if (uploaderProfile.role) document.getElementById('headerUserBadge').textContent = uploaderProfile.role.toUpperCase();
           } else {
-            currentUserUid = `SDL-${user.id.substring(0, 6).toUpperCase()}`;
-            document.getElementById('displayAuthorIdText').textContent = currentUserUid;
+            currentUploaderUid = `SDL-${user.id.substring(0, 6).toUpperCase()}`;
+            document.getElementById('displayAuthorIdText').textContent = currentUploaderUid;
           }
         }
       } catch (err) {
-        console.warn("User profile fetch error:", err);
+        console.warn("Init profile error:", err);
       }
+
+      const authorInput = document.getElementById('bookAuthor');
+      authorInput?.addEventListener('input', function() {
+        const resolved = resolveAuthorIdByName(this.value);
+        document.getElementById('displayAuthorFullName').textContent = this.value.trim() || 'Attribution Pending';
+        document.getElementById('displayAuthorIdText').textContent = resolved;
+      });
 
       const userMenuBtn = document.getElementById('userMenuBtn');
       const dropdownMenu = document.getElementById('dropdownMenu');
@@ -395,12 +420,11 @@
           const mainBookFile = bookFileInput.files[0];
           if (!coverFile || !mainBookFile) throw new Error("Please select both a cover image and a book file.");
 
-          const activeUserId = currentUserId || 'anonymous_user';
-          const resolvedAuthorId = currentUserUid || (currentUserId ? `SDL-${currentUserId.substring(0, 6).toUpperCase()}` : `AUTH-${author.replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase() || 'SDL'}`);
+          const finalAuthorId = resolveAuthorIdByName(author);
 
           const timeStamp = Date.now();
-          const cleanCoverName = `${activeUserId}-${timeStamp}-${coverFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-          const cleanBookName = `${activeUserId}-${timeStamp}-${mainBookFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+          const cleanCoverName = `${currentUploaderId || 'guest'}-${timeStamp}-${coverFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+          const cleanBookName = `${currentUploaderId || 'guest'}-${timeStamp}-${mainBookFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 
           const coverResult = await uploadWithFallback(cleanCoverName, coverFile, ['book_covers', 'books']);
           const targetBuckets = fileType === 'epub' ? ['book_epubs', 'books', 'book_pdfs'] : ['book_pdfs', 'books', 'book_epubs'];
@@ -409,31 +433,35 @@
           const randomId = Math.random().toString(36).substring(2, 8).toUpperCase();
           const generatedBookId = `BK-${randomId}`;
 
+          const insertPayload = {
+            book_id: generatedBookId,
+            author_id: finalAuthorId,
+            user_uid: finalAuthorId,
+            title: title,
+            author: author,
+            category: category,
+            language: language,
+            file_type: fileType,
+            pricing: pricing,
+            price: price,
+            description: description,
+            cover_url: coverResult.publicUrl,
+            pdf_url: bookResult.publicUrl,
+            status: 'Under Review',
+            is_featured: false
+          };
+
+          if (currentUploaderId) {
+            insertPayload.uploader_id = currentUploaderId;
+          }
+
           const { error: dbError } = await supabase
             .from('books')
-            .insert([{
-                book_id: generatedBookId,
-                author_id: resolvedAuthorId,
-                user_uid: resolvedAuthorId,
-                uploader_id: currentUserId,
-                user_id: currentUserId,
-                title: title,
-                author: author,
-                category: category,
-                language: language,
-                file_type: fileType,
-                pricing: pricing,
-                price: price,
-                description: description,
-                cover_url: coverResult.publicUrl,
-                pdf_url: bookResult.publicUrl,
-                status: 'Under Review',
-                is_featured: false
-            }]);
+            .insert([insertPayload]);
 
           if (dbError) throw dbError;
 
-          alert(`🎉 Book submitted successfully!\n\nBook ID: ${generatedBookId}\nAuthor ID: ${resolvedAuthorId}\nStatus: Under Review (Admin approval required before publication).`);
+          alert(`🎉 Book submitted successfully!\n\nBook ID: ${generatedBookId}\nAuthor ID: ${finalAuthorId}\nStatus: Under Review (Admin approval required).`);
           window.location.href = "author-dashboard.html";
 
         } catch (error) {
