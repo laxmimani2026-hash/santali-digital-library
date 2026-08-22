@@ -956,7 +956,7 @@
     let allSubscribersData = [];
     let allUsersData = [];
     let allBooksData = [];
-    let booksMapByBookId = {}; // book_id (e.g. 'BK-AY5WKO') -> full book record, used to resolve the real author for a page_read_events row
+    let booksMapByBookId = {}; 
     let usersProfileMap = {};
     let rawReadEventsData = [];
     let authorAnalyticsMap = {};
@@ -967,8 +967,6 @@
       allBooksData.forEach(book => {
         const key = book.book_id || `BK-${String(book.id).substring(0, 6).toUpperCase()}`;
         booksMapByBookId[key] = book;
-        // Also index by raw numeric/uuid id, since page_read_events.book_id
-        // may have been stored as either the human-readable book_id or the id.
         if (book.id) booksMapByBookId[String(book.id)] = book;
       });
     }
@@ -1060,13 +1058,6 @@
           || book?.author_name
           || 'Unknown Author';
 
-        // Resolve the real author ID with this priority:
-        // 1) the event's own author_id, if the column exists and is populated
-        // 2) the author_id recorded on the book itself (via book_id lookup)
-        // 3) the author's own account uid, if the book record has one
-        // 4) only as a last resort, a generated placeholder derived from the name
-        // IMPORTANT: this must never fall back to the READER's user id/uid -
-        // that was the bug (reader id showing up in the Author ID column).
         const bookAuthorId = book?.author_id && book.author_id !== 'null' && String(book.author_id).trim() !== ''
           ? book.author_id
           : null;
@@ -1224,7 +1215,6 @@
         document.getElementById('calcAuthorPool').textContent = `₹${globalAuthorPool.toLocaleString('en-IN')}`;
         document.getElementById('calcOps').textContent = `₹${opsReserve.toLocaleString('en-IN')}`;
 
-        // Robust unconstrained fetch of all recorded page reading events
         const { data: readEvents, error } = await supabase
           .from('page_read_events')
           .select('*')
@@ -1554,6 +1544,8 @@
       fetchDashboardStats();
     });
 
+
+    // --- BOOK APPROVAL & CATALOG LOGIC REVISED ---
     async function fetchApprovalBooks() {
       const tbody = document.getElementById('approvalBooksList');
       tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted"><div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading pipeline...</td></tr>`;
@@ -1565,10 +1557,37 @@
 
         allBooksData = books || [];
         rebuildBooksMap();
+        populateBookMonths(allBooksData);
         renderBooksTable();
       } catch (err) {
         tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-danger">Failed to load pipeline: ${err.message}</td></tr>`;
       }
+    }
+
+    function populateBookMonths(books) {
+      const monthSelect = document.getElementById('bookMonthFilter');
+      if (!monthSelect) return;
+      const currentVal = monthSelect.value;
+      monthSelect.innerHTML = `<option value="all">All Months</option>`;
+
+      const monthSet = new Set();
+      books.forEach(b => {
+        if (b.created_at) {
+          const d = new Date(b.created_at);
+          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+          const label = d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+          monthSet.add(JSON.stringify({ key, label }));
+        }
+      });
+
+      Array.from(monthSet).forEach(itemStr => {
+        const { key, label } = JSON.parse(itemStr);
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = label;
+        if (key === currentVal) opt.selected = true;
+        monthSelect.appendChild(opt);
+      });
     }
 
     function renderBooksTable() {
@@ -1579,14 +1598,57 @@
 
       tbody.innerHTML = '';
 
+      // Applying all 3 filters
       const filtered = allBooksData.filter(book => {
         const bookRefId = (book.book_id || `BK-${String(book.id).substring(0, 6)}` || '').toLowerCase();
-        const authorId = (book.author_id || book.user_uid || '').toLowerCase();
+        
+        let rawAuthorId = book.user_uid || book.author_id || '';
+        // Safe check to ensure we only search against short ID, not the DB UUID
+        if (rawAuthorId.length > 20) {
+            rawAuthorId = book.user_uid || `AUTH-${String(book.author || 'SDL').replace(/[^a-zA-Z0-9]/g, '').substring(0, 6)}`;
+        }
+        const authorId = rawAuthorId.toLowerCase();
+        
         const title = (book.title || '').toLowerCase();
         const author = (book.author || '').toLowerCase();
+        const bookStatus = (book.status || 'under review').toLowerCase();
+
+        const matchesSearch = !searchVal || bookRefId.includes(searchVal) || authorId.includes(searchVal) || title.includes(searchVal) || author.includes(searchVal);
         
-        return !searchVal || bookRefId.includes(searchVal) || authorId.includes(searchVal) || title.includes(searchVal) || author.includes(searchVal);
+        const matchesStatus = statusFilter === 'all' || 
+                              (statusFilter === 'published' && bookStatus === 'published') || 
+                              (statusFilter === 'under_review' && bookStatus !== 'published');
+                              
+        let matchesMonth = true;
+        if (monthFilter !== 'all' && book.created_at) {
+            const d = new Date(book.created_at);
+            const mKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            matchesMonth = (mKey === monthFilter);
+        }
+
+        return matchesSearch && matchesStatus && matchesMonth;
       });
+
+      // Update Dynamic Statistic Cards on top
+      document.getElementById('totalBooksCount').textContent = allBooksData.length;
+      document.getElementById('pendingBooksCount').textContent = allBooksData.filter(b => (b.status || '').toLowerCase() !== 'published').length;
+      
+      let monthCount = 0;
+      if (monthFilter !== 'all') {
+          monthCount = filtered.length; 
+          document.getElementById('monthUploadTitle').textContent = "Uploaded in Selected Month";
+      } else {
+          const now = new Date();
+          const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+          monthCount = allBooksData.filter(b => {
+              if(!b.created_at) return false;
+              const d = new Date(b.created_at);
+              return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}` === currentMonthKey;
+          }).length;
+          document.getElementById('monthUploadTitle').textContent = "Uploaded This Month";
+      }
+      document.getElementById('monthBooksCount').textContent = monthCount;
+
 
       if (filtered.length === 0) {
         tbody.innerHTML = `<tr><td colspan="9" class="text-center py-5 text-muted fw-semibold">No books found matching criteria.</td></tr>`;
@@ -1598,7 +1660,13 @@
         const date = new Date(book.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
         const isPublished = (book.status || '').toLowerCase() === 'published';
         const bookRefId = book.book_id || `BK-${String(book.id).substring(0, 6).toUpperCase()}`;
-        const authorRefId = book.author_id || book.user_uid || `AUTH-${String(book.author || 'SDL').replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase()}`;
+        
+        // Strictly avoid rendering the long UUID for the user display
+        let authorRefId = book.user_uid;
+        if (!authorRefId || authorRefId.length > 20) {
+             authorRefId = `AUTH-${String(book.author || 'SDL').replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase()}`;
+        }
+        
         const isFeatured = book.is_featured === true;
 
         const tr = document.createElement('tr');
@@ -1623,16 +1691,18 @@
               <input class="form-check-input toggle-featured-switch" type="checkbox" data-id="${book.id}" ${isFeatured ? 'checked' : ''}>
             </div>
           </td>
-          <td class="text-end pe-4">
+          <td class="text-end pe-4 d-flex justify-content-end gap-1">
             ${!isPublished 
-              ? `<button class="btn btn-sm btn-success approve-book-btn me-1" data-id="${book.id}"><i class="fa-solid fa-check me-1"></i>Publish</button>` 
-              : `<button class="btn btn-sm btn-outline-secondary unpublish-book-btn me-1" data-id="${book.id}">Unpublish</button>`
+              ? `<button class="btn btn-sm btn-success approve-book-btn" data-id="${book.id}"><i class="fa-solid fa-check"></i></button>` 
+              : `<button class="btn btn-sm btn-outline-secondary unpublish-book-btn" data-id="${book.id}">Unpublish</button>`
             }
+            <button class="btn btn-sm btn-outline-danger delete-pipeline-book-btn" data-id="${book.id}" title="Permanently Delete Book"><i class="fa-solid fa-trash-can"></i></button>
           </td>
         `;
         tbody.appendChild(tr);
       });
 
+      // Actions Bindings
       document.querySelectorAll('.approve-book-btn').forEach(btn => {
         btn.addEventListener('click', async function() {
           const id = this.getAttribute('data-id');
@@ -1658,11 +1728,33 @@
           showToast(this.checked ? "Added to Home Slider!" : "Removed from Home Slider.");
         });
       });
+
+      // Delete Button Logic Added
+      document.querySelectorAll('.delete-pipeline-book-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const id = this.getAttribute('data-id');
+          if (confirm("Are you sure you want to permanently delete this book from the catalog? This action cannot be undone.")) {
+            this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+            const { error } = await supabase.from('books').delete().eq('id', id);
+            if (!error) {
+               showToast("Book permanently deleted.");
+               fetchApprovalBooks();
+            } else {
+               alert("Failed to delete book: " + error.message);
+            }
+          }
+        });
+      });
     }
 
+    // Attach Pipeline Event Listeners
     document.getElementById('bookSearchInput')?.addEventListener('input', renderBooksTable);
+    document.getElementById('bookMonthFilter')?.addEventListener('change', renderBooksTable);
+    document.getElementById('bookStatusFilter')?.addEventListener('change', renderBooksTable);
     document.getElementById('refreshApprovalBtn')?.addEventListener('click', fetchApprovalBooks);
 
+
+    // Admin Settings and Configs Logic continues normally
     async function loadSiteSettings() {
       try {
         const { data, error } = await supabase.from('site_settings').select('*');
@@ -1860,7 +1952,6 @@
         fetchDashboardStats(true);
       });
 
-      // Fixed Reset Analytics Logic using unconstrained ID matching
       document.getElementById('resetAllReadsBtn')?.addEventListener('click', async () => {
         if (!confirm("Are you sure you want to completely reset all verified page reads to zero? This cannot be undone.")) return;
 
@@ -1869,7 +1960,6 @@
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Resetting...';
 
         try {
-          // Bypasses the Postgres empty delete block by checking where id is not null
           const { error } = await supabase
             .from('page_read_events')
             .delete()
@@ -1887,7 +1977,7 @@
         }
       });
 
-      // Realtime listener for page read events
+      // Realtime listener
       supabase
         .channel('realtime_admin_page_reads')
         .on(
