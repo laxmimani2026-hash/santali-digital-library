@@ -578,6 +578,13 @@
       if (overlay) overlay.style.display = 'none';
     }
 
+    function updateVerifiedReadsDisplay() {
+      const countEl = document.getElementById('sidebarVerifiedReadsCount');
+      if (countEl) {
+        countEl.textContent = `${totalVerifiedReads.toLocaleString('en-IN')} Pages Read`;
+      }
+    }
+
     async function initUserSession() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
@@ -626,14 +633,14 @@
       }
     }
 
-    // Fetch and display authentic read count for this author/book
+    // Load authentic read count for this author/book
     async function loadAuthenticReadCount() {
       try {
         const { data, error } = await supabase
           .from('page_read_events')
           .select('id, book_id, author_name, author_id');
 
-        if (!error && data) {
+        if (!error && Array.isArray(data)) {
           const matching = data.filter(evt => {
             const matchBook = resolvedBookId && String(evt.book_id) === String(resolvedBookId);
             const matchNumeric = activeBookRecord?.id && String(evt.book_id) === String(activeBookRecord.id);
@@ -642,11 +649,8 @@
             return matchBook || matchNumeric || matchAuthor || matchAuthId;
           });
 
-          totalVerifiedReads = matching.length;
-          const countEl = document.getElementById('sidebarVerifiedReadsCount');
-          if (countEl) {
-            countEl.textContent = `${totalVerifiedReads.toLocaleString('en-IN')} Pages Read`;
-          }
+          totalVerifiedReads = Math.max(totalVerifiedReads, matching.length);
+          updateVerifiedReadsDisplay();
         }
       } catch (err) {
         console.warn("Could not fetch read events count:", err);
@@ -680,6 +684,12 @@
         if (dwellSecondsLeft <= 0) {
           clearInterval(dwellInterval);
           dwellInterval = null;
+          
+          // Increment verified read count immediately by 1
+          totalVerifiedReads += 1;
+          updateVerifiedReadsDisplay();
+
+          // Persist to database
           await commitVerifiedReadEvent(activeTrackedPage);
         }
       }, 1000);
@@ -730,7 +740,6 @@
       }
 
       if (isSuccess) {
-        await loadAuthenticReadCount();
         console.info(`[Analytics] Verified read committed: Page ${pageNo} for Author: ${currentAuthorName}`);
       }
     }
@@ -851,7 +860,6 @@
         resolvedBookId = book.book_id || String(book.id);
         currentAuthorName = book.author || book.author_name || currentAuthorName || 'Unknown Author';
         
-        // Clean Author ID
         currentAuthorId = book.author_id && book.author_id !== 'null' && book.author_id !== ''
           ? book.author_id
           : (book.user_id || `AUTH-${String(currentAuthorName).replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase() || 'SDL'}`);
