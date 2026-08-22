@@ -266,6 +266,25 @@
     .meta-tag-category { background: #e0f2fe; color: #0284c7; }
     .meta-tag-lang { background: #fef3c7; color: #d97706; }
 
+    .author-id-badge {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+      font-family: monospace;
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .author-id-badge:hover {
+      background: #fde68a;
+    }
+
     .specs-row {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -477,13 +496,18 @@
               <span class="meta-tag meta-tag-lang skeleton" id="detailLanguage">Santali (Ol Chiki)</span>
             </div>
 
-            <!-- Title & Author -->
+            <!-- Title & Author with Author ID Badge -->
             <h1 class="fw-bold text-dark mb-1 skeleton" id="detailTitle" style="font-size: 2.1rem; line-height: 1.25;">
               Loading Book Title...
             </h1>
-            <p class="text-muted fs-6 mb-4">
-              By <span id="detailAuthor" class="fw-bold text-dark skeleton">Author Name</span>
-            </p>
+            <div class="d-flex align-items-center gap-2 flex-wrap mb-4">
+              <span class="text-muted fs-6">By <span id="detailAuthor" class="fw-bold text-dark skeleton">Author Name</span></span>
+              <span class="author-id-badge" id="detailAuthorIdBadge" title="Click to copy Author ID" style="display: none;">
+                <i class="fa-solid fa-user-pen text-warning"></i>
+                <span id="detailAuthorIdText">AUTH-ID</span>
+                <i class="fa-regular fa-copy text-muted ms-1"></i>
+              </span>
+            </div>
 
             <!-- Specification Row -->
             <div class="specs-row">
@@ -574,6 +598,8 @@
       const titleEl = document.getElementById('detailTitle');
       const breadcrumbTitle = document.getElementById('breadcrumbTitle');
       const authorEl = document.getElementById('detailAuthor');
+      const authorIdBadge = document.getElementById('detailAuthorIdBadge');
+      const authorIdText = document.getElementById('detailAuthorIdText');
       const priceEl = document.getElementById('detailPrice');
       const descEl = document.getElementById('detailDescription');
       const catEl = document.getElementById('detailCategory');
@@ -642,17 +668,17 @@
         return;
       }
 
-      // Safe resilient book fetcher (No maybeSingle exceptions)
+      // Safe multi-stage book lookup
       async function retrieveBook(paramVal) {
         const clean = decodeURIComponent(String(paramVal)).trim();
 
-        // Query 1: Exact match on book_id column (string)
+        // 1. Exact match on book_id column
         try {
           const { data: byBookId } = await supabase.from('books').select('*').eq('book_id', clean).limit(1);
           if (byBookId && byBookId.length > 0) return byBookId[0];
         } catch (e) {}
 
-        // Query 2: Integer primary key if clean is purely numeric
+        // 2. Integer primary key if purely numeric
         if (/^\d+$/.test(clean)) {
           try {
             const { data: byId } = await supabase.from('books').select('*').eq('id', parseInt(clean, 10)).limit(1);
@@ -660,7 +686,7 @@
           } catch (e) {}
         }
 
-        // Query 3: UUID format match
+        // 3. UUID primary key match
         if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(clean)) {
           try {
             const { data: byUuid } = await supabase.from('books').select('*').eq('id', clean).limit(1);
@@ -668,13 +694,13 @@
           } catch (e) {}
         }
 
-        // Query 4: Title match fallback
+        // 4. Title match fallback
         try {
           const { data: byTitle } = await supabase.from('books').select('*').ilike('title', clean).limit(1);
           if (byTitle && byTitle.length > 0) return byTitle[0];
         } catch (e) {}
 
-        // Query 5: Full catalog scan fallback
+        // 5. Full catalog scan fallback
         try {
           const { data: allList } = await supabase.from('books').select('*');
           if (allList && allList.length > 0) {
@@ -705,6 +731,22 @@
 
         authorEl.textContent = book.author || 'Unknown Author';
         authorEl.classList.remove('skeleton');
+
+        // Resolve & display Author ID Badge
+        const targetAuthorName = book.author || 'Unknown Author';
+        const targetAuthorId = book.author_id && book.author_id !== 'null' && book.author_id !== ''
+          ? book.author_id 
+          : (book.user_uid || book.user_id || `AUTH-${String(targetAuthorName).replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase() || 'SDL'}`);
+
+        if (authorIdText) authorIdText.textContent = targetAuthorId;
+        if (authorIdBadge) {
+          authorIdBadge.style.display = 'inline-flex';
+          authorIdBadge.addEventListener('click', () => {
+            navigator.clipboard.writeText(targetAuthorId).then(() => {
+              showPageAlert(`Copied Author ID: ${targetAuthorId}`, 'success');
+            });
+          });
+        }
 
         catEl.textContent = (book.category || 'GENERAL').toUpperCase();
         catEl.classList.remove('skeleton');
@@ -745,10 +787,6 @@
         // Click Handler for "Read Book" -> Navigates cleanly to reader.html
         readBookBtn.addEventListener('click', async () => {
           const targetParamId = book.book_id || book.id;
-          const targetAuthorName = book.author || 'Unknown Author';
-          const targetAuthorId = book.author_id && book.author_id !== 'null' && book.author_id !== ''
-            ? book.author_id 
-            : (book.user_uid || book.user_id || `AUTH-${String(targetAuthorName).replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase() || 'SDL'}`);
 
           // Register in user reading list if signed in
           try {
