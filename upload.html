@@ -49,6 +49,20 @@
     .file-drop-area:hover { background-color: #eaf5f2; }
     .btn-gold { background-color: var(--primary-gold); color: #000; font-weight: 700; border: none; padding: 10px 28px; border-radius: 8px; transition: all 0.2s ease; }
     .btn-gold:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
+
+    .author-id-pill {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+      font-family: monospace;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
@@ -107,6 +121,25 @@
         <div class="card shadow-sm upload-card">
           <div class="card-body p-4 p-md-5">
             <form id="uploadBookForm">
+              
+              <!-- Author ID Display Banner -->
+              <div class="p-3 mb-4 rounded-3 bg-light border d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="fa-solid fa-id-card text-warning fs-4"></i>
+                  <div>
+                    <span class="small text-muted d-block fw-semibold">Publishing under Author Account:</span>
+                    <strong class="text-dark" id="displayAuthorFullName">Loading account...</strong>
+                  </div>
+                </div>
+                <div>
+                  <span class="small text-muted me-2 fw-semibold">Author ID:</span>
+                  <span class="author-id-pill" id="displayAuthorIdPill">
+                    <i class="fa-solid fa-user-pen"></i>
+                    <span id="displayAuthorIdText">Checking...</span>
+                  </span>
+                </div>
+              </div>
+
               <h5 class="fw-bold mb-4 border-bottom pb-2" style="color: var(--bg-dark);">Book Information</h5>
               
               <div class="row g-3 mb-4">
@@ -244,8 +277,13 @@
 
           if (profile) {
             currentUserUid = profile.user_uid || `SDL-${user.id.substring(0, 6).toUpperCase()}`;
+            let fullName = profile.full_name || profile.first_name || user.email.split('@')[0];
             let firstName = profile.first_name || (profile.full_name ? profile.full_name.split(' ')[0] : user.email.split('@')[0]);
+            
             document.getElementById('headerUserName').textContent = `Hello, ${firstName}`;
+            document.getElementById('displayAuthorFullName').textContent = fullName;
+            document.getElementById('displayAuthorIdText').textContent = currentUserUid;
+
             if (profile.role) document.getElementById('headerUserBadge').textContent = profile.role.toUpperCase();
             if (profile.avatar_url) {
               const navAvatar = document.getElementById('navAvatar');
@@ -255,6 +293,7 @@
             }
           } else {
             currentUserUid = `SDL-${user.id.substring(0, 6).toUpperCase()}`;
+            document.getElementById('displayAuthorIdText').textContent = currentUserUid;
           }
         }
       } catch (err) {
@@ -374,10 +413,10 @@
             .from('books')
             .insert([{
                 book_id: generatedBookId,
-                author_id: resolvedAuthorId,      // Correct formatted Author ID (e.g. SDL-XXXXXX)
-                user_uid: resolvedAuthorId,       // Clean user UID
-                uploader_id: currentUserId,       // Internal UUID
-                user_id: currentUserId,           // Internal UUID
+                author_id: resolvedAuthorId,
+                user_uid: resolvedAuthorId,
+                uploader_id: currentUserId,
+                user_id: currentUserId,
                 title: title,
                 author: author,
                 category: category,
