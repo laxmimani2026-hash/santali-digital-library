@@ -775,29 +775,49 @@
         basePayload.user_id = currentUser.id;
       }
 
-      try {
-        const { data, error } = await supabase.from('page_read_events').insert([basePayload]).select();
+      // Self-healing against schema drift: if PostgREST reports a specific
+      // column doesn't exist on page_read_events, drop it and retry rather
+      // than failing outright. book_id/page_number are kept as the minimum
+      // required fields - if either of those is the problem, we stop and
+      // report it, since the row would be meaningless without them.
+      let attemptsLeft = 5;
+      while (attemptsLeft > 0) {
+        attemptsLeft--;
+        try {
+          const { data, error } = await supabase.from('page_read_events').insert([basePayload]).select();
 
-        if (error) {
-          console.error("Supabase insert rejected event:", error.message, error.details || '', error.hint || '');
-          // Fallback retry without user_id if column mismatch or FK violation occurs
-          delete basePayload.user_id;
-          const { error: retryErr } = await supabase.from('page_read_events').insert([basePayload]);
-          if (retryErr) {
-            console.error("Retry insert failed:", retryErr.message, retryErr.details || '', retryErr.hint || '');
-            console.error("If both inserts failed, check Supabase RLS policies on 'page_read_events' - the anon/authenticated role likely lacks INSERT permission, or a NOT NULL / FK column is missing from basePayload:", basePayload);
-            return false;
+          if (!error) {
+            totalVerifiedReads += 1;
+            updateVerifiedReadsDisplay();
+            console.info(`[Success] Verified page ${pageNo} committed to DB for book: ${basePayload.book_id}`, data);
+            return true;
           }
-        }
 
-        totalVerifiedReads += 1;
-        updateVerifiedReadsDisplay();
-        console.info(`[Success] Verified page ${pageNo} committed to DB for book: ${basePayload.book_id}`, data);
-        return true;
-      } catch (err) {
-        console.error("Network exception committing verified page read:", err);
-        return false;
+          const missingColMatch = /Could not find the '([^']+)' column/i.exec(error.message || '');
+          if (missingColMatch && missingColMatch[1] in basePayload && missingColMatch[1] !== 'book_id' && missingColMatch[1] !== 'page_number') {
+            console.warn(`page_read_events is missing column '${missingColMatch[1]}' - dropping it and retrying.`);
+            delete basePayload[missingColMatch[1]];
+            continue;
+          }
+
+          // Different failure shape (e.g. foreign key violation because user_id
+          // doesn't match an auth.users row - common for guest sessions).
+          // Drop user_id once and retry before giving up.
+          if ('user_id' in basePayload) {
+            console.warn("page_read_events insert failed with user_id set - retrying without it:", error.message);
+            delete basePayload.user_id;
+            continue;
+          }
+
+          console.error("Supabase insert rejected event:", error.message, error.details || '', error.hint || '');
+          console.error("Check Supabase RLS policies on 'page_read_events' (anon/authenticated INSERT), or a NOT NULL / FK constraint on:", basePayload);
+          return false;
+        } catch (err) {
+          console.error("Network exception committing verified page read:", err);
+          return false;
+        }
       }
+      return false;
     }
 
     async function recordProgress(pageNo, totalPages, cfi = null) {
@@ -819,25 +839,34 @@
 
       if (cfi) payload.last_cfi = cfi;
 
-      try {
-        const { error } = await supabase
-          .from('reading_progress')
-          .upsert(payload, { onConflict: 'user_id,book_id' });
-
-        if (error) {
-          console.error("Reading progress sync error:", error.message, error.details || '');
-          // Retry without author_id too, in case that column also doesn't exist
-          // on this table (only pages_read/total_pages/status are essential).
-          delete payload.author_id;
-          const { error: retryErr } = await supabase
+      // Some deployments' 'reading_progress' table doesn't have every column
+      // the app tries to write (e.g. author_id, last_cfi). Rather than hardcode
+      // which ones to drop, parse the missing column straight out of
+      // PostgREST's error message and retry without it - self-healing against
+      // schema drift instead of failing outright.
+      let attemptsLeft = 5;
+      while (attemptsLeft > 0) {
+        attemptsLeft--;
+        try {
+          const { error } = await supabase
             .from('reading_progress')
             .upsert(payload, { onConflict: 'user_id,book_id' });
-          if (retryErr) {
-            console.error("Retry reading progress sync failed:", retryErr.message, retryErr.details || '');
+
+          if (!error) break; // success
+
+          const missingColMatch = /Could not find the '([^']+)' column/i.exec(error.message || '');
+          if (missingColMatch && missingColMatch[1] in payload) {
+            console.warn(`reading_progress is missing column '${missingColMatch[1]}' - dropping it and retrying.`);
+            delete payload[missingColMatch[1]];
+            continue; // retry with that column stripped
           }
+
+          console.error("Reading progress sync error:", error.message, error.details || '');
+          break; // not a column-missing error (or nothing left to strip) - stop
+        } catch (err) {
+          console.error("Network exception during progress save:", err);
+          break;
         }
-      } catch (err) {
-        console.error("Network exception during progress save:", err);
       }
 
       if (readingStatus === 'completed' && !hasPromptedFeedback) {
