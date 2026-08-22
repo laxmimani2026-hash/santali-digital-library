@@ -505,18 +505,23 @@
     document.getElementById('toggleRightDrawerBtn')?.addEventListener('click', () => rightSidebar.classList.toggle('show'));
     document.getElementById('closeRightSidebar')?.addEventListener('click', () => rightSidebar.classList.remove('show'));
 
-    // Ol Chiki Character to Phonetic Devanagari/Latin Mapping Map for Browser Fallback Speech Engine
+    // Improved Ol Chiki to Devanagari Phonetic Map for Reliable TTS Output
     const olChikiPhoneticMap = {
-      'ᱚ': 'अ', 'ᱛ': 'त', 'ᱜ': 'ग', 'ᱝ': 'ङ', 'ᱞ': 'ल', 'ᱟ': 'ा', 'ᱠ': 'क', 'ᱡ': 'ज', 'ᱢ': 'म', 'ᱣ': 'व',
-      'ᱤ': 'इ', 'ᱥ': 'स', 'ᱦ': 'ह', 'ᱧ': 'ञ', 'ᱨ': 'र', 'ᱩ': 'उ', 'ᱪ': 'च', 'ᱫ': 'द', 'ᱬ': 'ण', 'ᱭ': 'य',
-      'ᱮ': 'ए', 'ᱯ': 'प', 'ᱰ': 'ड', 'ᱱ': 'न', 'ᱲ': 'ड़', 'ᱳ': 'ओ', 'ᱴ': 'ट', 'ᱵ': 'ब', 'ᱶ': 'व', 'ᱷ': 'ह'
+      'ᱚ': 'अ', 'ᱛ': 'त', 'ᱜ': 'ग', 'ᱝ': 'ं', 'ᱞ': 'ल',
+      'ᱟ': 'आ', 'ᱠ': 'क', 'ᱡ': 'ज', 'ᱢ': 'म', 'ᱣ': 'व',
+      'ᱤ': 'इ', 'ᱥ': 'स', 'ᱦ': 'ह', 'ᱧ': 'ञ', 'ᱨ': 'र',
+      'ᱩ': 'उ', 'ᱪ': 'च', 'ᱫ': 'द', 'ᱬ': 'ण', 'ᱭ': 'य',
+      'ᱮ': 'ए', 'ᱯ': 'प', 'ᱰ': 'ड', 'ᱱ': 'न', 'ᱲ': 'ड़',
+      'ᱳ': 'ओ', 'ᱴ': 'ट', 'ᱵ': 'ब', 'ᱶ': 'ं', 'ᱷ': 'ह',
+      'ᱸ': 'ं', 'ᱹ': '', 'ᱺ': '', 'ᱻ': '', 'ᱼ': '', 'ᱽ': ''
     };
 
     function transliterateOlChikiToPhonetic(text) {
+      if (!text) return '';
       return text.split('').map(char => olChikiPhoneticMap[char] || char).join('');
     }
 
-    // Santali Text-to-Speech Handler with Phonetic Fallback
+    // Highly Robust Santali Text-to-Speech Handler
     const ttsPlayBtn = document.getElementById('ttsPlayBtn');
     const ttsStopBtn = document.getElementById('ttsStopBtn');
 
@@ -525,53 +530,79 @@
         alert('Text-to-speech is not supported by your browser.');
         return;
       }
-      window.speechSynthesis.cancel();
+      
+      window.speechSynthesis.cancel(); // Reset any stuck speech queues
 
       let textToSpeak = '';
-      const activeIframe = document.querySelector('#epub-viewer iframe');
-      if (activeIframe) {
+
+      // Method 1: Safely Extract text via Epub.js internal hooks (Bypasses iframe security blocks)
+      if (epubRendition && typeof epubRendition.getContents === 'function') {
         try {
-          const doc = activeIframe.contentDocument || activeIframe.contentWindow.document;
-          textToSpeak = doc.body ? doc.body.innerText : '';
+          const contents = epubRendition.getContents();
+          if (contents && contents.length > 0) {
+            const doc = contents[0].document;
+            const selection = doc.defaultView.getSelection().toString();
+            textToSpeak = selection || doc.body.innerText;
+          }
         } catch (e) {
-          console.warn("Could not read iframe text for TTS", e);
+          console.warn("Epub.js text extraction bypassed:", e);
         }
       }
 
-      if (!textToSpeak.trim()) {
-        textToSpeak = document.getElementById('topBookTitle')?.innerText || '';
+      // Method 2: Standard HTML Iframe fallback (If Epub.js hook failed)
+      if (!textToSpeak || !textToSpeak.trim()) {
+        const activeIframe = document.querySelector('#epub-viewer iframe');
+        if (activeIframe) {
+          try {
+            const doc = activeIframe.contentDocument || activeIframe.contentWindow.document;
+            const selection = activeIframe.contentWindow.getSelection().toString();
+            textToSpeak = selection || (doc.body ? doc.body.innerText : '');
+          } catch (e) {
+            console.warn("Iframe fallback blocked by browser security.", e);
+          }
+        }
       }
 
-      if (!textToSpeak.trim()) {
+      // Final Check
+      if (!textToSpeak || !textToSpeak.trim()) {
+        textToSpeak = document.getElementById('topBookTitle')?.innerText || '';
+      }
+      
+      if (!textToSpeak || !textToSpeak.trim()) {
         alert('No readable text found on the current page.');
         return;
       }
 
-      // Convert Ol Chiki script characters into a readable phonetic script form for browser synthesis
+      // Convert Ol Chiki to phonetically mapped characters
       const processedText = transliterateOlChikiToPhonetic(textToSpeak);
 
       const utterance = new SpeechSynthesisUtterance(processedText);
-      const voices = window.speechSynthesis.getVoices();
-      const hindiOrIndianVoice = voices.find(v => v.lang.toLowerCase().includes('hi') || v.lang.toLowerCase().includes('bn') || v.lang.toLowerCase().includes('in'));
+      utterance.lang = 'hi-IN'; // Force Hindi to ensure the mapped Devanagari is spoken
+      utterance.rate = 0.85;
 
-      if (hindiOrIndianVoice) {
-        utterance.voice = hindiOrIndianVoice;
-        utterance.lang = hindiOrIndianVoice.lang;
-      } else {
-        utterance.lang = 'hi-IN';
+      // Chrome sometimes requires voices to be dynamically fetched
+      const voices = window.speechSynthesis.getVoices();
+      if (voices && voices.length > 0) {
+        const indicVoice = voices.find(v => v.lang.includes('hi') || v.lang.includes('bn') || v.lang.includes('IN'));
+        if (indicVoice) {
+          utterance.voice = indicVoice;
+        }
       }
 
-      utterance.rate = 0.85; // Slow down slightly for clarity
-
+      utterance.onstart = () => {
+        if (ttsPlayBtn) ttsPlayBtn.innerHTML = '<i class="fa-solid fa-volume-high me-1"></i> Speaking...';
+      };
+      
       utterance.onend = () => {
         if (ttsPlayBtn) ttsPlayBtn.innerHTML = '<i class="fa-solid fa-play me-1"></i> Play';
       };
-      utterance.onerror = () => {
+      
+      utterance.onerror = (e) => {
+        console.warn("Speech Synthesis Error:", e);
         if (ttsPlayBtn) ttsPlayBtn.innerHTML = '<i class="fa-solid fa-play me-1"></i> Play';
       };
 
       window.speechSynthesis.speak(utterance);
-      if (ttsPlayBtn) ttsPlayBtn.innerHTML = '<i class="fa-solid fa-volume-high me-1"></i> Speaking...';
     });
 
     ttsStopBtn?.addEventListener('click', () => {
