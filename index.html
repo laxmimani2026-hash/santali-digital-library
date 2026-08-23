@@ -659,6 +659,17 @@
     height: 45px !important;
   }
 }
+/* Keep Navbar Logo and Menu Button on the same line for Mobile */
+@media (max-width: 576px) {
+  .navbar-brand {
+    font-size: 1.15rem !important; /* Slightly smaller font to fit narrow screens */
+    white-space: nowrap; /* Prevents the text itself from wrapping */
+  }
+  
+  .navbar > .container {
+    flex-wrap: nowrap !important; /* Forces the button to stay on the right side */
+  }
+}
   </style>
 </head>
 <body>
