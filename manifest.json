@@ -12,20 +12,20 @@
   "id": "/santali-library",
   "lang": "en",
   "icons": [
-  {
-    "src": "/santali-digital-library/appstore-images/android/launchericon-192x192.png",
-    "sizes": "192x192",
-    "type": "image/png"
-  },
-  {
-    "src": "/santali-digital-library/appstore-images/android/launchericon-512x512.png",
-    "sizes": "512x512",
-    "type": "image/png"
-  }
-  ]
+    {
+      "src": "/santali-digital-library/appstore-images/android/launchericon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/santali-digital-library/appstore-images/android/launchericon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
   "categories": [
     "books",
-    "books &amp;amp; reference",
+    "books &amp; reference",
     "education",
     "entertainment",
     "kids",
