@@ -1,0 +1,24 @@
+{
+  "background_color": "#08596f",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Santali Digital Library",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Santali Dg",
+  "start_url": "/",
+  "theme_color": "#ffffff",
+  "description": "Build the Digital Home of Santali Books",
+  "id": "/santali-library",
+  "lang": "en",
+  "categories": [
+    "books",
+    "books &amp; reference",
+    "education",
+    "entertainment",
+    "kids",
+    "lifestyle",
+    "magazines",
+    "news"
+  ]
+}
