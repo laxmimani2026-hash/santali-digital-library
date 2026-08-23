@@ -2,182 +2,108 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Book Details | Santali Digital Library</title>
   
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Google Fonts: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="manifest" href="/santali-digital-library/manifest.json">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
 
   <style>
     :root {
-      --bg-dark: #005f73;
-      --brand-teal: #0a9396;
-      --primary-gold: #ffb703;
-      --primary-hover: #e08e0b;
-      --text-dark: #0f172a;
-      --text-muted: #64748b;
-      --surface-card: #ffffff;
-      --bg-light: #f8fafc;
-      --border-color: #e2e8f0;
+      --bg-dark: #073b30;
+      --bg-dark-light: #0d5c4b;
+      --primary-gold: #c9972e;
+      --gold-dark: #a87a1e;
+      --header-bg: #073b30;
+      --footer-bg: #04241d;
+      --ink: #14211d;
+      --muted: #5e7068;
+      --border-soft: #e2e8e5;
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
       --radius-xl: 18px;
+      --font-scale: 100%;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
-      background-color: var(--bg-light);
-      color: var(--text-dark);
+      font-family: 'Poppins', sans-serif !important;
+      font-size: var(--font-scale);
+      color: var(--ink);
+      background-color: #fcfdfd;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
     }
 
-    header {
-      background-color: var(--bg-dark);
-      padding: 14px 5%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    /* Buttons */
+    .btn { 
+      font-family: 'Poppins', sans-serif !important;
+      border-radius: var(--radius-sm); 
+      font-weight: 600; 
+      letter-spacing: .01em; 
+      transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, color .18s ease; 
     }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-gold { background: var(--primary-gold); border-color: var(--primary-gold); color: #1c2b27; box-shadow: 0 4px 14px rgba(201,151,46,0.3); }
+    .btn-gold:hover { background: var(--gold-dark); border-color: var(--gold-dark); color: #fff; }
+    .btn-warning { background: var(--primary-gold) !important; border-color: var(--primary-gold) !important; color: #1c2b27 !important; box-shadow: 0 4px 16px rgba(201,151,46,0.35); }
+    .btn-warning:hover { background: var(--gold-dark) !important; border-color: var(--gold-dark) !important; color: #fff !important; }
 
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #fff;
-      font-size: 1.25rem;
-      font-weight: 800;
-      text-decoration: none;
+    /* Header Nav matching Reader/Author Dashboards */
+    .navbar-teal {
+      background-color: rgba(7,59,48,0.94) !important;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 25px rgba(0,0,0,.12);
+      padding-top: 14px;
+      padding-bottom: 14px;
+      transition: background-color 0.3s ease;
     }
-
-    .logo i {
-      color: var(--primary-gold);
-      font-size: 1.4rem;
+    .navbar-brand { 
+      font-weight: 700; 
+      font-size: 1.4rem; 
+      letter-spacing: .01em; 
+      font-family: 'Poppins', sans-serif !important; 
     }
-
-    .logo span span {
-      color: var(--primary-gold);
-    }
-
-    .nav-links {
-      display: flex;
-      list-style: none;
-      gap: 24px;
-      align-items: center;
-      margin: 0;
-      padding: 0;
-    }
-
-    .nav-links a {
-      color: rgba(255, 255, 255, 0.85);
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 0.92rem;
-      transition: color 0.2s ease;
-    }
-
-    .nav-links a:hover {
-      color: var(--primary-gold);
-    }
-
-    .user-menu-container {
-      position: relative;
-    }
-
-    .user-btn {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 8px;
-      transition: all 0.2s ease;
-    }
-
-    .user-btn:hover {
-      background: rgba(255, 255, 255, 0.18);
-    }
+    .navbar-brand i { color: var(--primary-gold); }
+    .highlight { color: var(--primary-gold); }
+    .navbar-nav .nav-link { font-weight: 500; margin: 0 4px; opacity: .92; transition: all 0.2s ease; }
+    .navbar-nav .nav-link.active, .navbar-nav .nav-link:hover { color: var(--primary-gold) !important; opacity: 1; transform: translateY(-1px); }
 
     .user-avatar-img {
       width: 28px;
       height: 28px;
       border-radius: 50%;
       object-fit: cover;
+      border: 1.5px solid var(--primary-gold);
     }
 
-    .role-badge {
+    .user-role-badge {
       background-color: var(--primary-gold);
-      color: #000;
-      font-size: 0.7rem;
-      font-weight: 800;
-      padding: 2px 7px;
-      border-radius: 6px;
-      text-transform: uppercase;
-    }
-
-    .dropdown-menu-custom {
-      position: absolute;
-      top: 110%;
-      right: 0;
-      width: 215px;
-      background-color: #ffffff;
+      color: #1c2b27;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
       border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-      border: 1px solid var(--border-color);
-      display: none;
-      flex-direction: column;
-      overflow: hidden;
-      z-index: 100;
-    }
-
-    .user-menu-container:hover .dropdown-menu-custom,
-    .dropdown-menu-custom.active {
-      display: flex;
-    }
-
-    .dropdown-menu-custom a {
-      padding: 11px 16px;
-      text-decoration: none;
-      color: var(--text-dark);
-      font-size: 0.88rem;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: background 0.15s ease;
-    }
-
-    .dropdown-menu-custom a:hover {
-      background-color: #f1f5f9;
-      color: var(--bg-dark);
-    }
-
-    .dropdown-menu-custom a i {
-      color: #64748b;
-      width: 16px;
+      text-transform: uppercase;
     }
 
     .breadcrumb-bar {
       background-color: #ffffff;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-soft);
       padding: 12px 0;
     }
 
@@ -188,7 +114,7 @@
     }
 
     .breadcrumb-item a {
-      color: var(--text-muted);
+      color: var(--muted);
       text-decoration: none;
     }
 
@@ -198,9 +124,9 @@
     }
 
     .book-detail-card {
-      background: var(--surface-card);
+      background: #ffffff;
       border-radius: var(--radius-xl);
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--border-soft);
       box-shadow: 0 10px 35px rgba(0, 0, 0, 0.04);
       overflow: hidden;
     }
@@ -214,7 +140,7 @@
       padding: 50px 30px;
       height: 100%;
       min-height: 480px;
-      border-right: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-soft);
     }
 
     .book-cover-container {
@@ -294,7 +220,7 @@
 
     .spec-box {
       background: #f8fafc;
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--border-soft);
       border-radius: 10px;
       padding: 12px 14px;
     }
@@ -302,7 +228,7 @@
     .spec-label {
       font-size: 0.72rem;
       font-weight: 600;
-      color: var(--text-muted);
+      color: var(--muted);
       text-transform: uppercase;
       display: flex;
       align-items: center;
@@ -313,12 +239,12 @@
     .spec-value {
       font-size: 0.95rem;
       font-weight: 700;
-      color: var(--text-dark);
+      color: var(--ink);
     }
 
     .price-box {
       background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--border-soft);
       border-radius: 12px;
       padding: 16px 20px;
       display: flex;
@@ -362,7 +288,7 @@
 
     .btn-action-read {
       background-color: var(--primary-gold);
-      color: #000000;
+      color: #1c2b27;
       font-weight: 700;
       font-size: 0.92rem;
       padding: 12px 24px;
@@ -372,11 +298,12 @@
       align-items: center;
       gap: 8px;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(255, 183, 3, 0.25);
+      box-shadow: 0 4px 12px rgba(201, 151, 46, 0.25);
     }
 
     .btn-action-read:hover:not(:disabled) {
-      background-color: var(--primary-hover);
+      background-color: var(--gold-dark);
+      color: #fff;
       transform: translateY(-2px);
     }
 
@@ -391,47 +318,118 @@
       0% { background-position: 200% 0; }
       100% { background-position: -200% 0; }
     }
+
+    .footer-teal {
+      background-color: var(--footer-bg) !important;
+      border-top: 3px solid var(--primary-gold);
+      padding: 24px 0 !important;
+      color: rgba(255,255,255,0.7);
+      margin-top: auto;
+    }
+
+    /* Mobile Drawer */
+    @media (max-width: 991.98px) {
+      .navbar-teal > .container {
+        display: flex;
+        flex-wrap: wrap !important;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .navbar-brand {
+        font-size: 1.15rem !important;
+        white-space: nowrap;
+        max-width: calc(100% - 65px);
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .navbar-toggler {
+        padding: 4px 8px;
+        font-size: 1.1rem;
+        z-index: 1051;
+      }
+
+      .navbar-collapse {
+        flex-basis: 100% !important;
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      .navbar-collapse.collapse:not(.show) {
+        display: none !important;
+      }
+
+      .navbar-collapse.collapse.show {
+        display: block !important;
+        background: #073b30;
+        padding: 16px;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .navbar-nav .nav-link {
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+    }
   </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
-  <!-- Top Navigation Header -->
-  <header>
-    <a href="index.html" class="logo">
-      <i class="fa-solid fa-book-open-reader"></i>
-      <span>Santali Digital <span>Library</span></span>
-    </a>
+  <!-- Top Navigation Header (Categories & Authors options removed) -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-teal sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <i class="fa-solid fa-book-open-reader text-warning fs-3"></i>
+        <span>Santali Digital <span class="highlight">Library</span></span>
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto align-items-center">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="browse.html">Books</a></li>
+          <li class="nav-item"><a class="nav-link" href="subscription.html">Subscriptions</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
 
-    <ul class="nav-links d-none d-md-flex">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="browse.html">Books</a></li>
-      <li><a href="categories.html">Categories</a></li>
-      <li><a href="subscription.html">Subscriptions</a></li>
-      <li><a href="authors.html">Authors</a></li>
-    </ul>
-
-    <div class="nav-right">
-      <div class="user-menu-container" id="userMenuContainer">
-        <button class="user-btn" id="userMenuBtn" type="button">
-          <img src="" alt="" class="user-avatar-img" id="navAvatar" style="display: none;">
-          <i class="fa-solid fa-circle-user" id="navAvatarPlaceholder"></i>
-          <span id="headerUserName">Hello, Reader</span>
-          <span class="role-badge" id="headerUserBadge">Reader</span>
-          <i class="fa-solid fa-caret-down text-white-50"></i>
-        </button>
-
-        <div class="dropdown-menu-custom" id="dropdownMenu">
-          <a href="profile.html"><i class="fa-solid fa-user-gear"></i> My Profile</a>
-          <a href="subscription.html"><i class="fa-solid fa-crown" style="color:var(--primary-gold);"></i> My Subscription</a>
-          <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> My Cart</a>
-          <a href="orders.html"><i class="fa-solid fa-box-archive"></i> My Orders</a>
-          <a href="author-dashboard.html" id="authorDashboardNav"><i class="fa-solid fa-gauge"></i> Author Dashboard</a>
-          <hr style="margin: 0; border-top: 1px solid #e2e8f0;">
-          <a href="#" id="logoutLink" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-        </div>
+          <!-- Language Selector Dropdown -->
+          <li class="nav-item dropdown ms-lg-2">
+            <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fa-solid fa-globe"></i> <span id="langLabelText">EN</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="languageDropdown">
+              <li><a class="dropdown-item" href="#">English</a></li>
+              <li><a class="dropdown-item" href="#">ᱥᱟᱱᱛᱟᱲᱤ (Santali)</a></li>
+              <li><a class="dropdown-item" href="#">हिन्दी (Hindi)</a></li>
+            </ul>
+          </li>
+          
+          <!-- Dynamic Profile / User Details -->
+          <li class="nav-item dropdown ms-lg-3 my-2 my-lg-0" id="userNavArea">
+            <a class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 px-3 py-1" href="#" id="userMenuBtn" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="" alt="" class="user-avatar-img" id="navAvatar" style="display: none;">
+              <i class="fa-solid fa-circle-user" id="navAvatarPlaceholder" style="font-size: 1.1rem;"></i>
+              <span id="headerUserName">Hello, Reader</span>
+              <span class="user-role-badge" id="headerUserBadge">READER</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" aria-labelledby="userMenuBtn">
+              <li><a class="dropdown-item" href="profile.html"><i class="fa-solid fa-user-gear me-2 text-muted"></i> My Profile</a></li>
+              <li><a class="dropdown-item" href="reader-dashboard.html"><i class="fa-solid fa-book-bookmark me-2 text-info"></i> Reader Dashboard</a></li>
+              <li><a class="dropdown-item" href="subscription.html"><i class="fa-solid fa-crown me-2 text-warning"></i> My Subscription</a></li>
+              <li><a class="dropdown-item" href="cart.html"><i class="fa-solid fa-cart-shopping me-2 text-muted"></i> My Cart</a></li>
+              <li><a class="dropdown-item" href="orders.html"><i class="fa-solid fa-box-archive me-2 text-muted"></i> My Orders</a></li>
+              <li><a class="dropdown-item" href="author-dashboard.html" id="authorDashboardNav"><i class="fa-solid fa-upload me-2 text-success"></i> Author Dashboard</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger fw-semibold" href="#" id="logoutLink"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</a></li>
+            </ul>
+          </li>
+        </ul>
       </div>
     </div>
-  </header>
+  </nav>
 
   <!-- Clean Breadcrumb Path -->
   <div class="breadcrumb-bar">
@@ -528,7 +526,6 @@
           <!-- Action Buttons -->
           <div class="pt-4 border-top">
             <div class="action-btn-group">
-              <!-- Buy Now option removed -->
               <button class="btn btn-action-cart" id="addToCartBtn" disabled>
                 <i class="fa-solid fa-cart-plus"></i> Add to Cart
               </button>
@@ -549,13 +546,13 @@
   </main>
 
   <!-- Footer -->
-  <footer class="text-center mt-auto py-3" style="background-color: var(--bg-dark);">
+  <footer class="footer-teal text-center small">
     <div class="container">
-      <p class="mb-0 text-white" style="font-size: 0.88rem;">&copy; 2026 Santali Digital Library. All rights reserved.</p>
+      &copy; 2026 Santali Digital Library. All rights reserved.
     </div>
   </footer>
 
-  <!-- Bootstrap JS -->
+  <!-- Bootstrap Bundle JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Fetch Data & Actions Logic -->
@@ -593,27 +590,40 @@
         if (user) {
           const { data: profile } = await supabase
             .from('profiles')
-            .select('role, first_name, full_name, avatar_url')
+            .select('*')
             .eq('id', user.id)
             .maybeSingle();
 
-          if (profile) {
-            const userRole = (profile.role || 'reader').toLowerCase();
-            let firstName = profile.first_name || (profile.full_name ? profile.full_name.split(' ')[0] : user.email.split('@')[0]);
-            document.getElementById('headerUserName').textContent = `Hello, ${firstName}`;
-            document.getElementById('headerUserBadge').textContent = userRole.toUpperCase();
+          const userRole = (profile?.role || user.user_metadata?.role || 'reader').toLowerCase();
+          let firstName = profile?.first_name 
+            || (profile?.full_name ? profile.full_name.split(' ')[0] : null)
+            || user.user_metadata?.first_name 
+            || user.user_metadata?.full_name?.split(' ')[0] 
+            || user.email.split('@')[0];
 
-            if (userRole === 'reader' && authorDashboardNav) {
-              authorDashboardNav.style.display = 'none';
-            } else if (authorDashboardNav) {
-              authorDashboardNav.style.display = 'flex';
-            }
+          firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+          document.getElementById('headerUserName').textContent = `Hello, ${firstName}`;
+          document.getElementById('headerUserBadge').textContent = userRole.toUpperCase();
 
-            if (profile.avatar_url) {
-              const navAvatar = document.getElementById('navAvatar');
-              navAvatar.src = profile.avatar_url;
-              navAvatar.style.display = 'inline-block';
-              document.getElementById('navAvatarPlaceholder').style.display = 'none';
+          if (userRole === 'reader' && authorDashboardNav) {
+            authorDashboardNav.parentElement.style.display = 'none';
+          }
+
+          const avatarUrl = profile?.avatar_url 
+            || profile?.photo_url 
+            || profile?.avatar 
+            || user.user_metadata?.avatar_url 
+            || user.user_metadata?.picture;
+
+          if (avatarUrl) {
+            const navAvatar = document.getElementById('navAvatar');
+            const navPlaceholder = document.getElementById('navAvatarPlaceholder');
+            if (navAvatar) {
+              navAvatar.src = avatarUrl;
+              navAvatar.onload = () => {
+                navAvatar.style.display = 'inline-block';
+                if (navPlaceholder) navPlaceholder.style.display = 'none';
+              };
             }
           }
         }
@@ -621,18 +631,6 @@
         console.warn("Auth info skipped:", err);
       }
 
-      // Dropdown toggle
-      const userMenuBtn = document.getElementById('userMenuBtn');
-      const dropdownMenu = document.getElementById('dropdownMenu');
-      userMenuBtn?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        dropdownMenu.classList.toggle('active');
-      });
-      document.addEventListener('click', (e) => {
-        if (!dropdownMenu.contains(e.target) && !userMenuBtn.contains(e.target)) {
-          dropdownMenu.classList.remove('active');
-        }
-      });
       document.getElementById('logoutLink')?.addEventListener('click', async (e) => {
         e.preventDefault();
         await supabase.auth.signOut();
@@ -644,17 +642,14 @@
         return;
       }
 
-      // Safe multi-stage book lookup
       async function retrieveBook(paramVal) {
         const clean = decodeURIComponent(String(paramVal)).trim();
 
-        // 1. Exact match on book_id column
         try {
           const { data: byBookId } = await supabase.from('books').select('*').eq('book_id', clean).limit(1);
           if (byBookId && byBookId.length > 0) return byBookId[0];
         } catch (e) {}
 
-        // 2. Integer primary key if purely numeric
         if (/^\d+$/.test(clean)) {
           try {
             const { data: byId } = await supabase.from('books').select('*').eq('id', parseInt(clean, 10)).limit(1);
@@ -662,7 +657,6 @@
           } catch (e) {}
         }
 
-        // 3. UUID primary key match
         if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(clean)) {
           try {
             const { data: byUuid } = await supabase.from('books').select('*').eq('id', clean).limit(1);
@@ -670,13 +664,11 @@
           } catch (e) {}
         }
 
-        // 4. Title match fallback
         try {
           const { data: byTitle } = await supabase.from('books').select('*').ilike('title', clean).limit(1);
           if (byTitle && byTitle.length > 0) return byTitle[0];
         } catch (e) {}
 
-        // 5. Full catalog scan fallback
         try {
           const { data: allList } = await supabase.from('books').select('*');
           if (allList && allList.length > 0) {
@@ -692,7 +684,6 @@
         return null;
       }
 
-      // Fetch book metadata and populate UI
       try {
         const book = await retrieveBook(rawBookId);
         if (!book) throw new Error("Book record not found in library catalog.");
@@ -708,7 +699,6 @@
         authorEl.textContent = book.author || 'Unknown Author';
         authorEl.classList.remove('skeleton');
 
-        // Resolve & display Author ID Badge
         const targetAuthorName = book.author || 'Unknown Author';
         const targetAuthorId = book.author_id && book.author_id !== 'null' && book.author_id !== ''
           ? book.author_id 
@@ -749,10 +739,8 @@
         }
         priceEl.classList.remove('skeleton');
 
-        // Enable Read Book button
         readBookBtn.disabled = false;
 
-        // Click Handler for "Read Book" -> Checks subscription and navigates
         readBookBtn.addEventListener('click', async () => {
           const targetParamId = book.book_id || book.id;
 
@@ -765,7 +753,6 @@
                return;
             }
 
-            // Check if user has an active subscription if the book is not free
             if (!isFree) {
               const { data: subData } = await supabase
                 .from('subscriptions')
@@ -775,13 +762,11 @@
                 .limit(1);
 
               if (!subData || subData.length === 0) {
-                 // User is not subscribed -> Redirect to subscription page
                  window.location.href = "subscription.html";
                  return;
               }
             }
 
-            // If subscribed (or free book), track progress and open reader
             const { data: existing } = await supabase
               .from('reading_progress')
               .select('id')
@@ -808,7 +793,6 @@
               }).eq('id', existing[0].id);
             }
 
-            // Direct redirect to Reader Mode
             window.location.href = `reader.html?id=${encodeURIComponent(targetParamId)}&author_id=${encodeURIComponent(targetAuthorId)}&author=${encodeURIComponent(targetAuthorName)}`;
 
           } catch (err) {
