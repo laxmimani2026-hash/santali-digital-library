@@ -2,30 +2,102 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Browse Books | Santali Digital Library</title>
   
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <!-- Google Fonts: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="manifest" href="/santali-digital-library/manifest.json">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
 
   <style>
     :root {
-      --bg-dark: #075e4d;
-      --primary-gold: #ffb703;
-      --header-bg: #005f73;
-      --footer-bg: #005f73;
+      --bg-dark: #073b30;
+      --bg-dark-light: #0d5c4b;
+      --primary-gold: #c9972e;
+      --gold-dark: #a87a1e;
+      --header-bg: #073b30;
+      --footer-bg: #04241d;
+      --ink: #14211d;
+      --muted: #5e7068;
+      --border-soft: #e2e8e5;
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
       --font-scale: 100%;
     }
 
+    html { scroll-behavior: smooth; }
+
     body {
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Poppins', sans-serif !important;
       font-size: var(--font-scale);
-      background-color: #f8fafc;
-      transition: background-color 0.3s, color 0.3s;
+      color: var(--ink);
+      background-color: #fcfdfd;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    /* Buttons */
+    .btn { 
+      font-family: 'Poppins', sans-serif !important;
+      border-radius: var(--radius-sm); 
+      font-weight: 600; 
+      letter-spacing: .01em; 
+      transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, color .18s ease; 
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-gold { background: var(--primary-gold); border-color: var(--primary-gold); color: #1c2b27; box-shadow: 0 4px 14px rgba(201,151,46,0.3); }
+    .btn-gold:hover { background: var(--gold-dark); border-color: var(--gold-dark); color: #fff; }
+    .btn-warning { background: var(--primary-gold) !important; border-color: var(--primary-gold) !important; color: #1c2b27 !important; box-shadow: 0 4px 16px rgba(201,151,46,0.35); }
+    .btn-warning:hover { background: var(--gold-dark) !important; border-color: var(--gold-dark) !important; color: #fff !important; }
+
+    /* Header Nav matching Reader & Author Dashboard */
+    .navbar-teal {
+      background-color: rgba(7,59,48,0.94) !important;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 25px rgba(0,0,0,.12);
+      padding-top: 14px;
+      padding-bottom: 14px;
+      transition: background-color 0.3s ease;
+    }
+    .navbar-brand { 
+      font-weight: 700; 
+      font-size: 1.4rem; 
+      letter-spacing: .01em; 
+      font-family: 'Poppins', sans-serif !important; 
+    }
+    .navbar-brand i { color: var(--primary-gold); }
+    .highlight { color: var(--primary-gold); }
+    .navbar-nav .nav-link { font-weight: 500; margin: 0 4px; opacity: .92; transition: all 0.2s ease; }
+    .navbar-nav .nav-link.active, .navbar-nav .nav-link:hover { color: var(--primary-gold) !important; opacity: 1; transform: translateY(-1px); }
+
+    .user-avatar-img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid var(--primary-gold);
+    }
+
+    .user-role-badge {
+      background-color: var(--primary-gold);
+      color: #1c2b27;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
     }
 
     /* Emergency Top Banner */
@@ -88,42 +160,24 @@
       position: relative;
     }
 
-    /* Header Nav */
-    .navbar-custom {
-      background-color: var(--header-bg) !important;
-      transition: background-color 0.3s ease;
-    }
-
-    .btn-gold {
-      background-color: var(--primary-gold);
-      color: #000;
-      font-weight: 700;
-      border: none;
-      transition: transform 0.2s, background-color 0.2s;
-    }
-    .btn-gold:hover {
-      background-color: #e0a300;
-      transform: translateY(-2px);
-    }
-
     /* Book Cards Grid */
     .book-card {
       transition: transform 0.2s ease, box-shadow 0.2s ease;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
       overflow: hidden;
       background: #ffffff;
     }
     .book-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 12px 24px rgba(0,0,0,0.09) !important;
-      border-color: #cbd5e1;
+      box-shadow: 0 14px 28px rgba(7,59,48,0.08) !important;
+      border-color: rgba(201,151,46,0.35);
     }
     .book-cover {
       height: 280px;
       object-fit: cover;
       width: 100%;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid var(--border-soft);
       background-color: #f1f5f9;
     }
     .price-badge {
@@ -138,13 +192,62 @@
     .filter-card {
       background-color: #ffffff;
       border-radius: 14px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid var(--border-soft);
     }
-    .footer-custom {
+    
+    .footer-teal {
       background-color: var(--footer-bg) !important;
-      color: #ffffff;
-      padding: 35px 0;
-      transition: background-color 0.3s ease;
+      border-top: 3px solid var(--primary-gold);
+      padding: 35px 0 20px !important;
+      color: rgba(255,255,255,0.7);
+      margin-top: auto;
+    }
+
+    /* Mobile Adaptations */
+    @media (max-width: 991.98px) {
+      .navbar-teal > .container {
+        display: flex;
+        flex-wrap: wrap !important;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .navbar-brand {
+        font-size: 1.15rem !important;
+        white-space: nowrap;
+        max-width: calc(100% - 65px);
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .navbar-toggler {
+        padding: 4px 8px;
+        font-size: 1.1rem;
+        z-index: 1051;
+      }
+
+      .navbar-collapse {
+        flex-basis: 100% !important;
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      .navbar-collapse.collapse:not(.show) {
+        display: none !important;
+      }
+
+      .navbar-collapse.collapse.show {
+        display: block !important;
+        background: #073b30;
+        padding: 16px;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .navbar-nav .nav-link {
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
     }
   </style>
 </head>
@@ -171,23 +274,22 @@
   <!-- Dynamic Announcement Bar -->
   <div id="globalAnnouncementBar" class="d-none"></div>
 
-  <!-- Navigation Bar -->
-  <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+  <!-- Navigation Bar matching Reader/Author Dashboards (Categories & Authors removed) -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-teal sticky-top">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
         <i class="fa-solid fa-book-open-reader text-warning fs-3"></i>
-        <span class="fw-bold">Santali Digital <span class="text-warning">Library</span></span>
+        <span>Santali Digital <span class="highlight">Library</span></span>
       </a>
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
+      
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto align-items-center">
-          <li class="nav-item"><a class="nav-link fw-semibold" href="index.html" data-i18n="navHome">Home</a></li>
-          <li class="nav-item"><a class="nav-link active fw-bold" href="browse.html" data-i18n="navBooks">Books</a></li>
-          <li class="nav-item"><a class="nav-link fw-semibold" href="categories.html" data-i18n="navCategories">Categories</a></li>
-          <li class="nav-item"><a class="nav-link fw-semibold" href="authors.html" data-i18n="navAuthors">Authors</a></li>
-          <li class="nav-item"><a class="nav-link fw-semibold" href="contact.html" data-i18n="navContact">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html" data-i18n="navHome">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="browse.html" data-i18n="navBooks">Books</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html" data-i18n="navContact">Contact</a></li>
 
           <!-- Language Selector Dropdown -->
           <li class="nav-item dropdown ms-lg-2">
@@ -201,8 +303,24 @@
             </ul>
           </li>
 
-          <li class="nav-item ms-lg-3 my-2 my-lg-0" id="userNavArea">
-            <a href="login.html" class="btn btn-gold btn-sm px-3" data-i18n="navLogin">Login / Sign Up</a>
+          <!-- Dynamic Profile / User Details -->
+          <li class="nav-item dropdown ms-lg-3 my-2 my-lg-0" id="userNavArea">
+            <a class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 px-3 py-1" href="#" id="userMenuBtn" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="" alt="" class="user-avatar-img" id="navAvatar" style="display: none;">
+              <i class="fa-solid fa-circle-user" id="navAvatarPlaceholder" style="font-size: 1.1rem;"></i>
+              <span id="headerUserName">Hello, Reader</span>
+              <span class="user-role-badge" id="headerUserBadge">READER</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" aria-labelledby="userMenuBtn">
+              <li><a class="dropdown-item" href="profile.html"><i class="fa-solid fa-user-gear me-2 text-muted"></i> My Profile</a></li>
+              <li><a class="dropdown-item" href="reader-dashboard.html"><i class="fa-solid fa-book-bookmark me-2 text-info"></i> Reader Dashboard</a></li>
+              <li><a class="dropdown-item" href="subscription.html"><i class="fa-solid fa-crown me-2 text-warning"></i> My Subscription</a></li>
+              <li><a class="dropdown-item" href="cart.html"><i class="fa-solid fa-cart-shopping me-2 text-muted"></i> My Cart</a></li>
+              <li><a class="dropdown-item" href="orders.html"><i class="fa-solid fa-box-archive me-2 text-muted"></i> My Orders</a></li>
+              <li><a class="dropdown-item" href="author-dashboard.html"><i class="fa-solid fa-upload me-2 text-success"></i> Author Dashboard</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger fw-semibold" href="#" id="logoutLink"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</a></li>
+            </ul>
           </li>
         </ul>
       </div>
@@ -213,7 +331,7 @@
   <div class="container mt-4 mb-4">
     <div class="row align-items-center mb-3">
       <div class="col-lg-7">
-        <h2 class="fw-bold mb-1" id="browseHeading" style="color: var(--header-bg);" data-i18n="browseHeader">Explore the Library</h2>
+        <h2 class="fw-bold mb-1" id="browseHeading" style="color: var(--bg-dark);" data-i18n="browseHeader">Explore the Library</h2>
         <p class="text-muted mb-0" data-i18n="browseSub">Discover approved Santali literature, poetry, folklore, and educational eBooks.</p>
       </div>
       <div class="col-lg-5 text-lg-end mt-3 mt-lg-0">
@@ -258,7 +376,7 @@
   <div class="container flex-grow-1 mb-5">
     <!-- Loading Spinner -->
     <div id="loadingIndicator" class="text-center my-5 py-4">
-      <div class="spinner-border text-warning" role="status" style="width: 3rem; height: 3rem;"></div>
+      <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;"></div>
       <h5 class="mt-3 text-muted fw-semibold">Loading library catalogue...</h5>
     </div>
 
@@ -275,7 +393,7 @@
   </div>
 
   <!-- Dynamic Footer -->
-  <footer class="footer-custom text-center mt-auto py-4">
+  <footer class="footer-teal text-center mt-auto py-4">
     <div class="container">
       <p class="mb-1 fw-bold">&copy; 2026 Santali Digital Library</p>
       <p class="small text-white-50 mb-2" id="footerTaglineDisplay">Made with ❤️ for Santali Authors & Digital Readers Worldwide</p>
@@ -285,24 +403,24 @@
     </div>
   </footer>
 
-  <!-- Bootstrap JS -->
+  <!-- Bootstrap Bundle JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Language Translations Script -->
   <script>
     const translations = {
       en: {
-        navHome: "Home", navBooks: "Books", navCategories: "Categories", navAuthors: "Authors", navContact: "Contact", navLogin: "Login / Sign Up",
+        navHome: "Home", navBooks: "Books", navContact: "Contact", navLogin: "Login / Sign Up",
         browseHeader: "Explore the Library", browseSub: "Discover approved Santali literature, poetry, folklore, and educational eBooks.",
         langLabel: "EN"
       },
       sat: {
-        navHome: "ᱚᱲᱟᱜ (Home)", navBooks: "ᱯᱚᱛᱚᱵ (Books)", navCategories: "ᱦᱟᱹᱴᱤᱧ (Categories)", navAuthors: "ᱚᱱᱚᱞᱤᱭᱟᱹ (Authors)", navContact: "ᱡᱚᱜᱟᱡᱚᱜᱽ (Contact)", navLogin: "ᱵᱚᱞᱚᱱ / ᱥᱮᱞᱮᱫᱚᱜ",
+        navHome: "ᱚᱲᱟᱜ (Home)", navBooks: "ᱯᱚᱛᱚᱵ (Books)", navContact: "ᱡᱚᱜᱟᱡᱚᱜᱽ (Contact)", navLogin: "ᱵᱚᱞᱚᱱ / ᱥᱮᱞᱮᱫᱚᱜ",
         browseHeader: "ᱯᱚᱛᱚᱵ ᱜᱟᱫᱮᱞ ᱧᱮᱞ ᱢᱮ", browseSub: "ᱥᱟᱱᱛᱟᱲᱤ ᱥᱟᱶᱦᱮᱫ, ᱚᱱᱚᱬᱦᱮ, ᱠᱟᱹᱦᱱᱤ ᱟᱨ ᱥᱮᱪᱮᱫ ᱯᱚᱛᱚᱵ ᱯᱟᱲᱦᱟᱣ ᱢᱮ᱾",
         langLabel: "SAT"
       },
       hi: {
-        navHome: "होम", navBooks: "पुस्तकें", navCategories: "श्रेणियाँ", navAuthors: "लेखक", navContact: "संपर्क", navLogin: "लॉगिन / साइन अप",
+        navHome: "होम", navBooks: "पुस्तकें", navContact: "संपर्क", navLogin: "लॉगिन / साइन अप",
         browseHeader: "पुस्तकालय ब्राउज़ करें", browseSub: "स्वीकृत संथाली साहित्य, कविता, लोककथाएँ और शैक्षिक ई-पुस्तकें खोजें।",
         langLabel: "HI"
       }
@@ -358,34 +476,46 @@
     async function checkUserAuth() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        const userNavArea = document.getElementById('userNavArea');
-        if (user && userNavArea) {
+        if (user) {
           const { data: profile } = await supabase
             .from('profiles')
-            .select('first_name, full_name, role')
+            .select('*')
             .eq('id', user.id)
             .maybeSingle();
 
-          const name = profile?.first_name || (profile?.full_name ? profile.full_name.split(' ')[0] : user.email.split('@')[0]);
-          userNavArea.innerHTML = `
-            <div class="dropdown">
-              <a class="btn btn-outline-light btn-sm dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown">
-                <i class="fa-solid fa-circle-user me-1 text-warning"></i> ${name}
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                <li><a class="dropdown-item" href="profile.html"><i class="fa-solid fa-user me-2 text-muted"></i>Profile</a></li>
-                <li><a class="dropdown-item" href="subscription.html"><i class="fa-solid fa-crown me-2 text-warning"></i>Subscriptions</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="#" id="browseLogoutLink"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
-              </ul>
-            </div>
-          `;
+          let firstName = profile?.first_name 
+            || (profile?.full_name ? profile.full_name.split(' ')[0] : null)
+            || user.user_metadata?.first_name 
+            || user.user_metadata?.full_name?.split(' ')[0] 
+            || user.email.split('@')[0];
 
-          document.getElementById('browseLogoutLink')?.addEventListener('click', async (e) => {
-            e.preventDefault();
-            await supabase.auth.signOut();
-            window.location.reload();
-          });
+          firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+          
+          const nameEl = document.getElementById('headerUserName');
+          if (nameEl) nameEl.textContent = `Hello, ${firstName}`;
+
+          const badgeEl = document.getElementById('headerUserBadge');
+          if (badgeEl && (profile?.role || user.user_metadata?.role)) {
+            badgeEl.textContent = (profile?.role || user.user_metadata?.role || 'READER').toUpperCase();
+          }
+
+          const avatarUrl = profile?.avatar_url 
+            || profile?.photo_url 
+            || profile?.avatar 
+            || user.user_metadata?.avatar_url 
+            || user.user_metadata?.picture;
+
+          if (avatarUrl) {
+            const navAvatar = document.getElementById('navAvatar');
+            const navPlaceholder = document.getElementById('navAvatarPlaceholder');
+            if (navAvatar) {
+              navAvatar.src = avatarUrl;
+              navAvatar.onload = () => {
+                navAvatar.style.display = 'inline-block';
+                if (navPlaceholder) navPlaceholder.style.display = 'none';
+              };
+            }
+          }
         }
       } catch (err) {
         console.warn("Auth check error:", err);
@@ -538,7 +668,7 @@
                 <img src="${coverUrl}" class="card-img-top book-cover" alt="${book.title}" onerror="this.src='https://via.placeholder.com/300x400?text=No+Cover'">
                 
                 <div class="card-body d-flex flex-column">
-                  <span class="text-uppercase fw-bold mb-1" style="font-size: 0.75rem; color: var(--header-bg);">${category}</span>
+                  <span class="text-uppercase fw-bold mb-1" style="font-size: 0.75rem; color: var(--bg-dark);">${category}</span>
                   <h5 class="card-title fw-bold text-truncate mb-1" title="${book.title}">${book.title}</h5>
                   <p class="card-text text-muted small mb-3">By ${book.author || 'Unknown'}</p>
                   
@@ -570,6 +700,12 @@
         renderFilteredBooks();
       });
     }
+
+    document.getElementById('logoutLink')?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      await supabase.auth.signOut();
+      window.location.reload();
+    });
 
     document.addEventListener("DOMContentLoaded", async () => {
       await checkUserAuth();
