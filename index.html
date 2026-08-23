@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   
   <title>Santali Digital Library | Read & Publish eBooks</title>
   
@@ -43,6 +43,7 @@
       background-color: #fcfdfd;
       transition: background-color 0.3s, color 0.3s;
       overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
     }
 
     section[id] { scroll-margin-top: 90px; }
@@ -165,7 +166,6 @@
       transition: background 0.3s ease;
     }
 
-    /* Floating Santali Background Typography Layer */
     .ol-chiki-canvas {
       position: absolute;
       inset: 0;
@@ -188,7 +188,6 @@
     .floating-char.f-md { font-size: clamp(4rem, 7vw, 9rem); }
     .floating-char.f-sm { font-size: clamp(2.5rem, 4vw, 5rem); }
 
-    /* Keyframe Float for Background Characters */
     @keyframes floatFont {
       0% { transform: translateY(0px) rotate(0deg) scale(1); }
       50% { transform: translateY(-35px) rotate(6deg) scale(1.06); }
@@ -242,7 +241,6 @@
     .search-btn { background: var(--primary-gold); color: #1c2b27; border: none; font-weight: 700; padding: 0 28px; border-radius: 999px !important; transition: all 0.2s ease; }
     .search-btn:hover { background: var(--gold-dark); color: #fff; }
 
-    /* Hero-to-page wave transition */
     .hero-wave { position: absolute; left: 0; bottom: -1px; width: 100%; height: 76px; overflow: hidden; line-height: 0; z-index: 2; pointer-events: none; }
     .wave-layer { position: absolute; left: 0; bottom: 0; width: 200%; height: 76px; display: block; }
     .wave-back { animation: waveFlow 30s linear infinite; opacity: .55; }
@@ -252,7 +250,6 @@
       to { transform: translateX(-50%); }
     }
 
-    /* Professional Marquee (Slider) Styles */
     .marquee-wrapper {
       width: 100%;
       overflow: hidden;
@@ -277,7 +274,6 @@
       100% { transform: translateX(calc(-50% - 0.875rem)); } 
     }
 
-    /* Sections */
     .sdm-section { padding: 80px 0; }
     .sdm-section-alt {
       background: linear-gradient(180deg, #f5f8f6 0%, #ffffff 100%);
@@ -363,7 +359,6 @@
     .sdm-cta > * { position: relative; z-index: 1; }
     .sdm-cta h2 { color: #fff; font-family: 'Playfair Display', serif; font-size: clamp(2rem, 3.2vw, 2.6rem); }
 
-    /* Section headings */
     .section-title {
       font-weight: 700;
       font-size: clamp(1.75rem, 2.6vw, 2.3rem);
@@ -371,7 +366,16 @@
       text-align: center;
       margin-bottom: .5rem;
       position: relative;
+      background: linear-gradient(90deg, var(--ink) 40%, var(--gold-dark) 50%, var(--ink) 60%);
+      background-size: 250% auto;
+      background-position: 0% 50%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: background-position 1.2s ease;
     }
+    .section-title.in-view { background-position: 100% 50%; }
+
     .section-title::after {
       content: "";
       display: block;
@@ -389,7 +393,6 @@
       font-size: 1.05rem;
     }
 
-    /* Category cards */
     .category-card {
       display: flex;
       align-items: center;
@@ -413,7 +416,6 @@
     }
     .category-card i { font-size: 1.25rem; }
 
-    /* Feature cards */
     .feature-card-pro {
       background: #fff;
       border: 1px solid var(--border-soft);
@@ -423,12 +425,26 @@
       height: 100%;
       transition: all .25s ease;
       box-shadow: 0 8px 26px rgba(7,59,48,.04);
+      position: relative;
+      isolation: isolate;
     }
     .feature-card-pro:hover { 
       transform: translateY(-6px); 
       box-shadow: 0 20px 42px rgba(201,151,46,.16), 0 8px 20px rgba(7,59,48,.06); 
       border-color: rgba(201,151,46,.35); 
     }
+    .sdm-card::before, .feature-card-pro::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 0%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-gold), var(--gold-dark));
+      transition: width .35s ease;
+      border-radius: var(--radius-md) var(--radius-md) 0 0;
+    }
+    .sdm-card:hover::before, .feature-card-pro:hover::before { width: 100%; }
+
     .feature-icon-circle {
       width: 68px;
       height: 68px;
@@ -461,11 +477,9 @@
     .footer-teal .footer-social a:hover { background: var(--primary-gold); color: #1c2b27; transform: translateY(-2px); }
     .footer-bottom { border-top: 1px solid rgba(255,255,255,.1); margin-top: 35px; padding-top: 22px; }
 
-    /* Scroll reveal */
     .reveal-target { opacity: 0; transform: translateY(22px); transition: opacity .6s ease, transform .6s ease; }
     .reveal-target.in-view { opacity: 1; transform: translateY(0); }
 
-    /* Pricing ribbon */
     .sdm-price-card.featured { padding-top: 34px; }
     .featured-ribbon {
       position: absolute;
@@ -482,18 +496,11 @@
       box-shadow: 0 4px 10px rgba(0,0,0,.15);
     }
 
-    /* Book cards rendered by JS */
     .book-card-pro { border-radius: 14px; overflow: hidden; transition: transform .25s ease, box-shadow .25s ease; border: 1px solid var(--border-soft); }
     .book-card-pro:hover { transform: translateY(-6px); box-shadow: 0 18px 36px rgba(7,59,48,.15) !important; border-color: rgba(201,151,46,0.3); }
     .book-card-pro img { transition: transform .4s ease; }
     .book-card-pro:hover img { transform: scale(1.04); }
 
-    /* ============================================================
-       VISUAL & SCROLL-DYNAMICS ENHANCEMENTS
-       (additive only — no existing rule above is modified)
-       ============================================================ */
-
-    /* --- Scroll progress bar --- */
     #scrollProgressBar {
       position: fixed;
       top: 0;
@@ -507,7 +514,6 @@
       transition: width .08s linear;
     }
 
-    /* --- Ambient floating blobs used inside .ambient-section --- */
     .ambient-section { position: relative; overflow: hidden; }
     .ambient-blob {
       position: absolute;
@@ -530,7 +536,6 @@
       100% { transform: translate(-20px, 15px) scale(0.94); }
     }
 
-    /* --- Navbar reacts to scroll position --- */
     .navbar-teal.navbar-scrolled {
       padding-top: 8px;
       padding-bottom: 8px;
@@ -538,36 +543,8 @@
       box-shadow: 0 6px 28px rgba(0,0,0,.22);
     }
 
-    /* --- Parallax wrapper for hero glow + Ol Chiki canvas --- */
     .hero-glow, .ol-chiki-canvas { will-change: transform; }
 
-    /* --- Section titles: subtle gold gradient sweep --- */
-    .section-title {
-      background: linear-gradient(90deg, var(--ink) 40%, var(--gold-dark) 50%, var(--ink) 60%);
-      background-size: 250% auto;
-      background-position: 0% 50%;
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      transition: background-position 1.2s ease;
-    }
-    .section-title.in-view { background-position: 100% 50%; }
-
-    /* --- Card top-accent grow-on-hover for premium feel --- */
-    .sdm-card, .feature-card-pro { position: relative; isolation: isolate; }
-    .sdm-card::before, .feature-card-pro::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0;
-      width: 0%;
-      height: 3px;
-      background: linear-gradient(90deg, var(--primary-gold), var(--gold-dark));
-      transition: width .35s ease;
-      border-radius: var(--radius-md) var(--radius-md) 0 0;
-    }
-    .sdm-card:hover::before, .feature-card-pro:hover::before { width: 100%; }
-
-    /* --- Button shine sweep on hover --- */
     .btn-gold, .btn-warning, .btn-outline-light, .btn-light {
       position: relative;
       overflow: hidden;
@@ -584,7 +561,6 @@
     }
     .btn-gold:hover::after, .btn-warning:hover::after, .btn-light:hover::after { left: 130%; }
 
-    /* --- Entrance animation applied to book cards injected by JS --- */
     .book-card-enter {
       opacity: 0;
       transform: translateY(24px) scale(.97);
@@ -592,7 +568,6 @@
     }
     .book-card-enter.book-card-in { opacity: 1; transform: translateY(0) scale(1); }
 
-    /* --- Floating "back to top" button --- */
     #backToTopBtn {
       position: fixed;
       right: 22px;
@@ -618,7 +593,6 @@
     #backToTopBtn.show { opacity: 1; visibility: visible; transform: translateY(0); }
     #backToTopBtn:hover { background: var(--gold-dark); color: #fff; }
 
-    /* --- Subtle continuous shimmer for the CTA band so it never feels static --- */
     .sdm-cta::after {
       content: "";
       position: absolute;
@@ -634,84 +608,79 @@
       100% { background-position: 0% 0%; }
     }
 
-    
+    /* Mobile Layout & Spacing */
     @media (max-width: 576px) {
-  body {
-    padding-left: 0;
-    padding-right: 0;
-  }
-  .container {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-  .hero-teal {
-    padding: 70px 0 110px;
-  }
-}
-@media (max-width: 576px) {
-  th, td {
-    padding: 10px 12px !important;
-    font-size: 0.82rem !important;
-  }
-  
-  .book-cover-small, .book-cover-thumb {
-    width: 32px !important;
-    height: 45px !important;
-  }
-}
-/* Keep Navbar Logo and Menu Button on the same line for Mobile */
-@media (max-width: 576px) {
-  .navbar-brand {
-    font-size: 1.15rem !important; /* Slightly smaller font to fit narrow screens */
-    white-space: nowrap; /* Prevents the text itself from wrapping */
-  }
-  
-  .navbar > .container {
-    flex-wrap: nowrap !important; /* Forces the button to stay on the right side */
-  }
-}
-@media (max-width: 991.98px) {
-  /* Keep brand and toggler on one line, allow menu to expand below */
-  .navbar-teal > .container {
-    display: flex;
-    flex-wrap: wrap !important;
-    justify-content: space-between;
-    align-items: center;
-  }
+      body {
+        padding-left: 0;
+        padding-right: 0;
+      }
+      .container {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+      .hero-teal {
+        padding: 70px 0 110px;
+      }
+      th, td {
+        padding: 10px 12px !important;
+        font-size: 0.82rem !important;
+      }
+      .book-cover-small, .book-cover-thumb {
+        width: 32px !important;
+        height: 45px !important;
+      }
+    }
 
-  .navbar-brand {
-    font-size: 1.15rem !important;
-    max-width: calc(100% - 60px);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+    /* Unified Mobile Navbar Drawer Fix */
+    @media (max-width: 991.98px) {
+      .navbar-teal > .container {
+        display: flex;
+        flex-wrap: wrap !important;
+        justify-content: space-between;
+        align-items: center;
+      }
 
-  .navbar-toggler {
-    padding: 4px 8px;
-    font-size: 1.1rem;
-    z-index: 1051;
-  }
+      .navbar-brand {
+        font-size: 1.15rem !important;
+        white-space: nowrap;
+        max-width: calc(100% - 65px);
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
-  /* Force expanded menu to full width below header */
-  .navbar-collapse {
-    flex-basis: 100% !important;
-    background-color: rgba(7, 59, 48, 0.98);
-    border-radius: 12px;
-    padding: 16px;
-    margin-top: 10px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  }
+      .navbar-toggler {
+        padding: 4px 8px;
+        font-size: 1.1rem;
+        z-index: 1051;
+      }
 
-  .navbar-nav .nav-link {
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  }
-}
+      .navbar-collapse {
+        flex-basis: 100% !important;
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      .navbar-collapse.collapse:not(.show) {
+        display: none !important;
+      }
+
+      .navbar-collapse.collapse.show {
+        display: block !important;
+        background: #073b30;
+        padding: 16px;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .navbar-nav .nav-link {
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+    }
   </style>
 </head>
 <body>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
   <!-- Scroll progress indicator -->
   <div id="scrollProgressBar"></div>
 
@@ -748,9 +717,10 @@
         <i class="fa-solid fa-book-open-reader text-warning fs-3"></i>
         <span>Santali Digital <span class="highlight">Library</span></span>
       </a>
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
+      
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto align-items-center">
           <li class="nav-item"><a class="nav-link active" href="index.html" data-i18n="navHome">Home</a></li>
@@ -781,8 +751,6 @@
 
   <!-- Hero Banner with Moving Santali (Ol Chiki) Typography -->
   <header class="hero-teal">
-    
-    <!-- Moving Ol Chiki Typography Canvas -->
     <div class="ol-chiki-canvas" aria-hidden="true">
       <span class="floating-char f-lg" style="top: 8%; left: 4%; animation-duration: 22s;">ᱚ</span>
       <span class="floating-char f-md gold-tint" style="top: 15%; right: 12%; animation-duration: 18s; animation-delay: -3s;">ᱛ</span>
@@ -843,18 +811,15 @@
       <h2 class="section-title" id="sectionTitle" data-i18n="sectionFeatured">Featured Books</h2>
       <p class="section-subtitle" id="sectionSubtitle" data-i18n="sectionFeaturedSub">Handpicked eBooks from top Santali authors and scholars</p>
       
-      <!-- Initial Loading State -->
       <div class="col-12 text-center py-5" id="loadingState">
         <div class="spinner-border text-primary" role="status"></div>
         <p class="mt-2 text-muted fw-semibold">Loading books...</p>
       </div>
 
-      <!-- Marquee Container -->
       <div class="marquee-wrapper d-none" id="marqueeWrapper">
         <div class="marquee-track pause-on-hover" id="marqueeBooksContainer"></div>
       </div>
 
-      <!-- Static Grid Container -->
       <div class="row g-4 justify-content-center d-none" id="gridBooksContainer"></div>
     </div>
   </section>
@@ -1127,7 +1092,7 @@
     </div>
   </footer>
 
-  <!-- Bootstrap JS -->
+  <!-- Bootstrap Bundle JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Language Translation Script -->
@@ -1501,11 +1466,7 @@
     });
   </script>
 
-  <!-- ============================================================
-       Scroll Dynamics & Visual Polish Layer
-       Purely additive: only reads the DOM / listens to scroll.
-       Does not touch Supabase, i18n, auth, search or maintenance code.
-       ============================================================ -->
+  <!-- Scroll Dynamics & Visual Polish Layer -->
   <script>
     (function () {
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1528,7 +1489,6 @@
         if (backToTopBtn) backToTopBtn.classList.toggle('show', scrollY > 480);
 
         if (!prefersReducedMotion) {
-          // Gentle parallax for the hero glows and Ol Chiki background layer
           const heroHeight = document.querySelector('.hero-teal')?.offsetHeight || 600;
           if (scrollY < heroHeight) {
             const shift = scrollY * 0.18;
@@ -1556,8 +1516,6 @@
         });
       }
 
-      // Animate book cards in as they get rendered by the existing search/slider script.
-      // We only ADD a class and observe — we never touch renderBooks() itself.
       function animateBookCards(container) {
         if (!container) return;
         const cards = container.querySelectorAll('.book-card-pro:not(.book-card-enter)');
@@ -1592,6 +1550,8 @@
       });
     })();
   </script>
+
+  <!-- PWA Service Worker Registration -->
   <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/pwabuilder-sw.js')
