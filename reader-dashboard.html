@@ -2,408 +2,184 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Reader Dashboard - Santali Digital Library</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reader Dashboard | Santali Digital Library</title>
   
-  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts: Poppins -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="manifest" href="/santali-digital-library/manifest.json">
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="assets/css/style.css">
-  <link rel="stylesheet" href="../assets/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
-    :root {
-      --bg-dark: #073b30;
-      --bg-dark-light: #0d5c4b;
-      --primary-gold: #c9972e;
-      --gold-dark: #a87a1e;
-      --header-bg: #073b30;
-      --footer-bg: #04241d;
-      --ink: #14211d;
-      --muted: #5e7068;
-      --border-soft: #e2e8e5;
-      --radius-sm: 10px;
-      --radius-md: 16px;
-      --radius-lg: 24px;
-      --font-scale: 100%;
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #f8fafc;
+    color: #0f172a;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .navbar-teal { background-color: #005f73; }
+
+  /* Metric Cards */
+  .stat-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+  }
+
+  .book-cover-thumb {
+    width: 46px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 6px;
+    background-color: #e2e8f0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+
+  .progress-bar-custom {
+    height: 8px;
+    border-radius: 10px;
+    background-color: #e2e8f0;
+    overflow: hidden;
+  }
+
+  /* Table Mobile Horizontal Scroll Fix */
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Setting a minimum width prevents the columns from crushing together */
+  .table-responsive table {
+    min-width: 680px;
+  }
+
+  /* Mobile App Viewport Tweaks */
+  @media (max-width: 768px) {
+    main.container {
+      padding-left: 14px;
+      padding-right: 14px;
+      margin-top: 20px !important;
     }
 
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: 'Poppins', sans-serif !important;
-      font-size: var(--font-scale);
-      color: var(--ink);
-      background-color: #fcfdfd;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow-x: hidden;
-      -webkit-text-size-adjust: 100%;
+    h2 {
+      font-size: 1.4rem !important;
     }
 
-    /* Buttons */
-    .btn { 
-      font-family: 'Poppins', sans-serif !important;
-      border-radius: var(--radius-sm); 
-      font-weight: 600; 
-      letter-spacing: .01em; 
-      transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, color .18s ease; 
-    }
-    .btn:hover { transform: translateY(-2px); }
-    .btn-gold { background: var(--primary-gold); border-color: var(--primary-gold); color: #1c2b27; box-shadow: 0 4px 14px rgba(201,151,46,0.3); }
-    .btn-gold:hover { background: var(--gold-dark); border-color: var(--gold-dark); color: #fff; }
-    .btn-warning { background: var(--primary-gold) !important; border-color: var(--primary-gold) !important; color: #1c2b27 !important; box-shadow: 0 4px 16px rgba(201,151,46,0.35); }
-    .btn-warning:hover { background: var(--gold-dark) !important; border-color: var(--gold-dark) !important; color: #fff !important; }
-
-    /* Header Nav matching index.html */
-    .navbar-teal {
-      background-color: rgba(7,59,48,0.94) !important;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      box-shadow: 0 4px 25px rgba(0,0,0,.12);
-      padding-top: 14px;
-      padding-bottom: 14px;
-      transition: background-color 0.3s ease;
-    }
-    .navbar-brand { 
-      font-weight: 700; 
-      font-size: 1.4rem; 
-      letter-spacing: .01em; 
-      font-family: 'Poppins', sans-serif !important; 
-    }
-    .navbar-brand i { color: var(--primary-gold); }
-    .highlight { color: var(--primary-gold); }
-    .navbar-nav .nav-link { font-weight: 500; margin: 0 4px; opacity: .92; transition: all 0.2s ease; }
-    .navbar-nav .nav-link.active, .navbar-nav .nav-link:hover { color: var(--primary-gold) !important; opacity: 1; transform: translateY(-1px); }
-
-    .user-avatar-img {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 1.5px solid var(--primary-gold);
+    /* Stack filter input and full-width buttons */
+    #filterReaderBooks {
+      width: 100% !important;
+      margin-top: 10px;
     }
 
-    .reader-badge {
-      background-color: var(--primary-gold);
-      color: #1c2b27;
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 12px;
-      text-transform: uppercase;
+    .btn {
+      min-height: 42px;
     }
-
-    /* Dashboard Container */
-    .dashboard-container {
-      max-width: 1200px;
-      margin: 30px auto;
-      padding: 0 20px;
-      width: 100%;
-      flex-grow: 1;
-    }
-
-    .dashboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 25px;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-
-    .dashboard-header h1 {
-      font-size: 1.8rem;
-      color: var(--bg-dark);
-      font-weight: 700;
-    }
-
-    /* Stats Cards */
-    .stat-card {
-      background: #fff;
-      padding: 22px;
-      border-radius: 14px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
-      border: 1px solid var(--border-soft);
-      height: 100%;
-    }
-
-    .stat-card.border-primary-accent {
-      border-left: 4px solid var(--bg-dark) !important;
-    }
-    .stat-card.border-success-accent {
-      border-left: 4px solid #27ae60 !important;
-    }
-    .stat-card.border-warning-accent {
-      border-left: 4px solid var(--primary-gold) !important;
-    }
-
-    /* Book Cards and Table elements */
-    .book-cover-thumb {
-      width: 44px;
-      height: 60px;
-      object-fit: cover;
-      border-radius: 6px;
-      background-color: #eee;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-      flex-shrink: 0;
-    }
-
-    .progress-bar-custom {
-      height: 7px;
-      border-radius: 10px;
-      background-color: #e2e8e5;
-      overflow: hidden;
-    }
-
-    /* Content Card */
-    .content-card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 25px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
-      border: 1px solid var(--border-soft);
-    }
-
-    .table-responsive {
-      width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .table-responsive table {
-      min-width: 680px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-    }
-
-    th, td {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border-soft);
-      font-size: 0.9rem;
-      vertical-align: middle;
-    }
-
-    th {
-      background-color: #f8faf9;
-      color: var(--muted);
-      font-weight: 600;
-    }
-
-    /* Footer matching index.html */
-    .footer-teal {
-      background-color: var(--footer-bg) !important;
-      border-top: 3px solid var(--primary-gold);
-      padding: 24px 0 !important;
-      color: rgba(255,255,255,0.7);
-      margin-top: auto;
-    }
-
-    /* Mobile Adaptations */
-    @media (max-width: 576px) {
-      .dashboard-container {
-        padding: 0 14px;
-        margin: 15px auto;
-      }
-      .dashboard-header h1 {
-        font-size: 1.45rem;
-      }
-      th, td {
-        padding: 10px 12px !important;
-        font-size: 0.82rem !important;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .dashboard-header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-      }
-      .dashboard-header .btn-warning {
-        justify-content: center;
-        width: 100%;
-        min-height: 44px;
-      }
-    }
-
-    @media (max-width: 991.98px) {
-      .navbar-teal > .container {
-        display: flex;
-        flex-wrap: wrap !important;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .navbar-brand {
-        font-size: 1.15rem !important;
-        white-space: nowrap;
-        max-width: calc(100% - 65px);
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .navbar-toggler {
-        padding: 4px 8px;
-        font-size: 1.1rem;
-        z-index: 1051;
-      }
-
-      .navbar-collapse {
-        flex-basis: 100% !important;
-        width: 100%;
-        margin-top: 10px;
-      }
-
-      .navbar-collapse.collapse:not(.show) {
-        display: none !important;
-      }
-
-      .navbar-collapse.collapse.show {
-        display: block !important;
-        background: #073b30;
-        padding: 16px;
-        border-radius: 10px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      }
-
-      .navbar-nav .nav-link {
-        padding: 10px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      }
-    }
-  </style>
+  }
+</style>
 </head>
-<body>
+<body class="bg-light">
 
-  <!-- Navigation Bar matching index.html -->
   <nav class="navbar navbar-expand-lg navbar-dark navbar-teal sticky-top">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
-        <i class="fa-solid fa-book-open-reader text-warning fs-3"></i>
-        <span>Santali Digital <span class="highlight">Library</span></span>
+        <i class="fa-solid fa-book-open-reader text-warning fs-4"></i>
+        <span class="fw-bold">Santali Digital <span class="text-warning">Library</span></span>
       </a>
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto align-items-center">
-          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="browse.html">Books</a></li>
-          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
 
-          <!-- Language Selector Dropdown -->
-          <li class="nav-item dropdown ms-lg-2">
-            <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="fa-solid fa-globe"></i> <span id="langLabelText">EN</span>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="languageDropdown">
-              <li><a class="dropdown-item" href="#">English</a></li>
-              <li><a class="dropdown-item" href="#">ᱥᱟᱱᱛᱟᱲᱤ (Santali)</a></li>
-              <li><a class="dropdown-item" href="#">हिन्दी (Hindi)</a></li>
-            </ul>
-          </li>
-          
-          <!-- Dynamic Profile / User Details -->
-          <li class="nav-item dropdown ms-lg-3 my-2 my-lg-0" id="userNavArea">
-            <a class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 px-3 py-1" href="#" id="userMenuBtn" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="" alt="" class="user-avatar-img" id="navAvatar" style="display: none;">
-              <i class="fa-solid fa-circle-user" id="navAvatarPlaceholder" style="font-size: 1.1rem;"></i>
-              <span id="headerUserName">Hello, Reader</span>
-              <span class="reader-badge" id="headerUserBadge">READER</span>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" aria-labelledby="userMenuBtn">
-              <li><a class="dropdown-item" href="profile.html"><i class="fa-solid fa-user-gear me-2 text-muted"></i> My Profile</a></li>
-              <li><a class="dropdown-item active bg-light text-dark fw-bold" href="reader-dashboard.html"><i class="fa-solid fa-book-bookmark me-2 text-info"></i> Reader Dashboard</a></li>
-              <li><a class="dropdown-item" href="subscription.html"><i class="fa-solid fa-crown me-2 text-warning"></i> My Subscription</a></li>
-              <li><a class="dropdown-item" href="cart.html"><i class="fa-solid fa-cart-shopping me-2 text-muted"></i> My Cart</a></li>
-              <li><a class="dropdown-item" href="orders.html"><i class="fa-solid fa-box-archive me-2 text-muted"></i> My Orders</a></li>
-              <li><a class="dropdown-item" href="author-dashboard.html"><i class="fa-solid fa-upload me-2 text-success"></i> Author Dashboard</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item text-danger fw-semibold" href="#" id="logoutLink"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</a></li>
-            </ul>
-          </li>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="browse.html">Catalog</a></li>
+          <li class="nav-item"><a class="nav-link active fw-bold" href="reader-dashboard.html">Reader Hub</a></li>
         </ul>
+      </div>
+
+      <div class="d-flex align-items-center gap-3">
+        <span class="badge bg-info text-white px-3 py-2 fw-bold text-uppercase">READER</span>
+        <div class="dropdown">
+          <button class="btn btn-outline-light btn-sm dropdown-toggle fw-semibold" type="button" id="readerMenuBtn" data-bs-toggle="dropdown">
+            <i class="fa-solid fa-circle-user me-1"></i> <span id="readerName">Reader</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+            <li><a class="dropdown-item" href="profile.html"><i class="fa-solid fa-user-gear me-2 text-muted"></i> My Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger fw-semibold" href="#" id="logoutBtn"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</a></li>
+          </ul>
+        </div>
       </div>
     </div>
   </nav>
 
-  <!-- Main Dashboard Section -->
-  <main class="dashboard-container">
-    <div class="dashboard-header">
+  <main class="container my-5 flex-grow-1">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
       <div>
-        <h1>My Reading Dashboard</h1>
-        <p style="color: var(--muted); font-size: 0.9rem; margin-top: 5px;">Track your progress and continue reading where you left off.</p>
+        <h2 class="fw-bold text-dark mb-1">My Reading Dashboard</h2>
+        <p class="text-muted mb-0">Track your progress and continue reading where you left off.</p>
       </div>
-      <a href="browse.html" class="btn btn-warning fw-bold d-flex align-items-center gap-2">
-        <i class="fa-solid fa-book-open"></i> Explore More Books
+      <a href="browse.html" class="btn btn-warning fw-bold text-dark">
+        <i class="fa-solid fa-book-medical me-2"></i> Explore More Books
       </a>
     </div>
 
     <!-- Stats -->
     <div class="row g-4 mb-4">
       <div class="col-md-4">
-        <div class="stat-card border-primary-accent">
-          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">Active Books in Progress</small>
-          <h2 class="fw-bold mt-2 mb-0" style="color: var(--bg-dark);" id="totalBooksCount">0</h2>
-          <small class="fw-semibold" style="color: var(--bg-dark);"><i class="fa-solid fa-book-open-reader me-1"></i>In Your Reading List</small>
+        <div class="stat-card border-start border-primary border-4">
+          <small class="text-muted text-uppercase fw-bold">Active Books in Progress</small>
+          <h2 class="fw-bold text-dark mt-2 mb-0" id="totalBooksCount">0</h2>
+          <small class="text-primary fw-semibold"><i class="fa-solid fa-book-open-reader me-1"></i>In Your Reading List</small>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="stat-card border-success-accent">
-          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">Total Pages Read</small>
+        <div class="stat-card border-start border-success border-4">
+          <small class="text-muted text-uppercase fw-bold">Total Pages Read</small>
           <h2 class="fw-bold text-success mt-2 mb-0" id="totalPagesCount">0</h2>
           <small class="text-muted">Accumulated Reading Progress</small>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="stat-card border-warning-accent">
-          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">Unique Authors</small>
-          <h2 class="fw-bold mt-2 mb-0" style="color: var(--gold-dark);" id="totalAuthorsCount">0</h2>
-          <small class="fw-semibold" style="color: var(--gold-dark);"><i class="fa-solid fa-feather me-1"></i>Santali Writers</small>
+        <div class="stat-card border-start border-warning border-4">
+          <small class="text-muted text-uppercase fw-bold">Unique Authors</small>
+          <h2 class="fw-bold text-dark mt-2 mb-0" id="totalAuthorsCount">0</h2>
+          <small class="text-warning fw-semibold"><i class="fa-solid fa-feather me-1"></i>Santali Writers</small>
         </div>
       </div>
     </div>
 
-    <!-- Book Progress Table Card -->
-    <div class="content-card">
-      <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <!-- Book Progress Table -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+      <div class="card-header bg-white p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
         <div class="d-flex align-items-center gap-2">
-          <h5 class="fw-bold mb-0" style="color: var(--bg-dark);">My Reading List & Progress</h5>
+          <h5 class="fw-bold mb-0 text-dark">My Reading List & Progress</h5>
           <span class="badge bg-light text-dark border ms-2" id="booksListBadge">0 Books</span>
         </div>
-        <input type="text" id="filterReaderBooks" class="form-control form-control-sm" placeholder="Filter by title or author..." style="width: 240px; border-radius: 8px;">
+        <input type="text" id="filterReaderBooks" class="form-control form-control-sm" placeholder="Filter by title or author..." style="width: 240px;">
       </div>
 
       <div class="table-responsive">
-        <table>
-          <thead>
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light text-secondary small">
             <tr>
-              <th style="width: 50px;">#</th>
+              <th class="ps-4" style="width: 60px;">#</th>
               <th>Book Details</th>
               <th>Author</th>
               <th>Pages Read</th>
               <th style="min-width: 160px;">Progress</th>
               <th>Status</th>
               <th>Last Read</th>
-              <th class="text-end pe-3">Action</th>
+              <th class="text-end pe-4">Action</th>
             </tr>
           </thead>
           <tbody id="readerBooksList">
             <tr>
               <td colspan="8" class="text-center py-5 text-muted">
-                <div class="spinner-border text-success spinner-border-sm me-2"></div> Loading your reading library...
+                <div class="spinner-border text-primary spinner-border-sm me-2"></div> Loading your reading library...
               </td>
             </tr>
           </tbody>
@@ -412,20 +188,12 @@
     </div>
   </main>
 
-  <footer class="footer-teal text-center small">
-    <div class="container">
-      &copy; 2026 Santali Digital Library. All rights reserved.
-    </div>
+  <footer class="text-center mt-auto py-3 bg-dark text-white-50 small">
+    &copy; 2026 Santali Digital Library.
   </footer>
 
-  <!-- Bootstrap Bundle JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- Bootstrap Bundle JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Global Authentication Check (Same as index.html) -->
-  <script type="module" src="assets/js/auth.js"></script>
-  <!-- Supabase Logic -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -437,6 +205,8 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
       const tbody = document.getElementById("readerBooksList");
+      const readerNameEl = document.getElementById("readerName");
+
       let currentUserId = null;
 
       try {
@@ -445,24 +215,11 @@
           currentUserId = user.id;
           const { data: profile } = await supabase
             .from('profiles')
-            .select('full_name, first_name, username, role, avatar_url')
+            .select('full_name, first_name, username')
             .eq('id', user.id)
             .maybeSingle();
 
-          let firstName = profile?.first_name || (profile?.full_name ? profile.full_name.split(' ')[0] : user.email.split('@')[0]);
-          firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
-          document.getElementById('headerUserName').textContent = `Hello, ${firstName}`;
-
-          if (profile?.role) {
-            document.getElementById('headerUserBadge').textContent = profile.role.toUpperCase();
-          }
-
-          if (profile?.avatar_url) {
-            const navAvatar = document.getElementById('navAvatar');
-            navAvatar.src = profile.avatar_url;
-            navAvatar.style.display = 'inline-block';
-            document.getElementById('navAvatarPlaceholder').style.display = 'none';
-          }
+          readerNameEl.textContent = profile?.full_name || profile?.first_name || profile?.username || user.email.split('@')[0];
         }
       } catch (e) {
         console.warn("Auth check note:", e);
@@ -536,25 +293,25 @@
             : 'Recently';
 
           const bookId = item.book_id || book.book_id || book.id;
-          const coverUrl = book.cover_url || book.thumbnail_url || 'https://placehold.co/44x60/073b30/ffffff?text=Cover';
+          const coverUrl = book.cover_url || book.thumbnail_url || 'https://placehold.co/52x72/5c4bca/ffffff?text=Cover';
           const authorName = book.author || book.author_name || (book.author_id ? `Author #${book.author_id}` : 'Santali Writer');
           const isCompleted = (item.status === 'completed' || item.atatus === 'completed') || percent >= 100;
           const cfiParam = item.last_cfi ? `&cfi=${encodeURIComponent(item.last_cfi)}` : '';
 
           const tr = document.createElement('tr');
           tr.innerHTML = `
-            <td class="text-muted fw-bold">${index + 1}</td>
+            <td class="ps-4 text-muted fw-bold">${index + 1}</td>
             <td>
-              <div class="d-flex align-items-center gap-2">
-                <img src="${coverUrl}" class="book-cover-thumb" alt="Cover" onerror="this.src='https://placehold.co/44x60/073b30/ffffff?text=Cover'">
+              <div class="d-flex align-items-center gap-3">
+                <img src="${coverUrl}" class="book-cover-thumb" alt="Cover">
                 <div>
-                  <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.9rem;">${book.title || book.book_name || `Book #${bookId}`}</h6>
+                  <h6 class="fw-bold text-dark mb-1">${book.title || book.book_name || `Book #${bookId}`}</h6>
                   <span class="badge bg-light text-dark border small">${(book.file_type || book.format || 'eBook').toUpperCase()}</span>
                 </div>
               </div>
             </td>
             <td>
-              <div class="fw-semibold text-dark" style="font-size: 0.85rem;">${authorName}</div>
+              <div class="fw-semibold text-dark">${authorName}</div>
             </td>
             <td>
               <strong class="text-dark">${pagesRead}</strong> <span class="text-muted small">/ ${totalPages}</span>
@@ -573,8 +330,8 @@
               </span>
             </td>
             <td class="text-muted small">${dateStr}</td>
-            <td class="text-end pe-3">
-              <a href="reader.html?id=${bookId}&page=${pagesRead}${cfiParam}" class="btn btn-sm btn-warning fw-bold text-dark px-3 py-1">
+            <td class="text-end pe-4">
+              <a href="reader.html?id=${bookId}&page=${pagesRead}${cfiParam}" class="btn btn-sm btn-primary fw-semibold">
                 <i class="fa-solid fa-book-open me-1"></i> Continue
               </a>
             </td>
@@ -604,7 +361,7 @@
 
       document.getElementById("filterReaderBooks").addEventListener("input", renderReaderTable);
 
-      document.getElementById("logoutLink").addEventListener("click", async (e) => {
+      document.getElementById("logoutBtn").addEventListener("click", async (e) => {
         e.preventDefault();
         await supabase.auth.signOut();
         window.location.href = "login.html";
