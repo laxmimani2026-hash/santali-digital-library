@@ -486,9 +486,167 @@
     .book-card-pro:hover { transform: translateY(-6px); box-shadow: 0 18px 36px rgba(7,59,48,.15) !important; border-color: rgba(201,151,46,0.3); }
     .book-card-pro img { transition: transform .4s ease; }
     .book-card-pro:hover img { transform: scale(1.04); }
+
+    /* ============================================================
+       VISUAL & SCROLL-DYNAMICS ENHANCEMENTS
+       (additive only — no existing rule above is modified)
+       ============================================================ */
+
+    /* --- Scroll progress bar --- */
+    #scrollProgressBar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary-gold), #f4d58d, var(--primary-gold));
+      background-size: 200% auto;
+      z-index: 1200000;
+      box-shadow: 0 0 10px rgba(201,151,46,.6);
+      transition: width .08s linear;
+    }
+
+    /* --- Ambient floating blobs used inside .ambient-section --- */
+    .ambient-section { position: relative; overflow: hidden; }
+    .ambient-blob {
+      position: absolute;
+      width: 340px;
+      height: 340px;
+      border-radius: 50%;
+      filter: blur(70px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: .55;
+      will-change: transform;
+      animation: blobDrift 16s ease-in-out infinite alternate;
+    }
+    .ambient-blob.gold { background: radial-gradient(circle, rgba(201,151,46,.35), transparent 70%); }
+    .ambient-blob.teal { background: radial-gradient(circle, rgba(13,92,75,.4), transparent 70%); animation-duration: 20s; }
+    .ambient-section > .container { position: relative; z-index: 1; }
+    @keyframes blobDrift {
+      0%   { transform: translate(0, 0) scale(1); }
+      50%  { transform: translate(30px, -25px) scale(1.12); }
+      100% { transform: translate(-20px, 15px) scale(0.94); }
+    }
+
+    /* --- Navbar reacts to scroll position --- */
+    .navbar-teal.navbar-scrolled {
+      padding-top: 8px;
+      padding-bottom: 8px;
+      background-color: rgba(4,36,29,0.97) !important;
+      box-shadow: 0 6px 28px rgba(0,0,0,.22);
+    }
+
+    /* --- Parallax wrapper for hero glow + Ol Chiki canvas --- */
+    .hero-glow, .ol-chiki-canvas { will-change: transform; }
+
+    /* --- Section titles: subtle gold gradient sweep --- */
+    .section-title {
+      background: linear-gradient(90deg, var(--ink) 40%, var(--gold-dark) 50%, var(--ink) 60%);
+      background-size: 250% auto;
+      background-position: 0% 50%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: background-position 1.2s ease;
+    }
+    .section-title.in-view { background-position: 100% 50%; }
+
+    /* --- Card top-accent grow-on-hover for premium feel --- */
+    .sdm-card, .feature-card-pro { position: relative; isolation: isolate; }
+    .sdm-card::before, .feature-card-pro::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 0%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-gold), var(--gold-dark));
+      transition: width .35s ease;
+      border-radius: var(--radius-md) var(--radius-md) 0 0;
+    }
+    .sdm-card:hover::before, .feature-card-pro:hover::before { width: 100%; }
+
+    /* --- Button shine sweep on hover --- */
+    .btn-gold, .btn-warning, .btn-outline-light, .btn-light {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-gold::after, .btn-warning::after, .btn-light::after {
+      content: "";
+      position: absolute;
+      top: 0; left: -120%;
+      width: 60%; height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,.55), transparent);
+      transform: skewX(-20deg);
+      transition: left .55s ease;
+      pointer-events: none;
+    }
+    .btn-gold:hover::after, .btn-warning:hover::after, .btn-light:hover::after { left: 130%; }
+
+    /* --- Entrance animation applied to book cards injected by JS --- */
+    .book-card-enter {
+      opacity: 0;
+      transform: translateY(24px) scale(.97);
+      transition: opacity .55s ease, transform .55s ease;
+    }
+    .book-card-enter.book-card-in { opacity: 1; transform: translateY(0) scale(1); }
+
+    /* --- Floating "back to top" button --- */
+    #backToTopBtn {
+      position: fixed;
+      right: 22px;
+      bottom: 26px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--primary-gold);
+      color: #1c2b27;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      box-shadow: 0 8px 22px rgba(0,0,0,.25);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(14px);
+      transition: opacity .3s ease, transform .3s ease, background-color .2s ease, visibility .3s;
+      z-index: 900000;
+      cursor: pointer;
+    }
+    #backToTopBtn.show { opacity: 1; visibility: visible; transform: translateY(0); }
+    #backToTopBtn:hover { background: var(--gold-dark); color: #fff; }
+
+    /* --- Subtle continuous shimmer for the CTA band so it never feels static --- */
+    .sdm-cta::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(115deg, transparent 20%, rgba(255,255,255,.06) 35%, transparent 50%);
+      background-size: 250% 250%;
+      animation: ctaShimmer 7s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes ctaShimmer {
+      0%   { background-position: 0% 0%; }
+      50%  { background-position: 100% 100%; }
+      100% { background-position: 0% 0%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ambient-blob, .sdm-cta::after { animation: none !important; }
+    }
   </style>
 </head>
 <body>
+
+  <!-- Scroll progress indicator -->
+  <div id="scrollProgressBar"></div>
+
+  <!-- Back to top button -->
+  <button id="backToTopBtn" aria-label="Back to top">
+    <i class="fa-solid fa-arrow-up"></i>
+  </button>
 
   <!-- Emergency Top Banner -->
   <div id="emergencyTopBanner" class="d-none">
@@ -725,8 +883,8 @@
         <!-- Basic Reader -->
         <div class="col-md-6 col-lg-4">
           <div class="sdm-card sdm-price-card">
-            <h4 class="fw-bold">Basic Reader</h4>
-            <div class="sdm-price">₹49 <small>/ month</small></div>
+            <h4 class="fw-bold">Monthly Plan</h4>
+            <div class="sdm-price">₹99 <small>/ month</small></div>
             <hr>
             <p><i class="fa-solid fa-check sdm-check"></i>Access to selected books</p>
             <p><i class="fa-solid fa-check sdm-check"></i>Mobile, tablet & desktop reading</p>
@@ -739,8 +897,8 @@
         <div class="col-md-6 col-lg-4">
           <div class="sdm-card sdm-price-card featured">
             <span class="featured-ribbon">Popular</span>
-            <h4 class="fw-bold">Full Library</h4>
-            <div class="sdm-price">₹99 <small>/ month</small></div>
+            <h4 class="fw-bold">Quarterly Plan</h4>
+            <div class="sdm-price">₹249 <small>/ 3 months</small></div>
             <hr>
             <p><i class="fa-solid fa-check sdm-check"></i>Participating Santali eBooks</p>
             <p><i class="fa-solid fa-check sdm-check"></i>Premium reading collection</p>
@@ -754,7 +912,7 @@
         <div class="col-md-6 col-lg-4">
           <div class="sdm-card sdm-price-card">
             <h4 class="fw-bold">Annual Reader</h4>
-            <div class="sdm-price">₹999 <small>/ year</small></div>
+            <div class="sdm-price">₹899 <small>/ year</small></div>
             <hr>
             <p><i class="fa-solid fa-check sdm-check"></i>Full participating library access</p>
             <p><i class="fa-solid fa-check sdm-check"></i>Better value for regular readers</p>
@@ -1269,6 +1427,98 @@
       
       loadInitialBooks();
     });
+  </script>
+
+  <!-- ============================================================
+       Scroll Dynamics & Visual Polish Layer
+       Purely additive: only reads the DOM / listens to scroll.
+       Does not touch Supabase, i18n, auth, search or maintenance code.
+       ============================================================ -->
+  <script>
+    (function () {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const progressBar = document.getElementById('scrollProgressBar');
+      const navbar = document.querySelector('.navbar-teal');
+      const backToTopBtn = document.getElementById('backToTopBtn');
+      const heroGlows = document.querySelectorAll('.hero-glow');
+      const olChikiCanvas = document.querySelector('.ol-chiki-canvas');
+
+      let ticking = false;
+
+      function onScroll() {
+        const scrollY = window.scrollY || window.pageYOffset;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = docHeight > 0 ? (scrollY / docHeight) * 100 : 0;
+
+        if (progressBar) progressBar.style.width = pct + '%';
+        if (navbar) navbar.classList.toggle('navbar-scrolled', scrollY > 40);
+        if (backToTopBtn) backToTopBtn.classList.toggle('show', scrollY > 480);
+
+        if (!prefersReducedMotion) {
+          // Gentle parallax for the hero glows and Ol Chiki background layer
+          const heroHeight = document.querySelector('.hero-teal')?.offsetHeight || 600;
+          if (scrollY < heroHeight) {
+            const shift = scrollY * 0.18;
+            heroGlows.forEach((glow, i) => {
+              glow.style.transform = `translateY(${i % 2 === 0 ? shift : -shift}px)`;
+            });
+            if (olChikiCanvas) olChikiCanvas.style.transform = `translateY(${scrollY * 0.1}px)`;
+          }
+        }
+
+        ticking = false;
+      }
+
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          window.requestAnimationFrame(onScroll);
+          ticking = true;
+        }
+      }, { passive: true });
+      onScroll();
+
+      if (backToTopBtn) {
+        backToTopBtn.addEventListener('click', () => {
+          window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+        });
+      }
+
+      // Animate book cards in as they get rendered by the existing search/slider script.
+      // We only ADD a class and observe — we never touch renderBooks() itself.
+      function animateBookCards(container) {
+        if (!container) return;
+        const cards = container.querySelectorAll('.book-card-pro:not(.book-card-enter)');
+        if (!cards.length) return;
+
+        if (prefersReducedMotion) {
+          cards.forEach(c => c.classList.add('book-card-enter', 'book-card-in'));
+          return;
+        }
+
+        const cardObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('book-card-in');
+              cardObserver.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+
+        cards.forEach((card, i) => {
+          card.classList.add('book-card-enter');
+          card.style.transitionDelay = `${(i % 6) * 60}ms`;
+          cardObserver.observe(card);
+        });
+      }
+
+      ['marqueeBooksContainer', 'gridBooksContainer'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const mo = new MutationObserver(() => animateBookCards(el));
+        mo.observe(el, { childList: true });
+      });
+    })();
   </script>
 </body>
 </html>
