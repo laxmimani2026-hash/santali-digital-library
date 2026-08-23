@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>Author Dashboard - Santali Digital Library</title>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -470,6 +471,37 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             font-weight: 600;
         }
+        @media (max-width: 768px) {
+  .dashboard-container {
+    padding: 0 14px;
+    margin: 15px auto;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.45rem;
+  }
+
+  .btn-primary {
+    justify-content: center;
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr; /* Stack statistics vertically on phone */
+    gap: 12px;
+  }
+
+  .table-responsive table {
+    min-width: 640px; /* Makes author table scroll sideways smoothly */
+  }
+}
     </style>
 </head>
 <body>
