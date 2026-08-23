@@ -502,6 +502,46 @@
     min-width: 640px; /* Makes author table scroll sideways smoothly */
   }
 }
+/* Mobile Top Nav Fix for Author Dashboard */
+@media (max-width: 768px) {
+    header {
+        padding: 12px 14px !important;
+    }
+    
+    /* Hide the center desktop links to save space */
+    .nav-links {
+        display: none !important;
+    }
+    
+    /* Make the logo slightly smaller */
+    .logo {
+        font-size: 1.1rem;
+        gap: 6px;
+    }
+    .logo span {
+        font-size: 1rem;
+    }
+
+    /* Compact the right side menu */
+    .nav-right {
+        gap: 8px;
+    }
+    
+    /* Hide the 'Hello, Author' text on mobile, just show the icon and dropdown arrow */
+    #headerUserName {
+        display: none;
+    }
+    
+    .user-btn {
+        padding: 4px 6px;
+        gap: 4px;
+    }
+    
+    .author-badge {
+        padding: 2px 6px;
+        font-size: 0.65rem;
+    }
+}
     </style>
 </head>
 <body>
