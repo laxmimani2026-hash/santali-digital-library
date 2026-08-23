@@ -1,5 +1,5 @@
 {
-  "background_color": "#08596f",
+  "background_color": "#073b30",
   "dir": "ltr",
   "display": "standalone",
   "name": "Santali Digital Library",
@@ -7,7 +7,7 @@
   "scope": "/santali-digital-library/",
   "short_name": "Santali Dg",
   "start_url": "/santali-digital-library/",
-  "theme_color": "#ffffff",
+  "theme_color": "#073b30",
   "description": "Build the Digital Home of Santali Books",
   "id": "/santali-library",
   "lang": "en",
@@ -23,6 +23,8 @@
       "type": "image/png"
     }
   ],
+  
+  
   "categories": [
     "books",
     "books &amp; reference",

@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Santali Digital Library | Read & Publish eBooks</title>
   
   <!-- Bootstrap 5 CSS -->
@@ -633,9 +634,20 @@
       100% { background-position: 0% 0%; }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .ambient-blob, .sdm-cta::after { animation: none !important; }
-    }
+    
+    @media (max-width: 576px) {
+  body {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .hero-teal {
+    padding: 70px 0 110px;
+  }
+}
   </style>
 </head>
 <body>
