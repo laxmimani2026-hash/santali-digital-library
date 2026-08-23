@@ -2,306 +2,192 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Reader Dashboard - Santali Digital Library</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Books | Santali Digital Library</title>
   
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts: Poppins -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="manifest" href="/santali-digital-library/manifest.json">
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="assets/css/style.css">
-  <link rel="stylesheet" href="../assets/css/style.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg-dark: #073b30;
-      --bg-dark-light: #0d5c4b;
-      --primary-gold: #c9972e;
-      --gold-dark: #a87a1e;
-      --header-bg: #073b30;
-      --footer-bg: #04241d;
-      --ink: #14211d;
-      --muted: #5e7068;
-      --border-soft: #e2e8e5;
-      --radius-sm: 10px;
-      --radius-md: 16px;
-      --radius-lg: 24px;
+      --bg-dark: #075e4d;
+      --primary-gold: #ffb703;
+      --header-bg: #005f73;
+      --footer-bg: #005f73;
       --font-scale: 100%;
     }
 
-    html { scroll-behavior: smooth; }
-
     body {
-      font-family: 'Poppins', sans-serif !important;
+      font-family: 'Poppins', sans-serif;
       font-size: var(--font-scale);
-      color: var(--ink);
-      background-color: #fcfdfd;
-      min-height: 100vh;
+      background-color: #f8fafc;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* Emergency Top Banner */
+    #emergencyTopBanner {
+      background: #b91c1c;
+      color: #ffffff;
+      padding: 12px 20px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      z-index: 1000000;
+      position: relative;
+    }
+
+    /* Maintenance Mode Lockdown Screen */
+    #maintenanceOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.98);
+      backdrop-filter: blur(14px);
+      z-index: 9999999;
       display: flex;
       flex-direction: column;
-      overflow-x: hidden;
-      -webkit-text-size-adjust: 100%;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+      text-align: center;
+      padding: 24px;
+    }
+    #maintenanceOverlay .maintenance-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 18px;
+      padding: 45px 35px;
+      max-width: 580px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    #maintenanceOverlay i.fa-wrench {
+      font-size: 3.5rem;
+      color: #ffb703;
+      margin-bottom: 22px;
+      animation: wrenchPulse 2.2s infinite ease-in-out;
+    }
+    @keyframes wrenchPulse {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(18deg) scale(1.08); }
     }
 
-    /* Buttons */
-    .btn { 
-      font-family: 'Poppins', sans-serif !important;
-      border-radius: var(--radius-sm); 
-      font-weight: 600; 
-      letter-spacing: .01em; 
-      transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, color .18s ease; 
+    /* Global Announcement Bar */
+    #globalAnnouncementBar {
+      padding: 10px 16px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      z-index: 1050;
+      position: relative;
     }
-    .btn:hover { transform: translateY(-2px); }
-    .btn-gold { background: var(--primary-gold); border-color: var(--primary-gold); color: #1c2b27; box-shadow: 0 4px 14px rgba(201,151,46,0.3); }
-    .btn-gold:hover { background: var(--gold-dark); border-color: var(--gold-dark); color: #fff; }
-    .btn-warning { background: var(--primary-gold) !important; border-color: var(--primary-gold) !important; color: #1c2b27 !important; box-shadow: 0 4px 16px rgba(201,151,46,0.35); }
-    .btn-warning:hover { background: var(--gold-dark) !important; border-color: var(--gold-dark) !important; color: #fff !important; }
 
-    /* Header Nav matching Author Dashboard & index.html */
-    .navbar-teal {
-      background-color: rgba(7,59,48,0.94) !important;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      box-shadow: 0 4px 25px rgba(0,0,0,.12);
-      padding-top: 14px;
-      padding-bottom: 14px;
+    /* Header Nav */
+    .navbar-custom {
+      background-color: var(--header-bg) !important;
       transition: background-color 0.3s ease;
     }
-    .navbar-brand { 
-      font-weight: 700; 
-      font-size: 1.4rem; 
-      letter-spacing: .01em; 
-      font-family: 'Poppins', sans-serif !important; 
-    }
-    .navbar-brand i { color: var(--primary-gold); }
-    .highlight { color: var(--primary-gold); }
-    .navbar-nav .nav-link { font-weight: 500; margin: 0 4px; opacity: .92; transition: all 0.2s ease; }
-    .navbar-nav .nav-link.active, .navbar-nav .nav-link:hover { color: var(--primary-gold) !important; opacity: 1; transform: translateY(-1px); }
 
-    .user-avatar-img {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 1.5px solid var(--primary-gold);
-    }
-
-    .reader-badge {
+    .btn-gold {
       background-color: var(--primary-gold);
-      color: #1c2b27;
-      font-size: 0.72rem;
+      color: #000;
       font-weight: 700;
-      padding: 2px 8px;
+      border: none;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    .btn-gold:hover {
+      background-color: #e0a300;
+      transform: translateY(-2px);
+    }
+
+    /* Book Cards Grid */
+    .book-card {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
-      text-transform: uppercase;
-    }
-
-    /* Dashboard Container */
-    .dashboard-container {
-      max-width: 1200px;
-      margin: 30px auto;
-      padding: 0 20px;
-      width: 100%;
-      flex-grow: 1;
-    }
-
-    .dashboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 25px;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-
-    .dashboard-header h1 {
-      font-size: 1.8rem;
-      color: var(--bg-dark);
-      font-weight: 700;
-    }
-
-    /* Stats Cards */
-    .stat-card {
-      background: #fff;
-      padding: 22px;
-      border-radius: 14px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
-      border: 1px solid var(--border-soft);
-      height: 100%;
-    }
-
-    .stat-card.border-primary-accent {
-      border-left: 4px solid var(--bg-dark) !important;
-    }
-    .stat-card.border-success-accent {
-      border-left: 4px solid #27ae60 !important;
-    }
-    .stat-card.border-warning-accent {
-      border-left: 4px solid var(--primary-gold) !important;
-    }
-
-    /* Book Cards and Table elements */
-    .book-cover-thumb {
-      width: 44px;
-      height: 60px;
-      object-fit: cover;
-      border-radius: 6px;
-      background-color: #eee;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-      flex-shrink: 0;
-    }
-
-    .progress-bar-custom {
-      height: 7px;
-      border-radius: 10px;
-      background-color: #e2e8e5;
       overflow: hidden;
+      background: #ffffff;
     }
-
-    /* Content Card */
-    .content-card {
-      background: #fff;
+    .book-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.09) !important;
+      border-color: #cbd5e1;
+    }
+    .book-cover {
+      height: 280px;
+      object-fit: cover;
+      width: 100%;
+      border-bottom: 1px solid #eee;
+      background-color: #f1f5f9;
+    }
+    .price-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: 6px;
+      z-index: 2;
+    }
+    .filter-card {
+      background-color: #ffffff;
       border-radius: 14px;
-      padding: 25px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
-      border: 1px solid var(--border-soft);
+      border: 1px solid #e2e8f0;
     }
-
-    .table-responsive {
-      width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .table-responsive table {
-      min-width: 680px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-    }
-
-    th, td {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border-soft);
-      font-size: 0.9rem;
-      vertical-align: middle;
-    }
-
-    th {
-      background-color: #f8faf9;
-      color: var(--muted);
-      font-weight: 600;
-    }
-
-    /* Footer matching index.html */
-    .footer-teal {
+    .footer-custom {
       background-color: var(--footer-bg) !important;
-      border-top: 3px solid var(--primary-gold);
-      padding: 24px 0 !important;
-      color: rgba(255,255,255,0.7);
-      margin-top: auto;
-    }
-
-    /* Mobile Adaptations */
-    @media (max-width: 576px) {
-      .dashboard-container {
-        padding: 0 14px;
-        margin: 15px auto;
-      }
-      .dashboard-header h1 {
-        font-size: 1.45rem;
-      }
-      th, td {
-        padding: 10px 12px !important;
-        font-size: 0.82rem !important;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .dashboard-header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-      }
-      .dashboard-header .btn-warning {
-        justify-content: center;
-        width: 100%;
-        min-height: 44px;
-      }
-    }
-
-    @media (max-width: 991.98px) {
-      .navbar-teal > .container {
-        display: flex;
-        flex-wrap: wrap !important;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .navbar-brand {
-        font-size: 1.15rem !important;
-        white-space: nowrap;
-        max-width: calc(100% - 65px);
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .navbar-toggler {
-        padding: 4px 8px;
-        font-size: 1.1rem;
-        z-index: 1051;
-      }
-
-      .navbar-collapse {
-        flex-basis: 100% !important;
-        width: 100%;
-        margin-top: 10px;
-      }
-
-      .navbar-collapse.collapse:not(.show) {
-        display: none !important;
-      }
-
-      .navbar-collapse.collapse.show {
-        display: block !important;
-        background: #073b30;
-        padding: 16px;
-        border-radius: 10px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      }
-
-      .navbar-nav .nav-link {
-        padding: 10px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      }
+      color: #ffffff;
+      padding: 35px 0;
+      transition: background-color 0.3s ease;
     }
   </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
-  <!-- Navigation Bar matching Author Dashboard & index.html -->
-  <nav class="navbar navbar-expand-lg navbar-dark navbar-teal sticky-top">
+  <!-- Emergency Top Banner -->
+  <div id="emergencyTopBanner" class="d-none">
+    <i class="fa-solid fa-triangle-exclamation me-2"></i>
+    <span id="emergencyBannerMessage">System update in progress.</span>
+  </div>
+
+  <!-- Maintenance Mode Screen -->
+  <div id="maintenanceOverlay" class="d-none">
+    <div class="maintenance-card">
+      <i class="fa-solid fa-wrench"></i>
+      <h2 class="fw-bold mb-2">Under Scheduled Maintenance</h2>
+      <p id="maintenanceNoticeText" class="text-light opacity-75 mb-4">
+        Our platform is undergoing scheduled visual and database upgrades. Reading, borrowing, and logins are temporarily offline.
+      </p>
+      <div class="badge bg-warning text-dark px-3 py-2 fw-bold">Admin Maintenance Active</div>
+    </div>
+  </div>
+
+  <!-- Dynamic Announcement Bar -->
+  <div id="globalAnnouncementBar" class="d-none"></div>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
         <i class="fa-solid fa-book-open-reader text-warning fs-3"></i>
-        <span>Santali Digital <span class="highlight">Library</span></span>
+        <span class="fw-bold">Santali Digital <span class="text-warning">Library</span></span>
       </a>
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
-      
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto align-items-center">
-          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="browse.html">Books</a></li>
-          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link fw-semibold" href="index.html" data-i18n="navHome">Home</a></li>
+          <li class="nav-item"><a class="nav-link active fw-bold" href="browse.html" data-i18n="navBooks">Books</a></li>
+          <li class="nav-item"><a class="nav-link fw-semibold" href="categories.html" data-i18n="navCategories">Categories</a></li>
+          <li class="nav-item"><a class="nav-link fw-semibold" href="authors.html" data-i18n="navAuthors">Authors</a></li>
+          <li class="nav-item"><a class="nav-link fw-semibold" href="contact.html" data-i18n="navContact">Contact</a></li>
 
           <!-- Language Selector Dropdown -->
           <li class="nav-item dropdown ms-lg-2">
@@ -309,119 +195,149 @@
               <i class="fa-solid fa-globe"></i> <span id="langLabelText">EN</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="languageDropdown">
-              <li><a class="dropdown-item" href="#">English</a></li>
-              <li><a class="dropdown-item" href="#">ᱥᱟᱱᱛᱟᱲᱤ (Santali)</a></li>
-              <li><a class="dropdown-item" href="#">हिन्दी (Hindi)</a></li>
+              <li><a class="dropdown-item lang-select" href="#" data-lang="en">English</a></li>
+              <li><a class="dropdown-item lang-select" href="#" data-lang="sat">ᱥᱟᱱᱛᱟᱲᱤ (Santali)</a></li>
+              <li><a class="dropdown-item lang-select" href="#" data-lang="hi">हिन्दी (Hindi)</a></li>
             </ul>
           </li>
-          
-          <!-- Dynamic Profile / User Details -->
-          <li class="nav-item dropdown ms-lg-3 my-2 my-lg-0" id="userNavArea">
-            <a class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 px-3 py-1" href="#" id="userMenuBtn" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="" alt="" class="user-avatar-img" id="navAvatar" style="display: none;">
-              <i class="fa-solid fa-circle-user" id="navAvatarPlaceholder" style="font-size: 1.1rem;"></i>
-              <span id="headerUserName">Hello, Reader</span>
-              <span class="reader-badge" id="headerUserBadge">READER</span>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" aria-labelledby="userMenuBtn">
-              <li><a class="dropdown-item" href="profile.html"><i class="fa-solid fa-user-gear me-2 text-muted"></i> My Profile</a></li>
-              <li><a class="dropdown-item active bg-light text-dark fw-bold" href="reader-dashboard.html"><i class="fa-solid fa-book-bookmark me-2 text-info"></i> Reader Dashboard</a></li>
-              <li><a class="dropdown-item" href="subscription.html"><i class="fa-solid fa-crown me-2 text-warning"></i> My Subscription</a></li>
-              <li><a class="dropdown-item" href="cart.html"><i class="fa-solid fa-cart-shopping me-2 text-muted"></i> My Cart</a></li>
-              <li><a class="dropdown-item" href="orders.html"><i class="fa-solid fa-box-archive me-2 text-muted"></i> My Orders</a></li>
-              <li><a class="dropdown-item" href="author-dashboard.html"><i class="fa-solid fa-upload me-2 text-success"></i> Author Dashboard</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item text-danger fw-semibold" href="#" id="logoutLink"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</a></li>
-            </ul>
+
+          <li class="nav-item ms-lg-3 my-2 my-lg-0" id="userNavArea">
+            <a href="login.html" class="btn btn-gold btn-sm px-3" data-i18n="navLogin">Login / Sign Up</a>
           </li>
         </ul>
       </div>
     </div>
   </nav>
 
-  <!-- Main Dashboard Section -->
-  <main class="dashboard-container">
-    <div class="dashboard-header">
-      <div>
-        <h1>My Reading Dashboard</h1>
-        <p style="color: var(--muted); font-size: 0.9rem; margin-top: 5px;">Track your progress and continue reading where you left off.</p>
+  <!-- Page Header & Filter Controls -->
+  <div class="container mt-4 mb-4">
+    <div class="row align-items-center mb-3">
+      <div class="col-lg-7">
+        <h2 class="fw-bold mb-1" id="browseHeading" style="color: var(--header-bg);" data-i18n="browseHeader">Explore the Library</h2>
+        <p class="text-muted mb-0" data-i18n="browseSub">Discover approved Santali literature, poetry, folklore, and educational eBooks.</p>
       </div>
-      <a href="browse.html" class="btn btn-warning fw-bold d-flex align-items-center gap-2">
-        <i class="fa-solid fa-book-open"></i> Explore More Books
-      </a>
-    </div>
-
-    <!-- Stats -->
-    <div class="row g-4 mb-4">
-      <div class="col-md-4">
-        <div class="stat-card border-primary-accent">
-          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">Active Books in Progress</small>
-          <h2 class="fw-bold mt-2 mb-0" style="color: var(--bg-dark);" id="totalBooksCount">0</h2>
-          <small class="fw-semibold" style="color: var(--bg-dark);"><i class="fa-solid fa-book-open-reader me-1"></i>In Your Reading List</small>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="stat-card border-success-accent">
-          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">Total Pages Read</small>
-          <h2 class="fw-bold text-success mt-2 mb-0" id="totalPagesCount">0</h2>
-          <small class="text-muted">Accumulated Reading Progress</small>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="stat-card border-warning-accent">
-          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">Unique Authors</small>
-          <h2 class="fw-bold mt-2 mb-0" style="color: var(--gold-dark);" id="totalAuthorsCount">0</h2>
-          <small class="fw-semibold" style="color: var(--gold-dark);"><i class="fa-solid fa-feather me-1"></i>Santali Writers</small>
-        </div>
+      <div class="col-lg-5 text-lg-end mt-3 mt-lg-0">
+        <span class="badge bg-white text-dark border px-3 py-2 fs-6 fw-semibold shadow-sm" id="resultsCount">
+          Showing 0 books
+        </span>
       </div>
     </div>
 
-    <!-- Book Progress Table Card -->
-    <div class="content-card">
-      <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div class="d-flex align-items-center gap-2">
-          <h5 class="fw-bold mb-0" style="color: var(--bg-dark);">My Reading List & Progress</h5>
-          <span class="badge bg-light text-dark border ms-2" id="booksListBadge">0 Books</span>
+    <!-- Search & Filter Card -->
+    <div class="card filter-card p-3 shadow-sm mb-4">
+      <div class="row g-3 align-items-center">
+        <!-- Search Field -->
+        <div class="col-md-7">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Search by title, author name, or Book ID...">
+            <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn" title="Clear Search">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
         </div>
-        <input type="text" id="filterReaderBooks" class="form-control form-control-sm" placeholder="Filter by title or author..." style="width: 240px; border-radius: 8px;">
-      </div>
 
-      <div class="table-responsive">
-        <table>
-          <thead>
-            <tr>
-              <th style="width: 50px;">#</th>
-              <th>Book Details</th>
-              <th>Author</th>
-              <th>Pages Read</th>
-              <th style="min-width: 160px;">Progress</th>
-              <th>Status</th>
-              <th>Last Read</th>
-              <th class="text-end pe-3">Action</th>
-            </tr>
-          </thead>
-          <tbody id="readerBooksList">
-            <tr>
-              <td colspan="8" class="text-center py-5 text-muted">
-                <div class="spinner-border text-success spinner-border-sm me-2"></div> Loading your reading library...
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- Filter / Sorter Selection -->
+        <div class="col-md-5">
+          <div class="input-group">
+            <span class="input-group-text bg-white text-muted"><i class="fa-solid fa-arrow-down-wide-short"></i></span>
+            <select id="priceFilter" class="form-select fw-semibold">
+              <option value="default" selected>Sort & Filter: All Books</option>
+              <option value="free">Free Books Only</option>
+              <option value="paid">Paid Books Only</option>
+              <option value="low-to-high">Price: Low to High</option>
+              <option value="high-to-low">Price: High to Low</option>
+            </select>
+          </div>
+        </div>
       </div>
     </div>
-  </main>
+  </div>
 
-  <footer class="footer-teal text-center small">
+  <!-- Books Grid Container -->
+  <div class="container flex-grow-1 mb-5">
+    <!-- Loading Spinner -->
+    <div id="loadingIndicator" class="text-center my-5 py-4">
+      <div class="spinner-border text-warning" role="status" style="width: 3rem; height: 3rem;"></div>
+      <h5 class="mt-3 text-muted fw-semibold">Loading library catalogue...</h5>
+    </div>
+
+    <!-- Books Card Grid -->
+    <div id="booksGrid" class="row g-4 d-none"></div>
+    
+    <!-- Empty State -->
+    <div id="emptyState" class="text-center my-5 py-5 d-none">
+      <i class="fa-solid fa-book-open fs-1 text-secondary mb-3"></i>
+      <h4 class="text-dark fw-bold">No published books found matching your criteria.</h4>
+      <p class="text-muted">Try modifying your search keywords or resetting your pricing filter.</p>
+      <button class="btn btn-outline-primary btn-sm px-4 py-2 mt-2 fw-semibold" id="resetFiltersBtn">Reset Search & Filters</button>
+    </div>
+  </div>
+
+  <!-- Dynamic Footer -->
+  <footer class="footer-custom text-center mt-auto py-4">
     <div class="container">
-      &copy; 2026 Santali Digital Library. All rights reserved.
+      <p class="mb-1 fw-bold">&copy; 2026 Santali Digital Library</p>
+      <p class="small text-white-50 mb-2" id="footerTaglineDisplay">Made with ❤️ for Santali Authors & Digital Readers Worldwide</p>
+      <p class="small text-white-50 mb-0">
+        Support: <span id="footerEmailDisplay">support@santalidigitallibrary.in</span> | Helpline: <span id="footerPhoneDisplay">+91 98765 43210</span>
+      </p>
     </div>
   </footer>
 
-  <!-- Bootstrap Bundle JS -->
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Supabase Logic -->
+  <!-- Language Translations Script -->
+  <script>
+    const translations = {
+      en: {
+        navHome: "Home", navBooks: "Books", navCategories: "Categories", navAuthors: "Authors", navContact: "Contact", navLogin: "Login / Sign Up",
+        browseHeader: "Explore the Library", browseSub: "Discover approved Santali literature, poetry, folklore, and educational eBooks.",
+        langLabel: "EN"
+      },
+      sat: {
+        navHome: "ᱚᱲᱟᱜ (Home)", navBooks: "ᱯᱚᱛᱚᱵ (Books)", navCategories: "ᱦᱟᱹᱴᱤᱧ (Categories)", navAuthors: "ᱚᱱᱚᱞᱤᱭᱟᱹ (Authors)", navContact: "ᱡᱚᱜᱟᱡᱚᱜᱽ (Contact)", navLogin: "ᱵᱚᱞᱚᱱ / ᱥᱮᱞᱮᱫᱚᱜ",
+        browseHeader: "ᱯᱚᱛᱚᱵ ᱜᱟᱫᱮᱞ ᱧᱮᱞ ᱢᱮ", browseSub: "ᱥᱟᱱᱛᱟᱲᱤ ᱥᱟᱶᱦᱮᱫ, ᱚᱱᱚᱬᱦᱮ, ᱠᱟᱹᱦᱱᱤ ᱟᱨ ᱥᱮᱪᱮᱫ ᱯᱚᱛᱚᱵ ᱯᱟᱲᱦᱟᱣ ᱢᱮ᱾",
+        langLabel: "SAT"
+      },
+      hi: {
+        navHome: "होम", navBooks: "पुस्तकें", navCategories: "श्रेणियाँ", navAuthors: "लेखक", navContact: "संपर्क", navLogin: "लॉगिन / साइन अप",
+        browseHeader: "पुस्तकालय ब्राउज़ करें", browseSub: "स्वीकृत संथाली साहित्य, कविता, लोककथाएँ और शैक्षिक ई-पुस्तकें खोजें।",
+        langLabel: "HI"
+      }
+    };
+
+    function changeLanguage(lang) {
+      const texts = translations[lang];
+      if (!texts) return;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (texts[key]) el.innerHTML = texts[key];
+      });
+
+      const langLabel = document.getElementById('langLabelText');
+      if (langLabel) langLabel.textContent = texts.langLabel;
+      localStorage.setItem('selectedLang', lang);
+    }
+
+    document.querySelectorAll('.lang-select').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        changeLanguage(e.currentTarget.getAttribute('data-lang'));
+      });
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      changeLanguage(localStorage.getItem('selectedLang') || 'en');
+    });
+  </script>
+
+  <!-- Global Authentication Integration -->
+  <script type="module" src="assets/js/auth.js"></script>
+
+  <!-- Core Dynamic Settings, Maintenance Lockdown & Filter Script -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -429,205 +345,238 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let readingEntries = [];
+    let allPublishedBooks = [];
+    let siteSettings = {};
 
-    document.addEventListener("DOMContentLoaded", async () => {
-      const tbody = document.getElementById("readerBooksList");
-      let currentUserId = null;
+    function parseValue(val) {
+      if (typeof val === 'string') {
+        try { return JSON.parse(val); } catch(e) { return val; }
+      }
+      return val || {};
+    }
 
+    async function checkUserAuth() {
       try {
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-        if (authError || !user) {
-          window.location.href = "login.html?redirect=reader-dashboard.html";
-          return;
+        const { data: { user } } = await supabase.auth.getUser();
+        const userNavArea = document.getElementById('userNavArea');
+        if (user && userNavArea) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('first_name, full_name, role')
+            .eq('id', user.id)
+            .maybeSingle();
+
+          const name = profile?.first_name || (profile?.full_name ? profile.full_name.split(' ')[0] : user.email.split('@')[0]);
+          userNavArea.innerHTML = `
+            <div class="dropdown">
+              <a class="btn btn-outline-light btn-sm dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown">
+                <i class="fa-solid fa-circle-user me-1 text-warning"></i> ${name}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                <li><a class="dropdown-item" href="profile.html"><i class="fa-solid fa-user me-2 text-muted"></i>Profile</a></li>
+                <li><a class="dropdown-item" href="subscription.html"><i class="fa-solid fa-crown me-2 text-warning"></i>Subscriptions</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="#" id="browseLogoutLink"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+              </ul>
+            </div>
+          `;
+
+          document.getElementById('browseLogoutLink')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.reload();
+          });
         }
+      } catch (err) {
+        console.warn("Auth check error:", err);
+      }
+    }
 
-        currentUserId = user.id;
+    async function loadDynamicVisualsAndCheckMaintenance() {
+      try {
+        const { data } = await supabase.from('site_settings').select('*');
+        (data || []).forEach(row => { siteSettings[row.key] = parseValue(row.value); });
 
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .maybeSingle();
+        // Maintenance & Emergency Banner Handlers
+        if (siteSettings.maintenance_mode) {
+          const isMaint = siteSettings.maintenance_mode.enabled === true || siteSettings.maintenance_mode.enabled === 'true';
+          const msg = siteSettings.maintenance_mode.message || 'System update: Platform is under maintenance. Logins are paused.';
 
-        let firstName = profile?.first_name 
-          || (profile?.full_name ? profile.full_name.split(' ')[0] : null)
-          || user.user_metadata?.first_name 
-          || user.user_metadata?.full_name?.split(' ')[0] 
-          || user.email.split('@')[0];
+          if (isMaint) {
+            const banner = document.getElementById('emergencyTopBanner');
+            if (banner) {
+              document.getElementById('emergencyBannerMessage').textContent = msg;
+              banner.classList.remove('d-none');
+            }
 
-        firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
-        
-        const nameEl = document.getElementById('headerUserName');
-        if (nameEl) nameEl.textContent = `Hello, ${firstName}`;
-
-        const badgeEl = document.getElementById('headerUserBadge');
-        if (badgeEl && (profile?.role || user.user_metadata?.role)) {
-          badgeEl.textContent = (profile?.role || user.user_metadata?.role || 'READER').toUpperCase();
-        }
-
-        const avatarUrl = profile?.avatar_url 
-          || profile?.photo_url 
-          || profile?.avatar 
-          || user.user_metadata?.avatar_url 
-          || user.user_metadata?.picture;
-
-        if (avatarUrl) {
-          const navAvatar = document.getElementById('navAvatar');
-          const navPlaceholder = document.getElementById('navAvatarPlaceholder');
-          if (navAvatar) {
-            navAvatar.src = avatarUrl;
-            navAvatar.onload = () => {
-              navAvatar.style.display = 'inline-block';
-              if (navPlaceholder) navPlaceholder.style.display = 'none';
-            };
+            const overlay = document.getElementById('maintenanceOverlay');
+            if (overlay) {
+              document.getElementById('maintenanceNoticeText').textContent = msg;
+              overlay.classList.remove('d-none');
+            }
+            document.body.style.overflow = 'hidden';
+            return true;
           }
+        }
+
+        // Apply Theme Colors
+        if (siteSettings.theme_colors) {
+          const root = document.documentElement;
+          if (siteSettings.theme_colors.primary) root.style.setProperty('--bg-dark', siteSettings.theme_colors.primary);
+          if (siteSettings.theme_colors.accent) root.style.setProperty('--primary-gold', siteSettings.theme_colors.accent);
+          if (siteSettings.theme_colors.header_bg) root.style.setProperty('--header-bg', siteSettings.theme_colors.header_bg);
+          if (siteSettings.theme_colors.footer_bg) root.style.setProperty('--footer-bg', siteSettings.theme_colors.footer_bg);
+        }
+
+        // Apply Typography
+        if (siteSettings.typography) {
+          if (siteSettings.typography.font_family) document.body.style.fontFamily = siteSettings.typography.font_family;
+          if (siteSettings.typography.font_scale) document.documentElement.style.setProperty('--font-scale', siteSettings.typography.font_scale);
+        }
+
+        // Promotional Announcement Bar
+        if (siteSettings.announcement_bar && (siteSettings.announcement_bar.enabled === true || siteSettings.announcement_bar.enabled === 'true')) {
+          const bar = document.getElementById('globalAnnouncementBar');
+          bar.textContent = siteSettings.announcement_bar.text || '';
+          bar.style.backgroundColor = siteSettings.announcement_bar.bg_color || '#ffb703';
+          bar.style.color = siteSettings.announcement_bar.text_color || '#000000';
+          bar.classList.remove('d-none');
         }
       } catch (e) {
-        console.warn("Auth check note:", e);
+        console.warn("Could not load dynamic settings:", e);
       }
+      return false;
+    }
+
+    async function fetchPublishedBooks() {
+      const booksGrid = document.getElementById("booksGrid");
+      const loadingIndicator = document.getElementById("loadingIndicator");
+      const emptyState = document.getElementById("emptyState");
+      const searchInput = document.getElementById("searchInput");
+      const priceFilter = document.getElementById("priceFilter");
+      const resultsCount = document.getElementById("resultsCount");
+      const clearSearchBtn = document.getElementById("clearSearchBtn");
+      const resetFiltersBtn = document.getElementById("resetFiltersBtn");
 
       try {
-        let progressQuery = supabase.from('reading_progress').select('*');
-        if (currentUserId) {
-          progressQuery = progressQuery.eq('user_id', currentUserId);
-        }
-        
-        let { data: progressData } = await progressQuery.order('last_read_at', { ascending: false });
+        const { data: books, error } = await supabase
+          .from('books')
+          .select('*')
+          .ilike('status', 'published')
+          .order('created_at', { ascending: false });
 
-        if (!progressData || progressData.length === 0) {
-          const fallback = await supabase.from('reading_progress').select('*').order('last_read_at', { ascending: false });
-          progressData = fallback.data || [];
-        }
+        if (error) throw error;
 
-        const { data: booksData } = await supabase.from('books').select('*');
+        allPublishedBooks = books || [];
+        loadingIndicator.classList.add("d-none");
+        renderFilteredBooks();
 
-        const booksMap = new Map();
-        (booksData || []).forEach(b => {
-          if (b.book_id) booksMap.set(String(b.book_id), b);
-          if (b.id) booksMap.set(String(b.id), b);
-        });
-
-        const dedupedMap = new Map();
-        (progressData || []).forEach(item => {
-          const key = String(item.book_id);
-          if (!dedupedMap.has(key)) {
-            dedupedMap.set(key, {
-              ...item,
-              book: booksMap.get(key) || {}
-            });
-          }
-        });
-
-        readingEntries = Array.from(dedupedMap.values());
-        renderReaderTable();
-        updateMetrics();
-
-      } catch (err) {
-        console.error("Dashboard error:", err);
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-danger">Failed to load reading records: ${err.message}</td></tr>`;
+      } catch (error) {
+        loadingIndicator.innerHTML = `<h5 class="text-danger">Failed to load books. Please check your connection.</h5>`;
       }
 
-      function renderReaderTable() {
-        const filterVal = document.getElementById("filterReaderBooks").value.trim().toLowerCase();
-        tbody.innerHTML = '';
+      function renderFilteredBooks() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        const selectedFilter = priceFilter.value;
 
-        const filtered = readingEntries.filter(entry => {
-          const title = (entry.book?.title || entry.book?.book_name || '').toLowerCase();
-          const author = (entry.book?.author || entry.book?.author_name || '').toLowerCase();
-          return !filterVal || title.includes(filterVal) || author.includes(filterVal);
+        let filtered = allPublishedBooks.filter(book => {
+          const title = (book.title || '').toLowerCase();
+          const author = (book.author || '').toLowerCase();
+          const bookId = (book.book_id || '').toLowerCase();
+          return title.includes(searchTerm) || author.includes(searchTerm) || bookId.includes(searchTerm);
         });
 
-        document.getElementById("booksListBadge").textContent = `${filtered.length} Books`;
+        if (selectedFilter === 'free') {
+          filtered = filtered.filter(b => b.pricing === 'free' || Number(b.price) === 0);
+        } else if (selectedFilter === 'paid') {
+          filtered = filtered.filter(b => b.pricing === 'paid' && Number(b.price) > 0);
+        } else if (selectedFilter === 'low-to-high') {
+          filtered.sort((a, b) => {
+            const priceA = a.pricing === 'free' ? 0 : (Number(a.price) || 0);
+            const priceB = b.pricing === 'free' ? 0 : (Number(b.price) || 0);
+            return priceA - priceB;
+          });
+        } else if (selectedFilter === 'high-to-low') {
+          filtered.sort((a, b) => {
+            const priceA = a.pricing === 'free' ? 0 : (Number(a.price) || 0);
+            const priceB = b.pricing === 'free' ? 0 : (Number(b.price) || 0);
+            return priceB - priceA;
+          });
+        }
 
-        if (filtered.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted">No reading history found. Open a book in the catalog to start reading!</td></tr>`;
+        const maxLimit = siteSettings.page_limits ? parseInt(siteSettings.page_limits.browse_limit) || 12 : 12;
+        const displayList = filtered.slice(0, maxLimit);
+
+        resultsCount.textContent = `Showing ${displayList.length} of ${allPublishedBooks.length} published books`;
+
+        if (displayList.length === 0) {
+          booksGrid.classList.add("d-none");
+          emptyState.classList.remove("d-none");
           return;
         }
 
-        filtered.forEach((item, index) => {
-          const book = item.book || {};
-          const pagesRead = parseInt(item.pages_read, 10) || 1;
-          const totalPages = Math.max(1, parseInt(item.total_pages, 10) || 100);
-          const percent = Math.min(100, Math.max(0, Math.round((pagesRead / totalPages) * 100)));
-          const dateStr = item.last_read_at 
-            ? new Date(item.last_read_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) 
-            : 'Recently';
+        emptyState.classList.add("d-none");
+        booksGrid.classList.remove("d-none");
+        booksGrid.innerHTML = '';
 
-          const bookId = item.book_id || book.book_id || book.id;
-          const coverUrl = book.cover_url || book.thumbnail_url || 'https://placehold.co/44x60/073b30/ffffff?text=Cover';
-          const authorName = book.author || book.author_name || (book.author_id ? `Author #${book.author_id}` : 'Santali Writer');
-          const isCompleted = (item.status === 'completed' || item.atatus === 'completed') || percent >= 100;
-          const cfiParam = item.last_cfi ? `&cfi=${encodeURIComponent(item.last_cfi)}` : '';
+        const showBadges = siteSettings.page_limits ? siteSettings.page_limits.show_price_badge !== false : true;
 
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="text-muted fw-bold">${index + 1}</td>
-            <td>
-              <div class="d-flex align-items-center gap-2">
-                <img src="${coverUrl}" class="book-cover-thumb" alt="Cover" onerror="this.src='https://placehold.co/44x60/073b30/ffffff?text=Cover'">
-                <div>
-                  <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.9rem;">${book.title || book.book_name || `Book #${bookId}`}</h6>
-                  <span class="badge bg-light text-dark border small">${(book.file_type || book.format || 'eBook').toUpperCase()}</span>
+        displayList.forEach(book => {
+          const isFree = book.pricing === 'free' || Number(book.price) === 0;
+          const priceBadge = showBadges
+            ? (isFree ? `<span class="badge bg-success price-badge shadow-sm">FREE</span>` : `<span class="badge bg-primary price-badge shadow-sm">₹${book.price}</span>`)
+            : '';
+
+          const category = (book.category || 'General').toUpperCase();
+          const coverUrl = book.cover_url || 'https://via.placeholder.com/300x400?text=No+Cover';
+          const targetIdentifier = book.book_id || book.id;
+
+          const bookCardHTML = `
+            <div class="col-sm-6 col-md-4 col-lg-3">
+              <div class="card h-100 shadow-sm book-card position-relative">
+                ${priceBadge}
+                <img src="${coverUrl}" class="card-img-top book-cover" alt="${book.title}" onerror="this.src='https://via.placeholder.com/300x400?text=No+Cover'">
+                
+                <div class="card-body d-flex flex-column">
+                  <span class="text-uppercase fw-bold mb-1" style="font-size: 0.75rem; color: var(--header-bg);">${category}</span>
+                  <h5 class="card-title fw-bold text-truncate mb-1" title="${book.title}">${book.title}</h5>
+                  <p class="card-text text-muted small mb-3">By ${book.author || 'Unknown'}</p>
+                  
+                  <div class="mt-auto">
+                    <a href="book-details.html?id=${encodeURIComponent(targetIdentifier)}" class="btn btn-outline-dark btn-sm w-100 fw-semibold">
+                      <i class="fa-solid fa-eye me-1"></i> View Details
+                    </a>
+                  </div>
                 </div>
               </div>
-            </td>
-            <td>
-              <div class="fw-semibold text-dark" style="font-size: 0.85rem;">${authorName}</div>
-            </td>
-            <td>
-              <strong class="text-dark">${pagesRead}</strong> <span class="text-muted small">/ ${totalPages}</span>
-            </td>
-            <td>
-              <div class="d-flex align-items-center gap-2">
-                <div class="progress progress-bar-custom flex-grow-1">
-                  <div class="progress-bar ${isCompleted ? 'bg-success' : 'bg-primary'}" role="progressbar" style="width: ${percent}%;"></div>
-                </div>
-                <small class="text-muted fw-bold">${percent}%</small>
-              </div>
-            </td>
-            <td>
-              <span class="badge ${isCompleted ? 'bg-success' : 'bg-warning text-dark'} text-uppercase" style="font-size: 0.7rem;">
-                ${isCompleted ? 'Completed' : 'Reading'}
-              </span>
-            </td>
-            <td class="text-muted small">${dateStr}</td>
-            <td class="text-end pe-3">
-              <a href="reader.html?id=${bookId}&page=${pagesRead}${cfiParam}" class="btn btn-sm btn-warning fw-bold text-dark px-3 py-1">
-                <i class="fa-solid fa-book-open me-1"></i> Continue
-              </a>
-            </td>
+            </div>
           `;
-          tbody.appendChild(tr);
+
+          booksGrid.innerHTML += bookCardHTML;
         });
       }
 
-      function updateMetrics() {
-        let totalPages = 0;
-        const authorSet = new Set();
+      searchInput.addEventListener("input", renderFilteredBooks);
+      priceFilter.addEventListener("change", renderFilteredBooks);
 
-        readingEntries.forEach(item => {
-          const pages = parseInt(item.pages_read, 10) || 0;
-          totalPages += pages;
-
-          const author = item.book?.author || item.book?.author_name || (item.book?.author_id ? String(item.book.author_id) : null);
-          if (author && author.trim()) {
-            authorSet.add(author.trim());
-          }
-        });
-
-        document.getElementById("totalBooksCount").textContent = readingEntries.length;
-        document.getElementById("totalPagesCount").textContent = totalPages.toLocaleString('en-IN');
-        document.getElementById("totalAuthorsCount").textContent = authorSet.size || (readingEntries.length > 0 ? 1 : 0);
-      }
-
-      document.getElementById("filterReaderBooks").addEventListener("input", renderReaderTable);
-
-      document.getElementById("logoutLink").addEventListener("click", async (e) => {
-        e.preventDefault();
-        await supabase.auth.signOut();
-        window.location.href = "login.html";
+      clearSearchBtn.addEventListener("click", () => {
+        searchInput.value = '';
+        renderFilteredBooks();
       });
+
+      resetFiltersBtn.addEventListener("click", () => {
+        searchInput.value = '';
+        priceFilter.value = 'default';
+        renderFilteredBooks();
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      await checkUserAuth();
+      const isLocked = await loadDynamicVisualsAndCheckMaintenance();
+      if (!isLocked) {
+        fetchPublishedBooks();
+      }
     });
   </script>
 </body>
