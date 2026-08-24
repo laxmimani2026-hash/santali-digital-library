@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Santali Digital Library | E-Paper Reader</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --sdl-teal: #075e4d;
+      --sdl-teal-dark: #044337;
+      --sdl-teal-accent: #0b7a65;
+      --sdl-gold: #ffb703;
+      --paper-border: #d0d7de;
+    }
+
+    body {
+      background-color: #ffffff;
+      color: #1f2328;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .navbar-teal { background-color: var(--sdl-teal) !important; }
+    .navbar-nav .nav-link { color: rgba(255, 255, 255, 0.85) !important; font-weight: 500; font-size: 0.9rem; }
+    .navbar-nav .nav-link:hover { color: var(--sdl-gold) !important; }
+
+    /* Top Publisher Category Navigation Bar */
+    .epaper-cat-bar {
+      background-color: var(--sdl-teal-dark);
+      overflow-x: auto;
+      white-space: nowrap;
+      border-bottom: 2px solid var(--sdl-gold);
+    }
+    .epaper-cat-bar .nav-link {
+      color: #e6f4f1 !important;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.5rem 1.1rem;
+      border-right: 1px solid rgba(255, 255, 255, 0.12);
+      letter-spacing: 0.4px;
+      transition: all 0.2s ease;
+    }
+    .epaper-cat-bar .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: var(--sdl-gold) !important;
+    }
+    .epaper-cat-bar .nav-link.active {
+      background-color: var(--sdl-teal-accent);
+      color: var(--sdl-gold) !important;
+      box-shadow: inset 0 -3px 0 var(--sdl-gold);
+    }
+
+    /* Date & Page Filter Strip */
+    .filter-strip {
+      background-color: #f8fafc;
+      border-bottom: 1px solid #e1e4e8;
+      font-size: 0.88rem;
+    }
+
+    /* Left Sidebar - Exact Sambad Ratio */
+    .sidebar-pane {
+      border: 1px solid var(--paper-border);
+      background: #ffffff;
+      height: calc(100vh - 165px);
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-header {
+      background: #f6f8fa;
+      border-bottom: 1px solid #d0d7de;
+      padding: 6px 12px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      color: #24292f;
+    }
+    .thumb-scroll-list {
+      overflow-y: auto;
+      padding: 8px;
+      flex-grow: 1;
+    }
+    .thumb-item {
+      cursor: pointer;
+      border: 2px solid transparent;
+      padding: 4px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      text-align: center;
+      background: #fafbfc;
+    }
+    .thumb-item.active, .thumb-item:hover {
+      border-color: var(--sdl-teal);
+      background: #fff;
+    }
+    .thumb-label {
+      background: #57606a;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 3px;
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+    .thumb-img {
+      width: 100%;
+      height: auto;
+      border: 1px solid #d0d7de;
+      display: block;
+    }
+
+    /* Center Main Sheet - Exact Newsprint Ratio & Light Outline */
+    .center-viewer-stage {
+      height: calc(100vh - 165px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 4px;
+    }
+
+    .epaper-sheet-container {
+      position: relative;
+      background: #ffffff;
+      border: 1px solid var(--paper-border);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      width: 100%;
+      display: inline-block;
+      user-select: none;
+    }
+
+    .epaper-main-img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Invisible by Default; Highlight on Hover */
+    .hotspot-box {
+      position: absolute;
+      border: 2px dashed transparent;
+      background-color: transparent;
+      cursor: pointer;
+      transition: all 0.15s ease-in-out;
+      z-index: 10;
+    }
+    .hotspot-box:hover {
+      border-color: var(--sdl-teal);
+      background-color: rgba(7, 94, 77, 0.15);
+      box-shadow: 0 0 10px rgba(7, 94, 77, 0.25);
+    }
+    .hotspot-tag {
+      position: absolute;
+      top: -10px;
+      left: 6px;
+      background: var(--sdl-teal);
+      color: #fff;
+      font-size: 0.62rem;
+      font-weight: bold;
+      padding: 1px 6px;
+      border-radius: 3px;
+      display: none;
+    }
+    .hotspot-box:hover .hotspot-tag {
+      display: block;
+    }
+
+    /* Bottom Horizontal Ad Banner */
+    .bottom-ad-bar {
+      margin-top: 10px;
+      width: 100%;
+      border: 1px solid #e1e4e8;
+      background: #fafbfc;
+      border-radius: 4px;
+      padding: 6px;
+      text-align: center;
+    }
+
+    /* Right Ad Sidepane */
+    .right-ad-pane {
+      height: calc(100vh - 165px);
+      overflow-y: auto;
+    }
+    .ad-box {
+      border: 1px solid #d0d7de;
+      background: #ffffff;
+      padding: 8px;
+      text-align: center;
+      margin-bottom: 12px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+  <!-- Top Main Library Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-teal py-1">
+    <div class="container-fluid px-3">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <i class="fa-solid fa-book-open-reader text-warning fs-4"></i>
+        <span class="fw-bold fs-5">Santali Digital <span class="text-warning">Library</span></span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Category Strip (Publisher Bar) -->
+  <nav class="navbar navbar-expand epaper-cat-bar py-0 shadow-sm">
+    <div class="container-fluid px-2">
+      <ul class="navbar-nav flex-row mx-auto" id="magazineListTabs">
+        <li class="nav-item"><a class="nav-link active" href="javascript:void(0)" onclick="switchMagazine('Parsi Arang', this)">Parsi Arang</a></li>
+        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchMagazine('Sagen Sakam', this)">Sagen Sakam</a></li>
+        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchMagazine('Jug Sirijol', this)">Jug Sirijol</a></li>
+        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchMagazine('Marshal', this)">Marshal</a></li>
+        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchMagazine('Aven', this)">Aven</a></li>
+        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchMagazine('Tirang', this)">Tirang (Special Edition)</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Filter & Subhead Toolbar -->
+  <div class="filter-strip py-1 px-3">
+    <div class="container-fluid d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div class="d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center gap-1">
+          <span class="fw-bold text-dark" id="displayDateLabel">Sunday, 23 August, 2026</span>
+          <input type="date" id="editionDatePicker" class="form-control form-control-sm ms-2" style="width: 140px; font-size:0.8rem;">
+        </div>
+        <div class="d-flex align-items-center gap-1">
+          <span class="text-secondary small fw-bold">Page No.</span>
+          <select class="form-select form-select-sm" id="pageSelector" style="width: 90px; font-weight:600; font-size:0.8rem;"></select>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <span class="text-muted small"><i class="fa-solid fa-hand-pointer text-success me-1"></i> Hover to highlight & click to read clipping</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main 3-Column Layout Matching Exact Proportions -->
+  <div class="container-fluid my-2 flex-grow-1 px-2">
+    <div class="row g-2">
+      
+      <!-- 1. Left Thumbnail Sidebar (Col-2) -->
+      <div class="col-xl-2 col-lg-2 col-md-3">
+        <div class="sidebar-pane rounded">
+          <div class="sidebar-header" id="sidebarDistrictTitle">EDITION PAGES</div>
+          <div class="thumb-scroll-list" id="thumbCardsContainer"></div>
+        </div>
+      </div>
+
+      <!-- 2. Center Newsprint Stage (Col-7) -->
+      <div class="col-xl-7 col-lg-7 col-md-9">
+        <div class="center-viewer-stage">
+          
+          <div id="pageSheetWrapper" class="epaper-sheet-container">
+            <img id="mainEpaperImage" class="epaper-main-img" src="" alt="Active Newspaper Page" crossorigin="anonymous">
+            <div id="hotspotContainer"></div>
+          </div>
+
+          <!-- Bottom Sticky Ad Banner -->
+          <div class="bottom-ad-bar">
+            <div class="d-flex justify-content-between align-items-center px-2">
+              <span class="badge bg-secondary" style="font-size:0.6rem;">ADVERTISEMENT</span>
+              <span class="small fw-bold text-dark">Santali Digital Library Annual Membership • ₹499/year</span>
+              <a href="subscription.html" class="btn btn-warning btn-sm py-0 px-2 fw-bold" style="font-size:0.75rem;">Subscribe</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 3. Right Advertisement Column (Col-3) -->
+      <div class="col-xl-3 col-lg-3 d-none d-lg-block">
+        <div class="right-ad-pane">
+          
+          <!-- Ad Unit 1 -->
+          <div class="ad-box shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="badge bg-light text-muted border" style="font-size:0.6rem;">SPONSORED</span>
+              <i class="fa-solid fa-circle-info text-muted" style="font-size:0.7rem;"></i>
+            </div>
+            <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=500&q=80" class="img-fluid rounded mb-2" alt="Archive Ad">
+            <h6 class="fw-bold small mb-1 text-dark">Ol Chiki Digital Literature Archive</h6>
+            <p class="text-muted mb-0" style="font-size:0.75rem;">Access digitized journals, books, and language dictionaries with easy offline support.</p>
+          </div>
+
+          <!-- Ad Unit 2 -->
+          <div class="ad-box shadow-sm">
+            <span class="badge bg-warning text-dark fw-bold mb-1" style="font-size:0.65rem;">PARTNER PROGRAM</span>
+            <h6 class="fw-bold small mb-1">Publisher Services</h6>
+            <p class="text-muted mb-2" style="font-size:0.75rem;">Digitize and distribute regional community publications to global readers.</p>
+            <a href="magazine-upload.html" class="btn btn-outline-dark btn-sm w-100 py-1 fw-bold" style="font-size:0.75rem;">Upload Your Newspaper</a>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Supabase & Reader Engine -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const SUPABASE_URL = 'https://qdzadypqtctjonnwgxoo.supabase.co'; 
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentPublication = "Parsi Arang";
+    let activePagesData = [];
+    let currentPageIndex = 0;
+
+    const datePicker = document.getElementById('editionDatePicker');
+    const pageSelector = document.getElementById('pageSelector');
+    const mainImg = document.getElementById('mainEpaperImage');
+    const hotspotContainer = document.getElementById('hotspotContainer');
+    const thumbCardsContainer = document.getElementById('thumbCardsContainer');
+    const displayDateLabel = document.getElementById('displayDateLabel');
+
+    datePicker.value = new Date().toISOString().split('T')[0];
+
+    async function loadMagazineEdition(magazineName, dateString) {
+      hotspotContainer.innerHTML = '';
+      thumbCardsContainer.innerHTML = '';
+      pageSelector.innerHTML = '';
+      mainImg.src = '';
+
+      let { data: edition } = await supabase
+        .from('epaper_editions')
+        .select('*')
+        .eq('magazine_name', magazineName)
+        .eq('edition_date', dateString)
+        .maybeSingle();
+
+      if (!edition) {
+        const { data: latest } = await supabase
+          .from('epaper_editions')
+          .select('*')
+          .eq('magazine_name', magazineName)
+          .order('edition_date', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        edition = latest;
+      }
+
+      if (!edition) {
+        alert(`No edition available for ${magazineName}. Please upload an issue from the publisher portal.`);
+        return;
+      }
+
+      datePicker.value = edition.edition_date;
+      const parsedDate = new Date(edition.edition_date);
+      displayDateLabel.innerText = parsedDate.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+      const { data: pages } = await supabase
+        .from('epaper_pages')
+        .select('*')
+        .eq('edition_id', edition.id)
+        .order('page_number', { ascending: true });
+
+      activePagesData = pages || [];
+      if (activePagesData.length === 0) return;
+
+      pageSelector.innerHTML = activePagesData.map((p, idx) => 
+        `<option value="${idx}">${p.page_number}</option>`
+      ).join('');
+
+      renderThumbnails();
+      goToPage(0);
+    }
+
+    function renderThumbnails() {
+      thumbCardsContainer.innerHTML = '';
+      activePagesData.forEach((p, idx) => {
+        const item = document.createElement('div');
+        item.className = `thumb-item ${idx === currentPageIndex ? 'active' : ''}`;
+        item.onclick = () => goToPage(idx);
+        item.innerHTML = `
+          <span class="thumb-label">Page ${p.page_number}</span>
+          <img src="${p.image_url}" class="thumb-img" alt="P. ${p.page_number}">
+        `;
+        thumbCardsContainer.appendChild(item);
+      });
+    }
+
+    function renderHotspots(page) {
+      hotspotContainer.innerHTML = '';
+      const hotspots = page.clippings || [];
+
+      hotspots.forEach((spot) => {
+        const div = document.createElement('div');
+        div.className = 'hotspot-box';
+        div.style.top = `${spot.top}%`;
+        div.style.left = `${spot.left}%`;
+        div.style.width = `${spot.width}%`;
+        div.style.height = `${spot.height}%`;
+
+        div.innerHTML = `<span class="hotspot-tag">${spot.name || 'Clipping'}</span>`;
+        div.onclick = (e) => {
+          e.stopPropagation();
+          clipAndOpenWindow(spot.left, spot.top, spot.width, spot.height, spot.name);
+        };
+        hotspotContainer.appendChild(div);
+      });
+    }
+
+    function goToPage(index) {
+      if (index < 0 || index >= activePagesData.length) return;
+      currentPageIndex = index;
+      pageSelector.value = index;
+
+      const page = activePagesData[index];
+      mainImg.src = page.image_url;
+
+      mainImg.onload = () => {
+        renderHotspots(page);
+        renderThumbnails();
+      };
+    }
+
+    function clipAndOpenWindow(leftPct, topPct, widthPct, heightPct, clipTitle) {
+      const naturalW = mainImg.naturalWidth;
+      const naturalH = mainImg.naturalHeight;
+
+      const cropX = Math.round((leftPct / 100) * naturalW);
+      const cropY = Math.round((topPct / 100) * naturalH);
+      const cropW = Math.round((widthPct / 100) * naturalW);
+      const cropH = Math.round((heightPct / 100) * naturalH);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = cropW;
+      canvas.height = cropH;
+      const ctx = canvas.getContext('2d');
+
+      ctx.drawImage(mainImg, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.95);
+
+      const popW = Math.min(840, window.screen.width - 60);
+      const popH = Math.min(760, window.screen.height - 60);
+      const left = Math.round((window.screen.width - popW) / 2);
+      const top = Math.round((window.screen.height - popH) / 2);
+
+      const popWindow = window.open(
+        '',
+        '_blank',
+        `width=${popW},height=${popH},top=${top},left=${left},resizable=yes,scrollbars=yes,status=no,toolbar=no,menubar=no,location=no`
+      );
+
+      popWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <title>${clipTitle || 'Clipping'} | Santali Digital Library</title>
+          <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+          <style>
+            body { background-color: #f1f5f9; padding: 20px; display: flex; flex-direction: column; align-items: center; font-family: sans-serif; }
+            .clip-modal-card { background: #ffffff; padding: 18px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); max-width: 780px; width: 100%; border: 1px solid #d0d7de; }
+            .cropped-image { width: 100%; height: auto; display: block; border: 1px solid #cbd5e1; border-radius: 4px; }
+            .badge-brand { background-color: #075e4d; color: #fff; font-size: 0.75rem; padding: 4px 8px; }
+          </style>
+        </head>
+        <body>
+          <div class="clip-modal-card">
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+              <div>
+                <span class="badge badge-brand fw-bold">${currentPublication.toUpperCase()}</span>
+                <span class="ms-2 small text-muted font-monospace">${datePicker.value}</span>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print</button>
+                <button class="btn btn-sm btn-outline-danger" onclick="window.close()">Close</button>
+              </div>
+            </div>
+            <div class="text-center mb-3">
+              <img src="${croppedDataUrl}" class="cropped-image" alt="Selected Clipping">
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-2 border-top text-muted small">
+              <span>Santali Digital Library E-Paper Reader</span>
+              <button class="btn btn-sm btn-secondary" onclick="window.close()">Done</button>
+            </div>
+          </div>
+        </body>
+        </html>
+      `);
+      popWindow.document.close();
+    }
+
+    window.switchMagazine = (name, el) => {
+      currentPublication = name;
+      document.querySelectorAll('#magazineListTabs .nav-link').forEach(l => l.classList.remove('active'));
+      if (el) el.classList.add('active');
+      loadMagazineEdition(name, datePicker.value);
+    };
+
+    datePicker.addEventListener('change', () => loadMagazineEdition(currentPublication, datePicker.value));
+    pageSelector.addEventListener('change', (e) => goToPage(parseInt(e.target.value)));
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadMagazineEdition(currentPublication, datePicker.value);
+    });
+  </script>
+</body>
+</html>

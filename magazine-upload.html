@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload & Clip Magazine | Santali Digital Library</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- PDF.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <style>
+    .navbar-teal { background-color: #075e4d !important; }
+    .btn-teal { background-color: #075e4d; color: #fff; }
+    .btn-teal:hover { background-color: #05483b; color: #fff; }
+    .text-teal { color: #075e4d !important; }
+
+    .upload-card {
+      border: 1px solid #e7ecea;
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.05);
+    }
+
+    .drop-zone {
+      border: 2px dashed #075e4d;
+      border-radius: 12px;
+      background: #f8fafc;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+    .drop-zone:hover {
+      background: #f0fdf4;
+      border-color: #ffb703;
+    }
+
+    /* Page Workspace for Clipping */
+    .page-editor-card {
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .canvas-clip-wrapper {
+      position: relative;
+      display: inline-block;
+      user-select: none;
+      cursor: crosshair;
+      border: 1px solid #e2e8f0;
+      background: #525659;
+    }
+
+    .canvas-clip-wrapper canvas {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Saved Clipping Highlights on Canvas */
+    .drawn-hotspot {
+      position: absolute;
+      border: 2px solid #ffb703;
+      background-color: rgba(255, 183, 3, 0.25);
+      cursor: default;
+      z-index: 5;
+    }
+    .drawn-hotspot .hotspot-delete-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #ef4444;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* Active Drag Box */
+    .drag-selection-box {
+      position: absolute;
+      border: 2px dashed #075e4d;
+      background-color: rgba(7, 94, 77, 0.3);
+      pointer-events: none;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-teal sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <i class="fa-solid fa-book-open-reader text-warning fs-3"></i>
+        <span>Santali Digital <span class="text-warning">Library</span></span>
+      </a>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <span class="badge bg-warning text-dark fw-bold px-3 py-2">Publisher Admin Portal</span>
+        <a href="magazine-reader.html" class="btn btn-outline-light btn-sm">View Reader</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Upload Container -->
+  <div class="container my-5 flex-grow-1">
+    <div class="row justify-content-center">
+      <div class="col-lg-11">
+        <div class="upload-card p-4 p-md-5">
+          
+          <div class="d-flex align-items-center gap-3 border-bottom pb-3 mb-4">
+            <div class="p-3 bg-light rounded-circle text-teal fs-3">
+              <i class="fa-solid fa-scissors"></i>
+            </div>
+            <div>
+              <h3 class="fw-bold mb-1 text-dark">Publish Magazine with Custom Clippings</h3>
+              <p class="text-muted small mb-0">Upload a PDF, then drag across any article or image on each page to create clickable reader clippings.</p>
+            </div>
+          </div>
+
+          <!-- Alert Box -->
+          <div id="statusAlert" class="alert d-none text-center fw-semibold"></div>
+
+          <form id="magazineUploadForm">
+            <!-- Basic Issue Metadata -->
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label fw-bold small">Magazine / Publication Name</label>
+                <select class="form-select" id="magazineName" required>
+                  <option value="Parsi Arang">Parsi Arang</option>
+                  <option value="Sagen Sakam">Sagen Sakam</option>
+                  <option value="Jug Sirijol">Jug Sirijol</option>
+                  <option value="Marshal">Marshal</option>
+                  <option value="Aven">Aven</option>
+                  <option value="Tirang">Tirang (Special Edition)</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold small">Publication Date</label>
+                <input type="date" class="form-control" id="editionDate" required>
+              </div>
+            </div>
+
+            <!-- PDF Dropzone -->
+            <div class="drop-zone p-4 text-center mb-4" onclick="document.getElementById('pdfFileInput').click()">
+              <input type="file" id="pdfFileInput" accept="application/pdf" class="d-none">
+              <i class="fa-solid fa-file-pdf fs-1 text-danger mb-2"></i>
+              <h5 class="fw-bold mb-1">Click to select PDF file</h5>
+              <p class="text-muted small mb-0" id="fileChosenLabel">Supports PDF files up to 100MB</p>
+            </div>
+
+            <!-- Progress Bar -->
+            <div id="progressArea" class="d-none mb-4">
+              <div class="d-flex justify-content-between small fw-bold mb-1">
+                <span id="progressStatus">Processing pages...</span>
+                <span id="progressPercent">0%</span>
+              </div>
+              <div class="progress" style="height: 10px;">
+                <div id="progressBar" class="progress-bar bg-success progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <!-- Interactive Page & Clipping Editor List -->
+            <div id="pagesReviewArea" class="d-none">
+              <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                <h5 class="fw-bold mb-0 text-dark">Define Clippings on Each Page</h5>
+                <span class="small text-muted"><i class="fa-solid fa-hand-pointer text-teal"></i> Click & drag on any page image to draw a clipping box</span>
+              </div>
+              <div id="pagesListContainer"></div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="d-flex justify-content-end gap-2 border-top pt-4 mt-4">
+              <button type="reset" class="btn btn-outline-secondary px-4 fw-semibold">Reset</button>
+              <button type="submit" id="submitBtn" class="btn btn-warning px-4 fw-bold text-dark shadow-sm" disabled>
+                <i class="fa-solid fa-upload me-2"></i> Save & Publish Edition
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="navbar-teal text-center text-white py-3 mt-auto">
+    <small>&copy; 2026 Santali Digital Library • Publisher Management System</small>
+  </footer>
+
+  <!-- Supabase & Interactive Clipping Engine -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const SUPABASE_URL = 'https://qdzadypqtctjonnwgxoo.supabase.co'; 
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkemFkeXBxdGN0am9ubndneG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTIyMTYsImV4cCI6MjEwMTc2ODIxNn0.yE6C0ajDrbgJj3RbvH6X9liCoTYsXpd2RUpGRHbjcf8';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    document.getElementById('editionDate').value = new Date().toISOString().split('T')[0];
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    let extractedPages = [];
+    const pdfFileInput = document.getElementById('pdfFileInput');
+    const fileChosenLabel = document.getElementById('fileChosenLabel');
+    const progressArea = document.getElementById('progressArea');
+    const progressBar = document.getElementById('progressBar');
+    const progressStatus = document.getElementById('progressStatus');
+    const progressPercent = document.getElementById('progressPercent');
+    const pagesReviewArea = document.getElementById('pagesReviewArea');
+    const pagesListContainer = document.getElementById('pagesListContainer');
+    const submitBtn = document.getElementById('submitBtn');
+    const statusAlert = document.getElementById('statusAlert');
+
+    pdfFileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file || file.type !== 'application/pdf') {
+        alert("Please select a valid PDF file.");
+        return;
+      }
+
+      fileChosenLabel.innerText = `Selected: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+      progressArea.classList.remove('d-none');
+      pagesListContainer.innerHTML = '';
+      extractedPages = [];
+      submitBtn.disabled = true;
+
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const totalPages = pdf.numPages;
+
+        for (let i = 1; i <= totalPages; i++) {
+          progressStatus.innerText = `Rendering page ${i} of ${totalPages}...`;
+          const percent = Math.round((i / totalPages) * 100);
+          progressBar.style.width = `${percent}%`;
+          progressPercent.innerText = `${percent}%`;
+
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: 1.5 });
+
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+
+          await page.render({ canvasContext: context, viewport: viewport }).promise;
+          const imageBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+
+          const pageObj = {
+            pageNumber: i,
+            blob: imageBlob,
+            canvas: canvas,
+            clippings: [] // Stores custom rectangular coordinates { top, left, width, height, title }
+          };
+
+          extractedPages.push(pageObj);
+          renderPageEditor(pageObj);
+        }
+
+        progressArea.classList.add('d-none');
+        pagesReviewArea.classList.remove('d-none');
+        submitBtn.disabled = false;
+
+      } catch (error) {
+        console.error("PDF Parsing Error:", error);
+        alert("Failed to render PDF pages.");
+        progressArea.classList.add('d-none');
+      }
+    });
+
+    // Render Page Card with Click-and-Drag Hotspot Selector
+    function renderPageEditor(pageObj) {
+      const card = document.createElement('div');
+      card.className = 'page-editor-card';
+      card.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="badge bg-teal fw-bold" style="background:#075e4d;">Page ${pageObj.pageNumber}</span>
+          <span class="small text-muted" id="clipCount_${pageObj.pageNumber}">0 clippings defined</span>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-7 text-center">
+            <div class="canvas-clip-wrapper" id="canvasWrapper_${pageObj.pageNumber}">
+              <div id="hotspotLayer_${pageObj.pageNumber}"></div>
+              <div class="drag-selection-box d-none" id="dragBox_${pageObj.pageNumber}"></div>
+            </div>
+          </div>
+          <div class="col-md-5">
+            <div class="mb-2">
+              <label class="form-label fw-bold small text-muted">Page Title</label>
+              <input type="text" class="form-control form-control-sm" id="title_${pageObj.pageNumber}" placeholder="e.g. Lead Story & News">
+            </div>
+            <label class="form-label fw-bold small text-muted">Clippings on this page:</label>
+            <div id="clippingBadgeList_${pageObj.pageNumber}" class="d-flex flex-column gap-1 small text-muted">
+              <em>No clipping drawn yet. Drag on the page image to add.</em>
+            </div>
+          </div>
+        </div>
+      `;
+
+      pagesListContainer.appendChild(card);
+      const wrapper = card.querySelector(`#canvasWrapper_${pageObj.pageNumber}`);
+      wrapper.insertBefore(pageObj.canvas, wrapper.firstChild);
+
+      initDrawingOnPage(pageObj, wrapper);
+    }
+
+    // Attach Drag Selection Listeners to Page
+    function initDrawingOnPage(pageObj, wrapper) {
+      const dragBox = wrapper.querySelector('.drag-selection-box');
+      const hotspotLayer = wrapper.querySelector(`#hotspotLayer_${pageObj.pageNumber}`);
+      let isDrawing = false, startX = 0, startY = 0;
+
+      wrapper.addEventListener('mousedown', (e) => {
+        if (e.target.classList.contains('hotspot-delete-btn')) return;
+        isDrawing = true;
+        const rect = wrapper.getBoundingClientRect();
+        startX = e.clientX - rect.left;
+        startY = e.clientY - rect.top;
+
+        dragBox.style.left = `${startX}px`;
+        dragBox.style.top = `${startY}px`;
+        dragBox.style.width = '0px';
+        dragBox.style.height = '0px';
+        dragBox.classList.remove('d-none');
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDrawing) return;
+        const rect = wrapper.getBoundingClientRect();
+        const currentX = Math.min(Math.max(e.clientX - rect.left, 0), rect.width);
+        const currentY = Math.min(Math.max(e.clientY - rect.top, 0), rect.height);
+
+        const x = Math.min(startX, currentX);
+        const y = Math.min(startY, currentY);
+        const w = Math.abs(currentX - startX);
+        const h = Math.abs(currentY - startY);
+
+        dragBox.style.left = `${x}px`;
+        dragBox.style.top = `${y}px`;
+        dragBox.style.width = `${w}px`;
+        dragBox.style.height = `${h}px`;
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (!isDrawing) return;
+        isDrawing = false;
+        const rect = wrapper.getBoundingClientRect();
+
+        const leftPct = (parseFloat(dragBox.style.left) / rect.width) * 100;
+        const topPct = (parseFloat(dragBox.style.top) / rect.height) * 100;
+        const widthPct = (parseFloat(dragBox.style.width) / rect.width) * 100;
+        const heightPct = (parseFloat(dragBox.style.height) / rect.height) * 100;
+
+        dragBox.classList.add('d-none');
+
+        // Only register if selection box is larger than 3% (avoids accidental clicks)
+        if (widthPct > 3 && heightPct > 3) {
+          const clipIndex = pageObj.clippings.length + 1;
+          const clipName = prompt(`Enter a title for this clipping:`, `Article Portion ${clipIndex}`);
+          
+          if (clipName) {
+            pageObj.clippings.push({
+              name: clipName,
+              left: leftPct,
+              top: topPct,
+              width: widthPct,
+              height: heightPct
+            });
+            renderSavedHotspots(pageObj, hotspotLayer);
+          }
+        }
+      });
+    }
+
+    function renderSavedHotspots(pageObj, hotspotLayer) {
+      hotspotLayer.innerHTML = '';
+      const badgeList = document.getElementById(`clippingBadgeList_${pageObj.pageNumber}`);
+      const countLabel = document.getElementById(`clipCount_${pageObj.pageNumber}`);
+      
+      badgeList.innerHTML = '';
+      countLabel.innerText = `${pageObj.clippings.length} clipping(s) defined`;
+
+      pageObj.clippings.forEach((clip, index) => {
+        // Visual Hotspot Box on Canvas
+        const box = document.createElement('div');
+        box.className = 'drawn-hotspot';
+        box.style.left = `${clip.left}%`;
+        box.style.top = `${clip.top}%`;
+        box.style.width = `${clip.width}%`;
+        box.style.height = `${clip.height}%`;
+        box.innerHTML = `<button type="button" class="hotspot-delete-btn" title="Delete clipping">×</button>`;
+
+        box.querySelector('.hotspot-delete-btn').onclick = (e) => {
+          e.stopPropagation();
+          pageObj.clippings.splice(index, 1);
+          renderSavedHotspots(pageObj, hotspotLayer);
+        };
+        hotspotLayer.appendChild(box);
+
+        // Sidebar List Entry
+        const badge = document.createElement('div');
+        badge.className = 'p-2 bg-light border rounded d-flex justify-content-between align-items-center';
+        badge.innerHTML = `
+          <span><i class="fa-solid fa-crop text-warning me-1"></i> ${clip.name}</span>
+          <button type="button" class="btn btn-outline-danger btn-sm py-0 px-1" style="font-size:11px;">Delete</button>
+        `;
+        badge.querySelector('button').onclick = () => {
+          pageObj.clippings.splice(index, 1);
+          renderSavedHotspots(pageObj, hotspotLayer);
+        };
+        badgeList.appendChild(badge);
+      });
+    }
+
+    // Submit Complete Issue & Clippings to Supabase
+    document.getElementById('magazineUploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i> Uploading Edition...`;
+
+      const magazineName = document.getElementById('magazineName').value;
+      const editionDate = document.getElementById('editionDate').value;
+      const uploadTimestamp = Date.now();
+
+      try {
+        const { data: editionRecord, error: editionError } = await supabase
+          .from('epaper_editions')
+          .insert([{
+            magazine_name: magazineName,
+            edition_date: editionDate,
+            total_pages: extractedPages.length
+          }])
+          .select()
+          .single();
+
+        if (editionError) throw editionError;
+
+        for (const page of extractedPages) {
+          const fileName = `${magazineName.toLowerCase().replace(/\s+/g, '-')}_${editionDate}_${uploadTimestamp}_p${page.pageNumber}.jpg`;
+          const filePath = `editions/${fileName}`;
+
+          const { error: storageError } = await supabase.storage
+            .from('epaper-editions')
+            .upload(filePath, page.blob, { upsert: true, contentType: 'image/jpeg' });
+
+          if (storageError) throw storageError;
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('epaper-editions')
+            .getPublicUrl(filePath);
+
+          const customTitle = document.getElementById(`title_${page.pageNumber}`)?.value || `Page ${page.pageNumber}`;
+
+          // If uploader didn't draw any custom box, fallback to the full page as a single clipping
+          const finalClippings = page.clippings.length > 0 ? page.clippings : [
+            { name: "Full Page", top: 0, left: 0, width: 100, height: 100 }
+          ];
+
+          await supabase.from('epaper_pages').insert([{
+            edition_id: editionRecord.id,
+            page_number: page.pageNumber,
+            image_url: publicUrl,
+            page_title: customTitle,
+            clippings: finalClippings
+          }]);
+        }
+
+        statusAlert.className = "alert alert-success text-center fw-bold mb-4";
+        statusAlert.innerHTML = `
+          <div class="d-flex flex-column align-items-center gap-2">
+            <span><i class="fa-solid fa-circle-check me-2"></i> ${magazineName} (${editionDate}) published with all configured clippings!</span>
+            <a href="magazine-reader.html" class="btn btn-outline-success btn-sm fw-bold">Open Reader to View</a>
+          </div>
+        `;
+        statusAlert.classList.remove('d-none');
+        window.scrollTo(0, 0);
+
+      } catch (err) {
+        console.error("Upload Error:", err);
+        statusAlert.className = "alert alert-danger text-center fw-bold mb-4";
+        statusAlert.innerHTML = `<i class="fa-solid fa-circle-exclamation me-2"></i> Upload failed: ${err.message || 'Database error'}`;
+        statusAlert.classList.remove('d-none');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i class="fa-solid fa-upload me-2"></i> Save & Publish Edition`;
+      }
+    });
+  </script>
+</body>
+</html>
